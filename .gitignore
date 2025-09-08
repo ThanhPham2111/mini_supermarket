@@ -1,0 +1,20 @@
+# Ignore Visual Studio temporary files
+*.suo
+*.user
+*.sln.docstates
+.vs/
+
+# Ignore build output
+bin/
+obj/
+
+# Ignore NuGet packages
+packages/
+
+# Ignore project-specific files
+*.csproj.user
+*.cache
+
+# Ignore local configuration files
+appsettings.Development.json
+appsettings.local.json
