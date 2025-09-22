@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
+using mini_supermarket.DB;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -23,11 +24,10 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                string connectionString = @"Data Source=.\sqlexpress;Initial Catalog=project_c;Integrated Security=True;Encrypt=False";
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
                 {
                     connection.Open();
-                    // Ưu tiên đúng bảng theo DB của bạn
+                    // Uu ti�n d�ng b?ng theo DB c?a b?n
                     string[] queries = new[]
                     {
                         "SELECT MaTaiKhoan, TenDangNhap, MatKhau, MaNhanVien, MaQuyen, TrangThai FROM dbo.Tbl_TaiKhoan",
@@ -53,16 +53,16 @@ namespace mini_supermarket.GUI.Form_BanHang
                         }
                         catch (SqlException)
                         {
-                            // Thử query tiếp theo
+                            // Th? query ti?p theo
                         }
                     }
 
-                    throw new Exception("Không tìm thấy bảng tài khoản: hãy kiểm tra dbo.Tbl_TaiKhoan/TaiKhoan/Account.");
+                    throw new Exception("Kh�ng t�m th?y b?ng t�i kho?n: h�y ki?m tra dbo.Tbl_TaiKhoan/TaiKhoan/Account.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi kết nối CSDL: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"L?i k?t n?i CSDL: {ex.Message}", "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
 
@@ -74,3 +74,5 @@ namespace mini_supermarket.GUI.Form_BanHang
         }
     }
 }
+
+

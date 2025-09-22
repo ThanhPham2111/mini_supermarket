@@ -1,0 +1,20 @@
+namespace mini_supermarket.DTO
+{
+    public class LoaiDTO
+    {
+        public int MaLoai { get; set; }
+        public string? TenLoai { get; set; }
+        public string? MoTa { get; set; }
+
+        public LoaiDTO()
+        {
+        }
+
+        public LoaiDTO(int maLoai, string? tenLoai, string? moTa)
+        {
+            MaLoai = maLoai;
+            TenLoai = tenLoai;
+            MoTa = moTa;
+        }
+    }
+}
