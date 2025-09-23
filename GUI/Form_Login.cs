@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using mini_supermarket.GUI.Form_BanHang;
+using mini_supermarket.GUI.SideBar;
 
 namespace mini_supermarket.GUI
 {
@@ -16,7 +16,7 @@ namespace mini_supermarket.GUI
         public Form_Login()
         {
             InitializeComponent();
-            // Đặt kích thước form và khóa resize ở đây
+            // Keep login window centered and non-resizable
             this.ClientSize = new System.Drawing.Size(1440, 900);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -26,27 +26,34 @@ namespace mini_supermarket.GUI
 
         private void Form_Login_Load(object sender, EventArgs e)
         {
-
         }
 
         private void panel2_Paint(object sender, PaintEventArgs e)
         {
-
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-
         }
 
         private void Login_btn_Click(object sender, EventArgs e)
         {
             this.Hide();
-            using (Form_banHang banHangForm = new Form_banHang())
+            using (Form_Sidebar sidebarForm = new Form_Sidebar())
             {
-                banHangForm.ShowDialog();
+                sidebarForm.ShowDialog();
             }
             this.Close();
+        }
+
+        private void taiKhoan_lbl_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void taiKhoan_txb_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

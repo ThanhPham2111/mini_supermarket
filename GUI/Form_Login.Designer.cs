@@ -142,6 +142,7 @@
             taiKhoan_txb.Name = "taiKhoan_txb";
             taiKhoan_txb.Size = new Size(473, 27);
             taiKhoan_txb.TabIndex = 1;
+            taiKhoan_txb.TextChanged += taiKhoan_txb_TextChanged;
             // 
             // taiKhoan_lbl
             // 
@@ -152,6 +153,7 @@
             taiKhoan_lbl.Size = new Size(117, 31);
             taiKhoan_lbl.TabIndex = 0;
             taiKhoan_lbl.Text = "Tài khoản";
+            taiKhoan_lbl.Click += taiKhoan_lbl_Click;
             // 
             // panel5
             // 
