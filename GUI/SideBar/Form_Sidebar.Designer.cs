@@ -130,7 +130,7 @@
             this.navNhanVienButton.Text = "Nhân Viên";
             this.navNhanVienButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navNhanVienButton.UseVisualStyleBackColor = false;
-            this.navNhanVienButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navNhanVienButton.Click += new System.EventHandler(this.navNhanVienButton_Click);
             // 
             // navKhachHangButton
             // 
@@ -400,3 +400,6 @@
         private System.Windows.Forms.Button navTrangChuButton;
     }
 }
+
+
+
