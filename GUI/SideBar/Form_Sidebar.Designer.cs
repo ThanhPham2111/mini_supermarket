@@ -1,4 +1,4 @@
-namespace mini_supermarket.GUI.SideBar
+﻿namespace mini_supermarket.GUI.SideBar
 {
     partial class Form_Sidebar
     {
@@ -29,9 +29,17 @@ namespace mini_supermarket.GUI.SideBar
         private void InitializeComponent()
         {
             this.sidebarPanel = new System.Windows.Forms.Panel();
-            this.navButton3 = new System.Windows.Forms.Button();
-            this.navButton2 = new System.Windows.Forms.Button();
-            this.navButton1 = new System.Windows.Forms.Button();
+            this.navTaiKhoanButton = new System.Windows.Forms.Button();
+            this.navNhaCungCapButton = new System.Windows.Forms.Button();
+            this.navNhanVienButton = new System.Windows.Forms.Button();
+            this.navKhachHangButton = new System.Windows.Forms.Button();
+            this.navKhuyenMaiButton = new System.Windows.Forms.Button();
+            this.navLoaiSanPhamButton = new System.Windows.Forms.Button();
+            this.navSanPhamButton = new System.Windows.Forms.Button();
+            this.navPhieuNhapButton = new System.Windows.Forms.Button();
+            this.navHoaDonButton = new System.Windows.Forms.Button();
+            this.navBanHangButton = new System.Windows.Forms.Button();
+            this.navTrangChuButton = new System.Windows.Forms.Button();
             this.logoPanel = new System.Windows.Forms.Panel();
             this.logoLabel = new System.Windows.Forms.Label();
             this.mainContentPanel = new System.Windows.Forms.Panel();
@@ -47,9 +55,17 @@ namespace mini_supermarket.GUI.SideBar
             // sidebarPanel
             // 
             this.sidebarPanel.BackColor = System.Drawing.Color.FromArgb(33, 37, 41);
-            this.sidebarPanel.Controls.Add(this.navButton3);
-            this.sidebarPanel.Controls.Add(this.navButton2);
-            this.sidebarPanel.Controls.Add(this.navButton1);
+            this.sidebarPanel.Controls.Add(this.navTaiKhoanButton);
+            this.sidebarPanel.Controls.Add(this.navNhaCungCapButton);
+            this.sidebarPanel.Controls.Add(this.navNhanVienButton);
+            this.sidebarPanel.Controls.Add(this.navKhachHangButton);
+            this.sidebarPanel.Controls.Add(this.navKhuyenMaiButton);
+            this.sidebarPanel.Controls.Add(this.navLoaiSanPhamButton);
+            this.sidebarPanel.Controls.Add(this.navSanPhamButton);
+            this.sidebarPanel.Controls.Add(this.navPhieuNhapButton);
+            this.sidebarPanel.Controls.Add(this.navHoaDonButton);
+            this.sidebarPanel.Controls.Add(this.navBanHangButton);
+            this.sidebarPanel.Controls.Add(this.navTrangChuButton);
             this.sidebarPanel.Controls.Add(this.logoPanel);
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.sidebarPanel.Location = new System.Drawing.Point(0, 0);
@@ -59,71 +75,223 @@ namespace mini_supermarket.GUI.SideBar
             this.sidebarPanel.Size = new System.Drawing.Size(220, 900);
             this.sidebarPanel.TabIndex = 0;
             // 
-            // navButton3
+            // navTaiKhoanButton
             // 
-            this.navButton3.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
-            this.navButton3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.navButton3.FlatAppearance.BorderSize = 0;
-            this.navButton3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.navButton3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.navButton3.ForeColor = System.Drawing.Color.White;
-            this.navButton3.Location = new System.Drawing.Point(0, 274);
-            this.navButton3.Margin = new System.Windows.Forms.Padding(0);
-            this.navButton3.Name = "navButton3";
-            this.navButton3.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
-            this.navButton3.Size = new System.Drawing.Size(220, 50);
-            this.navButton3.TabIndex = 3;
-            this.navButton3.Text = "Bao cao";
-            this.navButton3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.navButton3.UseVisualStyleBackColor = false;
-            this.navButton3.Click += new System.EventHandler(this.navButton3_Click);
+            this.navTaiKhoanButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navTaiKhoanButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navTaiKhoanButton.FlatAppearance.BorderSize = 0;
+            this.navTaiKhoanButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navTaiKhoanButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navTaiKhoanButton.ForeColor = System.Drawing.Color.White;
+            this.navTaiKhoanButton.Location = new System.Drawing.Point(0, 674);
+            this.navTaiKhoanButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navTaiKhoanButton.Name = "navTaiKhoanButton";
+            this.navTaiKhoanButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navTaiKhoanButton.Size = new System.Drawing.Size(220, 50);
+            this.navTaiKhoanButton.TabIndex = 11;
+            this.navTaiKhoanButton.Text = "Tài Khoản";
+            this.navTaiKhoanButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navTaiKhoanButton.UseVisualStyleBackColor = false;
+            this.navTaiKhoanButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
             // 
-            // navButton2
+            // navNhaCungCapButton
             // 
-            this.navButton2.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
-            this.navButton2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.navButton2.FlatAppearance.BorderSize = 0;
-            this.navButton2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.navButton2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.navButton2.ForeColor = System.Drawing.Color.White;
-            this.navButton2.Location = new System.Drawing.Point(0, 224);
-            this.navButton2.Margin = new System.Windows.Forms.Padding(0);
-            this.navButton2.Name = "navButton2";
-            this.navButton2.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
-            this.navButton2.Size = new System.Drawing.Size(220, 50);
-            this.navButton2.TabIndex = 2;
-            this.navButton2.Text = "Quan ly san pham";
-            this.navButton2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.navButton2.UseVisualStyleBackColor = false;
-            this.navButton2.Click += new System.EventHandler(this.navButton2_Click);
+            this.navNhaCungCapButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navNhaCungCapButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navNhaCungCapButton.FlatAppearance.BorderSize = 0;
+            this.navNhaCungCapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navNhaCungCapButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navNhaCungCapButton.ForeColor = System.Drawing.Color.White;
+            this.navNhaCungCapButton.Location = new System.Drawing.Point(0, 624);
+            this.navNhaCungCapButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navNhaCungCapButton.Name = "navNhaCungCapButton";
+            this.navNhaCungCapButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navNhaCungCapButton.Size = new System.Drawing.Size(220, 50);
+            this.navNhaCungCapButton.TabIndex = 10;
+            this.navNhaCungCapButton.Text = "Nhà Cung Cấp";
+            this.navNhaCungCapButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navNhaCungCapButton.UseVisualStyleBackColor = false;
+            this.navNhaCungCapButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
             // 
-            // navButton1
+            // navNhanVienButton
             // 
-            this.navButton1.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
-            this.navButton1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.navButton1.FlatAppearance.BorderSize = 0;
-            this.navButton1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.navButton1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.navButton1.ForeColor = System.Drawing.Color.White;
-            this.navButton1.Location = new System.Drawing.Point(0, 174);
-            this.navButton1.Margin = new System.Windows.Forms.Padding(0);
-            this.navButton1.Name = "navButton1";
-            this.navButton1.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
-            this.navButton1.Size = new System.Drawing.Size(220, 50);
-            this.navButton1.TabIndex = 1;
-            this.navButton1.Text = "Ban hang";
-            this.navButton1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.navButton1.UseVisualStyleBackColor = false;
-            this.navButton1.Click += new System.EventHandler(this.navButton1_Click);
+            this.navNhanVienButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navNhanVienButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navNhanVienButton.FlatAppearance.BorderSize = 0;
+            this.navNhanVienButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navNhanVienButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navNhanVienButton.ForeColor = System.Drawing.Color.White;
+            this.navNhanVienButton.Location = new System.Drawing.Point(0, 574);
+            this.navNhanVienButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navNhanVienButton.Name = "navNhanVienButton";
+            this.navNhanVienButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navNhanVienButton.Size = new System.Drawing.Size(220, 50);
+            this.navNhanVienButton.TabIndex = 9;
+            this.navNhanVienButton.Text = "Nhân Viên";
+            this.navNhanVienButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navNhanVienButton.UseVisualStyleBackColor = false;
+            this.navNhanVienButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navKhachHangButton
+            // 
+            this.navKhachHangButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navKhachHangButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navKhachHangButton.FlatAppearance.BorderSize = 0;
+            this.navKhachHangButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navKhachHangButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navKhachHangButton.ForeColor = System.Drawing.Color.White;
+            this.navKhachHangButton.Location = new System.Drawing.Point(0, 524);
+            this.navKhachHangButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navKhachHangButton.Name = "navKhachHangButton";
+            this.navKhachHangButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navKhachHangButton.Size = new System.Drawing.Size(220, 50);
+            this.navKhachHangButton.TabIndex = 8;
+            this.navKhachHangButton.Text = "Khách Hàng";
+            this.navKhachHangButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navKhachHangButton.UseVisualStyleBackColor = false;
+            this.navKhachHangButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navKhuyenMaiButton
+            // 
+            this.navKhuyenMaiButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navKhuyenMaiButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navKhuyenMaiButton.FlatAppearance.BorderSize = 0;
+            this.navKhuyenMaiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navKhuyenMaiButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navKhuyenMaiButton.ForeColor = System.Drawing.Color.White;
+            this.navKhuyenMaiButton.Location = new System.Drawing.Point(0, 474);
+            this.navKhuyenMaiButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navKhuyenMaiButton.Name = "navKhuyenMaiButton";
+            this.navKhuyenMaiButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navKhuyenMaiButton.Size = new System.Drawing.Size(220, 50);
+            this.navKhuyenMaiButton.TabIndex = 7;
+            this.navKhuyenMaiButton.Text = "Khuyến Mãi";
+            this.navKhuyenMaiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navKhuyenMaiButton.UseVisualStyleBackColor = false;
+            this.navKhuyenMaiButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navLoaiSanPhamButton
+            // 
+            this.navLoaiSanPhamButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navLoaiSanPhamButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navLoaiSanPhamButton.FlatAppearance.BorderSize = 0;
+            this.navLoaiSanPhamButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navLoaiSanPhamButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navLoaiSanPhamButton.ForeColor = System.Drawing.Color.White;
+            this.navLoaiSanPhamButton.Location = new System.Drawing.Point(0, 424);
+            this.navLoaiSanPhamButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navLoaiSanPhamButton.Name = "navLoaiSanPhamButton";
+            this.navLoaiSanPhamButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navLoaiSanPhamButton.Size = new System.Drawing.Size(220, 50);
+            this.navLoaiSanPhamButton.TabIndex = 6;
+            this.navLoaiSanPhamButton.Text = "Loại Sản Phẩm";
+            this.navLoaiSanPhamButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navLoaiSanPhamButton.UseVisualStyleBackColor = false;
+            this.navLoaiSanPhamButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navSanPhamButton
+            // 
+            this.navSanPhamButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navSanPhamButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navSanPhamButton.FlatAppearance.BorderSize = 0;
+            this.navSanPhamButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navSanPhamButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navSanPhamButton.ForeColor = System.Drawing.Color.White;
+            this.navSanPhamButton.Location = new System.Drawing.Point(0, 374);
+            this.navSanPhamButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navSanPhamButton.Name = "navSanPhamButton";
+            this.navSanPhamButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navSanPhamButton.Size = new System.Drawing.Size(220, 50);
+            this.navSanPhamButton.TabIndex = 5;
+            this.navSanPhamButton.Text = "Sản Phẩm";
+            this.navSanPhamButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navSanPhamButton.UseVisualStyleBackColor = false;
+            this.navSanPhamButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navPhieuNhapButton
+            // 
+            this.navPhieuNhapButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navPhieuNhapButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navPhieuNhapButton.FlatAppearance.BorderSize = 0;
+            this.navPhieuNhapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navPhieuNhapButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navPhieuNhapButton.ForeColor = System.Drawing.Color.White;
+            this.navPhieuNhapButton.Location = new System.Drawing.Point(0, 324);
+            this.navPhieuNhapButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navPhieuNhapButton.Name = "navPhieuNhapButton";
+            this.navPhieuNhapButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navPhieuNhapButton.Size = new System.Drawing.Size(220, 50);
+            this.navPhieuNhapButton.TabIndex = 4;
+            this.navPhieuNhapButton.Text = "Phiếu Nhập";
+            this.navPhieuNhapButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navPhieuNhapButton.UseVisualStyleBackColor = false;
+            this.navPhieuNhapButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navHoaDonButton
+            // 
+            this.navHoaDonButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navHoaDonButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navHoaDonButton.FlatAppearance.BorderSize = 0;
+            this.navHoaDonButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navHoaDonButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navHoaDonButton.ForeColor = System.Drawing.Color.White;
+            this.navHoaDonButton.Location = new System.Drawing.Point(0, 274);
+            this.navHoaDonButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navHoaDonButton.Name = "navHoaDonButton";
+            this.navHoaDonButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navHoaDonButton.Size = new System.Drawing.Size(220, 50);
+            this.navHoaDonButton.TabIndex = 3;
+            this.navHoaDonButton.Text = "Hoá Đơn";
+            this.navHoaDonButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navHoaDonButton.UseVisualStyleBackColor = false;
+            this.navHoaDonButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            // 
+            // navBanHangButton
+            // 
+            this.navBanHangButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navBanHangButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navBanHangButton.FlatAppearance.BorderSize = 0;
+            this.navBanHangButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navBanHangButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navBanHangButton.ForeColor = System.Drawing.Color.White;
+            this.navBanHangButton.Location = new System.Drawing.Point(0, 224);
+            this.navBanHangButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navBanHangButton.Name = "navBanHangButton";
+            this.navBanHangButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navBanHangButton.Size = new System.Drawing.Size(220, 50);
+            this.navBanHangButton.TabIndex = 2;
+            this.navBanHangButton.Text = "Bán Hàng";
+            this.navBanHangButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navBanHangButton.UseVisualStyleBackColor = false;
+            this.navBanHangButton.Click += new System.EventHandler(this.navBanHangButton_Click);
+            // 
+            // navTrangChuButton
+            // 
+            this.navTrangChuButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navTrangChuButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navTrangChuButton.FlatAppearance.BorderSize = 0;
+            this.navTrangChuButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navTrangChuButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navTrangChuButton.ForeColor = System.Drawing.Color.White;
+            this.navTrangChuButton.Location = new System.Drawing.Point(0, 174);
+            this.navTrangChuButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navTrangChuButton.Name = "navTrangChuButton";
+            this.navTrangChuButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navTrangChuButton.Size = new System.Drawing.Size(220, 50);
+            this.navTrangChuButton.TabIndex = 1;
+            this.navTrangChuButton.Text = "Trang Chủ";
+            this.navTrangChuButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navTrangChuButton.UseVisualStyleBackColor = false;
+            this.navTrangChuButton.Click += new System.EventHandler(this.navTrangChuButton_Click);
             // 
             // logoPanel
             // 
+            this.logoPanel.BackColor = System.Drawing.Color.FromArgb(33, 37, 41);
             this.logoPanel.Controls.Add(this.logoLabel);
             this.logoPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.logoPanel.Location = new System.Drawing.Point(0, 24);
             this.logoPanel.Margin = new System.Windows.Forms.Padding(0);
             this.logoPanel.Name = "logoPanel";
-            this.logoPanel.Padding = new System.Windows.Forms.Padding(0, 16, 0, 16);
             this.logoPanel.Size = new System.Drawing.Size(220, 150);
             this.logoPanel.TabIndex = 0;
             // 
@@ -132,9 +300,9 @@ namespace mini_supermarket.GUI.SideBar
             this.logoLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.logoLabel.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.logoLabel.ForeColor = System.Drawing.Color.White;
-            this.logoLabel.Location = new System.Drawing.Point(0, 16);
+            this.logoLabel.Location = new System.Drawing.Point(0, 0);
             this.logoLabel.Name = "logoLabel";
-            this.logoLabel.Size = new System.Drawing.Size(220, 118);
+            this.logoLabel.Size = new System.Drawing.Size(220, 150);
             this.logoLabel.TabIndex = 0;
             this.logoLabel.Text = "Mini Market";
             this.logoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -184,7 +352,7 @@ namespace mini_supermarket.GUI.SideBar
             this.mainTitleLabel.Name = "mainTitleLabel";
             this.mainTitleLabel.Size = new System.Drawing.Size(1172, 50);
             this.mainTitleLabel.TabIndex = 0;
-            this.mainTitleLabel.Text = "Ban hang";
+            this.mainTitleLabel.Text = "Trang Chủ";
             this.mainTitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // Form_Sidebar
@@ -213,14 +381,22 @@ namespace mini_supermarket.GUI.SideBar
         #endregion
 
         private System.Windows.Forms.Panel sidebarPanel;
-        private System.Windows.Forms.Button navButton3;
-        private System.Windows.Forms.Button navButton2;
-        private System.Windows.Forms.Button navButton1;
         private System.Windows.Forms.Panel logoPanel;
         private System.Windows.Forms.Label logoLabel;
         private System.Windows.Forms.Panel mainContentPanel;
         private System.Windows.Forms.Panel headerPanel;
         private System.Windows.Forms.Label mainTitleLabel;
         private System.Windows.Forms.Panel contentHostPanel;
+        private System.Windows.Forms.Button navTaiKhoanButton;
+        private System.Windows.Forms.Button navNhaCungCapButton;
+        private System.Windows.Forms.Button navNhanVienButton;
+        private System.Windows.Forms.Button navKhachHangButton;
+        private System.Windows.Forms.Button navKhuyenMaiButton;
+        private System.Windows.Forms.Button navLoaiSanPhamButton;
+        private System.Windows.Forms.Button navSanPhamButton;
+        private System.Windows.Forms.Button navPhieuNhapButton;
+        private System.Windows.Forms.Button navHoaDonButton;
+        private System.Windows.Forms.Button navBanHangButton;
+        private System.Windows.Forms.Button navTrangChuButton;
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using mini_supermarket.GUI.Form_BanHang;
@@ -14,7 +14,7 @@ namespace mini_supermarket.GUI.SideBar
         {
             InitializeComponent();
             InitializeLayout();
-            ShowBanHang();
+            ShowTrangChu();
         }
 
         private void InitializeLayout()
@@ -26,25 +26,37 @@ namespace mini_supermarket.GUI.SideBar
             StartPosition = FormStartPosition.CenterScreen;
         }
 
-        private void navButton1_Click(object sender, EventArgs e)
+        private void navTrangChuButton_Click(object sender, EventArgs e)
+        {
+            ShowTrangChu();
+        }
+
+        private void navBanHangButton_Click(object sender, EventArgs e)
         {
             ShowBanHang();
         }
 
-        private void navButton2_Click(object sender, EventArgs e)
+        private void NavPlaceholderButton_Click(object sender, EventArgs e)
         {
-            ShowPlaceholder("Chuc nang dang cap nhat.", navButton2);
+            if (sender is not Button button)
+            {
+                return;
+            }
+
+            var message = $"Chức năng {button.Text.ToLowerInvariant()} đang được phát triển.";
+            ShowPlaceholder(message, button);
         }
 
-        private void navButton3_Click(object sender, EventArgs e)
+        private void ShowTrangChu()
         {
-            ShowPlaceholder("Bao cao se hien thi tai day.", navButton3);
+            const string welcomeMessage = "Chào mừng bạn đến với Mini Supermarket.";
+            ShowPlaceholder(welcomeMessage, navTrangChuButton);
         }
 
         private void ShowBanHang()
         {
-            SetActiveButton(navButton1);
-            mainTitleLabel.Text = navButton1.Text;
+            SetActiveButton(navBanHangButton);
+            mainTitleLabel.Text = navBanHangButton.Text;
 
             CloseActiveForm();
 

@@ -1,9 +1,9 @@
-namespace mini_supermarket.DTO
+﻿namespace mini_supermarket.DTO
 {
     public class ChiTietSanPhamDTO
     {
         public int MaChiTietSanPham { get; set; }
-        public int? MaSanPham { get; set; }
+        public int MaSanPham { get; set; }
         public string? ThuocTinh { get; set; }
         public string? DonVi { get; set; }
         public decimal? GiaNhap { get; set; }
@@ -15,7 +15,7 @@ namespace mini_supermarket.DTO
 
         public ChiTietSanPhamDTO(
             int maChiTietSanPham,
-            int? maSanPham,
+            int maSanPham,
             string? thuocTinh,
             string? donVi,
             decimal? giaNhap,

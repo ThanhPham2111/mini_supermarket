@@ -1,15 +1,15 @@
-using System;
+﻿using System;
 
 namespace mini_supermarket.DTO
 {
     public class SanPhamDTO
     {
         public int MaSanPham { get; set; }
-        public string? TenSanPham { get; set; }
+        public string TenSanPham { get; set; } = string.Empty;
         public string? DonVi { get; set; }
         public int? SoLuongTon { get; set; }
-        public int? MaThuongHieu { get; set; }
-        public int? MaLoai { get; set; }
+        public int MaThuongHieu { get; set; }
+        public int MaLoai { get; set; }
         public string? MoTa { get; set; }
         public decimal? GiaBan { get; set; }
         public string? HinhAnh { get; set; }
@@ -23,11 +23,11 @@ namespace mini_supermarket.DTO
 
         public SanPhamDTO(
             int maSanPham,
-            string? tenSanPham,
+            string tenSanPham,
             string? donVi,
             int? soLuongTon,
-            int? maThuongHieu,
-            int? maLoai,
+            int maThuongHieu,
+            int maLoai,
             string? moTa,
             decimal? giaBan,
             string? hinhAnh,

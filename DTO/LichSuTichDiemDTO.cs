@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 
 namespace mini_supermarket.DTO
 {
     public class LichSuTichDiemDTO
     {
         public int MaLichSuTichDiem { get; set; }
-        public int? MaKhachHang { get; set; }
+        public int MaKhachHang { get; set; }
         public int? MaHoaDon { get; set; }
         public int? DiemCong { get; set; }
         public int? DiemSuDung { get; set; }
@@ -18,7 +18,7 @@ namespace mini_supermarket.DTO
 
         public LichSuTichDiemDTO(
             int maLichSuTichDiem,
-            int? maKhachHang,
+            int maKhachHang,
             int? maHoaDon,
             int? diemCong,
             int? diemSuDung,

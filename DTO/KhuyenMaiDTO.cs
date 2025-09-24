@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 
 namespace mini_supermarket.DTO
 {
     public class KhuyenMaiDTO
     {
         public int MaKhuyenMai { get; set; }
-        public int? MaSanPham { get; set; }
+        public int MaSanPham { get; set; }
         public string? TenKhuyenMai { get; set; }
         public decimal? PhanTramGiamGia { get; set; }
         public DateTime? NgayBatDau { get; set; }
@@ -18,7 +18,7 @@ namespace mini_supermarket.DTO
 
         public KhuyenMaiDTO(
             int maKhuyenMai,
-            int? maSanPham,
+            int maSanPham,
             string? tenKhuyenMai,
             decimal? phanTramGiamGia,
             DateTime? ngayBatDau,

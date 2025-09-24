@@ -1,12 +1,12 @@
-namespace mini_supermarket.DTO
+﻿namespace mini_supermarket.DTO
 {
     public class TaiKhoanDTO
     {
         public int MaTaiKhoan { get; set; }
-        public string? TenDangNhap { get; set; }
-        public string? MatKhau { get; set; }
-        public int? MaNhanVien { get; set; }
-        public int? MaQuyen { get; set; }
+        public string TenDangNhap { get; set; } = string.Empty;
+        public string MatKhau { get; set; } = string.Empty;
+        public int MaNhanVien { get; set; }
+        public int MaQuyen { get; set; }
         public string? TrangThai { get; set; }
 
         public TaiKhoanDTO()
@@ -15,10 +15,10 @@ namespace mini_supermarket.DTO
 
         public TaiKhoanDTO(
             int maTaiKhoan,
-            string? tenDangNhap,
-            string? matKhau,
-            int? maNhanVien,
-            int? maQuyen,
+            string tenDangNhap,
+            string matKhau,
+            int maNhanVien,
+            int maQuyen,
             string? trangThai)
         {
             MaTaiKhoan = maTaiKhoan;

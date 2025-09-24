@@ -1,9 +1,9 @@
-namespace mini_supermarket.DTO
+﻿namespace mini_supermarket.DTO
 {
     public class NhaCungCapDTO
     {
         public int MaNhaCungCap { get; set; }
-        public string? TenNhaCungCap { get; set; }
+        public string TenNhaCungCap { get; set; } = string.Empty;
         public string? DiaChi { get; set; }
         public string? SoDienThoai { get; set; }
         public string? Email { get; set; }
@@ -15,7 +15,7 @@ namespace mini_supermarket.DTO
 
         public NhaCungCapDTO(
             int maNhaCungCap,
-            string? tenNhaCungCap,
+            string tenNhaCungCap,
             string? diaChi,
             string? soDienThoai,
             string? email,
