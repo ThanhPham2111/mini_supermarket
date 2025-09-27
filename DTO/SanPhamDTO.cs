@@ -15,6 +15,8 @@ namespace mini_supermarket.DTO
         public string? XuatXu { get; set; }
         public DateTime? Hsd { get; set; }
         public string? TrangThai { get; set; }
+        public string? TenLoai { get; set; } // New property for Category Name
+        public string? TenThuongHieu { get; set; } // New property for Brand Name
 
         public SanPhamDTO()
         {
@@ -31,7 +33,9 @@ namespace mini_supermarket.DTO
             string? hinhAnh,
             string? xuatXu,
             DateTime? hsd,
-            string? trangThai)
+            string? trangThai,
+            string? tenLoai,
+            string? tenThuongHieu)
         {
             MaSanPham = maSanPham;
             TenSanPham = tenSanPham;
@@ -44,6 +48,8 @@ namespace mini_supermarket.DTO
             XuatXu = xuatXu;
             Hsd = hsd;
             TrangThai = trangThai;
+            TenLoai = tenLoai;
+            TenThuongHieu = tenThuongHieu;
         }
     }
 }

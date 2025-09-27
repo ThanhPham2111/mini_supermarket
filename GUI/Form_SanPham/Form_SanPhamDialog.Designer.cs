@@ -182,7 +182,7 @@
             maThuongHieuLabel.Name = "maThuongHieuLabel";
             maThuongHieuLabel.Size = new System.Drawing.Size(115, 20);
             maThuongHieuLabel.TabIndex = 6;
-            maThuongHieuLabel.Text = "Mã thương hiệu";
+            maThuongHieuLabel.Text = "Tên thương hiệu";
 
             // maThuongHieuTextBox
             maThuongHieuTextBox.Location = new System.Drawing.Point(150, 138);
@@ -198,7 +198,7 @@
             maLoaiLabel.Name = "maLoaiLabel";
             maLoaiLabel.Size = new System.Drawing.Size(60, 20);
             maLoaiLabel.TabIndex = 10;
-            maLoaiLabel.Text = "Mã loại";
+            maLoaiLabel.Text = "Tên loại";
 
             // maLoaiComboBox
             maLoaiComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;

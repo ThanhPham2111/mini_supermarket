@@ -28,8 +28,8 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             PopulateComboBox(donViComboBox, _sanPham.DonVi);
 
-            maThuongHieuTextBox.Text = _sanPham.MaThuongHieu.ToString(CultureInfo.InvariantCulture);
-            PopulateComboBox(maLoaiComboBox, _sanPham.MaLoai.ToString(CultureInfo.InvariantCulture));
+            maThuongHieuTextBox.Text = _sanPham.TenThuongHieu ?? string.Empty; // Hiển thị Tên thương hiệu
+            PopulateComboBox(maLoaiComboBox, _sanPham.TenLoai ?? string.Empty); // Hiển thị Tên loại
 
             giaBanTextBox.Text = _sanPham.GiaBan.HasValue
                 ? _sanPham.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture)

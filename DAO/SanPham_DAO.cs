@@ -15,19 +15,22 @@ namespace mini_supermarket.DAO
 
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"SELECT MaSanPham, TenSanPham, DonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, XuatXu, Hsd, TrangThai
-                                     FROM dbo.Tbl_SanPham";
+            command.CommandText = @"SELECT sp.MaSanPham, sp.TenSanPham, sp.DonVi, sp.MaThuongHieu, sp.MaLoai, sp.MoTa, sp.GiaBan, sp.XuatXu, sp.Hsd, sp.TrangThai,
+                                          l.TenLoai, th.TenThuongHieu
+                                   FROM dbo.Tbl_SanPham sp
+                                   LEFT JOIN dbo.Tbl_Loai l ON sp.MaLoai = l.MaLoai
+                                   LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu";
 
             if (!string.IsNullOrWhiteSpace(trangThaiFilter))
             {
-                command.CommandText += " WHERE TrangThai = @TrangThai";
+                command.CommandText += " WHERE sp.TrangThai = @TrangThai";
                 command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
                 {
                     Value = trangThaiFilter
                 });
             }
 
-            command.CommandText += " ORDER BY MaSanPham";
+            command.CommandText += " ORDER BY sp.MaSanPham";
 
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -43,6 +46,8 @@ namespace mini_supermarket.DAO
                 int xuatXuIndex = reader.GetOrdinal("XuatXu");
                 int hsdIndex = reader.GetOrdinal("Hsd");
                 int trangThaiIndex = reader.GetOrdinal("TrangThai");
+                int tenLoaiIndex = reader.GetOrdinal("TenLoai");
+                int tenThuongHieuIndex = reader.GetOrdinal("TenThuongHieu");
 
                 var sanPham = new SanPhamDTO
                 {
@@ -55,7 +60,9 @@ namespace mini_supermarket.DAO
                     GiaBan = reader.IsDBNull(giaBanIndex) ? null : reader.GetDecimal(giaBanIndex),
                     XuatXu = reader.IsDBNull(xuatXuIndex) ? null : reader.GetString(xuatXuIndex),
                     Hsd = reader.IsDBNull(hsdIndex) ? null : reader.GetDateTime(hsdIndex),
-                    TrangThai = reader.IsDBNull(trangThaiIndex) ? null : reader.GetString(trangThaiIndex)
+                    TrangThai = reader.IsDBNull(trangThaiIndex) ? null : reader.GetString(trangThaiIndex),
+                    TenLoai = reader.IsDBNull(tenLoaiIndex) ? null : reader.GetString(tenLoaiIndex),
+                    TenThuongHieu = reader.IsDBNull(tenThuongHieuIndex) ? null : reader.GetString(tenThuongHieuIndex)
                 };
 
                 sanPhamList.Add(sanPham);
