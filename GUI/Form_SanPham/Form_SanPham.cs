@@ -10,7 +10,7 @@ namespace mini_supermarket.GUI.Form_SanPham
 {
     public partial class Form_SanPham : Form
     {
-        private const string StatusAll = "Tất cả";
+        private const string StatusAll = "Tat ca";
 
         private readonly SanPham_BUS _sanPhamBus = new();
         private readonly BindingSource _bindingSource = new();
@@ -31,25 +31,26 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             sanPhamDataGridView.AutoGenerateColumns = false;
             sanPhamDataGridView.DataSource = _bindingSource;
-            sanPhamDataGridView.CellClick += sanPhamDataGridView_CellClick;
+            sanPhamDataGridView.SelectionChanged += SanPhamDataGridView_SelectionChanged;
 
             var toolTip = new ToolTip();
-            toolTip.SetToolTip(xemChiTietButton, "Xem chi tiết sản phẩm đã chọn");
-            toolTip.SetToolTip(themButton, "Thêm sản phẩm mới");
-            toolTip.SetToolTip(suaButton, "Sửa thông tin sản phẩm đã chọn");
-            toolTip.SetToolTip(xoaButton, "Khóa sản phẩm đã chọn");
-            toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
-            toolTip.SetToolTip(searchButton, "Tìm kiếm sản phẩm");
+            toolTip.SetToolTip(xemChiTietButton, "Xem chi tiet san pham da chon");
+            toolTip.SetToolTip(themButton, "Them san pham moi");
+            toolTip.SetToolTip(suaButton, "Sua thong tin san pham da chon");
+            toolTip.SetToolTip(xoaButton, "Xoa san pham da chon");
+            toolTip.SetToolTip(lamMoiButton, "Lam moi danh sach");
+            toolTip.SetToolTip(searchButton, "Tim kiem san pham");
+
 
             searchButton.Click += (_, _) => ApplyFilters();
             searchTextBox.TextChanged += (_, _) => ApplyFilters();
             lamMoiButton.Click += lamMoiButton_Click;
+            xemChiTietButton.Click += xemChiTietButton_Click;
 
             InitializeStatusFilter();
             statusFilterComboBox.SelectedIndexChanged += statusFilterComboBox_SelectedIndexChanged;
 
             themButton.Enabled = true;
-            lamMoiButton.Enabled = true;
             suaButton.Enabled = false;
             xoaButton.Enabled = false;
             xemChiTietButton.Enabled = false;
@@ -57,33 +58,19 @@ namespace mini_supermarket.GUI.Form_SanPham
             LoadSanPhamData();
         }
 
-        private void sanPhamDataGridView_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0) // Ensure it's a data row, not a header
-            {
-                sanPhamDataGridView.ClearSelection();
-                sanPhamDataGridView.Rows[e.RowIndex].Selected = true;
-                // Enable buttons based on selection
-                suaButton.Enabled = true;
-                xoaButton.Enabled = true;
-                xemChiTietButton.Enabled = true;
-            }
-            else
-            {
-                // Clicking header or outside data rows, clear selection
-                sanPhamDataGridView.ClearSelection();
-                suaButton.Enabled = false;
-                xoaButton.Enabled = false;
-                xemChiTietButton.Enabled = false;
-            }
-        }
-
         private void InitializeStatusFilter()
         {
             statusFilterComboBox.Items.Clear();
             statusFilterComboBox.Items.Add(StatusAll);
-            statusFilterComboBox.Items.Add("Còn hàng");
-            statusFilterComboBox.Items.Add("Hết hàng");
+
+            foreach (var status in _sanPhamBus.GetAvailableStatuses())
+            {
+                if (!string.IsNullOrWhiteSpace(status))
+                {
+                    statusFilterComboBox.Items.Add(status);
+                }
+            }
+
             statusFilterComboBox.SelectedIndex = 0;
         }
 
@@ -96,7 +83,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể tải danh sách sản phẩm.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"Khong the tai danh sach san pham.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Loi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -140,6 +127,42 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             _bindingSource.DataSource = filtered.ToList();
             sanPhamDataGridView.ClearSelection();
+            UpdateActionButtonsState();
+        }
+
+        private void SanPhamDataGridView_SelectionChanged(object? sender, EventArgs e)
+        {
+            UpdateActionButtonsState();
+        }
+
+        private void UpdateActionButtonsState()
+        {
+            bool hasSelection = sanPhamDataGridView.SelectedRows.Count > 0;
+            xemChiTietButton.Enabled = hasSelection;
+            suaButton.Enabled = hasSelection;
+            xoaButton.Enabled = hasSelection;
+        }
+
+        private void xemChiTietButton_Click(object? sender, EventArgs e)
+        {
+            var selectedSanPham = GetSelectedSanPham();
+            if (selectedSanPham == null)
+            {
+                return;
+            }
+
+            using var dialog = new Form_SanPhamDialog(selectedSanPham);
+            dialog.ShowDialog(this);
+        }
+
+        private SanPhamDTO? GetSelectedSanPham()
+        {
+            if (sanPhamDataGridView.SelectedRows.Count == 0)
+            {
+                return null;
+            }
+
+            return sanPhamDataGridView.SelectedRows[0].DataBoundItem as SanPhamDTO;
         }
 
         private static bool MatchesSearch(SanPhamDTO sanPham, string searchText)

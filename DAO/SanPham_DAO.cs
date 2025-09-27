@@ -15,7 +15,7 @@ namespace mini_supermarket.DAO
 
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"SELECT MaSanPham, TenSanPham, DonVi, GiaBan, MaLoai, Hsd, TrangThai
+            command.CommandText = @"SELECT MaSanPham, TenSanPham, DonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, XuatXu, Hsd, TrangThai
                                      FROM dbo.Tbl_SanPham";
 
             if (!string.IsNullOrWhiteSpace(trangThaiFilter))
@@ -36,8 +36,11 @@ namespace mini_supermarket.DAO
                 int maSanPhamIndex = reader.GetOrdinal("MaSanPham");
                 int tenSanPhamIndex = reader.GetOrdinal("TenSanPham");
                 int donViIndex = reader.GetOrdinal("DonVi");
-                int giaBanIndex = reader.GetOrdinal("GiaBan");
+                int maThuongHieuIndex = reader.GetOrdinal("MaThuongHieu");
                 int maLoaiIndex = reader.GetOrdinal("MaLoai");
+                int moTaIndex = reader.GetOrdinal("MoTa");
+                int giaBanIndex = reader.GetOrdinal("GiaBan");
+                int xuatXuIndex = reader.GetOrdinal("XuatXu");
                 int hsdIndex = reader.GetOrdinal("Hsd");
                 int trangThaiIndex = reader.GetOrdinal("TrangThai");
 
@@ -46,8 +49,11 @@ namespace mini_supermarket.DAO
                     MaSanPham = reader.GetInt32(maSanPhamIndex),
                     TenSanPham = reader.IsDBNull(tenSanPhamIndex) ? string.Empty : reader.GetString(tenSanPhamIndex),
                     DonVi = reader.IsDBNull(donViIndex) ? null : reader.GetString(donViIndex),
-                    GiaBan = reader.IsDBNull(giaBanIndex) ? null : reader.GetDecimal(giaBanIndex),
+                    MaThuongHieu = reader.IsDBNull(maThuongHieuIndex) ? 0 : reader.GetInt32(maThuongHieuIndex),
                     MaLoai = reader.IsDBNull(maLoaiIndex) ? 0 : reader.GetInt32(maLoaiIndex),
+                    MoTa = reader.IsDBNull(moTaIndex) ? null : reader.GetString(moTaIndex),
+                    GiaBan = reader.IsDBNull(giaBanIndex) ? null : reader.GetDecimal(giaBanIndex),
+                    XuatXu = reader.IsDBNull(xuatXuIndex) ? null : reader.GetString(xuatXuIndex),
                     Hsd = reader.IsDBNull(hsdIndex) ? null : reader.GetDateTime(hsdIndex),
                     TrangThai = reader.IsDBNull(trangThaiIndex) ? null : reader.GetString(trangThaiIndex)
                 };
