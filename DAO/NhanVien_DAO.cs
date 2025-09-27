@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
@@ -46,6 +46,121 @@ namespace mini_supermarket.DAO
             }
 
             return nhanVienList;
+        }
+        public int GetMaxMaNhanVien()
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT ISNULL(MAX(MaNhanVien), 0) FROM dbo.Tbl_NhanVien";
+
+            connection.Open();
+            object? result = command.ExecuteScalar();
+            return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+
+        public int InsertNhanVien(NhanVienDTO nhanVien)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"INSERT INTO dbo.Tbl_NhanVien (TenNhanVien, GioiTinh, NgaySinh, SoDienThoai, VaiTro, TrangThai)
+                                     VALUES (@TenNhanVien, @GioiTinh, @NgaySinh, @SoDienThoai, @VaiTro, @TrangThai);
+                                     SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            AddNhanVienParameters(command, nhanVien, includeKey: false);
+
+            connection.Open();
+            object? result = command.ExecuteScalar();
+            if (result == null || result == DBNull.Value)
+            {
+                throw new InvalidOperationException("Khong the tao nhan vien moi.");
+            }
+
+            return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        public void UpdateNhanVien(NhanVienDTO nhanVien)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE dbo.Tbl_NhanVien
+                                     SET TenNhanVien = @TenNhanVien,
+                                         GioiTinh = @GioiTinh,
+                                         NgaySinh = @NgaySinh,
+                                         SoDienThoai = @SoDienThoai,
+                                         VaiTro = @VaiTro,
+                                         TrangThai = @TrangThai
+                                     WHERE MaNhanVien = @MaNhanVien";
+
+            AddNhanVienParameters(command, nhanVien, includeKey: true);
+
+            connection.Open();
+            int rowsAffected = command.ExecuteNonQuery();
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException("Khong tim thay nhan vien de cap nhat.");
+            }
+        }
+
+        public void DeleteNhanVien(int maNhanVien)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"DELETE FROM dbo.Tbl_NhanVien WHERE MaNhanVien = @MaNhanVien";
+            command.Parameters.Add(new SqlParameter("@MaNhanVien", SqlDbType.Int)
+            {
+                Value = maNhanVien
+            });
+
+            connection.Open();
+            int rowsAffected = command.ExecuteNonQuery();
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException("Khong tim thay nhan vien de xoa.");
+            }
+        }
+
+        private static void AddNhanVienParameters(SqlCommand command, NhanVienDTO nhanVien, bool includeKey)
+        {
+            command.Parameters.Clear();
+
+            if (includeKey)
+            {
+                command.Parameters.Add(new SqlParameter("@MaNhanVien", SqlDbType.Int)
+                {
+                    Value = nhanVien.MaNhanVien
+                });
+            }
+
+            command.Parameters.Add(new SqlParameter("@TenNhanVien", SqlDbType.NVarChar, 200)
+            {
+                Value = nhanVien.TenNhanVien
+            });
+
+            command.Parameters.Add(new SqlParameter("@GioiTinh", SqlDbType.NVarChar, 10)
+            {
+                Value = nhanVien.GioiTinh ?? (object)DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@NgaySinh", SqlDbType.Date)
+            {
+                Value = nhanVien.NgaySinh?.Date ?? (object)DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@SoDienThoai", SqlDbType.NVarChar, 20)
+            {
+                Value = nhanVien.SoDienThoai ?? (object)DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@VaiTro", SqlDbType.NVarChar, 100)
+            {
+                Value = nhanVien.VaiTro ?? (object)DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
+            {
+                Value = nhanVien.TrangThai ?? (object)DBNull.Value
+            });
         }
     }
 }

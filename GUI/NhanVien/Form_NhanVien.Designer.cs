@@ -79,13 +79,13 @@
             soDienThoaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             roleLabel = new System.Windows.Forms.Label();
+
             employeeInfoGroupBox.SuspendLayout();
             danhSachGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nhanVienDataGridView).BeginInit();
             SuspendLayout();
-            // 
+
             // employeeInfoGroupBox
-            // 
             employeeInfoGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             employeeInfoGroupBox.Controls.Add(statusFilterComboBox);
             employeeInfoGroupBox.Controls.Add(searchTextBox);
@@ -107,213 +107,203 @@
             employeeInfoGroupBox.Controls.Add(hoTenLabel);
             employeeInfoGroupBox.Controls.Add(maNhanVienTextBox);
             employeeInfoGroupBox.Controls.Add(maNhanVienLabel);
-            employeeInfoGroupBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            employeeInfoGroupBox.Location = new System.Drawing.Point(16, 48);
+            employeeInfoGroupBox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
+            employeeInfoGroupBox.Location = new System.Drawing.Point(20, 50);
             employeeInfoGroupBox.Name = "employeeInfoGroupBox";
-            employeeInfoGroupBox.Size = new System.Drawing.Size(1148, 232);
+            employeeInfoGroupBox.Size = new System.Drawing.Size(1140, 240);
             employeeInfoGroupBox.TabIndex = 0;
             employeeInfoGroupBox.TabStop = false;
             employeeInfoGroupBox.Text = "Thông tin nhân viên";
-            // 
+            employeeInfoGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+
             // statusFilterComboBox
-            // 
             statusFilterComboBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             statusFilterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             statusFilterComboBox.FormattingEnabled = true;
-            statusFilterComboBox.Location = new System.Drawing.Point(987, 210);
+            statusFilterComboBox.Location = new System.Drawing.Point(980, 200);
             statusFilterComboBox.Name = "statusFilterComboBox";
-            statusFilterComboBox.Size = new System.Drawing.Size(140, 23);
+            statusFilterComboBox.Size = new System.Drawing.Size(150, 28);
             statusFilterComboBox.TabIndex = 19;
-            // 
+
             // searchTextBox
-            // 
             searchTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            searchTextBox.Location = new System.Drawing.Point(120, 210);
+            searchTextBox.Location = new System.Drawing.Point(150, 200);
             searchTextBox.Name = "searchTextBox";
-            searchTextBox.PlaceholderText = "Tìm kiếm nhân viên theo tên, mã,...";
-            searchTextBox.Size = new System.Drawing.Size(861, 23);
+            searchTextBox.PlaceholderText = "Tìm kiếm theo mã, tên hoặc số điện thoại";
+            searchTextBox.Size = new System.Drawing.Size(824, 28);
             searchTextBox.TabIndex = 18;
-            // 
+
             // searchButton
-            // 
-            searchButton.Location = new System.Drawing.Point(20, 208);
+            searchButton.Location = new System.Drawing.Point(20, 200);
             searchButton.Name = "searchButton";
-            searchButton.Size = new System.Drawing.Size(90, 28);
+            searchButton.Size = new System.Drawing.Size(120, 30);
             searchButton.TabIndex = 17;
             searchButton.Text = "Tìm kiếm";
             searchButton.UseVisualStyleBackColor = true;
-            // 
+            searchButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            searchButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            searchButton.ForeColor = System.Drawing.Color.White;
+
             // lamMoiButton
-            // 
-            lamMoiButton.Enabled = false;
-            lamMoiButton.Location = new System.Drawing.Point(438, 168);
+            lamMoiButton.Location = new System.Drawing.Point(860, 150);
             lamMoiButton.Name = "lamMoiButton";
-            lamMoiButton.Size = new System.Drawing.Size(90, 32);
+            lamMoiButton.Size = new System.Drawing.Size(120, 30);
             lamMoiButton.TabIndex = 16;
             lamMoiButton.Text = "Làm mới";
             lamMoiButton.UseVisualStyleBackColor = true;
-            // 
+            lamMoiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            lamMoiButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            lamMoiButton.ForeColor = System.Drawing.Color.White;
+
             // xoaButton
-            // 
-            xoaButton.Enabled = false;
-            xoaButton.Location = new System.Drawing.Point(332, 168);
+            xoaButton.Location = new System.Drawing.Point(720, 150);
             xoaButton.Name = "xoaButton";
-            xoaButton.Size = new System.Drawing.Size(90, 32);
+            xoaButton.Size = new System.Drawing.Size(120, 30);
             xoaButton.TabIndex = 15;
             xoaButton.Text = "Xóa";
             xoaButton.UseVisualStyleBackColor = true;
-            // 
+            xoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            xoaButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77);
+            xoaButton.ForeColor = System.Drawing.Color.White;
+
             // suaButton
-            // 
-            suaButton.Enabled = false;
-            suaButton.Location = new System.Drawing.Point(226, 168);
+            suaButton.Location = new System.Drawing.Point(580, 150);
             suaButton.Name = "suaButton";
-            suaButton.Size = new System.Drawing.Size(90, 32);
+            suaButton.Size = new System.Drawing.Size(120, 30);
             suaButton.TabIndex = 14;
             suaButton.Text = "Sửa";
             suaButton.UseVisualStyleBackColor = true;
-            // 
+            suaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            suaButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            suaButton.ForeColor = System.Drawing.Color.White;
+
             // themButton
-            // 
-            themButton.Enabled = false;
-            themButton.Location = new System.Drawing.Point(120, 168);
+            themButton.Location = new System.Drawing.Point(440, 150);
             themButton.Name = "themButton";
-            themButton.Size = new System.Drawing.Size(90, 32);
+            themButton.Size = new System.Drawing.Size(120, 30);
             themButton.TabIndex = 13;
             themButton.Text = "Thêm";
             themButton.UseVisualStyleBackColor = true;
-            // 
+            themButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            themButton.ForeColor = System.Drawing.Color.White;
+
             // soDienThoaiTextBox
-            // 
-            soDienThoaiTextBox.Location = new System.Drawing.Point(480, 120);
+            soDienThoaiTextBox.Location = new System.Drawing.Point(650, 100);
             soDienThoaiTextBox.Name = "soDienThoaiTextBox";
-            soDienThoaiTextBox.Size = new System.Drawing.Size(280, 23);
+            soDienThoaiTextBox.Size = new System.Drawing.Size(250, 28);
             soDienThoaiTextBox.TabIndex = 12;
-            // 
+
             // soDienThoaiLabel
-            // 
             soDienThoaiLabel.AutoSize = true;
-            soDienThoaiLabel.Location = new System.Drawing.Point(360, 124);
+            soDienThoaiLabel.Location = new System.Drawing.Point(550, 104);
             soDienThoaiLabel.Name = "soDienThoaiLabel";
             soDienThoaiLabel.Size = new System.Drawing.Size(83, 15);
             soDienThoaiLabel.TabIndex = 11;
             soDienThoaiLabel.Text = "Số điện thoại";
-            // 
+
             // chucVuComboBox
-            // 
             chucVuComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             chucVuComboBox.FormattingEnabled = true;
-            chucVuComboBox.Location = new System.Drawing.Point(120, 120);
+            chucVuComboBox.Location = new System.Drawing.Point(150, 100);
             chucVuComboBox.Name = "chucVuComboBox";
-            chucVuComboBox.Size = new System.Drawing.Size(200, 23);
+            chucVuComboBox.Size = new System.Drawing.Size(250, 28);
             chucVuComboBox.TabIndex = 10;
-            // 
+
             // chucVuLabel
-            // 
             chucVuLabel.AutoSize = true;
-            chucVuLabel.Location = new System.Drawing.Point(20, 124);
+            chucVuLabel.Location = new System.Drawing.Point(20, 104);
             chucVuLabel.Name = "chucVuLabel";
             chucVuLabel.Size = new System.Drawing.Size(54, 15);
             chucVuLabel.TabIndex = 9;
             chucVuLabel.Text = "Chức vụ";
-            // 
+
             // gioiTinhNuRadioButton
-            // 
             gioiTinhNuRadioButton.AutoSize = true;
-            gioiTinhNuRadioButton.Location = new System.Drawing.Point(520, 78);
+            gioiTinhNuRadioButton.Location = new System.Drawing.Point(750, 60);
             gioiTinhNuRadioButton.Name = "gioiTinhNuRadioButton";
             gioiTinhNuRadioButton.Size = new System.Drawing.Size(41, 19);
             gioiTinhNuRadioButton.TabIndex = 8;
             gioiTinhNuRadioButton.TabStop = true;
             gioiTinhNuRadioButton.Text = "Nữ";
             gioiTinhNuRadioButton.UseVisualStyleBackColor = true;
-            // 
+
             // gioiTinhNamRadioButton
-            // 
             gioiTinhNamRadioButton.AutoSize = true;
-            gioiTinhNamRadioButton.Location = new System.Drawing.Point(440, 78);
+            gioiTinhNamRadioButton.Location = new System.Drawing.Point(650, 60);
             gioiTinhNamRadioButton.Name = "gioiTinhNamRadioButton";
             gioiTinhNamRadioButton.Size = new System.Drawing.Size(53, 19);
             gioiTinhNamRadioButton.TabIndex = 7;
             gioiTinhNamRadioButton.TabStop = true;
             gioiTinhNamRadioButton.Text = "Nam";
             gioiTinhNamRadioButton.UseVisualStyleBackColor = true;
-            // 
+
             // gioiTinhLabel
-            // 
             gioiTinhLabel.AutoSize = true;
-            gioiTinhLabel.Location = new System.Drawing.Point(360, 80);
+            gioiTinhLabel.Location = new System.Drawing.Point(550, 64);
             gioiTinhLabel.Name = "gioiTinhLabel";
             gioiTinhLabel.Size = new System.Drawing.Size(53, 15);
             gioiTinhLabel.TabIndex = 6;
             gioiTinhLabel.Text = "Giới tính";
-            // 
+
             // ngaySinhDateTimePicker
-            // 
             ngaySinhDateTimePicker.CustomFormat = "dd/MM/yyyy";
             ngaySinhDateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            ngaySinhDateTimePicker.Location = new System.Drawing.Point(120, 76);
+            ngaySinhDateTimePicker.Location = new System.Drawing.Point(150, 60);
             ngaySinhDateTimePicker.Name = "ngaySinhDateTimePicker";
-            ngaySinhDateTimePicker.Size = new System.Drawing.Size(200, 23);
+            ngaySinhDateTimePicker.Size = new System.Drawing.Size(250, 28);
             ngaySinhDateTimePicker.TabIndex = 5;
-            // 
+
             // ngaySinhLabel
-            // 
             ngaySinhLabel.AutoSize = true;
-            ngaySinhLabel.Location = new System.Drawing.Point(20, 80);
+            ngaySinhLabel.Location = new System.Drawing.Point(20, 64);
             ngaySinhLabel.Name = "ngaySinhLabel";
             ngaySinhLabel.Size = new System.Drawing.Size(65, 15);
             ngaySinhLabel.TabIndex = 4;
             ngaySinhLabel.Text = "Ngày sinh";
-            // 
+
             // hoTenTextBox
-            // 
-            hoTenTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            hoTenTextBox.Location = new System.Drawing.Point(440, 32);
+            hoTenTextBox.Location = new System.Drawing.Point(650, 20);
             hoTenTextBox.Name = "hoTenTextBox";
-            hoTenTextBox.Size = new System.Drawing.Size(320, 23);
+            hoTenTextBox.Size = new System.Drawing.Size(250, 28);
             hoTenTextBox.TabIndex = 3;
-            // 
+
             // hoTenLabel
-            // 
             hoTenLabel.AutoSize = true;
-            hoTenLabel.Location = new System.Drawing.Point(360, 36);
+            hoTenLabel.Location = new System.Drawing.Point(550, 24);
             hoTenLabel.Name = "hoTenLabel";
             hoTenLabel.Size = new System.Drawing.Size(46, 15);
             hoTenLabel.TabIndex = 2;
             hoTenLabel.Text = "Họ tên";
-            // 
+
             // maNhanVienTextBox
-            // 
-            maNhanVienTextBox.Location = new System.Drawing.Point(120, 32);
+            maNhanVienTextBox.Location = new System.Drawing.Point(150, 20);
             maNhanVienTextBox.Name = "maNhanVienTextBox";
             maNhanVienTextBox.ReadOnly = true;
-            maNhanVienTextBox.Size = new System.Drawing.Size(200, 23);
+            maNhanVienTextBox.Size = new System.Drawing.Size(250, 28);
             maNhanVienTextBox.TabIndex = 1;
-            // 
+
             // maNhanVienLabel
-            // 
             maNhanVienLabel.AutoSize = true;
-            maNhanVienLabel.Location = new System.Drawing.Point(20, 36);
+            maNhanVienLabel.Location = new System.Drawing.Point(20, 24);
             maNhanVienLabel.Name = "maNhanVienLabel";
             maNhanVienLabel.Size = new System.Drawing.Size(46, 15);
             maNhanVienLabel.TabIndex = 0;
             maNhanVienLabel.Text = "Mã NV";
-            // 
+
             // danhSachGroupBox
-            // 
             danhSachGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             danhSachGroupBox.Controls.Add(nhanVienDataGridView);
-            danhSachGroupBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            danhSachGroupBox.Location = new System.Drawing.Point(16, 296);
+            danhSachGroupBox.Font = new System.Drawing.Font("Segoe UI", 10F);
+            danhSachGroupBox.Location = new System.Drawing.Point(20, 300);
             danhSachGroupBox.Name = "danhSachGroupBox";
-            danhSachGroupBox.Size = new System.Drawing.Size(1148, 440);
+            danhSachGroupBox.Size = new System.Drawing.Size(1140, 440);
             danhSachGroupBox.TabIndex = 1;
             danhSachGroupBox.TabStop = false;
             danhSachGroupBox.Text = "Danh sách nhân viên";
-            // 
+            danhSachGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+
             // nhanVienDataGridView
-            // 
             nhanVienDataGridView.AllowUserToAddRows = false;
             nhanVienDataGridView.AllowUserToDeleteRows = false;
             nhanVienDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
@@ -336,35 +326,32 @@
             nhanVienDataGridView.Name = "nhanVienDataGridView";
             nhanVienDataGridView.ReadOnly = true;
             nhanVienDataGridView.RowHeadersVisible = false;
-            nhanVienDataGridView.RowTemplate.Height = 28;
+            nhanVienDataGridView.RowTemplate.Height = 30;
             nhanVienDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            nhanVienDataGridView.Size = new System.Drawing.Size(1142, 418);
+            nhanVienDataGridView.Size = new System.Drawing.Size(1134, 418);
             nhanVienDataGridView.TabIndex = 0;
-            // 
+            nhanVienDataGridView.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+
             // maNhanVienColumn
-            // 
             maNhanVienColumn.DataPropertyName = "MaNhanVien";
             maNhanVienColumn.HeaderText = "Mã NV";
-            maNhanVienColumn.MinimumWidth = 80;
+            maNhanVienColumn.MinimumWidth = 100;
             maNhanVienColumn.Name = "maNhanVienColumn";
             maNhanVienColumn.ReadOnly = true;
-            // 
+
             // chucVuColumn
-            // 
             chucVuColumn.DataPropertyName = "VaiTro";
             chucVuColumn.HeaderText = "Chức vụ";
             chucVuColumn.Name = "chucVuColumn";
             chucVuColumn.ReadOnly = true;
-            // 
+
             // hoTenColumn
-            // 
             hoTenColumn.DataPropertyName = "TenNhanVien";
             hoTenColumn.HeaderText = "Họ tên";
             hoTenColumn.Name = "hoTenColumn";
             hoTenColumn.ReadOnly = true;
-            // 
+
             // ngaySinhColumn
-            // 
             ngaySinhColumn.DataPropertyName = "NgaySinh";
             dataGridViewCellStyle1.Format = "dd/MM/yyyy";
             dataGridViewCellStyle1.NullValue = null;
@@ -372,51 +359,46 @@
             ngaySinhColumn.HeaderText = "Ngày sinh";
             ngaySinhColumn.Name = "ngaySinhColumn";
             ngaySinhColumn.ReadOnly = true;
-            // 
+
             // gioiTinhColumn
-            // 
             gioiTinhColumn.DataPropertyName = "GioiTinh";
             gioiTinhColumn.HeaderText = "Giới tính";
             gioiTinhColumn.Name = "gioiTinhColumn";
             gioiTinhColumn.ReadOnly = true;
-            // 
+
             // soDienThoaiColumn
-            // 
             soDienThoaiColumn.DataPropertyName = "SoDienThoai";
             soDienThoaiColumn.HeaderText = "SĐT";
             soDienThoaiColumn.Name = "soDienThoaiColumn";
             soDienThoaiColumn.ReadOnly = true;
-            // 
+
             // trangThaiColumn
-            // 
             trangThaiColumn.DataPropertyName = "TrangThai";
             trangThaiColumn.HeaderText = "Trạng thái";
             trangThaiColumn.Name = "trangThaiColumn";
             trangThaiColumn.ReadOnly = true;
-            // 
+
             // roleLabel
-            // 
             roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             roleLabel.AutoSize = true;
-            roleLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-            roleLabel.Location = new System.Drawing.Point(1030, 20);
+            roleLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            roleLabel.Location = new System.Drawing.Point(1020, 20);
             roleLabel.Name = "roleLabel";
             roleLabel.Size = new System.Drawing.Size(87, 15);
             roleLabel.TabIndex = 2;
             roleLabel.Text = "Quyền: admin";
-            // 
+
             // Form_NhanVien
-            // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            BackColor = System.Drawing.Color.White;
+            BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
             ClientSize = new System.Drawing.Size(1180, 760);
             Controls.Add(roleLabel);
             Controls.Add(danhSachGroupBox);
             Controls.Add(employeeInfoGroupBox);
-            FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             Name = "Form_NhanVien";
-            Text = "Nhân Viên";
+            Text = "Quản lý nhân viên";
             employeeInfoGroupBox.ResumeLayout(false);
             employeeInfoGroupBox.PerformLayout();
             danhSachGroupBox.ResumeLayout(false);
@@ -426,5 +408,3 @@
         }
     }
 }
-
-
