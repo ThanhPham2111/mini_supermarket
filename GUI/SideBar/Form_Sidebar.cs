@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using mini_supermarket.GUI.Form_BanHang;
 using mini_supermarket.GUI.NhanVien;
+using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
 
 namespace mini_supermarket.GUI.SideBar
 {
@@ -42,6 +43,11 @@ namespace mini_supermarket.GUI.SideBar
             ShowNhanVien();
         }
 
+        private void navSanPhamButton_Click(object sender, EventArgs e)
+        {
+            ShowSanPham();
+        }
+
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
         {
             if (sender is not Button button)
@@ -49,13 +55,13 @@ namespace mini_supermarket.GUI.SideBar
                 return;
             }
 
-            var message = $"Chức năng {button.Text.ToLowerInvariant()} đang được phát triển.";
+            var message = $"Chuc nang {button.Text.ToLowerInvariant()} dang duoc phat trien.";
             ShowPlaceholder(message, button);
         }
 
         private void ShowTrangChu()
         {
-            const string welcomeMessage = "Chào mừng bạn đến với Mini Supermarket.";
+            const string welcomeMessage = "Chuc mung ban den voi Mini Supermarket.";
             ShowPlaceholder(welcomeMessage, navTrangChuButton);
         }
 
@@ -97,6 +103,26 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(nhanVienForm);
             nhanVienForm.Show();
+        }
+
+        private void ShowSanPham()
+        {
+            SetActiveButton(navSanPhamButton);
+            mainTitleLabel.Text = navSanPhamButton.Text;
+
+            CloseActiveForm();
+
+            var sanPhamForm = new FormSanPham
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = sanPhamForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(sanPhamForm);
+            sanPhamForm.Show();
         }
 
         private void ShowPlaceholder(string message, Button sourceButton)
