@@ -235,6 +235,11 @@ namespace mini_supermarket.GUI.Form_SanPham
                 return true;
             }
 
+            if (!string.IsNullOrWhiteSpace(sanPham.TenLoai) && sanPham.TenLoai.Contains(searchText, comparison))
+            {
+                return true;
+            }
+
             if (sanPham.MaDonVi != 0 && sanPham.MaDonVi.ToString().Contains(searchText, comparison))
             {
                 return true;
@@ -264,6 +269,7 @@ namespace mini_supermarket.GUI.Form_SanPham
         }
     }
 }
+
 
 
 

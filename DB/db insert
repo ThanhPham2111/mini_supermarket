@@ -1,0 +1,135 @@
+USE mini_sp;
+GO
+
+-- 1. Thương hiệu
+INSERT INTO Tbl_ThuongHieu (TenThuongHieu) VALUES
+(N'Vinamilk'),
+(N'TH True Milk'),
+(N'Coca Cola'),
+(N'Pepsi'),
+(N'Oreo'),
+(N'Kinh Đô'),
+(N'Heineken'),
+(N'Ajinomoto');
+
+-- 2. Loại sản phẩm
+INSERT INTO Tbl_Loai (TenLoai, MoTa) VALUES
+(N'Sữa', N'Sản phẩm sữa và chế phẩm từ sữa'),
+(N'Nước giải khát', N'Nước ngọt, nước có gas, nước uống liền'),
+(N'Bánh kẹo', N'Các loại bánh, kẹo, snack'),
+(N'Bia rượu', N'Bia, rượu, đồ uống có cồn'),
+(N'Gia vị', N'Gia vị nấu ăn, hạt nêm, nước mắm');
+
+-- 3. Đơn vị
+INSERT INTO Tbl_DonVi (TenDonVi, MoTa) VALUES
+(N'Hộp', N'Đóng gói hộp giấy hoặc hộp nhựa'),
+(N'Lon', N'Dạng lon nhôm 330ml, 500ml'),
+(N'Chai', N'Đóng chai thủy tinh hoặc nhựa'),
+(N'Gói', N'Bao bì dạng gói nhỏ'),
+(N'Lốc', N'Đóng theo lốc nhiều đơn vị');
+
+-- 4. Sản phẩm
+INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, XuatXu, HSD, TrangThai) VALUES
+(N'Sữa tươi Vinamilk 1L', 1, 1, 1, N'Sữa tươi nguyên chất bổ sung canxi', 32000, N'Việt Nam', '2025-12-31', N'Còn hàng'),
+(N'Sữa tươi TH True Milk 500ml', 1, 2, 1, N'Sữa sạch từ trang trại TH', 18000, N'Việt Nam', '2025-10-15', N'Còn hàng'),
+(N'Nước ngọt Coca Cola lon 330ml', 2, 3, 2, N'Nước ngọt có gas hương vị Cola', 10000, N'Việt Nam', '2026-01-01', N'Còn hàng'),
+(N'Nước ngọt Pepsi lon 330ml', 2, 4, 2, N'Nước ngọt Pepsi sảng khoái', 9500, N'Việt Nam', '2026-02-01', N'Còn hàng'),
+(N'Bánh Oreo 133g', 4, 5, 3, N'Bánh quy kẹp kem socola', 15000, N'Indonesia', '2025-06-30', N'Còn hàng'),
+(N'Bánh ChocoPie hộp 12 cái', 1, 6, 3, N'Bánh ChocoPie nhân marshmallow', 45000, N'Hàn Quốc', '2025-09-01', N'Còn hàng'),
+(N'Bia Heineken lon 500ml', 2, 7, 4, N'Bia nhập khẩu từ Hà Lan', 22000, N'Hà Lan', '2026-05-01', N'Còn hàng'),
+(N'Hạt nêm Ajinomoto gói 400g', 4, 8, 5, N'Hạt nêm từ thịt thăn và xương ống', 35000, N'Việt Nam', '2026-12-01', N'Còn hàng'),
+(N'Sữa chua Vinamilk lốc 4 hũ', 5, 1, 1, N'Sữa chua men sống tốt cho tiêu hóa', 20000, N'Việt Nam', '2025-08-20', N'Hết hàng'),
+(N'Pepsi chai 1.5L', 3, 4, 2, N'Nước ngọt Pepsi dung tích lớn', 25000, N'Việt Nam', '2026-03-15', N'Hết hàng');
+
+-- 5. Chi tiết sản phẩm
+INSERT INTO Tbl_ChiTietSanPham (MaSanPham, ThuocTinh, GiaNhap, TrangThai) VALUES
+(1, N'Hộp giấy 1L', 25000, N'Đang bán'),
+(2, N'Hộp giấy 500ml', 14000, N'Đang bán'),
+(3, N'Lon nhôm 330ml', 8000, N'Đang bán'),
+(4, N'Lon nhôm 330ml', 7500, N'Đang bán'),
+(5, N'Gói 133g', 12000, N'Đang bán'),
+(6, N'Hộp 12 cái', 38000, N'Đang bán'),
+(7, N'Lon nhôm 500ml', 18000, N'Đang bán'),
+(8, N'Gói 400g', 25000, N'Đang bán'),
+(9, N'Lốc 4 hũ', 15000, N'Ngừng bán'),
+(10, N'Chai nhựa 1.5L', 20000, N'Ngừng bán');
+
+-- 6. Nhân viên
+INSERT INTO Tbl_NhanVien (TenNhanVien, GioiTinh, NgaySinh, SoDienThoai, VaiTro, TrangThai) VALUES
+(N'Nguyễn Văn A', N'Nam', '1995-05-20', '0901234567', N'Thu ngân', N'Đang làm'),
+(N'Trần Thị B', N'Nữ', '1998-08-15', '0912345678', N'Quản lý', N'Đang làm'),
+(N'Lê Văn C', N'Nam', '1990-03-10', '0934567890', N'Nhân viên kho', N'Đã nghỉ');
+
+-- 7. Phân quyền
+INSERT INTO Tbl_PhanQuyen (TenQuyen, MoTa) VALUES
+(N'Admin', N'Quản trị hệ thống'),
+(N'Staff', N'Nhân viên bán hàng'),
+(N'Warehouse', N'Nhân viên kho');
+
+-- 8. Tài khoản
+INSERT INTO Tbl_TaiKhoan (TenDangNhap, MatKhau, MaNhanVien, MaQuyen, TrangThai) VALUES
+('admin', '123456', 2, 1, N'Hoạt động'),
+('staff1', '123456', 1, 2, N'Hoạt động'),
+('kho01', '123456', 3, 3, N'Hoạt động');
+
+-- 9. Khách hàng
+INSERT INTO Tbl_KhachHang (TenKhachHang, SoDienThoai, DiaChi, Email, DiemTichLuy, TrangThai) VALUES
+(N'Nguyễn Thị D', '0987654321', N'Hà Nội', 'd@example.com', 50, N'Hoạt động'),
+(N'Phạm Văn E', '0978123456', N'Hồ Chí Minh', 'e@example.com', 20, N'Hoạt động'),
+(N'Lê Thị F', '0912345679', N'Đà Nẵng', 'f@example.com', 0, N'Hoạt động');
+
+-- 10. Hóa đơn
+INSERT INTO Tbl_HoaDon (MaNhanVien, MaKhachHang, TongTien) VALUES
+(1, 1, 42000),
+(1, 2, 100000),
+(2, NULL, 22000);
+
+-- 11. Chi tiết hóa đơn
+INSERT INTO Tbl_ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, GiaBan) VALUES
+(1, 3, 2, 10000),
+(1, 5, 1, 15000),
+(2, 6, 2, 45000),
+(3, 7, 1, 22000);
+
+-- 12. Lịch sử tích điểm
+INSERT INTO Tbl_LichSuTichDiem (MaKhachHang, MaHoaDon, DiemCong, DiemSuDung, MoTa) VALUES
+(1, 1, 5, 0, N'Tích điểm khi mua Coca + Oreo'),
+(2, 2, 10, 0, N'Tích điểm khi mua ChocoPie'),
+(1, NULL, 0, 5, N'Khách hàng dùng điểm');
+
+-- 13. Nhà cung cấp
+INSERT INTO Tbl_NhaCungCap (TenNhaCungCap, DiaChi, SoDienThoai, Email, TrangThai) VALUES
+(N'Công ty Vinamilk', N'Hà Nội', '0241234567', 'vinamilk@supply.com', N'Hoạt động'),
+(N'Công ty Coca Cola VN', N'Hồ Chí Minh', '0287654321', 'cocacola@supply.com', N'Hoạt động'),
+(N'Công ty Orion', N'Hàn Quốc', '008220123456', 'orion@supply.com', N'Hoạt động');
+
+-- 14. Phiếu nhập
+INSERT INTO Tbl_PhieuNhap (MaNhaCungCap, TongTien) VALUES
+(1, 500000),
+(2, 300000),
+(3, 600000);
+
+-- 15. Chi tiết phiếu nhập
+INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, ThanhTien) VALUES
+(1, 1, 20, 25000, 500000),
+(3, 2, 30, 8000, 240000),
+(6, 3, 40, 15000, 600000);
+
+-- 16. Khuyến mãi
+INSERT INTO Tbl_KhuyenMai (MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa) VALUES
+(3, N'Khuyến mãi Coca Tết', 10, '2025-01-01', '2025-02-01', N'Giảm 10% cho Coca Cola'),
+(5, N'Mua Oreo tặng 1 gói kẹo', 15, '2025-03-01', '2025-03-15', N'Ưu đãi cho bánh Oreo'),
+(7, N'Heineken Summer Sale', 20, '2025-06-01', '2025-07-01', N'Giảm 20% bia Heineken');
+
+-- 17. Kho hàng
+INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES
+(1, 100, N'Còn hàng'),
+(2, 50, N'Còn hàng'),
+(3, 200, N'Còn hàng'),
+(4, 180, N'Còn hàng'),
+(5, 150, N'Còn hàng'),
+(6, 120, N'Còn hàng'),
+(7, 300, N'Còn hàng'),
+(8, 500, N'Còn hàng'),
+(9, 0, N'Hết hàng'),
+(10, 0, N'Hết hàng');

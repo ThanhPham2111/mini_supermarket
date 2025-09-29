@@ -19,7 +19,7 @@ namespace mini_supermarket.GUI.Form_SanPham
         private System.Windows.Forms.DataGridViewTextBoxColumn tenSanPhamColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn donViColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn giaBanColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn maLoaiColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn loaiColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn hsdColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn trangThaiColumn;
 
@@ -54,7 +54,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             tenSanPhamColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             donViColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             giaBanColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            maLoaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            loaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             hsdColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             danhSachGroupBox.SuspendLayout();
@@ -180,7 +180,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             sanPhamDataGridView.BackgroundColor = System.Drawing.Color.White;
             sanPhamDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             sanPhamDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            sanPhamDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { maSanPhamColumn, tenSanPhamColumn, donViColumn, giaBanColumn, maLoaiColumn, hsdColumn, trangThaiColumn });
+            sanPhamDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { maSanPhamColumn, tenSanPhamColumn, donViColumn, giaBanColumn, loaiColumn, hsdColumn, trangThaiColumn });
             sanPhamDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             sanPhamDataGridView.Location = new System.Drawing.Point(3, 19);
             sanPhamDataGridView.MultiSelect = false;
@@ -209,7 +209,7 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             // donViColumn
             donViColumn.DataPropertyName = "TenDonVi";
-            donViColumn.HeaderText = "Don vi";
+            donViColumn.HeaderText = "Đơn vị";
             donViColumn.MinimumWidth = 100;
             donViColumn.Name = "donViColumn";
             donViColumn.ReadOnly = true;
@@ -225,12 +225,12 @@ namespace mini_supermarket.GUI.Form_SanPham
             giaBanColumn.Name = "giaBanColumn";
             giaBanColumn.ReadOnly = true;
 
-            // maLoaiColumn
-            maLoaiColumn.DataPropertyName = "MaLoai";
-            maLoaiColumn.HeaderText = "Mã loại";
-            maLoaiColumn.MinimumWidth = 100;
-            maLoaiColumn.Name = "maLoaiColumn";
-            maLoaiColumn.ReadOnly = true;
+            // loaiColumn
+            loaiColumn.DataPropertyName = "TenLoai";
+            loaiColumn.HeaderText = "Tên loại";
+            loaiColumn.MinimumWidth = 100;
+            loaiColumn.Name = "loaiColumn";
+            loaiColumn.ReadOnly = true;
 
             // hsdColumn
             hsdColumn.DataPropertyName = "Hsd";
