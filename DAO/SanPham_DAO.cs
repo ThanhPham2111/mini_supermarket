@@ -15,9 +15,22 @@ namespace mini_supermarket.DAO
 
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"SELECT sp.MaSanPham, sp.TenSanPham, sp.DonVi, sp.MaThuongHieu, sp.MaLoai, sp.MoTa, sp.GiaBan, sp.XuatXu, sp.Hsd, sp.TrangThai,
-                                          l.TenLoai, th.TenThuongHieu
+            command.CommandText = @"SELECT sp.MaSanPham,
+                                          sp.TenSanPham,
+                                          sp.MaDonVi,
+                                          dv.TenDonVi,
+                                          sp.MaThuongHieu,
+                                          sp.MaLoai,
+                                          sp.MoTa,
+                                          sp.GiaBan,
+                                          sp.HinhAnh,
+                                          sp.XuatXu,
+                                          sp.Hsd,
+                                          sp.TrangThai,
+                                          l.TenLoai,
+                                          th.TenThuongHieu
                                    FROM dbo.Tbl_SanPham sp
+                                   LEFT JOIN dbo.Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
                                    LEFT JOIN dbo.Tbl_Loai l ON sp.MaLoai = l.MaLoai
                                    LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu";
 
@@ -38,11 +51,13 @@ namespace mini_supermarket.DAO
             {
                 int maSanPhamIndex = reader.GetOrdinal("MaSanPham");
                 int tenSanPhamIndex = reader.GetOrdinal("TenSanPham");
-                int donViIndex = reader.GetOrdinal("DonVi");
+                int maDonViIndex = reader.GetOrdinal("MaDonVi");
+                int tenDonViIndex = reader.GetOrdinal("TenDonVi");
                 int maThuongHieuIndex = reader.GetOrdinal("MaThuongHieu");
                 int maLoaiIndex = reader.GetOrdinal("MaLoai");
                 int moTaIndex = reader.GetOrdinal("MoTa");
                 int giaBanIndex = reader.GetOrdinal("GiaBan");
+                int hinhAnhIndex = reader.GetOrdinal("HinhAnh");
                 int xuatXuIndex = reader.GetOrdinal("XuatXu");
                 int hsdIndex = reader.GetOrdinal("Hsd");
                 int trangThaiIndex = reader.GetOrdinal("TrangThai");
@@ -53,11 +68,13 @@ namespace mini_supermarket.DAO
                 {
                     MaSanPham = reader.GetInt32(maSanPhamIndex),
                     TenSanPham = reader.IsDBNull(tenSanPhamIndex) ? string.Empty : reader.GetString(tenSanPhamIndex),
-                    DonVi = reader.IsDBNull(donViIndex) ? null : reader.GetString(donViIndex),
+                    MaDonVi = reader.IsDBNull(maDonViIndex) ? 0 : reader.GetInt32(maDonViIndex),
+                    TenDonVi = reader.IsDBNull(tenDonViIndex) ? null : reader.GetString(tenDonViIndex),
                     MaThuongHieu = reader.IsDBNull(maThuongHieuIndex) ? 0 : reader.GetInt32(maThuongHieuIndex),
                     MaLoai = reader.IsDBNull(maLoaiIndex) ? 0 : reader.GetInt32(maLoaiIndex),
                     MoTa = reader.IsDBNull(moTaIndex) ? null : reader.GetString(moTaIndex),
                     GiaBan = reader.IsDBNull(giaBanIndex) ? null : reader.GetDecimal(giaBanIndex),
+                    HinhAnh = reader.IsDBNull(hinhAnhIndex) ? null : reader.GetString(hinhAnhIndex),
                     XuatXu = reader.IsDBNull(xuatXuIndex) ? null : reader.GetString(xuatXuIndex),
                     Hsd = reader.IsDBNull(hsdIndex) ? null : reader.GetDateTime(hsdIndex),
                     TrangThai = reader.IsDBNull(trangThaiIndex) ? null : reader.GetString(trangThaiIndex),
@@ -69,6 +86,70 @@ namespace mini_supermarket.DAO
             }
 
             return sanPhamList;
+        }
+
+        public int InsertSanPham(SanPhamDTO sanPham)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"INSERT INTO dbo.Tbl_SanPham
+                                        (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, HinhAnh, XuatXu, Hsd, TrangThai)
+                                    VALUES
+                                        (@TenSanPham, @MaDonVi, @MaThuongHieu, @MaLoai, @MoTa, @GiaBan, @HinhAnh, @XuatXu, @Hsd, @TrangThai);
+                                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            command.Parameters.Add(new SqlParameter("@TenSanPham", SqlDbType.NVarChar, 255)
+            {
+                Value = sanPham.TenSanPham
+            });
+            command.Parameters.Add(new SqlParameter("@MaDonVi", SqlDbType.Int)
+            {
+                Value = sanPham.MaDonVi
+            });
+            command.Parameters.Add(new SqlParameter("@MaThuongHieu", SqlDbType.Int)
+            {
+                Value = sanPham.MaThuongHieu
+            });
+            command.Parameters.Add(new SqlParameter("@MaLoai", SqlDbType.Int)
+            {
+                Value = sanPham.MaLoai
+            });
+            command.Parameters.Add(new SqlParameter("@MoTa", SqlDbType.NVarChar, -1)
+            {
+                Value = (object?)sanPham.MoTa ?? DBNull.Value
+            });
+            var giaBanParameter = new SqlParameter("@GiaBan", SqlDbType.Decimal)
+            {
+                Precision = 18,
+                Scale = 2,
+                Value = sanPham.GiaBan.HasValue ? sanPham.GiaBan.Value : DBNull.Value
+            };
+            command.Parameters.Add(giaBanParameter);
+            command.Parameters.Add(new SqlParameter("@HinhAnh", SqlDbType.NVarChar, -1)
+            {
+                Value = (object?)sanPham.HinhAnh ?? DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@XuatXu", SqlDbType.NVarChar, 100)
+            {
+                Value = (object?)sanPham.XuatXu ?? DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@Hsd", SqlDbType.Date)
+            {
+                Value = sanPham.Hsd.HasValue ? sanPham.Hsd.Value.Date : DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
+            {
+                Value = sanPham.TrangThai ?? (object)DBNull.Value
+            });
+
+            connection.Open();
+            var result = command.ExecuteScalar();
+            if (result == null || result == DBNull.Value)
+            {
+                throw new InvalidOperationException("Failed to insert product.");
+            }
+
+            return Convert.ToInt32(result);
         }
 
         public IList<string> GetDistinctTrangThai()

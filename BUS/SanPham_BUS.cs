@@ -17,7 +17,12 @@ namespace mini_supermarket.BUS
             StatusHetHang
         };
 
+        private static readonly HashSet<string> StatusLookup = new(DefaultStatuses, StringComparer.OrdinalIgnoreCase);
+
         private readonly SanPham_DAO _sanPhamDao = new();
+        private readonly DonVi_DAO _donViDao = new();
+        private readonly Loai_DAO _loaiDao = new();
+        private readonly ThuongHieu_DAO _thuongHieuDao = new();
 
         public IReadOnlyList<string> GetAvailableStatuses()
         {
@@ -38,6 +43,75 @@ namespace mini_supermarket.BUS
         public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null)
         {
             return _sanPhamDao.GetSanPham(trangThaiFilter);
+        }
+
+        public IList<DonViDTO> GetDonViList()
+        {
+            return _donViDao.GetAll();
+        }
+
+        public IList<LoaiDTO> GetLoaiList()
+        {
+            return _loaiDao.GetAll();
+        }
+
+        public IList<ThuongHieuDTO> GetThuongHieuList()
+        {
+            return _thuongHieuDao.GetAll();
+        }
+
+        public SanPhamDTO AddSanPham(SanPhamDTO sanPham)
+        {
+            if (sanPham == null)
+            {
+                throw new ArgumentNullException(nameof(sanPham));
+            }
+
+            ValidateSanPham(sanPham);
+            int newId = _sanPhamDao.InsertSanPham(sanPham);
+            sanPham.MaSanPham = newId;
+            return sanPham;
+        }
+
+        private static void ValidateSanPham(SanPhamDTO sanPham)
+        {
+            sanPham.TenSanPham = sanPham.TenSanPham?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(sanPham.TenSanPham))
+            {
+                throw new ArgumentException("Tên sản phẩm không được để trống.", nameof(sanPham.TenSanPham));
+            }
+
+            if (sanPham.MaDonVi <= 0)
+            {
+                throw new ArgumentException("Vui lòng chọn đơn vị hợp lệ.", nameof(sanPham.MaDonVi));
+            }
+
+            if (sanPham.MaLoai <= 0)
+            {
+                throw new ArgumentException("Vui lòng chọn loại hợp lệ.", nameof(sanPham.MaLoai));
+            }
+
+            if (sanPham.MaThuongHieu <= 0)
+            {
+                throw new ArgumentException("Vui lòng chọn thương hiệu hợp lệ.", nameof(sanPham.MaThuongHieu));
+            }
+
+            if (sanPham.GiaBan.HasValue && sanPham.GiaBan.Value < 0)
+            {
+                throw new ArgumentException("Giá bán không được âm.", nameof(sanPham.GiaBan));
+            }
+
+            sanPham.MoTa = string.IsNullOrWhiteSpace(sanPham.MoTa) ? null : sanPham.MoTa.Trim();
+            sanPham.XuatXu = string.IsNullOrWhiteSpace(sanPham.XuatXu) ? null : sanPham.XuatXu.Trim();
+
+            sanPham.TrangThai = string.IsNullOrWhiteSpace(sanPham.TrangThai)
+                ? StatusConHang
+                : sanPham.TrangThai.Trim();
+
+            if (!StatusLookup.Contains(sanPham.TrangThai))
+            {
+                throw new ArgumentException("Trạng thái không hợp lệ.", nameof(sanPham.TrangThai));
+            }
         }
     }
 }

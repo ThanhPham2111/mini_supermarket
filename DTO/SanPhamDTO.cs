@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace mini_supermarket.DTO
 {
@@ -6,7 +6,8 @@ namespace mini_supermarket.DTO
     {
         public int MaSanPham { get; set; }
         public string TenSanPham { get; set; } = string.Empty;
-        public string? DonVi { get; set; }
+        public int MaDonVi { get; set; }
+        public string? TenDonVi { get; set; }
         public int MaThuongHieu { get; set; }
         public int MaLoai { get; set; }
         public string? MoTa { get; set; }
@@ -15,8 +16,8 @@ namespace mini_supermarket.DTO
         public string? XuatXu { get; set; }
         public DateTime? Hsd { get; set; }
         public string? TrangThai { get; set; }
-        public string? TenLoai { get; set; } // New property for Category Name
-        public string? TenThuongHieu { get; set; } // New property for Brand Name
+        public string? TenLoai { get; set; }
+        public string? TenThuongHieu { get; set; }
 
         public SanPhamDTO()
         {
@@ -25,7 +26,8 @@ namespace mini_supermarket.DTO
         public SanPhamDTO(
             int maSanPham,
             string tenSanPham,
-            string? donVi,
+            int maDonVi,
+            string? tenDonVi,
             int maThuongHieu,
             int maLoai,
             string? moTa,
@@ -39,7 +41,8 @@ namespace mini_supermarket.DTO
         {
             MaSanPham = maSanPham;
             TenSanPham = tenSanPham;
-            DonVi = donVi;
+            MaDonVi = maDonVi;
+            TenDonVi = tenDonVi;
             MaThuongHieu = maThuongHieu;
             MaLoai = maLoai;
             MoTa = moTa;

@@ -103,7 +103,9 @@ namespace mini_supermarket.GUI.NhanVien
                 case "Nam":
                     gioiTinhNamRadioButton.Checked = true;
                     break;
-                case "Nữ":
+                case "Nu":
+                case "N?":
+                case "N??_":
                     gioiTinhNuRadioButton.Checked = true;
                     break;
             }
@@ -114,21 +116,43 @@ namespace mini_supermarket.GUI.NhanVien
             string hoTen = hoTenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(hoTen))
             {
-                MessageBox.Show(this, "Vui lòng nhập họ tên.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Vui long nhap ho ten.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 hoTenTextBox.Focus();
                 return;
             }
 
             if (ngaySinhDateTimePicker.Value.Date > DateTime.Today)
             {
-                MessageBox.Show(this, "Ngày sinh không hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Ngay sinh khong hop le.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 ngaySinhDateTimePicker.Focus();
+                return;
+            }
+
+            string soDienThoai = soDienThoaiTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(soDienThoai))
+            {
+                MessageBox.Show(this, "So dien thoai khong duoc de trong.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                soDienThoaiTextBox.Focus();
+                return;
+            }
+
+            if (soDienThoai.Length != 10 || !soDienThoai.All(char.IsDigit))
+            {
+                MessageBox.Show(this, "So dien thoai phai gom 10 chu so.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                soDienThoaiTextBox.Focus();
+                return;
+            }
+
+            if (vaiTroComboBox.SelectedItem is not string vaiTro || string.IsNullOrWhiteSpace(vaiTro))
+            {
+                MessageBox.Show(this, "Vui long chon vai tro.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                vaiTroComboBox.Focus();
                 return;
             }
 
             if (trangThaiComboBox.SelectedItem is not string trangThai || string.IsNullOrWhiteSpace(trangThai))
             {
-                MessageBox.Show(this, "Vui lòng chọn trạng thái.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Vui long chon trang thai.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 trangThaiComboBox.Focus();
                 return;
             }
@@ -137,11 +161,9 @@ namespace mini_supermarket.GUI.NhanVien
             _workingNhanVien.NgaySinh = ngaySinhDateTimePicker.Value.Date;
             _workingNhanVien.GioiTinh = gioiTinhNamRadioButton.Checked
                 ? "Nam"
-                : gioiTinhNuRadioButton.Checked ? "Nữ" : null;
-            _workingNhanVien.VaiTro = vaiTroComboBox.SelectedItem as string;
-            _workingNhanVien.SoDienThoai = string.IsNullOrWhiteSpace(soDienThoaiTextBox.Text)
-                ? null
-                : soDienThoaiTextBox.Text.Trim();
+                : gioiTinhNuRadioButton.Checked ? "Nu" : null;
+            _workingNhanVien.VaiTro = vaiTro;
+            _workingNhanVien.SoDienThoai = soDienThoai;
             _workingNhanVien.TrangThai = trangThai;
 
             DialogResult = DialogResult.OK;
@@ -163,3 +185,5 @@ namespace mini_supermarket.GUI.NhanVien
         }
     }
 }
+
+

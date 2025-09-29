@@ -94,18 +94,26 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Ngày sinh không hợp lệ.", nameof(nhanVien.NgaySinh));
             }
 
-            if (!string.IsNullOrWhiteSpace(nhanVien.SoDienThoai))
+            nhanVien.SoDienThoai = nhanVien.SoDienThoai?.Trim();
+            if (string.IsNullOrWhiteSpace(nhanVien.SoDienThoai))
             {
-                nhanVien.SoDienThoai = nhanVien.SoDienThoai.Trim();
-                if (nhanVien.SoDienThoai.Length > 15)
-                {
-                    throw new ArgumentException("Số điện thoại không được dài hơn 15 ký tự.", nameof(nhanVien.SoDienThoai));
-                }
+                throw new ArgumentException("Số điện thoại không được trống.", nameof(nhanVien.SoDienThoai));
             }
 
-            if (!string.IsNullOrWhiteSpace(nhanVien.VaiTro) && !DefaultRoles.Contains(nhanVien.VaiTro))
+            if (nhanVien.SoDienThoai.Length != 10 || !nhanVien.SoDienThoai.All(char.IsDigit))
             {
-                throw new ArgumentException("Chức vụ không hợp lệ.", nameof(nhanVien.VaiTro));
+                throw new ArgumentException("Số điện thoại phải có 10 số.", nameof(nhanVien.SoDienThoai));
+            }
+
+            nhanVien.VaiTro = nhanVien.VaiTro?.Trim();
+            if (string.IsNullOrWhiteSpace(nhanVien.VaiTro))
+            {
+                throw new ArgumentException("Vai trò không được để trống.", nameof(nhanVien.VaiTro));
+            }
+
+            if (!DefaultRoles.Contains(nhanVien.VaiTro))
+            {
+                throw new ArgumentException("Chức vụ không hợp lệ", nameof(nhanVien.VaiTro));
             }
 
             if (string.IsNullOrWhiteSpace(nhanVien.TrangThai))
@@ -119,3 +127,4 @@ namespace mini_supermarket.BUS
         }
     }
 }
+

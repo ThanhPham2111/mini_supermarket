@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -9,8 +9,6 @@ namespace mini_supermarket.GUI.Form_SanPham
 {
     public partial class Form_SanPhamDialog : Form
     {
-        private const string ImagePath = "C:/Users/T480s/Desktop/mini_supermarket/img/pexels-chevanon-312418.jpg";
-
         private readonly SanPhamDTO _sanPham;
 
         public Form_SanPhamDialog(SanPhamDTO sanPham)
@@ -26,10 +24,10 @@ namespace mini_supermarket.GUI.Form_SanPham
             maSanPhamTextBox.Text = _sanPham.MaSanPham.ToString(CultureInfo.InvariantCulture);
             tenSanPhamTextBox.Text = _sanPham.TenSanPham ?? string.Empty;
 
-            PopulateComboBox(donViComboBox, _sanPham.DonVi);
+            PopulateComboBox(donViComboBox, _sanPham.TenDonVi);
 
-            maThuongHieuTextBox.Text = _sanPham.TenThuongHieu ?? string.Empty; // Hiển thị Tên thương hiệu
-            PopulateComboBox(maLoaiComboBox, _sanPham.TenLoai ?? string.Empty); // Hiển thị Tên loại
+            maThuongHieuTextBox.Text = _sanPham.TenThuongHieu ?? string.Empty; // Hien thi ten thuong hieu
+            PopulateComboBox(maLoaiComboBox, _sanPham.TenLoai ?? string.Empty); // Hien thi ten loai
 
             giaBanTextBox.Text = _sanPham.GiaBan.HasValue
                 ? _sanPham.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture)
@@ -65,15 +63,22 @@ namespace mini_supermarket.GUI.Form_SanPham
 
         private void LoadProductImage()
         {
+            string? imagePath = _sanPham.HinhAnh;
+
+            if (!string.IsNullOrWhiteSpace(imagePath) && !Path.IsPathRooted(imagePath))
+            {
+                imagePath = Path.Combine(AppContext.BaseDirectory, imagePath);
+            }
+
+            if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
+            {
+                productPictureBox.Image = null;
+                return;
+            }
+
             try
             {
-                if (!File.Exists(ImagePath))
-                {
-                    productPictureBox.Image = null;
-                    return;
-                }
-
-                using var image = Image.FromFile(ImagePath);
+                using var image = Image.FromFile(imagePath);
                 productPictureBox.Image = new Bitmap(image);
             }
             catch

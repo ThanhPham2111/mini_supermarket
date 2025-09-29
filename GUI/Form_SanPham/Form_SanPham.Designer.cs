@@ -208,8 +208,8 @@ namespace mini_supermarket.GUI.Form_SanPham
             tenSanPhamColumn.ReadOnly = true;
 
             // donViColumn
-            donViColumn.DataPropertyName = "DonVi";
-            donViColumn.HeaderText = "Đơn vị";
+            donViColumn.DataPropertyName = "TenDonVi";
+            donViColumn.HeaderText = "Don vi";
             donViColumn.MinimumWidth = 100;
             donViColumn.Name = "donViColumn";
             donViColumn.ReadOnly = true;

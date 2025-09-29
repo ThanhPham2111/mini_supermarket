@@ -10,7 +10,7 @@ namespace mini_supermarket.GUI.Form_SanPham
 {
     public partial class Form_SanPham : Form
     {
-        private const string StatusAll = "Tat ca";
+        private const string StatusAll = "Tất cả";
 
         private readonly SanPham_BUS _sanPhamBus = new();
         private readonly BindingSource _bindingSource = new();
@@ -34,16 +34,16 @@ namespace mini_supermarket.GUI.Form_SanPham
             sanPhamDataGridView.SelectionChanged += SanPhamDataGridView_SelectionChanged;
 
             var toolTip = new ToolTip();
-            toolTip.SetToolTip(xemChiTietButton, "Xem chi tiet san pham da chon");
-            toolTip.SetToolTip(themButton, "Them san pham moi");
-            toolTip.SetToolTip(suaButton, "Sua thong tin san pham da chon");
-            toolTip.SetToolTip(xoaButton, "Xoa san pham da chon");
-            toolTip.SetToolTip(lamMoiButton, "Lam moi danh sach");
-            toolTip.SetToolTip(searchButton, "Tim kiem san pham");
-
+            toolTip.SetToolTip(xemChiTietButton, "Xem chi tiết sản phẩm đã chọn");
+            toolTip.SetToolTip(themButton, "Thêm sản phẩm mới");
+            toolTip.SetToolTip(suaButton, "Sửa thông tin sản phẩm đã chọn");
+            toolTip.SetToolTip(xoaButton, "Xóa sản phẩm đã chọn");
+            toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
+            toolTip.SetToolTip(searchButton, "Tìm kiếm sản phẩm");
 
             searchButton.Click += (_, _) => ApplyFilters();
             searchTextBox.TextChanged += (_, _) => ApplyFilters();
+            themButton.Click += themButton_Click;
             lamMoiButton.Click += lamMoiButton_Click;
             xemChiTietButton.Click += xemChiTietButton_Click;
 
@@ -74,12 +74,17 @@ namespace mini_supermarket.GUI.Form_SanPham
             statusFilterComboBox.SelectedIndex = 0;
         }
 
-        private void LoadSanPhamData()
+        private void LoadSanPhamData(int? selectMaSanPham = null)
         {
             try
             {
                 _currentSanPham = _sanPhamBus.GetSanPham();
                 ApplyFilters();
+
+                if (selectMaSanPham.HasValue)
+                {
+                    SelectSanPhamRow(selectMaSanPham.Value);
+                }
             }
             catch (Exception ex)
             {
@@ -165,6 +170,52 @@ namespace mini_supermarket.GUI.Form_SanPham
             return sanPhamDataGridView.SelectedRows[0].DataBoundItem as SanPhamDTO;
         }
 
+        private void SelectSanPhamRow(int maSanPham)
+        {
+            if (maSanPham <= 0 || sanPhamDataGridView.Rows.Count == 0)
+            {
+                return;
+            }
+
+            foreach (DataGridViewRow row in sanPhamDataGridView.Rows)
+            {
+                if (row.DataBoundItem is SanPhamDTO sanPham && sanPham.MaSanPham == maSanPham)
+                {
+                    row.Selected = true;
+                    try
+                    {
+                        sanPhamDataGridView.FirstDisplayedScrollingRowIndex = row.Index;
+                    }
+                    catch
+                    {
+                        // Ignore scrolling issues
+                    }
+
+                    return;
+                }
+            }
+        }
+
+        private void themButton_Click(object? sender, EventArgs e)
+        {
+            using var dialog = new Form_SanPhamCreateDialog();
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedSanPham == null)
+            {
+                return;
+            }
+
+            if (statusFilterComboBox.SelectedIndex != 0)
+            {
+                statusFilterComboBox.SelectedIndex = 0;
+            }
+
+            if (!string.IsNullOrEmpty(searchTextBox.Text))
+            {
+                searchTextBox.Clear();
+            }
+
+            LoadSanPhamData(dialog.CreatedSanPham.MaSanPham);
+        }
         private static bool MatchesSearch(SanPhamDTO sanPham, string searchText)
         {
             var comparison = StringComparison.CurrentCultureIgnoreCase;
@@ -179,7 +230,12 @@ namespace mini_supermarket.GUI.Form_SanPham
                 return true;
             }
 
-            if (!string.IsNullOrWhiteSpace(sanPham.DonVi) && sanPham.DonVi.Contains(searchText, comparison))
+            if (!string.IsNullOrWhiteSpace(sanPham.TenDonVi) && sanPham.TenDonVi.Contains(searchText, comparison))
+            {
+                return true;
+            }
+
+            if (sanPham.MaDonVi != 0 && sanPham.MaDonVi.ToString().Contains(searchText, comparison))
             {
                 return true;
             }
@@ -208,3 +264,8 @@ namespace mini_supermarket.GUI.Form_SanPham
         }
     }
 }
+
+
+
+
+
