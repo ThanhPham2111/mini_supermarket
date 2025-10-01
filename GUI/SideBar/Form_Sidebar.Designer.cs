@@ -149,7 +149,7 @@
             this.navKhachHangButton.Text = "Khách Hàng";
             this.navKhachHangButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navKhachHangButton.UseVisualStyleBackColor = false;
-            this.navKhachHangButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navKhachHangButton.Click += new System.EventHandler(this.navKhachHangButton_Click);
             // 
             // navKhuyenMaiButton
             // 

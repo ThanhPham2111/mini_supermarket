@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using mini_supermarket.GUI.Form_BanHang;
+using mini_supermarket.GUI.KhachHang;
 using mini_supermarket.GUI.NhanVien;
 
 namespace mini_supermarket.GUI.SideBar
@@ -40,6 +41,11 @@ namespace mini_supermarket.GUI.SideBar
         private void navNhanVienButton_Click(object sender, EventArgs e)
         {
             ShowNhanVien();
+        }
+
+        private void navKhachHangButton_Click(object sender, EventArgs e)
+        {
+            ShowKhachHang();
         }
 
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
@@ -97,6 +103,26 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(nhanVienForm);
             nhanVienForm.Show();
+        }
+
+        private void ShowKhachHang()
+        {
+            SetActiveButton(navKhachHangButton);
+            mainTitleLabel.Text = navKhachHangButton.Text;
+
+            CloseActiveForm();
+
+            var khachHangForm = new Form_KhachHang
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = khachHangForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(khachHangForm);
+            khachHangForm.Show();
         }
 
         private void ShowPlaceholder(string message, Button sourceButton)
