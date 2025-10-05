@@ -102,7 +102,6 @@ namespace mini_supermarket.GUI.FormKhoHang
             maSanPhamTextBox.ReadOnly = true;
             maSanPhamTextBox.Size = new Size(200, 30);
             maSanPhamTextBox.TabIndex = 1;
-            //maSanPhamTextBox.TextChanged += maSanPhamTextBox_TextChanged;
             // 
             // soLuongLabel
             // 
@@ -130,11 +129,12 @@ namespace mini_supermarket.GUI.FormKhoHang
             // 
             // trangThaiComboBox
             // 
-            trangThaiComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            trangThaiComboBox.DropDownStyle = ComboBoxStyle.Simple;
             trangThaiComboBox.Location = new Point(740, 27);
             trangThaiComboBox.Name = "trangThaiComboBox";
             trangThaiComboBox.Size = new Size(150, 31);
             trangThaiComboBox.TabIndex = 5;
+            trangThaiComboBox.SelectedIndexChanged += trangThaiComboBox_SelectedIndexChanged;
             // 
             // themButton
             // 
@@ -170,15 +170,13 @@ namespace mini_supermarket.GUI.FormKhoHang
             // 
             // sanPhamComboBox
             // 
-            sanPhamComboBox.DropDownStyle = ComboBoxStyle.DropDown;
+            sanPhamComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            sanPhamComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             sanPhamComboBox.Location = new Point(150, 60);
             sanPhamComboBox.Name = "sanPhamComboBox";
             sanPhamComboBox.Size = new Size(250, 31);
             sanPhamComboBox.TabIndex = 10;
-            this.sanPhamComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.sanPhamComboBox.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.sanPhamComboBox.Leave += new System.EventHandler(this.sanPhamComboBox_Leave);
-
+            sanPhamComboBox.Leave += sanPhamComboBox_Leave;
             // 
             // statusFilterComboBox
             // 
