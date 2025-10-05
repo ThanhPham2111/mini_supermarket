@@ -85,6 +85,7 @@ namespace mini_supermarket.GUI.FormKhoHang
             khoHangInfoGroupBox.TabIndex = 0;
             khoHangInfoGroupBox.TabStop = false;
             khoHangInfoGroupBox.Text = "Thông tin kho hàng";
+            khoHangInfoGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             // 
             // maSanPhamLabel
             // 
@@ -129,7 +130,7 @@ namespace mini_supermarket.GUI.FormKhoHang
             // 
             // trangThaiComboBox
             // 
-            trangThaiComboBox.DropDownStyle = ComboBoxStyle.Simple;
+            trangThaiComboBox.DropDownStyle = ComboBoxStyle.DropDown;
             trangThaiComboBox.Location = new Point(740, 27);
             trangThaiComboBox.Name = "trangThaiComboBox";
             trangThaiComboBox.Size = new Size(150, 31);
@@ -143,6 +144,10 @@ namespace mini_supermarket.GUI.FormKhoHang
             themButton.Size = new Size(120, 30);
             themButton.TabIndex = 6;
             themButton.Text = "Thêm";
+            themButton.UseVisualStyleBackColor = true;
+            themButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Xanh dương
+            themButton.ForeColor = System.Drawing.Color.White; // Chữ trắng
             // 
             // suaButton
             // 
@@ -151,6 +156,10 @@ namespace mini_supermarket.GUI.FormKhoHang
             suaButton.Size = new Size(120, 30);
             suaButton.TabIndex = 7;
             suaButton.Text = "Sửa";
+            suaButton.UseVisualStyleBackColor = true;
+            suaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            suaButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Xanh dương
+            suaButton.ForeColor = System.Drawing.Color.White; // Chữ trắng
             // 
             // xoaButton
             // 
@@ -159,6 +168,10 @@ namespace mini_supermarket.GUI.FormKhoHang
             xoaButton.Size = new Size(120, 30);
             xoaButton.TabIndex = 8;
             xoaButton.Text = "Xóa";
+            xoaButton.UseVisualStyleBackColor = true;
+            xoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            xoaButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77); // Đỏ
+            xoaButton.ForeColor = System.Drawing.Color.White; // Chữ trắng
             // 
             // lamMoiButton
             // 
@@ -167,6 +180,10 @@ namespace mini_supermarket.GUI.FormKhoHang
             lamMoiButton.Size = new Size(120, 30);
             lamMoiButton.TabIndex = 9;
             lamMoiButton.Text = "Làm mới";
+            lamMoiButton.UseVisualStyleBackColor = true;
+            lamMoiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            lamMoiButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Xanh dương
+            lamMoiButton.ForeColor = System.Drawing.Color.White; // Chữ trắng
             // 
             // sanPhamComboBox
             // 
@@ -211,6 +228,7 @@ namespace mini_supermarket.GUI.FormKhoHang
             // 
             // khoHangDataGridView
             // 
+            khoHangDataGridView.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             khoHangDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             khoHangDataGridView.ColumnHeadersHeight = 29;
             khoHangDataGridView.Columns.AddRange(new DataGridViewColumn[] { MaSanPhamColumn, TenSanPhamColumn, SoLuongColumn, TrangThaiColumn });
@@ -220,6 +238,7 @@ namespace mini_supermarket.GUI.FormKhoHang
             khoHangDataGridView.ReadOnly = true;
             khoHangDataGridView.RowHeadersVisible = false;
             khoHangDataGridView.RowHeadersWidth = 51;
+            khoHangDataGridView.RowTemplate.Height = 30;
             khoHangDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             khoHangDataGridView.Size = new Size(1140, 500);
             khoHangDataGridView.TabIndex = 5;
@@ -259,7 +278,7 @@ namespace mini_supermarket.GUI.FormKhoHang
             // Form_KhoHang
             // 
             BackColor = Color.FromArgb(245, 245, 245);
-            ClientSize = new Size(1247, 760);
+            ClientSize = new Size(1180, 760);
             Controls.Add(khoHangInfoGroupBox);
             Controls.Add(statusFilterComboBox);
             Controls.Add(statusLabel);
