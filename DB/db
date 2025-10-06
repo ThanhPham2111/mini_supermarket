@@ -3,7 +3,7 @@ CREATE DATABASE mini_sp;
 GO
 
 -- Sử dụng database
-USE mini_supermarket;
+USE mini_sp;
 GO
 
 -- 1. Bảng Thương hiệu
