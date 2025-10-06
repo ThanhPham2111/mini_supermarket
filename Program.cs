@@ -1,5 +1,4 @@
 using mini_supermarket.GUI;
-using mini_supermarket.GUI.FormKhoHang;
 
 namespace mini_supermarket
 {
@@ -13,10 +12,8 @@ namespace mini_supermarket
         {
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
-            //ApplicationConfiguration.Initialize();
-            //Application.Run(new Form_Login());
-         
-            Application.Run(new Form_KhoHang());
+            ApplicationConfiguration.Initialize();
+            Application.Run(new Form_Login());
         }
     }
 }
