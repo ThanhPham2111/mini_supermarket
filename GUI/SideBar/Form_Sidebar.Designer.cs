@@ -208,7 +208,7 @@
             this.navKhoHangButton.Text = "Kho Hàng";
             this.navKhoHangButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navKhoHangButton.UseVisualStyleBackColor = false;
-            this.navKhoHangButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navKhoHangButton.Click += new System.EventHandler(this.navKhoHangButton_Click);
             // 
             // navSanPhamButton
             // 
@@ -390,7 +390,7 @@
             this.MinimizeBox = false;
             this.Name = "Form_Sidebar";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Dieu huong";
+            this.Text = "Quản Lý Siêu Thị Mini";
             this.sidebarPanel.ResumeLayout(false);
             this.logoPanel.ResumeLayout(false);
             this.mainContentPanel.ResumeLayout(false);
