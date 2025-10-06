@@ -208,7 +208,7 @@
             this.navKhoHangButton.Text = "Kho Hàng";
             this.navKhoHangButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navKhoHangButton.UseVisualStyleBackColor = false;
-            this.navKhoHangButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navKhoHangButton.Click += new System.EventHandler(this.navKhoHangButton_Click);
             // 
             // navSanPhamButton
             // 
