@@ -7,10 +7,11 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject>mini_supermarket.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="BUS\" />
+    <Folder Include="DAO\" />
     <Folder Include="DTO\" />
     <Folder Include="DB\" />
   </ItemGroup>
