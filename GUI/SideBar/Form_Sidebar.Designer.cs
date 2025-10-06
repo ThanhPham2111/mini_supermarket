@@ -265,7 +265,7 @@
             this.navHoaDonButton.Text = "Hoá Đơn";
             this.navHoaDonButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navHoaDonButton.UseVisualStyleBackColor = false;
-            this.navHoaDonButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navHoaDonButton.Click += new System.EventHandler(this.navHoaDonButton_Click);
             // 
             // navBanHangButton
             // 

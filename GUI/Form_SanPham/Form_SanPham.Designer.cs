@@ -1,4 +1,4 @@
-namespace mini_supermarket.GUI.Form_SanPham
+﻿namespace mini_supermarket.GUI.Form_SanPham
 {
     partial class Form_SanPham
     {
@@ -9,6 +9,7 @@ namespace mini_supermarket.GUI.Form_SanPham
         private System.Windows.Forms.Button themButton;
         private System.Windows.Forms.Button suaButton;
         private System.Windows.Forms.Button xoaButton;
+        private System.Windows.Forms.Button khoaButton;
         private System.Windows.Forms.Button lamMoiButton;
         private System.Windows.Forms.ComboBox statusFilterComboBox;
         private System.Windows.Forms.Label searchLabel;
@@ -44,6 +45,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             themButton = new System.Windows.Forms.Button();
             suaButton = new System.Windows.Forms.Button();
             xoaButton = new System.Windows.Forms.Button();
+            khoaButton = new System.Windows.Forms.Button();
             lamMoiButton = new System.Windows.Forms.Button();
             statusFilterComboBox = new System.Windows.Forms.ComboBox();
             searchLabel = new System.Windows.Forms.Label();
@@ -122,6 +124,17 @@ namespace mini_supermarket.GUI.Form_SanPham
             xoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             xoaButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77);
             xoaButton.ForeColor = System.Drawing.Color.White;
+
+            // khoaButton
+            khoaButton.Location = new System.Drawing.Point(560, 65);
+            khoaButton.Name = "khoaButton";
+            khoaButton.Size = new System.Drawing.Size(110, 35);
+            khoaButton.TabIndex = 6;
+            khoaButton.Text = "Khóa";
+            khoaButton.UseVisualStyleBackColor = true;
+            khoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            khoaButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            khoaButton.ForeColor = System.Drawing.Color.White;
 
             // lamMoiButton
             lamMoiButton.Location = new System.Drawing.Point(560, 65);
@@ -257,6 +270,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             Controls.Add(searchLabel);
             Controls.Add(statusFilterComboBox);
             Controls.Add(lamMoiButton);
+            Controls.Add(khoaButton);
             Controls.Add(xoaButton);
             Controls.Add(suaButton);
             Controls.Add(themButton);

@@ -195,7 +195,7 @@ namespace mini_supermarket.GUI.NhanVien
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể khóa nhân viên.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, "Không thể khoá nhân viên.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

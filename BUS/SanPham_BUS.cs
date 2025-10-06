@@ -73,6 +73,22 @@ namespace mini_supermarket.BUS
             return sanPham;
         }
 
+        public void UpdateSanPham(SanPhamDTO sanPham)
+        {
+            if (sanPham == null)
+            {
+                throw new ArgumentNullException(nameof(sanPham));
+            }
+
+            if (sanPham.MaSanPham <= 0)
+            {
+                throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(sanPham.MaSanPham));
+            }
+
+            ValidateSanPham(sanPham);
+            _sanPhamDao.UpdateSanPham(sanPham);
+        }
+
         private static void ValidateSanPham(SanPhamDTO sanPham)
         {
             sanPham.TenSanPham = sanPham.TenSanPham?.Trim() ?? string.Empty;
