@@ -45,7 +45,8 @@ namespace mini_supermarket.GUI.Form_SanPham
             searchTextBox.TextChanged += (_, _) => ApplyFilters();
             themButton.Click += themButton_Click;
             suaButton.Click += suaButton_Click;
-            khoaButton.Click += khoaButton_Click;
+
+            xoaButton.Click += xoaButton_Click;
             lamMoiButton.Click += lamMoiButton_Click;
             xemChiTietButton.Click += xemChiTietButton_Click;
 
@@ -149,7 +150,9 @@ namespace mini_supermarket.GUI.Form_SanPham
             xemChiTietButton.Enabled = hasSelection;
             suaButton.Enabled = hasSelection;
             xoaButton.Enabled = hasSelection;
-            khoaButton.Enabled = hasSelection;
+            var sel = GetSelectedSanPham();
+            bool canKhoa = hasSelection && sel != null && string.Equals(sel.TrangThai?.Trim(), SanPham_BUS.StatusConHang, StringComparison.CurrentCultureIgnoreCase);
+            khoaButton.Enabled = canKhoa;
         }
 
         private void xemChiTietButton_Click(object? sender, EventArgs e)
@@ -299,11 +302,24 @@ namespace mini_supermarket.GUI.Form_SanPham
             return false;
         }
 
-        private void khoaButton_Click(object? sender, EventArgs e)
+        private void xoaButton_Click(object? sender, EventArgs e)
         {
             var selected = GetSelectedSanPham();
             if (selected == null)
             {
+                return;
+            }
+
+            var current = selected.TrangThai?.Trim();
+            if (string.Equals(current, SanPham_BUS.StatusHetHang, StringComparison.CurrentCultureIgnoreCase))
+            {
+                MessageBox.Show(this, "Sản phẩm đã ở trạng thái Hết hàng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (!string.Equals(current, SanPham_BUS.StatusConHang, StringComparison.CurrentCultureIgnoreCase))
+            {
+                MessageBox.Show(this, "Chỉ có thể khóa sản phẩm đang ở trạng thái Còn hàng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -321,9 +337,21 @@ namespace mini_supermarket.GUI.Form_SanPham
                 Hsd = selected.Hsd,
                 TrangThai = SanPham_BUS.StatusHetHang
             };
+            DialogResult confirm = MessageBox.Show(this,
+               $"Bạn có chắc muốn khóa nhân viên '{selected.TenSanPham}'? Trạng thái sẽ được chuyển thành 'Hết hàng'.",
+               "Xác nhận?",
+               MessageBoxButtons.YesNo,
+               MessageBoxIcon.Question,
+               MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes)
+            {
+                return;
+            }
 
             try
             {
+
                 _sanPhamBus.UpdateSanPham(updated);
                 // Reset filters for clear visibility and select the updated row
                 if (statusFilterComboBox.SelectedIndex != 0) statusFilterComboBox.SelectedIndex = 0;
