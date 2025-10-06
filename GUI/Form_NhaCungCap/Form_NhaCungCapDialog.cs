@@ -109,8 +109,6 @@ namespace mini_supermarket.GUI.NhaCungCap
             // }
             diaChiTextBox.Text = _workingNhaCungCap.DiaChi ?? string.Empty;
             emailTextBox.Text = _workingNhaCungCap.Email ?? string.Empty;
-           
-
         }
 
         private void okButton_Click(object? sender, EventArgs e)
@@ -118,17 +116,43 @@ namespace mini_supermarket.GUI.NhaCungCap
             string hoTen = hoTenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(hoTen))
             {
-                MessageBox.Show(this, "Vui lòng nhập họ tên.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Tên nhà cung cấp không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 hoTenTextBox.Focus();
                 return;
             }
 
-            // if (ngaySinhDateTimePicker.Value.Date > DateTime.Today)
-            // {
-            //     MessageBox.Show(this, "Ngày sinh không hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //     ngaySinhDateTimePicker.Focus();
-            //     return;
-            // }
+            // Validate so dien thoai (bat buoc, 10 chu so)
+            string soDienThoai = soDienThoaiTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(soDienThoai))
+            {
+                MessageBox.Show(this, "Số điện thoại không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                soDienThoaiTextBox.Focus();
+                return;
+            }
+            if (soDienThoai.Length != 10 || !soDienThoai.All(char.IsDigit))
+            {
+                MessageBox.Show(this, "Số điện thoại phải gồm 10 chữ số.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                soDienThoaiTextBox.Focus();
+                return;
+            }
+
+            // Validate dia chi (bat buoc)
+            string diaChi = diaChiTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(diaChi))
+            {
+                MessageBox.Show(this, "Địa chỉ không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                diaChiTextBox.Focus();
+                return;
+            }
+
+            // Validate email (bat buoc - chi kiem tra khong rong)
+            string email = emailTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                MessageBox.Show(this, "Email không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                emailTextBox.Focus();
+                return;
+            }
 
             if (trangThaiComboBox.SelectedItem is not string trangThai || string.IsNullOrWhiteSpace(trangThai))
             {
@@ -138,25 +162,16 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
 
             _workingNhaCungCap.TenNhaCungCap = hoTen;
-            // _workingNhaCungCap.NgaySinh = ngaySinhDateTimePicker.Value.Date;
-            // _workingNhaCungCap.GioiTinh = gioiTinhNamRadioButton.Checked
-            //     ? "Nam"
-            //     : gioiTinhNuRadioButton.Checked ? "Nữ" : null;
-            // _workingNhaCungCap.VaiTro = vaiTroComboBox.SelectedItem as string;
             _workingNhaCungCap.SoDienThoai = string.IsNullOrWhiteSpace(soDienThoaiTextBox.Text)
                 ? null
                 : soDienThoaiTextBox.Text.Trim();
             _workingNhaCungCap.TrangThai = trangThai;
-
-            // add
             _workingNhaCungCap.DiaChi = string.IsNullOrWhiteSpace(diaChiTextBox.Text)
-            ? null
-            : diaChiTextBox.Text.Trim();
-
+                ? null
+                : diaChiTextBox.Text.Trim();
             _workingNhaCungCap.Email = string.IsNullOrWhiteSpace(emailTextBox.Text)
-            ? null
-            : emailTextBox.Text.Trim();
-
+                ? null
+                : emailTextBox.Text.Trim();
 
             DialogResult = DialogResult.OK;
             Close();
