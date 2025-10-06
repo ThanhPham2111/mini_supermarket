@@ -98,11 +98,11 @@
             // 
             // navNhaCungCapButton
             // 
-              this.navNhaCungCapButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            this.navNhaCungCapButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
             this.navNhaCungCapButton.Dock = System.Windows.Forms.DockStyle.Top;
             this.navNhaCungCapButton.FlatAppearance.BorderSize = 0;
             this.navNhaCungCapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.navNhaCungCapButton.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.navNhaCungCapButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.navNhaCungCapButton.ForeColor = System.Drawing.Color.White;
             this.navNhaCungCapButton.Location = new System.Drawing.Point(0, 674);
             this.navNhaCungCapButton.Margin = new System.Windows.Forms.Padding(0);
@@ -113,7 +113,7 @@
             this.navNhaCungCapButton.Text = "Nhà Cung Cấp";
             this.navNhaCungCapButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navNhaCungCapButton.UseVisualStyleBackColor = false;
-            this.navNhaCungCapButton.Click += new System.EventHandler(this.navNhaCungCapButton_Click);
+            this.navNhaCungCapButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
             // 
             // navNhanVienButton
             // 
