@@ -192,7 +192,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.okButton.TabIndex = 14;
             this.okButton.Text = "Đồng Ý";
             this.okButton.UseVisualStyleBackColor = true;
-            
+
             // 
             // cancelButton
             // 
@@ -228,7 +228,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.Controls.Add(this.diemTichLuyTextBox);
             this.Controls.Add(this.diemTichLuyLabel);
             // end add
-            
+
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -244,33 +244,33 @@ namespace mini_supermarket.GUI.KhachHang
 
         #endregion
 
-        private System.Windows.Forms.Label hoTenLabel;
-        private System.Windows.Forms.TextBox hoTenTextBox;
-        private System.Windows.Forms.Label soDienThoaiLabel;
-        private System.Windows.Forms.TextBox soDienThoaiTextBox;
-        private System.Windows.Forms.Label trangThaiLabel;
-        private System.Windows.Forms.ComboBox trangThaiComboBox;
-        private System.Windows.Forms.Label maKhachHangLabel;
-        private System.Windows.Forms.Label maKhachHangValueLabel;
-        private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.GroupBox gioiTinhGroupBox;
+        private System.Windows.Forms.Label? hoTenLabel;
+        private System.Windows.Forms.TextBox? hoTenTextBox;
+        private System.Windows.Forms.Label? soDienThoaiLabel;
+        private System.Windows.Forms.TextBox? soDienThoaiTextBox;
+        private System.Windows.Forms.Label? trangThaiLabel;
+        private System.Windows.Forms.ComboBox? trangThaiComboBox;
+        private System.Windows.Forms.Label? maKhachHangLabel;
+        private System.Windows.Forms.Label? maKhachHangValueLabel;
+        private System.Windows.Forms.Button? okButton;
+        private System.Windows.Forms.Button? cancelButton;
+        private System.Windows.Forms.GroupBox? gioiTinhGroupBox;
 
         // Add components
         // diaChi component
-        private System.Windows.Forms.Label diaChiLabel;
-        private System.Windows.Forms.TextBox diaChiTextBox;
+        private System.Windows.Forms.Label? diaChiLabel;
+        private System.Windows.Forms.TextBox? diaChiTextBox;
         // email component
-        private System.Windows.Forms.Label emailLabel;
-        private System.Windows.Forms.TextBox emailTextBox;
+        private System.Windows.Forms.Label? emailLabel;
+        private System.Windows.Forms.TextBox? emailTextBox;
         // diemTichLuy component
-        private System.Windows.Forms.Label diemTichLuyLabel;
-        private System.Windows.Forms.TextBox diemTichLuyTextBox;
+        private System.Windows.Forms.Label? diemTichLuyLabel;
+        private System.Windows.Forms.TextBox? diemTichLuyTextBox;
         // end add component
         // add columns
-        private System.Windows.Forms.DataGridViewTextBoxColumn diaChiColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn emailColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn diemTichLuyColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn? diaChiColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn? emailColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn? diemTichLuyColumn;
         // end add columns
     }
 }
