@@ -102,7 +102,7 @@ namespace mini_supermarket.GUI.NhaCungCap
                 soDienThoaiTextBox.Text = selectedNhaCungCap.SoDienThoai ?? string.Empty;
                 diaChiTextBox.Text = selectedNhaCungCap.DiaChi ?? string.Empty;
                 emailTextBox.Text = selectedNhaCungCap.Email ?? string.Empty;
-            
+
 
                 suaButton.Enabled = true;
                 xoaButton.Enabled = true;
@@ -120,7 +120,7 @@ namespace mini_supermarket.GUI.NhaCungCap
                 soDienThoaiTextBox.Text = string.Empty;
                 diaChiTextBox.Text = string.Empty;
                 emailTextBox.Text = string.Empty;
-             
+
 
                 suaButton.Enabled = false;
                 xoaButton.Enabled = false;
@@ -145,7 +145,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể thêm khách hàng.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"Không thể thêm nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -171,7 +171,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể cập nhật khách hàng.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"Không thể cập nhật nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -184,7 +184,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
 
             DialogResult confirm = MessageBox.Show(this,
-                $"Bạn có chắc muốn khóa khách hàng '{selectedNhaCungCap.TenNhaCungCap}'? Trạng thái sẽ được chuyển thành 'Khóa'.",
+                $"Bạn có chắc muốn khóa nhà cung cấp '{selectedNhaCungCap.TenNhaCungCap}'? Trạng thái sẽ được chuyển thành 'Khóa'.",
                 "Xác nhận khóa",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
@@ -203,7 +203,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể khóa khách hàng.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"Không thể khóa nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -292,7 +292,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể tải danh sách khách hàng.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"Không thể tải danh sách nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -315,7 +315,7 @@ namespace mini_supermarket.GUI.NhaCungCap
                     }
                 }
                 _bindingSource.DataSource = filtered;
-                
+
             }
 
             if (!string.IsNullOrEmpty(searchTextBox.Text.Trim()))

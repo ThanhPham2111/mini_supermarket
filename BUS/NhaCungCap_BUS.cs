@@ -17,24 +17,15 @@ namespace mini_supermarket.BUS
             StatusInactive
         };
 
-        private static readonly string[] DefaultRoles =
-        {
-            "Quản lý",
-            "Nhân viên bán hàng",
-            "Thu ngân"
-        };
+        private readonly NhaCungCap_DAO _nhaCungCapDao = new();
+
+        public IReadOnlyList<string> GetDefaultStatuses() => DefaultStatuses;
+
         public int GetNextMaNhaCungCap()
         {
             int maxId = _nhaCungCapDao.GetMaxMaNhaCungCap();
             return maxId + 1;
         }
-
-
-        private readonly NhaCungCap_DAO _nhaCungCapDao = new();
-
-        public IReadOnlyList<string> GetDefaultStatuses() => DefaultStatuses;
-
-        public IReadOnlyList<string> GetDefaultRoles() => DefaultRoles;
 
         public IList<NhaCungCapDTO> GetNhaCungCap(string? trangThaiFilter = null)
         {
@@ -86,27 +77,25 @@ namespace mini_supermarket.BUS
             nhaCungCap.TenNhaCungCap = nhaCungCap.TenNhaCungCap?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(nhaCungCap.TenNhaCungCap))
             {
-                throw new ArgumentException("Tên khách hàng không được để trống.", nameof(nhaCungCap.TenNhaCungCap));
+                throw new ArgumentException("Tên nhà cung cấp không được để trống.", nameof(nhaCungCap.TenNhaCungCap));
             }
 
-            // if (nhaCungCap.NgaySinh.HasValue && nhaCungCap.NgaySinh.Value.Date > DateTime.Today)
-            // {
-            //     throw new ArgumentException("Ngày sinh không hợp lệ.", nameof(nhaCungCap.NgaySinh));
-            // }
-
-            if (!string.IsNullOrWhiteSpace(nhaCungCap.SoDienThoai))
+            nhaCungCap.DiaChi = nhaCungCap.DiaChi?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(nhaCungCap.DiaChi))
             {
-                nhaCungCap.SoDienThoai = nhaCungCap.SoDienThoai.Trim();
-                if (nhaCungCap.SoDienThoai.Length > 15)
-                {
-                    throw new ArgumentException("Số điện thoại không được dài hơn 15 ký tự.", nameof(nhaCungCap.SoDienThoai));
-                }
+                throw new ArgumentException("Địa chỉ không được để trống.", nameof(nhaCungCap.DiaChi));
             }
 
-            // if (!string.IsNullOrWhiteSpace(nhaCungCap.VaiTro) && !DefaultRoles.Contains(nhaCungCap.VaiTro))
-            // {
-            //     throw new ArgumentException("Chức vụ không hợp lệ.", nameof(nhaCungCap.VaiTro));
-            // }
+            nhaCungCap.SoDienThoai = nhaCungCap.SoDienThoai?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(nhaCungCap.SoDienThoai))
+            {
+                throw new ArgumentException("Số điện thoại không được để trống.", nameof(nhaCungCap.SoDienThoai));
+            }
+
+            if (nhaCungCap.SoDienThoai.Length != 10 || !nhaCungCap.SoDienThoai.All(char.IsDigit))
+            {
+                throw new ArgumentException("Số điện thoại phải có 10 số.", nameof(nhaCungCap.SoDienThoai));
+            }
 
             if (string.IsNullOrWhiteSpace(nhaCungCap.TrangThai))
             {
