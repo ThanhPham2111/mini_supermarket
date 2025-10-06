@@ -29,6 +29,7 @@ namespace mini_supermarket.GUI.HoaDon
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            // Button xemChiTietButton;
             invoiceSearchGroupBox = new GroupBox();
             thongKeButton = new Button();
             revenueLabel = new Label();
@@ -62,6 +63,7 @@ namespace mini_supermarket.GUI.HoaDon
             khachHangColumn = new DataGridViewTextBoxColumn();
             thanhTienColumn = new DataGridViewTextBoxColumn();
             danhSachGroupBox = new GroupBox();
+            xemChiTietButton = new Button();
             invoiceSearchGroupBox.SuspendLayout();
             timeSearchGroupBox.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -76,6 +78,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             invoiceSearchGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             invoiceSearchGroupBox.BackColor = Color.WhiteSmoke;
+            invoiceSearchGroupBox.Controls.Add(xemChiTietButton);
             invoiceSearchGroupBox.Controls.Add(thongKeButton);
             invoiceSearchGroupBox.Controls.Add(revenueLabel);
             invoiceSearchGroupBox.Controls.Add(countInvoicesLabel);
@@ -135,7 +138,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // lamMoiButton
             // 
-            lamMoiButton.Location = new Point(580, 260);
+            lamMoiButton.Location = new Point(500, 260);
             lamMoiButton.Margin = new Padding(3, 4, 3, 4);
             lamMoiButton.Name = "lamMoiButton";
             lamMoiButton.Size = new Size(137, 40);
@@ -148,7 +151,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // xoaButton
             // 
-            xoaButton.Location = new Point(420, 260);
+            xoaButton.Location = new Point(340, 260);
             xoaButton.Margin = new Padding(3, 4, 3, 4);
             xoaButton.Name = "xoaButton";
             xoaButton.Size = new Size(137, 40);
@@ -161,7 +164,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // suaButton
             // 
-            suaButton.Location = new Point(260, 260);
+            suaButton.Location = new Point(180, 260);
             suaButton.Margin = new Padding(3, 4, 3, 4);
             suaButton.Name = "suaButton";
             suaButton.Size = new Size(137, 40);
@@ -174,7 +177,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // themButton
             // 
-            themButton.Location = new Point(100, 260);
+            themButton.Location = new Point(20, 260);
             themButton.Margin = new Padding(3, 4, 3, 4);
             themButton.Name = "themButton";
             themButton.Size = new Size(137, 40);
@@ -428,6 +431,19 @@ namespace mini_supermarket.GUI.HoaDon
             danhSachGroupBox.TabStop = false;
             danhSachGroupBox.Text = "Danh sách hóa đơn";
             // 
+            // xemChiTietButton
+            // 
+            xemChiTietButton.BackColor = Color.FromArgb(0, 120, 215);
+            xemChiTietButton.FlatStyle = FlatStyle.Flat;
+            xemChiTietButton.ForeColor = Color.White;
+            xemChiTietButton.Location = new Point(660, 260);
+            xemChiTietButton.Margin = new Padding(3, 4, 3, 4);
+            xemChiTietButton.Name = "xemChiTietButton";
+            xemChiTietButton.Size = new Size(137, 40);
+            xemChiTietButton.TabIndex = 24;
+            xemChiTietButton.Text = "Xem chi tiết";
+            xemChiTietButton.UseVisualStyleBackColor = false;
+            // 
             // Form_HoaDon
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -492,5 +508,6 @@ namespace mini_supermarket.GUI.HoaDon
         private DataGridViewTextBoxColumn? nhanVienColumn;
         private DataGridViewTextBoxColumn? khachHangColumn;
         private DataGridViewTextBoxColumn? thanhTienColumn;
+        private Button? xemChiTietButton;
     }
 }
