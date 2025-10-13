@@ -8,6 +8,7 @@ using mini_supermarket.GUI.NhaCungCap;
 using mini_supermarket.GUI.HoaDon;
 using mini_supermarket.GUI.FormKhoHang;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
+using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
 namespace mini_supermarket.GUI.SideBar
 {
@@ -50,6 +51,10 @@ namespace mini_supermarket.GUI.SideBar
         private void navSanPhamButton_Click(object sender, EventArgs e)
         {
             ShowSanPham();
+        }
+        private void navLoaiSanPhamButton_Click(object sender, EventArgs e)
+        {
+            ShowLoaiSanPham();
         }
 
         private void navKhachHangButton_Click(object sender, EventArgs e)
@@ -165,6 +170,26 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(sanPhamForm);
             sanPhamForm.Show();
+        }
+
+        private void ShowLoaiSanPham()
+        {
+            SetActiveButton(navLoaiSanPhamButton);
+            mainTitleLabel.Text = navLoaiSanPhamButton.Text;
+
+            CloseActiveForm();
+
+            var form = new FormLoaiSanPham
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = form;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(form);
+            form.Show();
         }
 
         private void ShowKhachHang()

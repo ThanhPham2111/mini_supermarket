@@ -189,7 +189,7 @@
             this.navLoaiSanPhamButton.Text = "Loại Sản Phẩm";
             this.navLoaiSanPhamButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navLoaiSanPhamButton.UseVisualStyleBackColor = false;
-            this.navLoaiSanPhamButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navLoaiSanPhamButton.Click += new System.EventHandler(this.navLoaiSanPhamButton_Click);
             // 
             // navKhoHangButton
             // 
