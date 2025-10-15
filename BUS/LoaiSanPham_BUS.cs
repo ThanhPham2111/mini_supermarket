@@ -14,6 +14,21 @@ namespace mini_supermarket.BUS
             return _loaiDao.GetAll();
         }
 
+        public LoaiDTO AddLoai(string tenLoai, string? moTa)
+        {
+            if (string.IsNullOrWhiteSpace(tenLoai))
+            {
+                throw new ArgumentException("Tên loại không hợp lệ.", nameof(tenLoai));
+            }
+
+            return _loaiDao.Create(tenLoai.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+        }
+
+        public int GetNextMaLoai()
+        {
+            return _loaiDao.GetNextIdentityValue();
+        }
+
         public IList<LoaiDTO> SearchLoai(string? keyword)
         {
             var all = _loaiDao.GetAll();

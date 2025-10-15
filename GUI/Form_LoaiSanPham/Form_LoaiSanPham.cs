@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
-using mini_supermarket.GUI.Form_LoaiSanPham;
+using mini_supermarket.GUI.Form_LoaiSanPham.Dialogs;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
@@ -147,7 +147,33 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void addLoaiButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Thêm loại - sẽ được triển khai.", "Thông báo");
+            using var dialog = new ThemLoaiDialog();
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedLoai == null)
+            {
+                return;
+            }
+
+            LoadLoaiData();
+            var createdLoai = dialog.CreatedLoai;
+            foreach (DataGridViewRow row in loaiDataGridView.Rows)
+            {
+                if (row.DataBoundItem is not LoaiDTO loai || loai.MaLoai != createdLoai.MaLoai)
+                {
+                    continue;
+                }
+
+                loaiDataGridView.ClearSelection();
+                row.Selected = true;
+                try
+                {
+                    loaiDataGridView.FirstDisplayedScrollingRowIndex = row.Index;
+                }
+                catch
+                {
+                    // ignore scroll errors if index is out of range
+                }
+                break;
+            }
         }
 
         private void editLoaiButton_Click(object sender, EventArgs e)
