@@ -11,6 +11,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
     {
         private readonly LoaiSanPham_BUS _loaiBus = new();
         private readonly BindingSource _loaiBindingSource = new();
+        private Form? _activeEmbeddedForm;
 
         public Form_LoaiSanPham()
         {
@@ -23,8 +24,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             base.OnLoad(e);
             LoadLoaiData();
         }
-
-        private Form? _activeEmbeddedForm;
 
         private void ShowEmbeddedFormInCurrentTab(Form form)
         {
@@ -51,10 +50,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void mainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // 0: Loại (giữ nguyên layout hiện tại)
             if (mainTabControl.SelectedTab == tabLoai)
             {
-                // khôi phục layout loại
                 tabLoai.Controls.Clear();
                 tabLoai.Controls.Add(loaiDataGridView);
                 tabLoai.Controls.Add(listHeaderLabel);
@@ -73,7 +70,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             if (mainTabControl.SelectedTab == tabDonVi)
             {
                 ShowEmbeddedFormInCurrentTab(new Form_DonVi());
-                return;
             }
         }
 
@@ -83,6 +79,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             {
                 return;
             }
+
             _activeEmbeddedForm.Close();
             _activeEmbeddedForm.Dispose();
             _activeEmbeddedForm = null;
@@ -102,7 +99,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var maLoaiColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(LoaiDTO.MaLoai),
-                HeaderText = "Mã loại",
+                HeaderText = "Ma loai",
                 Name = "MaLoaiColumn",
                 Width = 120
             };
@@ -110,7 +107,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var tenLoaiColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(LoaiDTO.TenLoai),
-                HeaderText = "Tên loại",
+                HeaderText = "Ten loai",
                 Name = "TenLoaiColumn",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
@@ -118,7 +115,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var moTaColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(LoaiDTO.MoTa),
-                HeaderText = "Mô tả",
+                HeaderText = "Mo ta",
                 Name = "MoTaColumn",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
@@ -131,6 +128,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         {
             IList<LoaiDTO> loaiList = _loaiBus.GetLoaiList();
             _loaiBindingSource.DataSource = loaiList;
+            ResetLoaiSelection();
         }
 
         private void refreshLoaiButton_Click(object sender, EventArgs e)
@@ -143,6 +141,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var keyword = searchTextBox.Text?.Trim() ?? string.Empty;
             IList<LoaiDTO> filtered = _loaiBus.SearchLoai(keyword);
             _loaiBindingSource.DataSource = filtered;
+            ResetLoaiSelection();
         }
 
         private void addLoaiButton_Click(object sender, EventArgs e)
@@ -154,48 +153,88 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             }
 
             LoadLoaiData();
-            var createdLoai = dialog.CreatedLoai;
-            foreach (DataGridViewRow row in loaiDataGridView.Rows)
-            {
-                if (row.DataBoundItem is not LoaiDTO loai || loai.MaLoai != createdLoai.MaLoai)
-                {
-                    continue;
-                }
-
-                loaiDataGridView.ClearSelection();
-                row.Selected = true;
-                try
-                {
-                    loaiDataGridView.FirstDisplayedScrollingRowIndex = row.Index;
-                }
-                catch
-                {
-                    // ignore scroll errors if index is out of range
-                }
-                break;
-            }
         }
 
         private void editLoaiButton_Click(object sender, EventArgs e)
         {
-            if (loaiDataGridView.CurrentRow == null)
+            if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show("Vui lòng chọn một loại để sửa.");
+                MessageBox.Show("Vui long chon loai de sua.", "Thong bao", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            MessageBox.Show("Sửa loại - sẽ được triển khai.", "Thông báo");
+
+            var loaiSnapshot = new LoaiDTO(selected.MaLoai, selected.TenLoai, selected.MoTa);
+            using var dialog = new SuaLoaiDialog(loaiSnapshot);
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.UpdatedLoai == null)
+            {
+                return;
+            }
+
+            LoadLoaiData();
         }
 
         private void deleteLoaiButton_Click(object sender, EventArgs e)
         {
-            if (loaiDataGridView.CurrentRow == null)
+            if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show("Vui lòng chọn một loại để xóa.");
+                MessageBox.Show("Vui long chon loai de xoa.", "Thong bao", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            MessageBox.Show("Xóa loại - sẽ được triển khai.", "Thông báo");
+
+            var confirm = MessageBox.Show(
+                $"Ban co chac muon xoa loai \"{selected.TenLoai}\" (Ma {selected.MaLoai})?",
+                "Xac nhan xoa",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                _loaiBus.DeleteLoai(selected.MaLoai);
+                LoadLoaiData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Khong the xoa loai.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+                    "Loi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void ResetLoaiSelection()
+        {
+            try
+            {
+                if (_loaiBindingSource.Position != -1)
+                {
+                    _loaiBindingSource.Position = -1;
+                }
+            }
+            catch
+            {
+                // ignore when binding source rejects position reset
+            }
+
+            loaiDataGridView.ClearSelection();
+
+            if (loaiDataGridView.CurrentCell != null)
+            {
+                try
+                {
+                    loaiDataGridView.CurrentCell = null;
+                }
+                catch
+                {
+                    // ignore if the grid rejects clearing the current cell
+                }
+            }
         }
     }
 }
-
-

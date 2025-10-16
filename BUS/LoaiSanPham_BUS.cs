@@ -24,6 +24,35 @@ namespace mini_supermarket.BUS
             return _loaiDao.Create(tenLoai.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
         }
 
+        public LoaiDTO UpdateLoai(int maLoai, string tenLoai, string? moTa)
+        {
+            if (maLoai <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maLoai), "Mã loại không hợp lệ.");
+            }
+
+            if (string.IsNullOrWhiteSpace(tenLoai))
+            {
+                throw new ArgumentException("Tên loại không hợp lệ.", nameof(tenLoai));
+            }
+
+            return _loaiDao.Update(maLoai, tenLoai.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+        }
+
+        public void DeleteLoai(int maLoai)
+        {
+            if (maLoai <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maLoai), "Mã loại không hợp lệ.");
+            }
+
+            bool deleted = _loaiDao.Delete(maLoai);
+            if (!deleted)
+            {
+                throw new InvalidOperationException("Không tìm thấy loại cần xoá.");
+            }
+        }
+
         public int GetNextMaLoai()
         {
             return _loaiDao.GetNextIdentityValue();
@@ -52,5 +81,4 @@ namespace mini_supermarket.BUS
         }
     }
 }
-
 

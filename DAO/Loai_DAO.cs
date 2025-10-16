@@ -16,7 +16,7 @@ namespace mini_supermarket.DAO
             using var command = connection.CreateCommand();
             command.CommandText = @"SELECT MaLoai, TenLoai, MoTa
                                    FROM dbo.Tbl_Loai
-                                   ORDER BY TenLoai";
+                                   ORDER BY MaLoai ASC";
 
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -57,7 +57,7 @@ namespace mini_supermarket.DAO
             using var reader = command.ExecuteReader();
             if (!reader.Read())
             {
-                throw new InvalidOperationException("Không thể tạo loại.");
+                throw new InvalidOperationException("Không tạo được loại.");
             }
 
             return new LoaiDTO
@@ -66,6 +66,65 @@ namespace mini_supermarket.DAO
                 TenLoai = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                 MoTa = reader.IsDBNull(2) ? null : reader.GetString(2)
             };
+        }
+
+        public LoaiDTO Update(int maLoai, string tenLoai, string? moTa)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE dbo.Tbl_Loai
+                                    SET TenLoai = @TenLoai, MoTa = @MoTa
+                                    OUTPUT INSERTED.MaLoai, INSERTED.TenLoai, INSERTED.MoTa
+                                    WHERE MaLoai = @MaLoai";
+
+            var maLoaiParameter = new SqlParameter("@MaLoai", System.Data.SqlDbType.Int)
+            {
+                Value = maLoai
+            };
+            command.Parameters.Add(maLoaiParameter);
+
+            var tenLoaiParameter = new SqlParameter("@TenLoai", System.Data.SqlDbType.NVarChar, 255)
+            {
+                Value = tenLoai
+            };
+            command.Parameters.Add(tenLoaiParameter);
+
+            var moTaParameter = new SqlParameter("@MoTa", System.Data.SqlDbType.NVarChar, -1)
+            {
+                Value = (object?)moTa ?? System.DBNull.Value
+            };
+            command.Parameters.Add(moTaParameter);
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            if (!reader.Read())
+            {
+                throw new InvalidOperationException("Không tạo được loại.");
+            }
+
+            return new LoaiDTO
+            {
+                MaLoai = reader.GetInt32(0),
+                TenLoai = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                MoTa = reader.IsDBNull(2) ? null : reader.GetString(2)
+            };
+        }
+
+        public bool Delete(int maLoai)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"DELETE FROM dbo.Tbl_Loai WHERE MaLoai = @MaLoai";
+
+            var maLoaiParameter = new SqlParameter("@MaLoai", System.Data.SqlDbType.Int)
+            {
+                Value = maLoai
+            };
+            command.Parameters.Add(maLoaiParameter);
+
+            connection.Open();
+            int affected = command.ExecuteNonQuery();
+            return affected > 0;
         }
 
         public int GetNextIdentityValue()

@@ -15,7 +15,7 @@ namespace mini_supermarket.DAO
             using var command = connection.CreateCommand();
             command.CommandText = @"SELECT MaThuongHieu, TenThuongHieu
                                    FROM dbo.Tbl_ThuongHieu
-                                   ORDER BY TenThuongHieu";
+                                   ORDER BY MaThuongHieu ASC";
 
             connection.Open();
             using var reader = command.ExecuteReader();
