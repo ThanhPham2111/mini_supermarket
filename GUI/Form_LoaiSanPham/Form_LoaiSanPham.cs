@@ -99,7 +99,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var maLoaiColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(LoaiDTO.MaLoai),
-                HeaderText = "Ma loai",
+                HeaderText = "Mã loại",
                 Name = "MaLoaiColumn",
                 Width = 120
             };
@@ -107,7 +107,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var tenLoaiColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(LoaiDTO.TenLoai),
-                HeaderText = "Ten loai",
+                HeaderText = "Tên loại",
                 Name = "TenLoaiColumn",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
@@ -115,7 +115,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             var moTaColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(LoaiDTO.MoTa),
-                HeaderText = "Mo ta",
+                HeaderText = "Mô tả",
                 Name = "MoTaColumn",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
@@ -159,7 +159,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         {
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show("Vui long chon loai de sua.", "Thong bao", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn loại để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -177,13 +177,13 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         {
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show("Vui long chon loai de xoa.", "Thong bao", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn loại để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             var confirm = MessageBox.Show(
-                $"Ban co chac muon xoa loai \"{selected.TenLoai}\" (Ma {selected.MaLoai})?",
-                "Xac nhan xoa",
+                $"Bạn có chắc muốn xoá loại \"{selected.TenLoai}\" (Mã {selected.MaLoai})?",
+                "Xác nhận xoá",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
@@ -201,8 +201,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Khong the xoa loai.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
-                    "Loi",
+                    $"Không thể xoá loại.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+                    "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
