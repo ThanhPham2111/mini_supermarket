@@ -1,6 +1,6 @@
-namespace mini_supermarket.GUI.KhachHang
+namespace mini_supermarket.GUI.NhaCungCap
 {
-    partial class Form_KhachHangDialog
+    partial class Form_NhaCungCapDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -34,8 +34,8 @@ namespace mini_supermarket.GUI.KhachHang
             this.soDienThoaiTextBox = new System.Windows.Forms.TextBox();
             this.trangThaiLabel = new System.Windows.Forms.Label();
             this.trangThaiComboBox = new System.Windows.Forms.ComboBox();
-            this.maKhachHangLabel = new System.Windows.Forms.Label();
-            this.maKhachHangValueLabel = new System.Windows.Forms.Label();
+            this.maNhaCungCapLabel = new System.Windows.Forms.Label();
+            this.maNhaCungCapValueLabel = new System.Windows.Forms.Label();
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.gioiTinhGroupBox = new System.Windows.Forms.GroupBox();
@@ -47,11 +47,9 @@ namespace mini_supermarket.GUI.KhachHang
             this.diaChiTextBox = new System.Windows.Forms.TextBox();
             this.emailLabel = new System.Windows.Forms.Label();
             this.emailTextBox = new System.Windows.Forms.TextBox();
-            this.diemTichLuyLabel = new System.Windows.Forms.Label();
-            this.diemTichLuyTextBox = new System.Windows.Forms.TextBox();
             this.diaChiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.emailColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.diemTichLuyColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           
             // end add init
 
             // 
@@ -62,7 +60,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.hoTenLabel.Name = "hoTenLabel";
             this.hoTenLabel.Size = new System.Drawing.Size(50, 13);
             this.hoTenLabel.TabIndex = 0;
-            this.hoTenLabel.Text = "Họ Tên:";
+            this.hoTenLabel.Text = "Tên công ty:";
 
             // 
             // hoTenTextBox
@@ -127,22 +125,9 @@ namespace mini_supermarket.GUI.KhachHang
             this.emailTextBox.TabIndex = 7;
 
             // 
-            // diemTichLuyLabel
-            // 
-            this.diemTichLuyLabel.AutoSize = true;
-            this.diemTichLuyLabel.Location = new System.Drawing.Point(12, 140);
-            this.diemTichLuyLabel.Name = "diemTichLuyLabel";
-            this.diemTichLuyLabel.Size = new System.Drawing.Size(62, 13);
-            this.diemTichLuyLabel.TabIndex = 8;
-            this.diemTichLuyLabel.Text = "Điểm tích lũy:";
+        
 
-            // 
-            // diemTichLuyTextBox
-            // 
-            this.diemTichLuyTextBox.Location = new System.Drawing.Point(100, 137);
-            this.diemTichLuyTextBox.Name = "diemTichLuyTextBox";
-            this.diemTichLuyTextBox.Size = new System.Drawing.Size(200, 20);
-            this.diemTichLuyTextBox.TabIndex = 9;
+      
 
             // 
             // trangThaiLabel
@@ -164,24 +149,24 @@ namespace mini_supermarket.GUI.KhachHang
             this.trangThaiComboBox.TabIndex = 11;
 
             // 
-            // maKhachHangLabel
+            // maNhaCungCapLabel
             // 
-            this.maKhachHangLabel.AutoSize = true;
-            this.maKhachHangLabel.Location = new System.Drawing.Point(12, 200);
-            this.maKhachHangLabel.Name = "maKhachHangLabel";
-            this.maKhachHangLabel.Size = new System.Drawing.Size(89, 13);
-            this.maKhachHangLabel.TabIndex = 12;
-            this.maKhachHangLabel.Text = "Mã Khách Hàng:";
+            this.maNhaCungCapLabel.AutoSize = true;
+            this.maNhaCungCapLabel.Location = new System.Drawing.Point(12, 200);
+            this.maNhaCungCapLabel.Name = "maNhaCungCapLabel";
+            this.maNhaCungCapLabel.Size = new System.Drawing.Size(89, 13);
+            this.maNhaCungCapLabel.TabIndex = 12;
+            this.maNhaCungCapLabel.Text = "Mã nhà cung cấp:";
 
             // 
-            // maKhachHangValueLabel
+            // maNhaCungCapValueLabel
             // 
-            this.maKhachHangValueLabel.AutoSize = true;
-            this.maKhachHangValueLabel.Location = new System.Drawing.Point(100, 200);
-            this.maKhachHangValueLabel.Name = "maKhachHangValueLabel";
-            this.maKhachHangValueLabel.Size = new System.Drawing.Size(50, 13);
-            this.maKhachHangValueLabel.TabIndex = 13;
-            this.maKhachHangValueLabel.Text = "(Tự động)";
+            this.maNhaCungCapValueLabel.AutoSize = true;
+            this.maNhaCungCapValueLabel.Location = new System.Drawing.Point(100, 200);
+            this.maNhaCungCapValueLabel.Name = "maNhaCungCapValueLabel";
+            this.maNhaCungCapValueLabel.Size = new System.Drawing.Size(50, 13);
+            this.maNhaCungCapValueLabel.TabIndex = 13;
+            this.maNhaCungCapValueLabel.Text = "(Tự động)";
 
             // 
             // okButton
@@ -192,7 +177,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.okButton.TabIndex = 14;
             this.okButton.Text = "Đồng Ý";
             this.okButton.UseVisualStyleBackColor = true;
-
+            
             // 
             // cancelButton
             // 
@@ -204,15 +189,15 @@ namespace mini_supermarket.GUI.KhachHang
             this.cancelButton.UseVisualStyleBackColor = true;
 
             // 
-            // Form_KhachHangDialog
+            // Form_NhaCungCapDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(314, 260);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
-            this.Controls.Add(this.maKhachHangValueLabel);
-            this.Controls.Add(this.maKhachHangLabel);
+            this.Controls.Add(this.maNhaCungCapValueLabel);
+            this.Controls.Add(this.maNhaCungCapLabel);
             this.Controls.Add(this.trangThaiComboBox);
             this.Controls.Add(this.trangThaiLabel);
             this.Controls.Add(this.soDienThoaiTextBox);
@@ -225,16 +210,15 @@ namespace mini_supermarket.GUI.KhachHang
             this.Controls.Add(this.diaChiLabel);
             this.Controls.Add(this.emailTextBox);
             this.Controls.Add(this.emailLabel);
-            this.Controls.Add(this.diemTichLuyTextBox);
-            this.Controls.Add(this.diemTichLuyLabel);
-            // end add
+       
 
+            
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form_KhachHangDialog";
+            this.Name = "Form_NhaCungCapDialog";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Thêm khách hàng";
+            this.Text = "Thêm nhà cung cấp";
             this.gioiTinhGroupBox.ResumeLayout(false);
             this.gioiTinhGroupBox.PerformLayout();
             this.ResumeLayout(false);
@@ -244,33 +228,31 @@ namespace mini_supermarket.GUI.KhachHang
 
         #endregion
 
-        private System.Windows.Forms.Label? hoTenLabel;
-        private System.Windows.Forms.TextBox? hoTenTextBox;
-        private System.Windows.Forms.Label? soDienThoaiLabel;
-        private System.Windows.Forms.TextBox? soDienThoaiTextBox;
-        private System.Windows.Forms.Label? trangThaiLabel;
-        private System.Windows.Forms.ComboBox? trangThaiComboBox;
-        private System.Windows.Forms.Label? maKhachHangLabel;
-        private System.Windows.Forms.Label? maKhachHangValueLabel;
-        private System.Windows.Forms.Button? okButton;
-        private System.Windows.Forms.Button? cancelButton;
-        private System.Windows.Forms.GroupBox? gioiTinhGroupBox;
+        private System.Windows.Forms.Label hoTenLabel;
+        private System.Windows.Forms.TextBox hoTenTextBox;
+        private System.Windows.Forms.Label soDienThoaiLabel;
+        private System.Windows.Forms.TextBox soDienThoaiTextBox;
+        private System.Windows.Forms.Label trangThaiLabel;
+        private System.Windows.Forms.ComboBox trangThaiComboBox;
+        private System.Windows.Forms.Label maNhaCungCapLabel;
+        private System.Windows.Forms.Label maNhaCungCapValueLabel;
+        private System.Windows.Forms.Button okButton;
+        private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.GroupBox gioiTinhGroupBox;
 
         // Add components
         // diaChi component
-        private System.Windows.Forms.Label? diaChiLabel;
-        private System.Windows.Forms.TextBox? diaChiTextBox;
+        private System.Windows.Forms.Label diaChiLabel;
+        private System.Windows.Forms.TextBox diaChiTextBox;
         // email component
-        private System.Windows.Forms.Label? emailLabel;
-        private System.Windows.Forms.TextBox? emailTextBox;
-        // diemTichLuy component
-        private System.Windows.Forms.Label? diemTichLuyLabel;
-        private System.Windows.Forms.TextBox? diemTichLuyTextBox;
+        private System.Windows.Forms.Label emailLabel;
+        private System.Windows.Forms.TextBox emailTextBox;
+       
         // end add component
         // add columns
-        private System.Windows.Forms.DataGridViewTextBoxColumn? diaChiColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn? emailColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn? diemTichLuyColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn diaChiColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn emailColumn;
+       
         // end add columns
     }
 }

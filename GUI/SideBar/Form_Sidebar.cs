@@ -4,8 +4,11 @@ using System.Windows.Forms;
 using mini_supermarket.GUI.Form_BanHang;
 using mini_supermarket.GUI.KhachHang;
 using mini_supermarket.GUI.NhanVien;
+using mini_supermarket.GUI.NhaCungCap;
+using mini_supermarket.GUI.HoaDon;
 using mini_supermarket.GUI.FormKhoHang;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
+using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
 namespace mini_supermarket.GUI.SideBar
 {
@@ -49,15 +52,23 @@ namespace mini_supermarket.GUI.SideBar
         {
             ShowSanPham();
         }
+        private void navLoaiSanPhamButton_Click(object sender, EventArgs e)
+        {
+            ShowLoaiSanPham();
+        }
 
         private void navKhachHangButton_Click(object sender, EventArgs e)
         {
             ShowKhachHang();
         }
-
-        private void navKhoHangButton_Click(object sender,EventArgs e)
+        private void navNhaCungCapButton_Click(object sender, EventArgs e)
         {
-            ShowKhoHang();
+            ShowNhaCungCap();
+        }
+
+        private void navHoaDonButton_Click(object sender, EventArgs e)
+        {
+            ShowHoaDon();
         }
 
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
@@ -95,6 +106,30 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(banHangForm);
             banHangForm.Show();
+        }
+        private void ShowKhoHang()
+        {
+            SetActiveButton(navKhoHangButton);
+            mainTitleLabel.Text = navKhoHangButton.Text;
+
+            CloseActiveForm();
+
+            var khoHangForm = new Form_KhoHang
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = khoHangForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(khoHangForm);
+            khoHangForm.Show();
+        }
+
+        private void navKhoHangButton_Click(object sender, EventArgs e)
+        {
+            ShowKhoHang();
         }
 
         private void ShowNhanVien()
@@ -137,6 +172,26 @@ namespace mini_supermarket.GUI.SideBar
             sanPhamForm.Show();
         }
 
+        private void ShowLoaiSanPham()
+        {
+            SetActiveButton(navLoaiSanPhamButton);
+            mainTitleLabel.Text = navLoaiSanPhamButton.Text;
+
+            CloseActiveForm();
+
+            var form = new FormLoaiSanPham
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = form;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(form);
+            form.Show();
+        }
+
         private void ShowKhachHang()
         {
             SetActiveButton(navKhachHangButton);
@@ -156,24 +211,44 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Add(khachHangForm);
             khachHangForm.Show();
         }
-        private void ShowKhoHang()
+        private void ShowNhaCungCap()
         {
-            SetActiveButton(navKhoHangButton);
-            mainTitleLabel.Text = navKhoHangButton.Text;
+            SetActiveButton(navNhaCungCapButton);
+            mainTitleLabel.Text = navNhaCungCapButton.Text;
 
             CloseActiveForm();
 
-            var khoHangForm = new Form_KhoHang
+            var nhaCungCapForm = new Form_NhaCungCap
             {
                 TopLevel = false,
                 FormBorderStyle = FormBorderStyle.None,
                 Dock = DockStyle.Fill
             };
 
-            _activeForm = khoHangForm;
+            _activeForm = nhaCungCapForm;
             contentHostPanel.Controls.Clear();
-            contentHostPanel.Controls.Add(khoHangForm);
-            khoHangForm.Show();
+            contentHostPanel.Controls.Add(nhaCungCapForm);
+            nhaCungCapForm.Show();
+        }
+
+        private void ShowHoaDon()
+        {
+            SetActiveButton(navHoaDonButton);
+            mainTitleLabel.Text = navHoaDonButton.Text;
+
+            CloseActiveForm();
+
+            var hoaDonForm = new Form_HoaDon
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = hoaDonForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(hoaDonForm);
+            hoaDonForm.Show();
         }
 
         private void ShowPlaceholder(string message, Button sourceButton)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -261,6 +261,12 @@ namespace mini_supermarket.GUI.FormKhoHang
         private void maSanPhamTextBox_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        // Wires from Designer; ensure handler exists
+        private void trangThaiComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            // No-op: status is chosen manually; keep for Designer wiring
         }
 
     }

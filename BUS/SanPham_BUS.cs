@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using mini_supermarket.Common;
 using mini_supermarket.DAO;
 using mini_supermarket.DTO;
 
@@ -45,19 +46,19 @@ namespace mini_supermarket.BUS
             return _sanPhamDao.GetSanPham(trangThaiFilter);
         }
 
-        public IList<DonViDTO> GetDonViList()
+        public IList<DonViDTO> GetDonViList(string? trangThai = TrangThaiConstants.HoatDong)
         {
-            return _donViDao.GetAll();
+            return _donViDao.GetAll(trangThai);
         }
 
-        public IList<LoaiDTO> GetLoaiList()
+        public IList<LoaiDTO> GetLoaiList(string? trangThai = TrangThaiConstants.HoatDong)
         {
-            return _loaiDao.GetAll();
+            return _loaiDao.GetAll(trangThai);
         }
 
-        public IList<ThuongHieuDTO> GetThuongHieuList()
+        public IList<ThuongHieuDTO> GetThuongHieuList(string? trangThai = TrangThaiConstants.HoatDong)
         {
-            return _thuongHieuDao.GetAll();
+            return _thuongHieuDao.GetAll(trangThai);
         }
 
         public SanPhamDTO AddSanPham(SanPhamDTO sanPham)
@@ -71,6 +72,22 @@ namespace mini_supermarket.BUS
             int newId = _sanPhamDao.InsertSanPham(sanPham);
             sanPham.MaSanPham = newId;
             return sanPham;
+        }
+
+        public void UpdateSanPham(SanPhamDTO sanPham)
+        {
+            if (sanPham == null)
+            {
+                throw new ArgumentNullException(nameof(sanPham));
+            }
+
+            if (sanPham.MaSanPham <= 0)
+            {
+                throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(sanPham.MaSanPham));
+            }
+
+            ValidateSanPham(sanPham);
+            _sanPhamDao.UpdateSanPham(sanPham);
         }
 
         private static void ValidateSanPham(SanPhamDTO sanPham)
