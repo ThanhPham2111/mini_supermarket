@@ -1,4 +1,4 @@
-namespace mini_supermarket.Common
+﻿namespace mini_supermarket.Common
 {
     public static class TrangThaiConstants
     {

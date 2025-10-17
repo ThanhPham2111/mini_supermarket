@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
@@ -31,14 +32,19 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                 return;
             }
 
+            statusComboBox.Items.Clear();
+            statusComboBox.Items.Add(TrangThaiConstants.HoatDong);
+            statusComboBox.Items.Add(TrangThaiConstants.NgungHoatDong);
+            statusComboBox.SelectedIndex = 0;
+
             try
             {
                 int nextId = _bus.GetNextMaThuongHieu();
-                maThuongHieuTextBox.Text = nextId > 0 ? nextId.ToString() : string.Empty;
+                maTextBox.Text = nextId > 0 ? nextId.ToString() : string.Empty;
             }
             catch (Exception ex)
             {
-                maThuongHieuTextBox.Text = string.Empty;
+                maTextBox.Text = string.Empty;
                 MessageBox.Show(this,
                     $"Không thể lấy mã thương hiệu tiếp theo.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
                     "Lỗi",
@@ -49,7 +55,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
 
         private void confirmButton_Click(object? sender, EventArgs e)
         {
-            string tenThuongHieu = tenThuongHieuTextBox.Text.Trim();
+            string tenThuongHieu = tenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(tenThuongHieu))
             {
                 MessageBox.Show(this,
@@ -57,13 +63,15 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                     "Cảnh báo",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                tenThuongHieuTextBox.Focus();
+                tenTextBox.Focus();
                 return;
             }
 
+            string trangThai = statusComboBox.SelectedItem as string ?? TrangThaiConstants.HoatDong;
+
             try
             {
-                var created = _bus.AddThuongHieu(tenThuongHieu);
+                var created = _bus.AddThuongHieu(tenThuongHieu, trangThai);
                 CreatedThuongHieu = created;
                 DialogResult = DialogResult.OK;
                 Close();

@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
@@ -34,13 +35,23 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                 return;
             }
 
-            maThuongHieuTextBox.Text = _thuongHieu.MaThuongHieu.ToString();
-            tenThuongHieuTextBox.Text = _thuongHieu.TenThuongHieu ?? string.Empty;
+            statusComboBox.Items.Clear();
+            statusComboBox.Items.Add(TrangThaiConstants.HoatDong);
+            statusComboBox.Items.Add(TrangThaiConstants.NgungHoatDong);
+
+            maTextBox.Text = _thuongHieu.MaThuongHieu.ToString();
+            tenTextBox.Text = _thuongHieu.TenThuongHieu ?? string.Empty;
+
+            string currentStatus = string.IsNullOrWhiteSpace(_thuongHieu.TrangThai)
+                ? TrangThaiConstants.HoatDong
+                : _thuongHieu.TrangThai;
+            int idx = statusComboBox.Items.IndexOf(currentStatus);
+            statusComboBox.SelectedIndex = idx >= 0 ? idx : 0;
         }
 
         private void confirmButton_Click(object? sender, EventArgs e)
         {
-            string tenThuongHieu = tenThuongHieuTextBox.Text.Trim();
+            string tenThuongHieu = tenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(tenThuongHieu))
             {
                 MessageBox.Show(this,
@@ -48,13 +59,15 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                     "Cảnh báo",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                tenThuongHieuTextBox.Focus();
+                tenTextBox.Focus();
                 return;
             }
 
+            string trangThai = statusComboBox.SelectedItem as string ?? TrangThaiConstants.HoatDong;
+
             try
             {
-                var updated = _bus.UpdateThuongHieu(_thuongHieu.MaThuongHieu, tenThuongHieu);
+                var updated = _bus.UpdateThuongHieu(_thuongHieu.MaThuongHieu, tenThuongHieu, trangThai);
                 UpdatedThuongHieu = updated;
                 DialogResult = DialogResult.OK;
                 Close();

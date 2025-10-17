@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
@@ -31,6 +32,11 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                 return;
             }
 
+            statusComboBox.Items.Clear();
+            statusComboBox.Items.Add(TrangThaiConstants.HoatDong);
+            statusComboBox.Items.Add(TrangThaiConstants.NgungHoatDong);
+            statusComboBox.SelectedIndex = 0;
+
             try
             {
                 int nextId = _loaiBus.GetNextMaLoai();
@@ -40,7 +46,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
             {
                 maLoaiTextBox.Text = string.Empty;
                 MessageBox.Show(this,
-                    $"Không thể tải mã loại tiếp theo.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+                    $"Không thể lấy mã loại tiếp theo.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -62,10 +68,11 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
             }
 
             string? moTa = string.IsNullOrWhiteSpace(moTaTextBox.Text) ? null : moTaTextBox.Text.Trim();
+            string trangThai = statusComboBox.SelectedItem as string ?? TrangThaiConstants.HoatDong;
 
             try
             {
-                var created = _loaiBus.AddLoai(tenLoai, moTa);
+                var created = _loaiBus.AddLoai(tenLoai, moTa, trangThai);
                 CreatedLoai = created;
                 DialogResult = DialogResult.OK;
                 Close();

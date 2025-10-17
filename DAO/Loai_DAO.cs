@@ -22,7 +22,7 @@ namespace mini_supermarket.DAO
 
             var trangThaiParameter = new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
             {
-                Value = string.IsNullOrWhiteSpace(trangThai) ? System.DBNull.Value : trangThai.Trim()
+                Value = string.IsNullOrWhiteSpace(trangThai) ? DBNull.Value : trangThai.Trim()
             };
             command.Parameters.Add(trangThaiParameter);
 
@@ -42,25 +42,28 @@ namespace mini_supermarket.DAO
             return result;
         }
 
-        public LoaiDTO Create(string tenLoai, string? moTa)
+        public LoaiDTO Create(string tenLoai, string? moTa, string trangThai)
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"INSERT INTO dbo.Tbl_Loai (TenLoai, MoTa)
+            command.CommandText = @"INSERT INTO dbo.Tbl_Loai (TenLoai, MoTa, TrangThai)
                                     OUTPUT INSERTED.MaLoai, INSERTED.TenLoai, INSERTED.MoTa, INSERTED.TrangThai
-                                    VALUES (@TenLoai, @MoTa)";
+                                    VALUES (@TenLoai, @MoTa, @TrangThai)";
 
-            var tenLoaiParameter = new SqlParameter("@TenLoai", System.Data.SqlDbType.NVarChar, 255)
+            command.Parameters.Add(new SqlParameter("@TenLoai", System.Data.SqlDbType.NVarChar, 255)
             {
                 Value = tenLoai
-            };
-            command.Parameters.Add(tenLoaiParameter);
+            });
 
-            var moTaParameter = new SqlParameter("@MoTa", System.Data.SqlDbType.NVarChar, -1)
+            command.Parameters.Add(new SqlParameter("@MoTa", System.Data.SqlDbType.NVarChar, -1)
             {
-                Value = (object?)moTa ?? System.DBNull.Value
-            };
-            command.Parameters.Add(moTaParameter);
+                Value = (object?)moTa ?? DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
+            {
+                Value = trangThai
+            });
 
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -78,32 +81,34 @@ namespace mini_supermarket.DAO
             };
         }
 
-        public LoaiDTO Update(int maLoai, string tenLoai, string? moTa)
+        public LoaiDTO Update(int maLoai, string tenLoai, string? moTa, string trangThai)
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
             command.CommandText = @"UPDATE dbo.Tbl_Loai
-                                    SET TenLoai = @TenLoai, MoTa = @MoTa
+                                    SET TenLoai = @TenLoai, MoTa = @MoTa, TrangThai = @TrangThai
                                     OUTPUT INSERTED.MaLoai, INSERTED.TenLoai, INSERTED.MoTa, INSERTED.TrangThai
                                     WHERE MaLoai = @MaLoai";
 
-            var maLoaiParameter = new SqlParameter("@MaLoai", System.Data.SqlDbType.Int)
+            command.Parameters.Add(new SqlParameter("@MaLoai", System.Data.SqlDbType.Int)
             {
                 Value = maLoai
-            };
-            command.Parameters.Add(maLoaiParameter);
+            });
 
-            var tenLoaiParameter = new SqlParameter("@TenLoai", System.Data.SqlDbType.NVarChar, 255)
+            command.Parameters.Add(new SqlParameter("@TenLoai", System.Data.SqlDbType.NVarChar, 255)
             {
                 Value = tenLoai
-            };
-            command.Parameters.Add(tenLoaiParameter);
+            });
 
-            var moTaParameter = new SqlParameter("@MoTa", System.Data.SqlDbType.NVarChar, -1)
+            command.Parameters.Add(new SqlParameter("@MoTa", System.Data.SqlDbType.NVarChar, -1)
             {
-                Value = (object?)moTa ?? System.DBNull.Value
-            };
-            command.Parameters.Add(moTaParameter);
+                Value = (object?)moTa ?? DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
+            {
+                Value = trangThai
+            });
 
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -125,19 +130,19 @@ namespace mini_supermarket.DAO
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"UPDATE dbo.Tbl_Loai SET TrangThai = @TrangThai WHERE MaLoai = @MaLoai";
+            command.CommandText = @"UPDATE dbo.Tbl_Loai
+                                    SET TrangThai = @TrangThai
+                                    WHERE MaLoai = @MaLoai AND TrangThai <> @TrangThai";
 
-            var maLoaiParameter = new SqlParameter("@MaLoai", System.Data.SqlDbType.Int)
+            command.Parameters.Add(new SqlParameter("@MaLoai", System.Data.SqlDbType.Int)
             {
                 Value = maLoai
-            };
-            command.Parameters.Add(maLoaiParameter);
+            });
 
-            var trangThaiParameter = new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
+            command.Parameters.Add(new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
             {
                 Value = TrangThaiConstants.NgungHoatDong
-            };
-            command.Parameters.Add(trangThaiParameter);
+            });
 
             connection.Open();
             int affected = command.ExecuteNonQuery();
@@ -152,32 +157,19 @@ namespace mini_supermarket.DAO
 
             connection.Open();
             var result = command.ExecuteScalar();
-            if (result == null || result == System.DBNull.Value)
+            if (result == null || result == DBNull.Value)
             {
                 return 1;
             }
 
-            if (result is decimal decimalValue)
+            return result switch
             {
-                return (int)decimalValue;
-            }
-
-            if (result is long longValue)
-            {
-                return (int)longValue;
-            }
-
-            if (result is int intValue)
-            {
-                return intValue;
-            }
-
-            if (int.TryParse(result.ToString(), out var parsed))
-            {
-                return parsed;
-            }
-
-            return 0;
+                decimal decimalValue => (int)decimalValue,
+                long longValue => (int)longValue,
+                int intValue => intValue,
+                _ when int.TryParse(result.ToString(), out var parsed) => parsed,
+                _ => 0
+            };
         }
     }
 }

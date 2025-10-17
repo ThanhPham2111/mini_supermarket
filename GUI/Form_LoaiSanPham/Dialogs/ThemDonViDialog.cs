@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
@@ -31,14 +32,19 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                 return;
             }
 
+            statusComboBox.Items.Clear();
+            statusComboBox.Items.Add(TrangThaiConstants.HoatDong);
+            statusComboBox.Items.Add(TrangThaiConstants.NgungHoatDong);
+            statusComboBox.SelectedIndex = 0;
+
             try
             {
                 int nextId = _bus.GetNextMaDonVi();
-                maDonViTextBox.Text = nextId > 0 ? nextId.ToString() : string.Empty;
+                maTextBox.Text = nextId > 0 ? nextId.ToString() : string.Empty;
             }
             catch (Exception ex)
             {
-                maDonViTextBox.Text = string.Empty;
+                maTextBox.Text = string.Empty;
                 MessageBox.Show(this,
                     $"Không thể lấy mã đơn vị tiếp theo.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
                     "Lỗi",
@@ -49,7 +55,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
 
         private void confirmButton_Click(object? sender, EventArgs e)
         {
-            string tenDonVi = tenDonViTextBox.Text.Trim();
+            string tenDonVi = tenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(tenDonVi))
             {
                 MessageBox.Show(this,
@@ -57,15 +63,16 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                     "Cảnh báo",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                tenDonViTextBox.Focus();
+                tenTextBox.Focus();
                 return;
             }
 
             string? moTa = string.IsNullOrWhiteSpace(moTaTextBox.Text) ? null : moTaTextBox.Text.Trim();
+            string trangThai = statusComboBox.SelectedItem as string ?? TrangThaiConstants.HoatDong;
 
             try
             {
-                var created = _bus.AddDonVi(tenDonVi, moTa);
+                var created = _bus.AddDonVi(tenDonVi, moTa, trangThai);
                 CreatedDonVi = created;
                 DialogResult = DialogResult.OK;
                 Close();

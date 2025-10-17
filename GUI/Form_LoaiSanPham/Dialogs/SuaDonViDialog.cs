@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
@@ -34,14 +35,24 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                 return;
             }
 
-            maDonViTextBox.Text = _donVi.MaDonVi.ToString();
-            tenDonViTextBox.Text = _donVi.TenDonVi ?? string.Empty;
+            statusComboBox.Items.Clear();
+            statusComboBox.Items.Add(TrangThaiConstants.HoatDong);
+            statusComboBox.Items.Add(TrangThaiConstants.NgungHoatDong);
+
+            maTextBox.Text = _donVi.MaDonVi.ToString();
+            tenTextBox.Text = _donVi.TenDonVi ?? string.Empty;
             moTaTextBox.Text = _donVi.MoTa ?? string.Empty;
+
+            string currentStatus = string.IsNullOrWhiteSpace(_donVi.TrangThai)
+                ? TrangThaiConstants.HoatDong
+                : _donVi.TrangThai;
+            int idx = statusComboBox.Items.IndexOf(currentStatus);
+            statusComboBox.SelectedIndex = idx >= 0 ? idx : 0;
         }
 
         private void confirmButton_Click(object? sender, EventArgs e)
         {
-            string tenDonVi = tenDonViTextBox.Text.Trim();
+            string tenDonVi = tenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(tenDonVi))
             {
                 MessageBox.Show(this,
@@ -49,15 +60,16 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                     "Cảnh báo",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                tenDonViTextBox.Focus();
+                tenTextBox.Focus();
                 return;
             }
 
             string? moTa = string.IsNullOrWhiteSpace(moTaTextBox.Text) ? null : moTaTextBox.Text.Trim();
+            string trangThai = statusComboBox.SelectedItem as string ?? TrangThaiConstants.HoatDong;
 
             try
             {
-                var updated = _bus.UpdateDonVi(_donVi.MaDonVi, tenDonVi, moTa);
+                var updated = _bus.UpdateDonVi(_donVi.MaDonVi, tenDonVi, moTa, trangThai);
                 UpdatedDonVi = updated;
                 DialogResult = DialogResult.OK;
                 Close();

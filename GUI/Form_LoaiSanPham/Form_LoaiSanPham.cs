@@ -36,29 +36,19 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             }
 
             loaiStatusFilterComboBox.SelectedIndex = 0;
-            loaiStatusFilterComboBox.SelectedIndexChanged += loaiStatusFilterComboBox_SelectedIndexChanged;
-        }
-
-        private void loaiStatusFilterComboBox_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            ApplyLoaiFilters();
+            loaiStatusFilterComboBox.SelectedIndexChanged += (_, _) => ApplyLoaiFilters();
         }
 
         private void ShowEmbeddedFormInCurrentTab(Form form)
         {
-            if (_activeEmbeddedForm != null)
-            {
-                _activeEmbeddedForm.Close();
-                _activeEmbeddedForm.Dispose();
-                _activeEmbeddedForm = null;
-            }
+            _activeEmbeddedForm?.Close();
+            _activeEmbeddedForm?.Dispose();
 
             form.TopLevel = false;
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
 
-            var selected = mainTabControl.SelectedTab;
-            if (selected != null)
+            if (mainTabControl.SelectedTab is { } selected)
             {
                 selected.Controls.Clear();
                 selected.Controls.Add(form);
@@ -76,7 +66,9 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 tabLoai.Controls.Add(listHeaderLabel);
                 tabLoai.Controls.Add(buttonsFlowPanel);
                 tabLoai.Controls.Add(searchContainerPanel);
-                CloseEmbedded();
+                _activeEmbeddedForm?.Close();
+                _activeEmbeddedForm?.Dispose();
+                _activeEmbeddedForm = null;
                 ApplyLoaiFilters();
                 return;
             }
@@ -93,18 +85,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             }
         }
 
-        private void CloseEmbedded()
-        {
-            if (_activeEmbeddedForm == null)
-            {
-                return;
-            }
-
-            _activeEmbeddedForm.Close();
-            _activeEmbeddedForm.Dispose();
-            _activeEmbeddedForm = null;
-        }
-
         private void InitializeLoaiGrid()
         {
             loaiDataGridView.AutoGenerateColumns = false;
@@ -113,7 +93,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             loaiDataGridView.ReadOnly = true;
             loaiDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             loaiDataGridView.RowHeadersVisible = false;
-
             loaiDataGridView.Columns.Clear();
 
             var maLoaiColumn = new DataGridViewTextBoxColumn
@@ -148,13 +127,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 Width = 150
             };
 
-            loaiDataGridView.Columns.AddRange(new DataGridViewColumn[] { maLoaiColumn, tenLoaiColumn, moTaColumn, trangThaiColumn });
+            loaiDataGridView.Columns.AddRange(maLoaiColumn, tenLoaiColumn, moTaColumn, trangThaiColumn);
             loaiDataGridView.DataSource = _loaiBindingSource;
-        }
-
-        private void LoadLoaiData()
-        {
-            ApplyLoaiFilters();
         }
 
         private void ApplyLoaiFilters()
@@ -177,12 +151,9 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 return null;
             }
 
-            if (string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase))
-            {
-                return null;
-            }
-
-            return option;
+            return string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase)
+                ? null
+                : option;
         }
 
         private void refreshLoaiButton_Click(object sender, EventArgs e)
@@ -220,7 +191,11 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         {
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show("Vui lòng chọn loại để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Vui lòng chọn loại để sửa.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 return;
             }
 
@@ -238,11 +213,26 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         {
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show("Vui lòng chọn loại để cập nhật trạng thái.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Vui lòng chọn loại để cập nhật trạng thái.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            if (string.Equals(selected.TrangThai, TrangThaiConstants.NgungHoatDong, StringComparison.CurrentCultureIgnoreCase))
+            {
+                MessageBox.Show(this,
+                    $"Loại \"{selected.TenLoai}\" đã ở trạng thái \"{TrangThaiConstants.NgungHoatDong}\".",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 return;
             }
 
             var confirm = MessageBox.Show(
+                this,
                 $"Bạn có chắc muốn chuyển loại \"{selected.TenLoai}\" (Mã {selected.MaLoai}) sang trạng thái \"{TrangThaiConstants.NgungHoatDong}\"?",
                 "Xác nhận",
                 MessageBoxButtons.YesNo,
@@ -262,6 +252,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             catch (Exception ex)
             {
                 MessageBox.Show(
+                    this,
                     $"Không thể cập nhật trạng thái loại.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
                     "Lỗi",
                     MessageBoxButtons.OK,
@@ -280,7 +271,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             }
             catch
             {
-                // ignore when binding source rejects position reset
             }
 
             loaiDataGridView.ClearSelection();
@@ -293,7 +283,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 }
                 catch
                 {
-                    // ignore if the grid rejects clearing the current cell
                 }
             }
         }

@@ -15,17 +15,24 @@ namespace mini_supermarket.BUS
             return _loaiDao.GetAll(trangThai);
         }
 
-        public LoaiDTO AddLoai(string tenLoai, string? moTa)
+        public LoaiDTO AddLoai(string tenLoai, string? moTa, string? trangThai = null)
         {
             if (string.IsNullOrWhiteSpace(tenLoai))
             {
                 throw new ArgumentException("Tên loại không hợp lệ.", nameof(tenLoai));
             }
 
-            return _loaiDao.Create(tenLoai.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+            string resolvedTrangThai = string.IsNullOrWhiteSpace(trangThai)
+                ? TrangThaiConstants.HoatDong
+                : trangThai.Trim();
+
+            return _loaiDao.Create(
+                tenLoai.Trim(),
+                string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim(),
+                resolvedTrangThai);
         }
 
-        public LoaiDTO UpdateLoai(int maLoai, string tenLoai, string? moTa)
+        public LoaiDTO UpdateLoai(int maLoai, string tenLoai, string? moTa, string? trangThai = null)
         {
             if (maLoai <= 0)
             {
@@ -37,7 +44,15 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Tên loại không hợp lệ.", nameof(tenLoai));
             }
 
-            return _loaiDao.Update(maLoai, tenLoai.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+            string resolvedTrangThai = string.IsNullOrWhiteSpace(trangThai)
+                ? TrangThaiConstants.HoatDong
+                : trangThai.Trim();
+
+            return _loaiDao.Update(
+                maLoai,
+                tenLoai.Trim(),
+                string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim(),
+                resolvedTrangThai);
         }
 
         public void DeleteLoai(int maLoai)

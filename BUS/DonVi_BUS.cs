@@ -15,17 +15,24 @@ namespace mini_supermarket.BUS
             return _dao.GetAll(trangThai);
         }
 
-        public DonViDTO AddDonVi(string tenDonVi, string? moTa)
+        public DonViDTO AddDonVi(string tenDonVi, string? moTa, string? trangThai = null)
         {
             if (string.IsNullOrWhiteSpace(tenDonVi))
             {
                 throw new ArgumentException("Tên đơn vị không hợp lệ.", nameof(tenDonVi));
             }
 
-            return _dao.Create(tenDonVi.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+            string resolvedTrangThai = string.IsNullOrWhiteSpace(trangThai)
+                ? TrangThaiConstants.HoatDong
+                : trangThai.Trim();
+
+            return _dao.Create(
+                tenDonVi.Trim(),
+                string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim(),
+                resolvedTrangThai);
         }
 
-        public DonViDTO UpdateDonVi(int maDonVi, string tenDonVi, string? moTa)
+        public DonViDTO UpdateDonVi(int maDonVi, string tenDonVi, string? moTa, string? trangThai = null)
         {
             if (maDonVi <= 0)
             {
@@ -37,7 +44,15 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Tên đơn vị không hợp lệ.", nameof(tenDonVi));
             }
 
-            return _dao.Update(maDonVi, tenDonVi.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+            string resolvedTrangThai = string.IsNullOrWhiteSpace(trangThai)
+                ? TrangThaiConstants.HoatDong
+                : trangThai.Trim();
+
+            return _dao.Update(
+                maDonVi,
+                tenDonVi.Trim(),
+                string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim(),
+                resolvedTrangThai);
         }
 
         public void DeleteDonVi(int maDonVi)
@@ -67,6 +82,7 @@ namespace mini_supermarket.BUS
             {
                 return all;
             }
+
             int.TryParse(keyword, out var id);
             var result = new List<DonViDTO>();
             foreach (var item in all)

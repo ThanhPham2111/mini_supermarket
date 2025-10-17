@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
@@ -34,9 +35,19 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
                 return;
             }
 
+            statusComboBox.Items.Clear();
+            statusComboBox.Items.Add(TrangThaiConstants.HoatDong);
+            statusComboBox.Items.Add(TrangThaiConstants.NgungHoatDong);
+
             maLoaiTextBox.Text = _loaiToEdit.MaLoai.ToString();
             tenLoaiTextBox.Text = _loaiToEdit.TenLoai ?? string.Empty;
             moTaTextBox.Text = _loaiToEdit.MoTa ?? string.Empty;
+
+            string currentStatus = string.IsNullOrWhiteSpace(_loaiToEdit.TrangThai)
+                ? TrangThaiConstants.HoatDong
+                : _loaiToEdit.TrangThai;
+            int idx = statusComboBox.Items.IndexOf(currentStatus);
+            statusComboBox.SelectedIndex = idx >= 0 ? idx : 0;
         }
 
         private void confirmButton_Click(object? sender, EventArgs e)
@@ -54,10 +65,11 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
             }
 
             string? moTa = string.IsNullOrWhiteSpace(moTaTextBox.Text) ? null : moTaTextBox.Text.Trim();
+            string trangThai = statusComboBox.SelectedItem as string ?? TrangThaiConstants.HoatDong;
 
             try
             {
-                var updated = _loaiBus.UpdateLoai(_loaiToEdit.MaLoai, tenLoai, moTa);
+                var updated = _loaiBus.UpdateLoai(_loaiToEdit.MaLoai, tenLoai, moTa, trangThai);
                 UpdatedLoai = updated;
                 DialogResult = DialogResult.OK;
                 Close();
@@ -73,4 +85,3 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham.Dialogs
         }
     }
 }
-

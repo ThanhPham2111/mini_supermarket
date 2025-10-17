@@ -18,10 +18,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             InitializeComponent();
             InitializeGrid();
             InitializeStatusFilter();
-
-            addButton.Click += addButton_Click;
-            editButton.Click += editButton_Click;
-            deleteButton.Click += deleteButton_Click;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -50,7 +46,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             donViDataGridView.ReadOnly = true;
             donViDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             donViDataGridView.RowHeadersVisible = false;
-
             donViDataGridView.Columns.Clear();
 
             var maColumn = new DataGridViewTextBoxColumn
@@ -85,7 +80,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 Width = 150
             };
 
-            donViDataGridView.Columns.AddRange(new DataGridViewColumn[] { maColumn, tenColumn, moTaColumn, trangThaiColumn });
+            donViDataGridView.Columns.AddRange(maColumn, tenColumn, moTaColumn, trangThaiColumn);
             donViDataGridView.DataSource = _binding;
         }
 
@@ -109,12 +104,9 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 return null;
             }
 
-            if (string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase))
-            {
-                return null;
-            }
-
-            return option;
+            return string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase)
+                ? null
+                : option;
         }
 
         private void refreshButton_Click(object sender, EventArgs e)
@@ -137,7 +129,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             ApplyFilters();
         }
 
-        private void addButton_Click(object? sender, EventArgs e)
+        private void addButton_Click(object sender, EventArgs e)
         {
             using var dialog = new ThemDonViDialog();
             if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedDonVi == null)
@@ -148,7 +140,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             ApplyFilters();
         }
 
-        private void editButton_Click(object? sender, EventArgs e)
+        private void editButton_Click(object sender, EventArgs e)
         {
             if (donViDataGridView.CurrentRow?.DataBoundItem is not DonViDTO selected)
             {
@@ -170,7 +162,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             ApplyFilters();
         }
 
-        private void deleteButton_Click(object? sender, EventArgs e)
+        private void deleteButton_Click(object sender, EventArgs e)
         {
             if (donViDataGridView.CurrentRow?.DataBoundItem is not DonViDTO selected)
             {
@@ -182,7 +174,18 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 return;
             }
 
+            if (string.Equals(selected.TrangThai, TrangThaiConstants.NgungHoatDong, StringComparison.CurrentCultureIgnoreCase))
+            {
+                MessageBox.Show(this,
+                    $"Đơn vị \"{selected.TenDonVi}\" đã ở trạng thái \"{TrangThaiConstants.NgungHoatDong}\".",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             var confirm = MessageBox.Show(
+                this,
                 $"Bạn có chắc muốn chuyển đơn vị \"{selected.TenDonVi}\" (Mã {selected.MaDonVi}) sang trạng thái \"{TrangThaiConstants.NgungHoatDong}\"?",
                 "Xác nhận",
                 MessageBoxButtons.YesNo,
@@ -220,7 +223,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             }
             catch
             {
-                // ignore reset failure
             }
 
             donViDataGridView.ClearSelection();
@@ -233,7 +235,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 }
                 catch
                 {
-                    // ignore reset failure
                 }
             }
         }

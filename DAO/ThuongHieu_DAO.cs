@@ -22,7 +22,7 @@ namespace mini_supermarket.DAO
 
             var trangThaiParameter = new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
             {
-                Value = string.IsNullOrWhiteSpace(trangThai) ? System.DBNull.Value : trangThai.Trim()
+                Value = string.IsNullOrWhiteSpace(trangThai) ? DBNull.Value : trangThai.Trim()
             };
             command.Parameters.Add(trangThaiParameter);
 
@@ -41,19 +41,23 @@ namespace mini_supermarket.DAO
             return result;
         }
 
-        public ThuongHieuDTO Create(string tenThuongHieu)
+        public ThuongHieuDTO Create(string tenThuongHieu, string trangThai)
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"INSERT INTO dbo.Tbl_ThuongHieu (TenThuongHieu)
+            command.CommandText = @"INSERT INTO dbo.Tbl_ThuongHieu (TenThuongHieu, TrangThai)
                                     OUTPUT INSERTED.MaThuongHieu, INSERTED.TenThuongHieu, INSERTED.TrangThai
-                                    VALUES (@TenThuongHieu)";
+                                    VALUES (@TenThuongHieu, @TrangThai)";
 
-            var tenParameter = new SqlParameter("@TenThuongHieu", System.Data.SqlDbType.NVarChar, 255)
+            command.Parameters.Add(new SqlParameter("@TenThuongHieu", System.Data.SqlDbType.NVarChar, 255)
             {
                 Value = tenThuongHieu
-            };
-            command.Parameters.Add(tenParameter);
+            });
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
+            {
+                Value = trangThai
+            });
 
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -70,26 +74,29 @@ namespace mini_supermarket.DAO
             };
         }
 
-        public ThuongHieuDTO Update(int maThuongHieu, string tenThuongHieu)
+        public ThuongHieuDTO Update(int maThuongHieu, string tenThuongHieu, string trangThai)
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
             command.CommandText = @"UPDATE dbo.Tbl_ThuongHieu
-                                    SET TenThuongHieu = @TenThuongHieu
+                                    SET TenThuongHieu = @TenThuongHieu, TrangThai = @TrangThai
                                     OUTPUT INSERTED.MaThuongHieu, INSERTED.TenThuongHieu, INSERTED.TrangThai
                                     WHERE MaThuongHieu = @MaThuongHieu";
 
-            var idParameter = new SqlParameter("@MaThuongHieu", System.Data.SqlDbType.Int)
+            command.Parameters.Add(new SqlParameter("@MaThuongHieu", System.Data.SqlDbType.Int)
             {
                 Value = maThuongHieu
-            };
-            command.Parameters.Add(idParameter);
+            });
 
-            var tenParameter = new SqlParameter("@TenThuongHieu", System.Data.SqlDbType.NVarChar, 255)
+            command.Parameters.Add(new SqlParameter("@TenThuongHieu", System.Data.SqlDbType.NVarChar, 255)
             {
                 Value = tenThuongHieu
-            };
-            command.Parameters.Add(tenParameter);
+            });
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
+            {
+                Value = trangThai
+            });
 
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -110,19 +117,19 @@ namespace mini_supermarket.DAO
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"UPDATE dbo.Tbl_ThuongHieu SET TrangThai = @TrangThai WHERE MaThuongHieu = @MaThuongHieu";
+            command.CommandText = @"UPDATE dbo.Tbl_ThuongHieu
+                                    SET TrangThai = @TrangThai
+                                    WHERE MaThuongHieu = @MaThuongHieu AND TrangThai <> @TrangThai";
 
-            var idParameter = new SqlParameter("@MaThuongHieu", System.Data.SqlDbType.Int)
+            command.Parameters.Add(new SqlParameter("@MaThuongHieu", System.Data.SqlDbType.Int)
             {
                 Value = maThuongHieu
-            };
-            command.Parameters.Add(idParameter);
+            });
 
-            var trangThaiParameter = new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
+            command.Parameters.Add(new SqlParameter("@TrangThai", System.Data.SqlDbType.NVarChar, 50)
             {
                 Value = TrangThaiConstants.NgungHoatDong
-            };
-            command.Parameters.Add(trangThaiParameter);
+            });
 
             connection.Open();
             int affected = command.ExecuteNonQuery();
@@ -142,27 +149,14 @@ namespace mini_supermarket.DAO
                 return 1;
             }
 
-            if (result is decimal decimalValue)
+            return result switch
             {
-                return (int)decimalValue;
-            }
-
-            if (result is long longValue)
-            {
-                return (int)longValue;
-            }
-
-            if (result is int intValue)
-            {
-                return intValue;
-            }
-
-            if (int.TryParse(result.ToString(), out var parsed))
-            {
-                return parsed;
-            }
-
-            return 0;
+                decimal decimalValue => (int)decimalValue,
+                long longValue => (int)longValue,
+                int intValue => intValue,
+                _ when int.TryParse(result.ToString(), out var parsed) => parsed,
+                _ => 0
+            };
         }
     }
 }

@@ -15,17 +15,21 @@ namespace mini_supermarket.BUS
             return _dao.GetAll(trangThai);
         }
 
-        public ThuongHieuDTO AddThuongHieu(string tenThuongHieu)
+        public ThuongHieuDTO AddThuongHieu(string tenThuongHieu, string? trangThai = null)
         {
             if (string.IsNullOrWhiteSpace(tenThuongHieu))
             {
                 throw new ArgumentException("Tên thương hiệu không hợp lệ.", nameof(tenThuongHieu));
             }
 
-            return _dao.Create(tenThuongHieu.Trim());
+            string resolvedTrangThai = string.IsNullOrWhiteSpace(trangThai)
+                ? TrangThaiConstants.HoatDong
+                : trangThai.Trim();
+
+            return _dao.Create(tenThuongHieu.Trim(), resolvedTrangThai);
         }
 
-        public ThuongHieuDTO UpdateThuongHieu(int maThuongHieu, string tenThuongHieu)
+        public ThuongHieuDTO UpdateThuongHieu(int maThuongHieu, string tenThuongHieu, string? trangThai = null)
         {
             if (maThuongHieu <= 0)
             {
@@ -37,7 +41,11 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Tên thương hiệu không hợp lệ.", nameof(tenThuongHieu));
             }
 
-            return _dao.Update(maThuongHieu, tenThuongHieu.Trim());
+            string resolvedTrangThai = string.IsNullOrWhiteSpace(trangThai)
+                ? TrangThaiConstants.HoatDong
+                : trangThai.Trim();
+
+            return _dao.Update(maThuongHieu, tenThuongHieu.Trim(), resolvedTrangThai);
         }
 
         public void DeleteThuongHieu(int maThuongHieu)
@@ -67,6 +75,7 @@ namespace mini_supermarket.BUS
             {
                 return all;
             }
+
             int.TryParse(keyword, out var id);
             var result = new List<ThuongHieuDTO>();
             foreach (var item in all)

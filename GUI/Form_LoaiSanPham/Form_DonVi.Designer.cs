@@ -1,4 +1,6 @@
-﻿namespace mini_supermarket.GUI.Form_LoaiSanPham
+﻿using System.Windows.Forms;
+
+namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
     partial class Form_DonVi
     {
@@ -6,7 +8,7 @@
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && components != null)
             {
                 components.Dispose();
             }
@@ -37,7 +39,7 @@
             // searchContainerPanel
             // 
             this.searchContainerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                    | System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.searchContainerPanel.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.searchContainerPanel.Controls.Add(this.statusFilterComboBox);
             this.searchContainerPanel.Controls.Add(this.statusFilterLabel);
@@ -46,7 +48,7 @@
             this.searchContainerPanel.Location = new System.Drawing.Point(20, 20);
             this.searchContainerPanel.Name = "searchContainerPanel";
             this.searchContainerPanel.Padding = new System.Windows.Forms.Padding(8);
-            this.searchContainerPanel.Size = new System.Drawing.Size(1052, 60);
+            this.searchContainerPanel.Size = new System.Drawing.Size(1052, 80);
             this.searchContainerPanel.TabIndex = 0;
             // 
             // statusFilterComboBox
@@ -54,9 +56,9 @@
             this.statusFilterComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.statusFilterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.statusFilterComboBox.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.statusFilterComboBox.Location = new System.Drawing.Point(700, 28);
+            this.statusFilterComboBox.Location = new System.Drawing.Point(760, 38);
             this.statusFilterComboBox.Name = "statusFilterComboBox";
-            this.statusFilterComboBox.Size = new System.Drawing.Size(200, 25);
+            this.statusFilterComboBox.Size = new System.Drawing.Size(260, 25);
             this.statusFilterComboBox.TabIndex = 3;
             // 
             // statusFilterLabel
@@ -64,9 +66,9 @@
             this.statusFilterLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.statusFilterLabel.AutoSize = true;
             this.statusFilterLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.statusFilterLabel.Location = new System.Drawing.Point(700, 8);
+            this.statusFilterLabel.Location = new System.Drawing.Point(760, 15);
             this.statusFilterLabel.Name = "statusFilterLabel";
-            this.statusFilterLabel.Size = new System.Drawing.Size(86, 15);
+            this.statusFilterLabel.Size = new System.Drawing.Size(95, 19);
             this.statusFilterLabel.TabIndex = 2;
             this.statusFilterLabel.Text = "Trạng thái lọc";
             // 
@@ -75,21 +77,20 @@
             this.searchButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
             this.searchButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.searchButton.ForeColor = System.Drawing.Color.White;
-            this.searchButton.Location = new System.Drawing.Point(12, 28);
+            this.searchButton.Location = new System.Drawing.Point(0, 34);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(120, 30);
             this.searchButton.TabIndex = 0;
             this.searchButton.Text = "Tìm kiếm";
             this.searchButton.UseVisualStyleBackColor = false;
-         
             // 
             // searchTextBox
             // 
             this.searchTextBox.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.searchTextBox.Location = new System.Drawing.Point(150, 28);
+            this.searchTextBox.Location = new System.Drawing.Point(140, 36);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.PlaceholderText = "Tìm kiếm theo mã, đơn vị";
-            this.searchTextBox.Size = new System.Drawing.Size(430, 25);
+            this.searchTextBox.Size = new System.Drawing.Size(480, 25);
             this.searchTextBox.TabIndex = 1;
             this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
             // 
@@ -100,7 +101,7 @@
             this.buttonsFlowPanel.Controls.Add(this.editButton);
             this.buttonsFlowPanel.Controls.Add(this.deleteButton);
             this.buttonsFlowPanel.Controls.Add(this.refreshButton);
-            this.buttonsFlowPanel.Location = new System.Drawing.Point(20, 90);
+            this.buttonsFlowPanel.Location = new System.Drawing.Point(20, 120);
             this.buttonsFlowPanel.Name = "buttonsFlowPanel";
             this.buttonsFlowPanel.Padding = new System.Windows.Forms.Padding(8);
             this.buttonsFlowPanel.Size = new System.Drawing.Size(420, 46);
@@ -167,24 +168,24 @@
             // 
             this.listHeaderLabel.AutoSize = true;
             this.listHeaderLabel.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.listHeaderLabel.Location = new System.Drawing.Point(20, 140);
+            this.listHeaderLabel.Location = new System.Drawing.Point(20, 170);
             this.listHeaderLabel.Name = "listHeaderLabel";
-            this.listHeaderLabel.Size = new System.Drawing.Size(110, 19);
+            this.listHeaderLabel.Size = new System.Drawing.Size(118, 19);
             this.listHeaderLabel.TabIndex = 2;
             this.listHeaderLabel.Text = "Danh sách đơn vị";
             // 
             // donViDataGridView
             // 
             this.donViDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                    | System.Windows.Forms.AnchorStyles.Left)
-                    | System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.donViDataGridView.BackgroundColor = System.Drawing.Color.White;
             this.donViDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.donViDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.donViDataGridView.Location = new System.Drawing.Point(20, 160);
+            this.donViDataGridView.Location = new System.Drawing.Point(20, 200);
             this.donViDataGridView.Name = "donViDataGridView";
             this.donViDataGridView.RowTemplate.Height = 25;
-            this.donViDataGridView.Size = new System.Drawing.Size(1052, 500);
+            this.donViDataGridView.Size = new System.Drawing.Size(1052, 440);
             this.donViDataGridView.TabIndex = 3;
             // 
             // Form_DonVi
@@ -199,6 +200,7 @@
             this.Controls.Add(this.searchContainerPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form_DonVi";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Quản lý Đơn vị";
             this.searchContainerPanel.ResumeLayout(false);
             this.searchContainerPanel.PerformLayout();
@@ -211,10 +213,10 @@
         #endregion
 
         private System.Windows.Forms.Panel searchContainerPanel;
-        private System.Windows.Forms.Button searchButton;
-        private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.ComboBox statusFilterComboBox;
         private System.Windows.Forms.Label statusFilterLabel;
+        private System.Windows.Forms.Button searchButton;
+        private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.FlowLayoutPanel buttonsFlowPanel;
         private System.Windows.Forms.Button addButton;
         private System.Windows.Forms.Button editButton;
