@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using mini_supermarket.Common;
 using mini_supermarket.DAO;
 using mini_supermarket.DTO;
 
@@ -9,9 +10,9 @@ namespace mini_supermarket.BUS
     {
         private readonly Loai_DAO _loaiDao = new();
 
-        public IList<LoaiDTO> GetLoaiList()
+        public IList<LoaiDTO> GetLoaiList(string? trangThai = null)
         {
-            return _loaiDao.GetAll();
+            return _loaiDao.GetAll(trangThai);
         }
 
         public LoaiDTO AddLoai(string tenLoai, string? moTa)
@@ -49,7 +50,7 @@ namespace mini_supermarket.BUS
             bool deleted = _loaiDao.Delete(maLoai);
             if (!deleted)
             {
-                throw new InvalidOperationException("Không tìm thấy loại cần xoá.");
+                throw new InvalidOperationException("Không tìm thấy loại cần cập nhật trạng thái.");
             }
         }
 
@@ -58,9 +59,9 @@ namespace mini_supermarket.BUS
             return _loaiDao.GetNextIdentityValue();
         }
 
-        public IList<LoaiDTO> SearchLoai(string? keyword)
+        public IList<LoaiDTO> SearchLoai(string? keyword, string? trangThai = null)
         {
-            var all = _loaiDao.GetAll();
+            var all = _loaiDao.GetAll(trangThai);
             keyword = keyword?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(keyword))
             {
@@ -81,4 +82,3 @@ namespace mini_supermarket.BUS
         }
     }
 }
-

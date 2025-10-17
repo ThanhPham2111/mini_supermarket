@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using mini_supermarket.Common;
 using mini_supermarket.DAO;
 using mini_supermarket.DTO;
 
@@ -9,14 +10,58 @@ namespace mini_supermarket.BUS
     {
         private readonly DonVi_DAO _dao = new();
 
-        public IList<DonViDTO> GetDonViList()
+        public IList<DonViDTO> GetDonViList(string? trangThai = null)
         {
-            return _dao.GetAll();
+            return _dao.GetAll(trangThai);
         }
 
-        public IList<DonViDTO> Search(string? keyword)
+        public DonViDTO AddDonVi(string tenDonVi, string? moTa)
         {
-            var all = _dao.GetAll();
+            if (string.IsNullOrWhiteSpace(tenDonVi))
+            {
+                throw new ArgumentException("Tên đơn vị không hợp lệ.", nameof(tenDonVi));
+            }
+
+            return _dao.Create(tenDonVi.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+        }
+
+        public DonViDTO UpdateDonVi(int maDonVi, string tenDonVi, string? moTa)
+        {
+            if (maDonVi <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maDonVi), "Mã đơn vị không hợp lệ.");
+            }
+
+            if (string.IsNullOrWhiteSpace(tenDonVi))
+            {
+                throw new ArgumentException("Tên đơn vị không hợp lệ.", nameof(tenDonVi));
+            }
+
+            return _dao.Update(maDonVi, tenDonVi.Trim(), string.IsNullOrWhiteSpace(moTa) ? null : moTa.Trim());
+        }
+
+        public void DeleteDonVi(int maDonVi)
+        {
+            if (maDonVi <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maDonVi), "Mã đơn vị không hợp lệ.");
+            }
+
+            bool deleted = _dao.Delete(maDonVi);
+            if (!deleted)
+            {
+                throw new InvalidOperationException("Không tìm thấy đơn vị cần cập nhật trạng thái.");
+            }
+        }
+
+        public int GetNextMaDonVi()
+        {
+            return _dao.GetNextIdentityValue();
+        }
+
+        public IList<DonViDTO> Search(string? keyword, string? trangThai = null)
+        {
+            var all = _dao.GetAll(trangThai);
             keyword = keyword?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(keyword))
             {
@@ -36,5 +81,3 @@ namespace mini_supermarket.BUS
         }
     }
 }
-
-

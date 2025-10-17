@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
+using mini_supermarket.GUI.Form_LoaiSanPham.Dialogs;
 
 namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
@@ -15,12 +17,29 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         {
             InitializeComponent();
             InitializeGrid();
+            InitializeStatusFilter();
+
+            addButton.Click += addButton_Click;
+            editButton.Click += editButton_Click;
+            deleteButton.Click += deleteButton_Click;
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            LoadData();
+            ApplyFilters();
+        }
+
+        private void InitializeStatusFilter()
+        {
+            statusFilterComboBox.Items.Clear();
+            foreach (var option in TrangThaiConstants.ComboBoxOptions)
+            {
+                statusFilterComboBox.Items.Add(option);
+            }
+
+            statusFilterComboBox.SelectedIndex = 0;
+            statusFilterComboBox.SelectedIndexChanged += (_, _) => ApplyFilters();
         }
 
         private void InitializeGrid()
@@ -50,27 +69,165 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
 
-            thuongHieuDataGridView.Columns.AddRange(new DataGridViewColumn[] { maColumn, tenColumn });
+            var trangThaiColumn = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ThuongHieuDTO.TrangThai),
+                HeaderText = "Trạng thái",
+                Name = "TrangThaiColumn",
+                Width = 150
+            };
+
+            thuongHieuDataGridView.Columns.AddRange(new DataGridViewColumn[] { maColumn, tenColumn, trangThaiColumn });
             thuongHieuDataGridView.DataSource = _binding;
         }
 
-        private void LoadData()
+        private void ApplyFilters()
         {
-            IList<ThuongHieuDTO> list = _bus.GetThuongHieuList();
+            string keyword = searchTextBox.Text?.Trim() ?? string.Empty;
+            string? status = GetSelectedStatus();
+
+            IList<ThuongHieuDTO> list = string.IsNullOrEmpty(keyword)
+                ? _bus.GetThuongHieuList(status)
+                : _bus.Search(keyword, status);
+
             _binding.DataSource = list;
+            ResetSelection();
+        }
+
+        private string? GetSelectedStatus()
+        {
+            if (statusFilterComboBox.SelectedItem is not string option)
+            {
+                return null;
+            }
+
+            if (string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+
+            return option;
         }
 
         private void refreshButton_Click(object sender, EventArgs e)
         {
-            LoadData();
+            if (statusFilterComboBox.SelectedIndex != 0)
+            {
+                statusFilterComboBox.SelectedIndex = 0;
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTextBox.Text))
+            {
+                searchTextBox.Text = string.Empty;
+            }
+
+            ApplyFilters();
         }
 
         private void searchTextBox_TextChanged(object sender, EventArgs e)
         {
-            var keyword = searchTextBox.Text?.Trim() ?? string.Empty;
-            _binding.DataSource = _bus.Search(keyword);
+            ApplyFilters();
+        }
+
+        private void addButton_Click(object? sender, EventArgs e)
+        {
+            using var dialog = new ThemThuongHieuDialog();
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedThuongHieu == null)
+            {
+                return;
+            }
+
+            ApplyFilters();
+        }
+
+        private void editButton_Click(object? sender, EventArgs e)
+        {
+            if (thuongHieuDataGridView.CurrentRow?.DataBoundItem is not ThuongHieuDTO selected)
+            {
+                MessageBox.Show(this,
+                    "Vui lòng chọn thương hiệu để sửa.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            var snapshot = new ThuongHieuDTO(selected.MaThuongHieu, selected.TenThuongHieu, selected.TrangThai);
+            using var dialog = new SuaThuongHieuDialog(snapshot);
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.UpdatedThuongHieu == null)
+            {
+                return;
+            }
+
+            ApplyFilters();
+        }
+
+        private void deleteButton_Click(object? sender, EventArgs e)
+        {
+            if (thuongHieuDataGridView.CurrentRow?.DataBoundItem is not ThuongHieuDTO selected)
+            {
+                MessageBox.Show(this,
+                    "Vui lòng chọn thương hiệu để cập nhật trạng thái.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"Bạn có chắc muốn chuyển thương hiệu \"{selected.TenThuongHieu}\" (Mã {selected.MaThuongHieu}) sang trạng thái \"{TrangThaiConstants.NgungHoatDong}\"?",
+                "Xác nhận",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                _bus.DeleteThuongHieu(selected.MaThuongHieu);
+                ApplyFilters();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this,
+                    $"Không thể cập nhật trạng thái thương hiệu.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void ResetSelection()
+        {
+            try
+            {
+                if (_binding.Position != -1)
+                {
+                    _binding.Position = -1;
+                }
+            }
+            catch
+            {
+                // ignore reset failure
+            }
+
+            thuongHieuDataGridView.ClearSelection();
+
+            if (thuongHieuDataGridView.CurrentCell != null)
+            {
+                try
+                {
+                    thuongHieuDataGridView.CurrentCell = null;
+                }
+                catch
+                {
+                    // ignore reset failure
+                }
+            }
         }
     }
 }
-
-

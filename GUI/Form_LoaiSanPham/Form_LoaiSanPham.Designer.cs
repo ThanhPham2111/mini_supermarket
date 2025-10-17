@@ -1,4 +1,4 @@
-namespace mini_supermarket.GUI.Form_LoaiSanPham
+﻿namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
     partial class Form_LoaiSanPham
     {
@@ -25,9 +25,10 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.addLoaiButton = new System.Windows.Forms.Button();
             this.buttonsFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.searchContainerPanel = new System.Windows.Forms.Panel();
+            this.loaiStatusFilterComboBox = new System.Windows.Forms.ComboBox();
+            this.loaiStatusFilterLabel = new System.Windows.Forms.Label();
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.searchButton = new System.Windows.Forms.Button();
-
             this.listHeaderLabel = new System.Windows.Forms.Label();
             this.loaiDataGridView = new System.Windows.Forms.DataGridView();
             this.tabThuongHieu = new System.Windows.Forms.TabPage();
@@ -72,7 +73,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.searchContainerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                     | System.Windows.Forms.AnchorStyles.Right)));
             this.searchContainerPanel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-
+            this.searchContainerPanel.Controls.Add(this.loaiStatusFilterComboBox);
+            this.searchContainerPanel.Controls.Add(this.loaiStatusFilterLabel);
             this.searchContainerPanel.Controls.Add(this.searchButton);
             this.searchContainerPanel.Controls.Add(this.searchTextBox);
             this.searchContainerPanel.Location = new System.Drawing.Point(20, 20);
@@ -81,14 +83,35 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.searchContainerPanel.Size = new System.Drawing.Size(1052, 60);
             this.searchContainerPanel.TabIndex = 3;
             // 
+            // loaiStatusFilterComboBox
+            // 
+            this.loaiStatusFilterComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.loaiStatusFilterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.loaiStatusFilterComboBox.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.loaiStatusFilterComboBox.Location = new System.Drawing.Point(700, 28);
+            this.loaiStatusFilterComboBox.Name = "loaiStatusFilterComboBox";
+            this.loaiStatusFilterComboBox.Size = new System.Drawing.Size(200, 25);
+            this.loaiStatusFilterComboBox.TabIndex = 3;
+            // 
+            // loaiStatusFilterLabel
+            // 
+            this.loaiStatusFilterLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.loaiStatusFilterLabel.AutoSize = true;
+            this.loaiStatusFilterLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.loaiStatusFilterLabel.Location = new System.Drawing.Point(700, 8);
+            this.loaiStatusFilterLabel.Name = "loaiStatusFilterLabel";
+            this.loaiStatusFilterLabel.Size = new System.Drawing.Size(86, 15);
+            this.loaiStatusFilterLabel.TabIndex = 2;
+            this.loaiStatusFilterLabel.Text = "Trạng thái lọc";
+            // 
             // searchTextBox
             // 
+            this.searchTextBox.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.searchTextBox.Location = new System.Drawing.Point(150, 28);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.PlaceholderText = "Tìm kiếm theo mã, loại";
-            this.searchTextBox.Size = new System.Drawing.Size(744, 28);
+            this.searchTextBox.Size = new System.Drawing.Size(430, 25);
             this.searchTextBox.TabIndex = 1;
-            this.searchTextBox.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
             // 
             // searchButton
@@ -103,8 +126,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.searchButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
             this.searchButton.ForeColor = System.Drawing.Color.White;
             // 
-
-
             // buttonsFlowPanel
             // 
             this.buttonsFlowPanel.AutoSize = true;
@@ -153,7 +174,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.deleteLoaiButton.Name = "deleteLoaiButton";
             this.deleteLoaiButton.Size = new System.Drawing.Size(80, 30);
             this.deleteLoaiButton.TabIndex = 2;
-            this.deleteLoaiButton.Text = "Xóa";
+            this.deleteLoaiButton.Text = "Ngưng";
             this.deleteLoaiButton.UseVisualStyleBackColor = false;
             this.deleteLoaiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.deleteLoaiButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77);
@@ -182,7 +203,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.listHeaderLabel.Name = "listHeaderLabel";
             this.listHeaderLabel.Size = new System.Drawing.Size(87, 15);
             this.listHeaderLabel.TabIndex = 2;
-            this.listHeaderLabel.Text = "Danh sách Loại";
+            this.listHeaderLabel.Text = "Danh sách loại";
             this.listHeaderLabel.Font = new System.Drawing.Font("Segoe UI", 10F);
             // 
             // loaiDataGridView
@@ -226,7 +247,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.Controls.Add(this.mainTabControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form_LoaiSanPham";
-            this.Text = "Quản lý Loại Sản Phẩm";
+            this.Text = "Quản lý Loại Sản phẩm";
             this.BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
             this.mainTabControl.ResumeLayout(false);
             this.tabLoai.ResumeLayout(false);
@@ -253,6 +274,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         private System.Windows.Forms.FlowLayoutPanel buttonsFlowPanel;
         private System.Windows.Forms.Panel searchContainerPanel;
         private System.Windows.Forms.TextBox searchTextBox;
+        private System.Windows.Forms.ComboBox loaiStatusFilterComboBox;
+        private System.Windows.Forms.Label loaiStatusFilterLabel;
         private System.Windows.Forms.Label listHeaderLabel;
     }
 }
