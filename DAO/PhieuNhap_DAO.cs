@@ -38,21 +38,96 @@ namespace mini_supermarket.DAO
         public int InsertPhieuNhap(PhieuNhapDTO phieuNhap)
         {
             using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = @"INSERT INTO dbo.Tbl_PhieuNhap (TongTien, NgayNhap, MaNhaCungCap)
-                                     VALUES (@TongTien, @NgayNhap, @MaNhaCungCap);
-                                     SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-            AddPhieuNhapParameters(command, phieuNhap, includeKey: false);
-
             connection.Open();
-            object? result = command.ExecuteScalar();
-            if (result == null || result == DBNull.Value)
+            
+            using var transaction = connection.BeginTransaction();
+            
+            try
             {
-                throw new InvalidOperationException("Không thể tạo phiếu nhập mới.");
-            }
+                int maPhieuNhap;
+                
+                // 1. Insert Phiếu Nhập
+                using (var command = connection.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = @"INSERT INTO dbo.Tbl_PhieuNhap (TongTien, NgayNhap, MaNhaCungCap)
+                                           VALUES (@TongTien, @NgayNhap, @MaNhaCungCap);
+                                           SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
-            return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+                    command.Parameters.Add(new SqlParameter("@TongTien", SqlDbType.Decimal)
+                    {
+                        Value = phieuNhap.TongTien ?? (object)DBNull.Value
+                    });
+
+                    command.Parameters.Add(new SqlParameter("@NgayNhap", SqlDbType.DateTime)
+                    {
+                        Value = phieuNhap.NgayNhap ?? (object)DBNull.Value
+                    });
+
+                    command.Parameters.Add(new SqlParameter("@MaNhaCungCap", SqlDbType.Int)
+                    {
+                        Value = phieuNhap.MaNhaCungCap
+                    });
+
+                    object? result = command.ExecuteScalar();
+                    if (result == null || result == DBNull.Value)
+                    {
+                        throw new InvalidOperationException("Không thể tạo phiếu nhập mới.");
+                    }
+
+                    maPhieuNhap = Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+                }
+
+                // 2. Insert Chi Tiết Phiếu Nhập
+                if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
+                {
+                    foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
+                    {
+                        using var command = connection.CreateCommand();
+                        command.Transaction = transaction;
+                        command.CommandText = @"INSERT INTO dbo.Tbl_ChiTietPhieuNhap 
+                                               (MaPhieuNhap, MaSanPham, SoLuong, DonGiaNhap, ThanhTien)
+                                               VALUES (@MaPhieuNhap, @MaSanPham, @SoLuong, @DonGiaNhap, @ThanhTien)";
+
+                        command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
+                        {
+                            Value = maPhieuNhap
+                        });
+
+                        command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int)
+                        {
+                            Value = chiTiet.MaSanPham
+                        });
+
+                        command.Parameters.Add(new SqlParameter("@SoLuong", SqlDbType.Int)
+                        {
+                            Value = chiTiet.SoLuong
+                        });
+
+                        command.Parameters.Add(new SqlParameter("@DonGiaNhap", SqlDbType.Decimal)
+                        {
+                            Value = chiTiet.DonGiaNhap
+                        });
+
+                        command.Parameters.Add(new SqlParameter("@ThanhTien", SqlDbType.Decimal)
+                        {
+                            Value = chiTiet.ThanhTien
+                        });
+
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                // Commit transaction
+                transaction.Commit();
+                return maPhieuNhap;
+            }
+            catch (Exception)
+            {
+                // Rollback nếu có lỗi
+                transaction.Rollback();
+                throw;
+            }
         }
 
         public void UpdatePhieuNhap(PhieuNhapDTO phieuNhap)

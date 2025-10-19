@@ -40,6 +40,11 @@ namespace mini_supermarket.BUS
             return statuses;
         }
 
+        public IList<SanPhamDTO> GetAll()
+        {
+            return _sanPhamDao.GetSanPham();
+        }
+
         public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null)
         {
             return _sanPhamDao.GetSanPham(trangThaiFilter);
