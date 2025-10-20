@@ -35,6 +35,70 @@ namespace mini_supermarket.DAO
             return phieuNhapList;
         }
 
+        public PhieuNhapDTO? GetPhieuNhapById(int maPhieuNhap)
+        {
+            PhieuNhapDTO? phieuNhap = null;
+
+            using var connection = DbConnectionFactory.CreateConnection();
+            connection.Open();
+
+            // 1. Lấy thông tin phiếu nhập
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"SELECT MaPhieuNhap, TongTien, NgayNhap, MaNhaCungCap
+                                       FROM dbo.Tbl_PhieuNhap
+                                       WHERE MaPhieuNhap = @MaPhieuNhap";
+
+                command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
+                {
+                    Value = maPhieuNhap
+                });
+
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    phieuNhap = new PhieuNhapDTO
+                    {
+                        MaPhieuNhap = reader.GetInt32(reader.GetOrdinal("MaPhieuNhap")),
+                        TongTien = reader.GetDecimal(reader.GetOrdinal("TongTien")),
+                        NgayNhap = reader.GetDateTime(reader.GetOrdinal("NgayNhap")),
+                        MaNhaCungCap = reader.GetInt32(reader.GetOrdinal("MaNhaCungCap"))
+                    };
+                }
+            }
+
+            // 2. Nếu tìm thấy phiếu nhập, lấy chi tiết
+            if (phieuNhap != null)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = @"SELECT MaChiTietPhieuNhap, MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, ThanhTien
+                                       FROM dbo.Tbl_ChiTietPhieuNhap
+                                       WHERE MaPhieuNhap = @MaPhieuNhap";
+
+                command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
+                {
+                    Value = maPhieuNhap
+                });
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var chiTiet = new ChiTietPhieuNhapDTO
+                    {
+                        MaChiTietPhieuNhap = reader.GetInt32(reader.GetOrdinal("MaChiTietPhieuNhap")),
+                        MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                        MaPhieuNhap = reader.GetInt32(reader.GetOrdinal("MaPhieuNhap")),
+                        SoLuong = reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                        DonGiaNhap = reader.GetDecimal(reader.GetOrdinal("DonGiaNhap")),
+                        ThanhTien = reader.GetDecimal(reader.GetOrdinal("ThanhTien"))
+                    };
+                    phieuNhap.ChiTietPhieuNhaps.Add(chiTiet);
+                }
+            }
+
+            return phieuNhap;
+        }
+
         public int InsertPhieuNhap(PhieuNhapDTO phieuNhap)
         {
             using var connection = DbConnectionFactory.CreateConnection();

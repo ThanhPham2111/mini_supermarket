@@ -8,6 +8,7 @@ namespace mini_supermarket.BUS
     public class PhieuNhap_BUS
     {
         private readonly PhieuNhap_DAO _phieuNhapDao = new();
+        private readonly KhoHang_DAO _khoHangDao = new();
 
         /*  public int GetNextMaPhieuNhap()
          {
@@ -20,6 +21,14 @@ namespace mini_supermarket.BUS
             return _phieuNhapDao.GetPhieuNhap();
         }
 
+        public PhieuNhapDTO? GetPhieuNhapById(int maPhieuNhap)
+        {
+            if (maPhieuNhap <= 0)
+                throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
+
+            return _phieuNhapDao.GetPhieuNhapById(maPhieuNhap);
+        }
+
         public PhieuNhapDTO AddPhieuNhap(PhieuNhapDTO phieuNhap)
         {
             if (phieuNhap == null)
@@ -27,9 +36,28 @@ namespace mini_supermarket.BUS
 
             ValidatePhieuNhap(phieuNhap, isUpdate: false);
 
-            int newId = _phieuNhapDao.InsertPhieuNhap(phieuNhap);
-            phieuNhap.MaPhieuNhap = newId;
-            return phieuNhap;
+            try
+            {
+                // 1. Thêm phiếu nhập vào database
+                int newId = _phieuNhapDao.InsertPhieuNhap(phieuNhap);
+                phieuNhap.MaPhieuNhap = newId;
+                
+                // 2. Cập nhật số lượng trong kho hàng cho từng chi tiết phiếu nhập
+                if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
+                {
+                    foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
+                    {
+                        // Cập nhật số lượng trong kho hàng
+                        _khoHangDao.UpdateSoLuong(chiTiet.MaSanPham, chiTiet.SoLuong);
+                    }
+                }
+                
+                return phieuNhap;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi thêm phiếu nhập: {ex.Message}", ex);
+            }
         }
 
         public void UpdatePhieuNhap(PhieuNhapDTO phieuNhap)

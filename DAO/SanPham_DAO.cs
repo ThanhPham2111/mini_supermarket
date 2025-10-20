@@ -28,11 +28,13 @@ namespace mini_supermarket.DAO
                                           sp.Hsd,
                                           sp.TrangThai,
                                           l.TenLoai,
-                                          th.TenThuongHieu
+                                          th.TenThuongHieu,
+                                          ISNULL(kh.SoLuong, 0) AS SoLuong
                                    FROM dbo.Tbl_SanPham sp
                                    LEFT JOIN dbo.Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
                                    LEFT JOIN dbo.Tbl_Loai l ON sp.MaLoai = l.MaLoai
-                                   LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu";
+                                   LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu
+                                   LEFT JOIN dbo.Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham";
 
             if (!string.IsNullOrWhiteSpace(trangThaiFilter))
             {
@@ -63,6 +65,7 @@ namespace mini_supermarket.DAO
                 int trangThaiIndex = reader.GetOrdinal("TrangThai");
                 int tenLoaiIndex = reader.GetOrdinal("TenLoai");
                 int tenThuongHieuIndex = reader.GetOrdinal("TenThuongHieu");
+                int soLuongIndex = reader.GetOrdinal("SoLuong");
 
                 var sanPham = new SanPhamDTO
                 {
@@ -79,7 +82,8 @@ namespace mini_supermarket.DAO
                     Hsd = reader.IsDBNull(hsdIndex) ? null : reader.GetDateTime(hsdIndex),
                     TrangThai = reader.IsDBNull(trangThaiIndex) ? null : reader.GetString(trangThaiIndex),
                     TenLoai = reader.IsDBNull(tenLoaiIndex) ? null : reader.GetString(tenLoaiIndex),
-                    TenThuongHieu = reader.IsDBNull(tenThuongHieuIndex) ? null : reader.GetString(tenThuongHieuIndex)
+                    TenThuongHieu = reader.IsDBNull(tenThuongHieuIndex) ? null : reader.GetString(tenThuongHieuIndex),
+                    SoLuong = reader.IsDBNull(soLuongIndex) ? 0 : reader.GetInt32(soLuongIndex)
                 };
 
                 sanPhamList.Add(sanPham);

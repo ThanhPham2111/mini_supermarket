@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.IO;
+using System.Collections.Generic;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
 
@@ -13,7 +15,7 @@ namespace mini_supermarket.GUI.PhieuNhap
         private DataGridView dgvPhieuNhap;
         private TextBox txtSearch;
         private ComboBox cboTimePeriod, cboSupplier;
-        private Button btnAddImport, btnClear;
+        private Button btnAddImport, btnClear, btnImportExcel;
 
         public Form_PhieuNhap()
         {
@@ -49,11 +51,11 @@ namespace mini_supermarket.GUI.PhieuNhap
 
       private void InitializeTitleSection()
         {
-            // Title Panel
+            // Title Panel - Tăng chiều cao để chứa 3 nút
             Panel titlePanel = new Panel
             {
                 Location = new Point(30, 20),
-                Size = new Size(1110, 90),
+                Size = new Size(1110, 155),
                 BackColor = Color.White
             };
             mainPanel.Controls.Add(titlePanel);
@@ -61,7 +63,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // Title Label
             Label titleLabel = new Label
             {
-                Text = "Chi tiết phiếu nhập",
+                Text = "Danh sách phiếu nhập",
                 Location = new Point(0, 25),
                 Size = new Size(500, 50),
                 Font = new Font("Segoe UI", 22, FontStyle.Bold),
@@ -102,6 +104,21 @@ namespace mini_supermarket.GUI.PhieuNhap
             );
             btnClear.Click += BtnClear_Click;
             buttonPanel.Controls.Add(btnClear);
+
+            // Import Excel Button
+            btnImportExcel = CreateButton(
+                "📥 Nhập Excel",
+                new Point(0, 90),
+                new Size(180, 40),
+                Color.FromArgb(255, 193, 7),
+                Color.FromArgb(255, 173, 0),
+                11
+            );
+            btnImportExcel.Click += BtnImportExcel_Click;
+            buttonPanel.Controls.Add(btnImportExcel);
+
+            // Tăng height của buttonPanel để chứa thêm nút
+            buttonPanel.Size = new Size(180, 135);
         }
 
         private void BtnAddImport_Click(object sender, EventArgs e)
@@ -122,6 +139,383 @@ namespace mini_supermarket.GUI.PhieuNhap
             cboTimePeriod.SelectedIndex = 0;
             cboSupplier.SelectedIndex = 0;
             LoadData();
+        }
+
+        private void BtnImportExcel_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                using (OpenFileDialog openDialog = new OpenFileDialog())
+                {
+                    openDialog.Filter = "Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx|CSV Files (*.csv)|*.csv";
+                    openDialog.Title = "Chọn file Excel để nhập";
+                    openDialog.Multiselect = false;
+
+                    if (openDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string extension = Path.GetExtension(openDialog.FileName).ToLower();
+                        
+                        if (extension == ".csv")
+                        {
+                            ImportFromCSV(openDialog.FileName);
+                        }
+                        else if (extension == ".xls" || extension == ".xlsx")
+                        {
+                            ImportFromExcel(openDialog.FileName);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Định dạng file không được hỗ trợ!", "Lỗi", 
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi nhập file: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ImportFromCSV(string filePath)
+        {
+            try
+            {
+                var lines = File.ReadAllLines(filePath, System.Text.Encoding.UTF8);
+                
+                if (lines.Length < 7) // Kiểm tra file có đủ dữ liệu không
+                {
+                    MessageBox.Show("File CSV không đúng định dạng!", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Parse thông tin phiếu nhập
+                string maPhieuNhap = "";
+                DateTime? ngayNhap = null;
+                string nhaCungCap = "";
+                List<(string tenSP, string donVi, int soLuong, decimal donGia, decimal thanhTien)> sanPhamList = new List<(string, string, int, decimal, decimal)>();
+
+                int currentLine = 0;
+                
+                // Đọc header
+                while (currentLine < lines.Length)
+                {
+                    string line = lines[currentLine];
+                    
+                    if (line.StartsWith("Mã phiếu nhập:"))
+                    {
+                        var parts = line.Split(',');
+                        if (parts.Length > 1)
+                            maPhieuNhap = parts[1].Trim();
+                    }
+                    else if (line.StartsWith("Ngày nhập:"))
+                    {
+                        var parts = line.Split(',');
+                        if (parts.Length > 1 && DateTime.TryParse(parts[1].Trim(), out DateTime date))
+                            ngayNhap = date;
+                    }
+                    else if (line.StartsWith("Nhà cung cấp:"))
+                    {
+                        var parts = line.Split(',');
+                        if (parts.Length > 1)
+                            nhaCungCap = parts[1].Trim();
+                    }
+                    else if (line.StartsWith("STT,Sản phẩm,Đơn vị,Số lượng,Đơn giá nhập,Thành tiền"))
+                    {
+                        // Bắt đầu đọc dữ liệu sản phẩm
+                        currentLine++;
+                        break;
+                    }
+                    
+                    currentLine++;
+                }
+
+                // Đọc dữ liệu sản phẩm
+                while (currentLine < lines.Length)
+                {
+                    string line = lines[currentLine];
+                    
+                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith("Tổng tiền:"))
+                        break;
+                    
+                    var parts = line.Split(',');
+                    if (parts.Length >= 6)
+                    {
+                        try
+                        {
+                            // parts[0] = STT
+                            string tenSP = parts[1].Trim('"', ' ');
+                            string donVi = parts[2].Trim();
+                            int soLuong = int.Parse(parts[3].Trim());
+                            decimal donGia = decimal.Parse(parts[4].Trim());
+                            decimal thanhTien = decimal.Parse(parts[5].Trim());
+                            
+                            sanPhamList.Add((tenSP, donVi, soLuong, donGia, thanhTien));
+                        }
+                        catch
+                        {
+                            // Bỏ qua dòng lỗi
+                        }
+                    }
+                    
+                    currentLine++;
+                }
+
+                // Hiển thị dialog xác nhận
+                if (sanPhamList.Count > 0)
+                {
+                    string message = $"Đã đọc được:\n" +
+                                   $"- Nhà cung cấp: {nhaCungCap}\n" +
+                                   $"- Số lượng sản phẩm: {sanPhamList.Count}\n\n" +
+                                   $"Bạn có muốn nhập phiếu nhập này vào hệ thống?";
+                    
+                    if (MessageBox.Show(message, "Xác nhận nhập dữ liệu", 
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        SaveImportedData(nhaCungCap, ngayNhap ?? DateTime.Now, sanPhamList);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy dữ liệu sản phẩm trong file!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi đọc file CSV: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ImportFromExcel(string filePath)
+        {
+            try
+            {
+                // Đọc file HTML/XLS
+                var htmlContent = File.ReadAllText(filePath, System.Text.Encoding.UTF8);
+                
+                // Parse HTML để lấy dữ liệu
+                List<(string tenSP, string donVi, int soLuong, decimal donGia, decimal thanhTien)> sanPhamList = new List<(string, string, int, decimal, decimal)>();
+                string nhaCungCap = "";
+                DateTime? ngayNhap = null;
+
+                // Tìm thông tin cơ bản
+                var lines = htmlContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                
+                bool foundTable = false;
+                bool inDataSection = false;
+                
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i].Trim();
+                    
+                    // Tìm nhà cung cấp
+                    if (line.Contains("Nhà cung cấp:") && i + 1 < lines.Length)
+                    {
+                        string nextLine = lines[i + 1].Trim();
+                        if (nextLine.Contains("<td>"))
+                        {
+                            nhaCungCap = ExtractTextFromHtml(nextLine);
+                        }
+                    }
+                    
+                    // Tìm ngày nhập
+                    if (line.Contains("Ngày nhập:") && i + 1 < lines.Length)
+                    {
+                        string nextLine = lines[i + 1].Trim();
+                        if (nextLine.Contains("<td>"))
+                        {
+                            string dateStr = ExtractTextFromHtml(nextLine);
+                            if (DateTime.TryParse(dateStr, out DateTime date))
+                                ngayNhap = date;
+                        }
+                    }
+                    
+                    // Tìm bảng sản phẩm
+                    if (line.Contains("<th>STT</th>"))
+                    {
+                        foundTable = true;
+                        continue;
+                    }
+                    
+                    if (foundTable && line.Contains("<tbody>"))
+                    {
+                        inDataSection = true;
+                        continue;
+                    }
+                    
+                    if (inDataSection && line.Contains("</tbody>"))
+                    {
+                        break;
+                    }
+                    
+                    // Đọc dữ liệu sản phẩm
+                    if (inDataSection && line.Contains("<tr>"))
+                    {
+                        try
+                        {
+                            List<string> rowData = new List<string>();
+                            int j = i + 1;
+                            
+                            while (j < lines.Length && !lines[j].Trim().Contains("</tr>"))
+                            {
+                                if (lines[j].Trim().Contains("<td"))
+                                {
+                                    rowData.Add(ExtractTextFromHtml(lines[j].Trim()));
+                                }
+                                j++;
+                            }
+                            
+                            if (rowData.Count >= 6)
+                            {
+                                // rowData[0] = STT
+                                string tenSP = rowData[1];
+                                string donVi = rowData[2];
+                                
+                                if (int.TryParse(rowData[3].Replace(",", ""), out int soLuong) &&
+                                    decimal.TryParse(rowData[4].Replace(",", ""), out decimal donGia) &&
+                                    decimal.TryParse(rowData[5].Replace(",", "").Replace(" đ", ""), out decimal thanhTien))
+                                {
+                                    sanPhamList.Add((tenSP, donVi, soLuong, donGia, thanhTien));
+                                }
+                            }
+                            
+                            i = j;
+                        }
+                        catch
+                        {
+                            // Bỏ qua dòng lỗi
+                        }
+                    }
+                }
+
+                // Hiển thị dialog xác nhận
+                if (sanPhamList.Count > 0)
+                {
+                    string message = $"Đã đọc được:\n" +
+                                   $"- Nhà cung cấp: {nhaCungCap}\n" +
+                                   $"- Số lượng sản phẩm: {sanPhamList.Count}\n\n" +
+                                   $"Bạn có muốn nhập phiếu nhập này vào hệ thống?";
+                    
+                    if (MessageBox.Show(message, "Xác nhận nhập dữ liệu", 
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        SaveImportedData(nhaCungCap, ngayNhap ?? DateTime.Now, sanPhamList);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy dữ liệu sản phẩm trong file!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi đọc file Excel: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string ExtractTextFromHtml(string html)
+        {
+            // Loại bỏ các tag HTML
+            string text = System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty);
+            // Decode HTML entities
+            text = System.Net.WebUtility.HtmlDecode(text);
+            return text.Trim();
+        }
+
+        private void SaveImportedData(string tenNhaCungCap, DateTime ngayNhap, 
+            List<(string tenSP, string donVi, int soLuong, decimal donGia, decimal thanhTien)> sanPhamList)
+        {
+            try
+            {
+                var nhaCungCapBUS = new NhaCungCap_BUS();
+                var sanPhamBUS = new SanPham_BUS();
+                var phieuNhapBUS = new PhieuNhap_BUS();
+
+                // Tìm nhà cung cấp
+                var nhaCungCapList = nhaCungCapBUS.GetAll();
+                var nhaCungCap = nhaCungCapList.FirstOrDefault(ncc => ncc.TenNhaCungCap == tenNhaCungCap);
+                
+                if (nhaCungCap == null)
+                {
+                    MessageBox.Show($"Không tìm thấy nhà cung cấp '{tenNhaCungCap}' trong hệ thống!", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Tìm sản phẩm
+                var allSanPham = sanPhamBUS.GetAll();
+                List<ChiTietPhieuNhapDTO> chiTietList = new List<ChiTietPhieuNhapDTO>();
+                decimal tongTien = 0;
+
+                foreach (var sp in sanPhamList)
+                {
+                    var sanPham = allSanPham.FirstOrDefault(s => s.TenSanPham == sp.tenSP);
+                    
+                    if (sanPham != null)
+                    {
+                        chiTietList.Add(new ChiTietPhieuNhapDTO
+                        {
+                            MaSanPham = sanPham.MaSanPham,
+                            SoLuong = sp.soLuong,
+                            DonGiaNhap = sp.donGia,
+                            ThanhTien = sp.thanhTien
+                        });
+                        
+                        tongTien += sp.thanhTien;
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Sản phẩm '{sp.tenSP}' không tồn tại trong hệ thống!\nSẽ bỏ qua sản phẩm này.", 
+                            "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+
+                if (chiTietList.Count == 0)
+                {
+                    MessageBox.Show("Không có sản phẩm hợp lệ để nhập!", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Tạo phiếu nhập mới
+                PhieuNhapDTO phieuNhap = new PhieuNhapDTO
+                {
+                    MaNhaCungCap = nhaCungCap.MaNhaCungCap,
+                    NgayNhap = ngayNhap,
+                    TongTien = tongTien,
+                    ChiTietPhieuNhaps = chiTietList
+                };
+
+                // Lưu vào database
+                var result = phieuNhapBUS.AddPhieuNhap(phieuNhap);
+
+                if (result != null && result.MaPhieuNhap > 0)
+                {
+                    MessageBox.Show($"Nhập phiếu nhập thành công!\n" +
+                                  $"- Mã phiếu: PN{result.MaPhieuNhap:D3}\n" +
+                                  $"- Số sản phẩm: {chiTietList.Count}\n" +
+                                  $"- Tổng tiền: {tongTien:N0} đ", 
+                        "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                    LoadData(); // Reload danh sách
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi khi lưu phiếu nhập vào database!", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi lưu dữ liệu: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadData()
@@ -326,10 +720,10 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         private void InitializeSearchSection()
         {
-            // Search Panel
+            // Search Panel - Dời xuống để không chồng lên titlePanel
             Panel searchPanel = new Panel
             {
-                Location = new Point(30, 145),
+                Location = new Point(30, 190),
                 Size = new Size(1110, 52),
                 BackColor = Color.White
             };
@@ -380,7 +774,7 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             Panel filterPanel = new Panel
             {
-                Location = new Point(30, 210),
+                Location = new Point(30, 255),
                 Size = new Size(1110, 50),
                 BackColor = Color.White
             };
@@ -427,8 +821,8 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             dgvPhieuNhap = new DataGridView
             {
-                Location = new Point(30, 275),
-                Size = new Size(1110, 445),
+                Location = new Point(30, 320),
+                Size = new Size(1110, 400),
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
@@ -555,9 +949,23 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 if (e.RowIndex >= 0)
                 {
-                    string maPhieu = dgvPhieuNhap.Rows[e.RowIndex].Cells["MaPhieu"].Value?.ToString();
-                    MessageBox.Show($"Xem chi tiết phiếu nhập: {maPhieu}", "Thông tin", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string maPhieuStr = dgvPhieuNhap.Rows[e.RowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                    
+                    // Parse mã phiếu nhập (ví dụ: "PN001" -> 1)
+                    if (maPhieuStr.StartsWith("PN") && int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                    {
+                        Form_XemChiTietPhieuNhap formChiTiet = new Form_XemChiTietPhieuNhap(maPhieuNhap);
+                        formChiTiet.ShowDialog();
+                    }
+                }
+            };
+
+            // Click event để thêm cursor pointer
+            dgvPhieuNhap.CellClick += (s, e) =>
+            {
+                if (e.RowIndex >= 0)
+                {
+                    dgvPhieuNhap.Cursor = Cursors.Hand;
                 }
             };
         }
