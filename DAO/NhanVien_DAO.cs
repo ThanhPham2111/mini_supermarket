@@ -47,6 +47,7 @@ namespace mini_supermarket.DAO
 
             return nhanVienList;
         }
+
         public int GetMaxMaNhanVien()
         {
             using var connection = DbConnectionFactory.CreateConnection();
@@ -57,7 +58,6 @@ namespace mini_supermarket.DAO
             object? result = command.ExecuteScalar();
             return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
         }
-
 
         public int InsertNhanVien(NhanVienDTO nhanVien)
         {
@@ -73,7 +73,7 @@ namespace mini_supermarket.DAO
             object? result = command.ExecuteScalar();
             if (result == null || result == DBNull.Value)
             {
-                throw new InvalidOperationException("Khong the tao nhan vien moi.");
+                throw new InvalidOperationException("Không thể tạo nhân viên mới.");
             }
 
             return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
@@ -98,7 +98,7 @@ namespace mini_supermarket.DAO
             int rowsAffected = command.ExecuteNonQuery();
             if (rowsAffected == 0)
             {
-                throw new InvalidOperationException("Khong tim thay nhan vien de cap nhat.");
+                throw new InvalidOperationException("Không tìm thấy nhân viên để cập nhật.");
             }
         }
 
@@ -116,7 +116,7 @@ namespace mini_supermarket.DAO
             int rowsAffected = command.ExecuteNonQuery();
             if (rowsAffected == 0)
             {
-                throw new InvalidOperationException("Khong tim thay nhan vien de xoa.");
+                throw new InvalidOperationException("Không tìm thấy nhân viên để xóa.");
             }
         }
 

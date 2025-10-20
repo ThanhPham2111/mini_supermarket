@@ -3,6 +3,7 @@
     public class KhoHangDTO
     {
         public int MaSanPham { get; set; }
+        public string? TenSanPham { get; set; }
         public int? SoLuong { get; set; }
         public string? TrangThai { get; set; }
 

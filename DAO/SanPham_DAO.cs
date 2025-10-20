@@ -156,6 +156,79 @@ namespace mini_supermarket.DAO
             return Convert.ToInt32(result);
         }
 
+        public void UpdateSanPham(SanPhamDTO sanPham)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE dbo.Tbl_SanPham
+                                     SET TenSanPham = @TenSanPham,
+                                         MaDonVi = @MaDonVi,
+                                         MaThuongHieu = @MaThuongHieu,
+                                         MaLoai = @MaLoai,
+                                         MoTa = @MoTa,
+                                         GiaBan = @GiaBan,
+                                         HinhAnh = @HinhAnh,
+                                         XuatXu = @XuatXu,
+                                         Hsd = @Hsd,
+                                         TrangThai = @TrangThai
+                                     WHERE MaSanPham = @MaSanPham";
+
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int)
+            {
+                Value = sanPham.MaSanPham
+            });
+            command.Parameters.Add(new SqlParameter("@TenSanPham", SqlDbType.NVarChar, 255)
+            {
+                Value = sanPham.TenSanPham
+            });
+            command.Parameters.Add(new SqlParameter("@MaDonVi", SqlDbType.Int)
+            {
+                Value = sanPham.MaDonVi
+            });
+            command.Parameters.Add(new SqlParameter("@MaThuongHieu", SqlDbType.Int)
+            {
+                Value = sanPham.MaThuongHieu
+            });
+            command.Parameters.Add(new SqlParameter("@MaLoai", SqlDbType.Int)
+            {
+                Value = sanPham.MaLoai
+            });
+            command.Parameters.Add(new SqlParameter("@MoTa", SqlDbType.NVarChar, -1)
+            {
+                Value = (object?)sanPham.MoTa ?? DBNull.Value
+            });
+            var giaBanParameter = new SqlParameter("@GiaBan", SqlDbType.Decimal)
+            {
+                Precision = 18,
+                Scale = 2,
+                Value = sanPham.GiaBan.HasValue ? sanPham.GiaBan.Value : DBNull.Value
+            };
+            command.Parameters.Add(giaBanParameter);
+            command.Parameters.Add(new SqlParameter("@HinhAnh", SqlDbType.NVarChar, -1)
+            {
+                Value = (object?)sanPham.HinhAnh ?? DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@XuatXu", SqlDbType.NVarChar, 100)
+            {
+                Value = (object?)sanPham.XuatXu ?? DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@Hsd", SqlDbType.Date)
+            {
+                Value = sanPham.Hsd.HasValue ? sanPham.Hsd.Value.Date : DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
+            {
+                Value = sanPham.TrangThai ?? (object)DBNull.Value
+            });
+
+            connection.Open();
+            int rows = command.ExecuteNonQuery();
+            if (rows == 0)
+            {
+                throw new InvalidOperationException("Khong tim thay san pham de cap nhat.");
+            }
+        }
+
         public IList<string> GetDistinctTrangThai()
         {
             var statuses = new List<string>();

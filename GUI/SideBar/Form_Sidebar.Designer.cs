@@ -98,11 +98,11 @@
             // 
             // navNhaCungCapButton
             // 
-            this.navNhaCungCapButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+              this.navNhaCungCapButton.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
             this.navNhaCungCapButton.Dock = System.Windows.Forms.DockStyle.Top;
             this.navNhaCungCapButton.FlatAppearance.BorderSize = 0;
             this.navNhaCungCapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.navNhaCungCapButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navNhaCungCapButton.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.navNhaCungCapButton.ForeColor = System.Drawing.Color.White;
             this.navNhaCungCapButton.Location = new System.Drawing.Point(0, 674);
             this.navNhaCungCapButton.Margin = new System.Windows.Forms.Padding(0);
@@ -113,7 +113,7 @@
             this.navNhaCungCapButton.Text = "Nhà Cung Cấp";
             this.navNhaCungCapButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navNhaCungCapButton.UseVisualStyleBackColor = false;
-            this.navNhaCungCapButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navNhaCungCapButton.Click += new System.EventHandler(this.navNhaCungCapButton_Click);
             // 
             // navNhanVienButton
             // 
@@ -189,7 +189,7 @@
             this.navLoaiSanPhamButton.Text = "Loại Sản Phẩm";
             this.navLoaiSanPhamButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navLoaiSanPhamButton.UseVisualStyleBackColor = false;
-            this.navLoaiSanPhamButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navLoaiSanPhamButton.Click += new System.EventHandler(this.navLoaiSanPhamButton_Click);
             // 
             // navKhoHangButton
             // 
@@ -208,7 +208,7 @@
             this.navKhoHangButton.Text = "Kho Hàng";
             this.navKhoHangButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navKhoHangButton.UseVisualStyleBackColor = false;
-            this.navKhoHangButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navKhoHangButton.Click += new System.EventHandler(this.navKhoHangButton_Click);
             // 
             // navSanPhamButton
             // 
@@ -265,7 +265,7 @@
             this.navHoaDonButton.Text = "Hoá Đơn";
             this.navHoaDonButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navHoaDonButton.UseVisualStyleBackColor = false;
-            this.navHoaDonButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navHoaDonButton.Click += new System.EventHandler(this.navHoaDonButton_Click);
             // 
             // navBanHangButton
             // 
@@ -390,7 +390,7 @@
             this.MinimizeBox = false;
             this.Name = "Form_Sidebar";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Dieu huong";
+            this.Text = "Quản Lý Siêu Thị Mini";
             this.sidebarPanel.ResumeLayout(false);
             this.logoPanel.ResumeLayout(false);
             this.mainContentPanel.ResumeLayout(false);
