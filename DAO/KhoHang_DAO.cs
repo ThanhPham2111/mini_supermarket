@@ -103,6 +103,45 @@ namespace mini_supermarket.DAO
             return command.ExecuteNonQuery();
         }
 
+        // --- Kiểm tra sản phẩm đã tồn tại trong kho hàng chưa ---
+        public bool ExistsByMaSanPham(int maSanPham)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT COUNT(1) FROM dbo.Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
+
+            connection.Open();
+            var result = command.ExecuteScalar();
+            return result != null && Convert.ToInt32(result) > 0;
+        }
+
+        // --- Lấy thông tin kho hàng theo mã sản phẩm ---
+        public KhoHangDTO? GetByMaSanPham(int maSanPham)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT MaSanPham, SoLuong, TrangThai 
+                                   FROM dbo.Tbl_KhoHang 
+                                   WHERE MaSanPham = @MaSanPham";
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new KhoHangDTO
+                {
+                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))?.Trim()
+                };
+            }
+
+            return null;
+        }
+
         // --- Lấy danh sách trạng thái có trong kho ---
         public IList<string> GetDistinctTrangThai()
         {

@@ -47,8 +47,37 @@ namespace mini_supermarket.BUS
                 {
                     foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
                     {
-                        // Cập nhật số lượng trong kho hàng
-                        _khoHangDao.UpdateSoLuong(chiTiet.MaSanPham, chiTiet.SoLuong);
+                        // Kiểm tra sản phẩm đã có trong kho hàng chưa
+                        bool exists = _khoHangDao.ExistsByMaSanPham(chiTiet.MaSanPham);
+                        
+                        if (exists)
+                        {
+                            // Đã có trong kho -> Lấy thông tin hiện tại và cộng thêm số lượng
+                            var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
+                            if (khoHangHienTai != null)
+                            {
+                                int soLuongMoi = (khoHangHienTai.SoLuong ?? 0) + chiTiet.SoLuong;
+                                
+                                KhoHangDTO khoHangUpdate = new KhoHangDTO
+                                {
+                                    MaSanPham = chiTiet.MaSanPham,
+                                    SoLuong = soLuongMoi,
+                                    TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
+                                };
+                                _khoHangDao.UpdateKhoHang(khoHangUpdate);
+                            }
+                        }
+                        else
+                        {
+                            // Chưa có trong kho -> Thêm mới
+                            KhoHangDTO khoHangNew = new KhoHangDTO
+                            {
+                                MaSanPham = chiTiet.MaSanPham,
+                                SoLuong = chiTiet.SoLuong,
+                                TrangThai = chiTiet.SoLuong > 0 ? "Còn hàng" : "Hết hàng"
+                            };
+                            _khoHangDao.InsertKhoHang(khoHangNew);
+                        }
                     }
                 }
                 
