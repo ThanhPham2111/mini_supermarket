@@ -7,7 +7,7 @@ using mini_supermarket.GUI.NhanVien;
 using mini_supermarket.GUI.PhieuNhap;
 using mini_supermarket.GUI.NhaCungCap;
 using mini_supermarket.GUI.HoaDon;
-using mini_supermarket.GUI.FormKhoHang;
+using mini_supermarket.GUI.KhoHang;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
 using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 

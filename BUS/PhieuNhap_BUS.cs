@@ -7,8 +7,8 @@ namespace mini_supermarket.BUS
 {
     public class PhieuNhap_BUS
     {
-        private readonly PhieuNhap_DAO _phieuNhapDao = new();
-        private readonly KhoHang_DAO _khoHangDao = new();
+        private readonly PhieuNhap_DAO _phieuNhapDao = new PhieuNhap_DAO();
+        private readonly KhoHangDAO _khoHangDao = new KhoHangDAO();
 
         /*  public int GetNextMaPhieuNhap()
          {
