@@ -1,155 +1,151 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using mini_supermarket.DB;
-using mini_supermarket.DTO;
+using System;
+using System.Data;
 
 namespace mini_supermarket.DAO
 {
-    public class KhoHang_DAO
+    public class KhoHangDAO
     {
-        // --- Lấy danh sách kho hàng, có thể lọc theo trạng thái ---
-        public IList<KhoHangDTO> GetKhoHang(string? trangThaiFilter = null)
+        // Lấy toàn bộ sản phẩm trong kho để hiển thị
+        public DataTable LayDanhSachTonKho()
         {
-            var khoHangList = new List<KhoHangDTO>();
+            string query = @"
+                SELECT 
+                    kh.MaSanPham AS MaSP,
+                    sp.TenSanPham,
+                    dv.TenDonVi,
+                    l.TenLoai,
+                    th.TenThuongHieu,
+                    kh.SoLuong,
+                    sp.MaLoai,         
+                    sp.MaThuongHieu     
+                FROM Tbl_KhoHang kh
+                JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham
+                LEFT JOIN Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
+                LEFT JOIN Tbl_Loai l ON sp.MaLoai = l.MaLoai
+                LEFT JOIN Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu;";
 
-            using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-
-            // JOIN để lấy TenSanPham
-            command.CommandText = @"
-                SELECT kh.MaSanPham,
-                       sp.TenSanPham,
-                       kh.SoLuong,
-                       kh.TrangThai
-                FROM dbo.Tbl_KhoHang kh
-                INNER JOIN dbo.Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham";
-
-            if (!string.IsNullOrWhiteSpace(trangThaiFilter))
+            DataTable data = new DataTable();
+            try
             {
-                command.CommandText += " WHERE kh.TrangThai = @TrangThai";
-                command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50) { Value = trangThaiFilter });
-            }
-
-            // ORDER BY chỉ các cột trong SELECT
-            command.CommandText += " ORDER BY sp.TenSanPham";
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                khoHangList.Add(new KhoHangDTO
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
                 {
-                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
-                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")).Trim(),
-                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
-                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))?.Trim()
-                });
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+                    adapter.Fill(data);
+                }
             }
-
-            return khoHangList;
-        }
-
-        // --- Thêm kho hàng ---
-        public int InsertKhoHang(KhoHangDTO kho)
-        {
-            if (kho == null) throw new ArgumentNullException(nameof(kho));
-
-            using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO dbo.Tbl_KhoHang (MaSanPham, SoLuong, TrangThai)
-                VALUES (@MaSanPham, @SoLuong, @TrangThai)";
-
-            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = kho.MaSanPham });
-            command.Parameters.Add(new SqlParameter("@SoLuong", SqlDbType.Int) { Value = (object?)kho.SoLuong ?? DBNull.Value });
-            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50) { Value = (object?)kho.TrangThai ?? DBNull.Value });
-
-            connection.Open();
-            return command.ExecuteNonQuery();
-        }
-
-        // --- Cập nhật kho hàng ---
-        public int UpdateKhoHang(KhoHangDTO kho)
-        {
-            if (kho == null) throw new ArgumentNullException(nameof(kho));
-
-            using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                UPDATE dbo.Tbl_KhoHang
-                SET SoLuong = @SoLuong,
-                    TrangThai = @TrangThai
-                WHERE MaSanPham = @MaSanPham";
-
-            command.Parameters.Add(new SqlParameter("@SoLuong", SqlDbType.Int) { Value = (object?)kho.SoLuong ?? DBNull.Value });
-            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50) { Value = (object?)kho.TrangThai ?? DBNull.Value });
-            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = kho.MaSanPham });
-
-            connection.Open();
-            return command.ExecuteNonQuery();
-        }
-
-        // --- Xóa kho hàng ---
-        public int DeleteKhoHang(int maSanPham)
-        {
-            using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = @"DELETE FROM dbo.Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
-            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
-
-            connection.Open();
-            return command.ExecuteNonQuery();
-        }
-
-        // --- Lấy danh sách trạng thái có trong kho ---
-        public IList<string> GetDistinctTrangThai()
-        {
-            var statuses = new List<string>();
-
-            using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                SELECT DISTINCT TrangThai
-                FROM dbo.Tbl_KhoHang
-                WHERE TrangThai IS NOT NULL AND LTRIM(RTRIM(TrangThai)) <> ''
-                ORDER BY TrangThai"; // ORDER BY hợp lệ vì cột xuất hiện trong SELECT
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            catch (Exception ex)
             {
-                statuses.Add(reader.GetString(0).Trim());
+                Console.WriteLine($"[ERROR] LayDanhSachTonKho: {ex.Message}");
             }
-
-            return statuses;
+            return data;
         }
 
-        // --- Lấy danh sách tất cả sản phẩm (để chọn khi thêm/sửa) ---
-        public IList<SanPhamDTO> GetAllProducts()
+        // Lấy danh sách Loại sản phẩm để lọc
+        public DataTable LayDanhSachLoai()
         {
-            var list = new List<SanPhamDTO>();
-
-            using var connection = DbConnectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                SELECT MaSanPham, TenSanPham
-                FROM dbo.Tbl_SanPham
-                ORDER BY TenSanPham";
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            string query = "SELECT MaLoai, TenLoai FROM Tbl_Loai;";
+            DataTable data = new DataTable();
+            try
             {
-                list.Add(new SanPhamDTO
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
                 {
-                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
-                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")).Trim()
-                });
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+                    adapter.Fill(data);
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] LayDanhSachLoai: {ex.Message}");
+            }
+            return data;
+        }
 
-            return list;
+        // Lấy danh sách Thương hiệu để lọc
+        public DataTable LayDanhSachThuongHieu()
+        {
+            string query = "SELECT MaThuongHieu, TenThuongHieu FROM Tbl_ThuongHieu;";
+            DataTable data = new DataTable();
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                {
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+                    adapter.Fill(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] LayDanhSachThuongHieu: {ex.Message}");
+            }
+            return data;
+        }
+
+        // Lấy danh sách Nhà cung cấp để lọc 
+        public DataTable LayDanhSachNhaCungCap()
+        {
+            string query = "SELECT MaNhaCungCap, TenNhaCungCap FROM Tbl_NhaCungCap;";
+            DataTable data = new DataTable();
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                {
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+                    adapter.Fill(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] LayDanhSachNhaCungCap: {ex.Message}");
+            }
+            return data;
+        }
+
+        // Lấy chi tiết lịch sử nhập/xuất của một sản phẩm
+        public DataTable LayLichSuNhapXuat(int maSanPham)
+        {
+            string query = @"
+                SELECT 
+                    pn.NgayNhap AS 'NgayGiaoDich',
+                    N'Nhập kho' AS 'LoaiGiaoDich',
+                    ctpn.SoLuong,
+                    ctpn.DonGiaNhap AS 'DonGia',
+                    pn.MaPhieuNhap AS 'MaPhieu'
+                FROM Tbl_ChiTietPhieuNhap ctpn
+                JOIN Tbl_PhieuNhap pn ON ctpn.MaPhieuNhap = pn.MaPhieuNhap
+                WHERE ctpn.MaSanPham = @MaSanPham
+
+                UNION ALL
+
+                SELECT 
+                    hd.NgayLap AS 'NgayGiaoDich',
+                    N'Bán hàng' AS 'LoaiGiaoDich',
+                    cthd.SoLuong,
+                    cthd.GiaBan AS 'DonGia',
+                    hd.MaHoaDon AS 'MaPhieu'
+                FROM Tbl_ChiTietHoaDon cthd
+                JOIN Tbl_HoaDon hd ON cthd.MaHoaDon = hd.MaHoaDon
+                WHERE cthd.MaSanPham = @MaSanPham
+                ORDER BY NgayGiaoDich DESC;";
+
+            DataTable data = new DataTable();
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                {
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    SqlDataAdapter adapter = new SqlDataAdapter(command);
+                    adapter.Fill(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] LayLichSuNhapXuat: {ex.Message}");
+            }
+            return data;
         }
     }
 }
+
