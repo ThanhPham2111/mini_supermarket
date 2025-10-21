@@ -17,8 +17,20 @@ namespace mini_supermarket.BUS
             StatusInactive
         };
 
+        private static readonly HashSet<string> StatusLookup = new(DefaultStatuses, StringComparer.OrdinalIgnoreCase);
+
         private readonly NhaCungCap_DAO _nhaCungCapDao = new();
 
+        public IReadOnlyList<string> GetAvailableStatuses()
+        {
+            var statuses = new List<string>(DefaultStatuses);
+            return statuses;
+        }
+
+        public IList<NhaCungCapDTO> GetAll()
+        {
+            return _nhaCungCapDao.GetNhaCungCap();
+        }
         public IReadOnlyList<string> GetDefaultStatuses() => DefaultStatuses;
 
         public int GetNextMaNhaCungCap()
@@ -32,6 +44,10 @@ namespace mini_supermarket.BUS
             return _nhaCungCapDao.GetNhaCungCap(trangThaiFilter);
         }
 
+        public bool IsValidStatus(string? status)
+        {
+            return !string.IsNullOrWhiteSpace(status) && StatusLookup.Contains(status);
+        }
         public NhaCungCapDTO AddNhaCungCap(NhaCungCapDTO nhaCungCap)
         {
             if (nhaCungCap == null)

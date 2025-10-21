@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using mini_supermarket.GUI.Form_BanHang;
 using mini_supermarket.GUI.KhachHang;
 using mini_supermarket.GUI.NhanVien;
+using mini_supermarket.GUI.PhieuNhap;
 using mini_supermarket.GUI.NhaCungCap;
 using mini_supermarket.GUI.HoaDon;
 using mini_supermarket.GUI.FormKhoHang;
@@ -69,6 +70,11 @@ namespace mini_supermarket.GUI.SideBar
         private void navHoaDonButton_Click(object sender, EventArgs e)
         {
             ShowHoaDon();
+        }
+
+        private void navPhieuNhapButton_Click(object sender, EventArgs e)
+        {
+            ShowPhieuNhap();
         }
 
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
@@ -249,6 +255,26 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(hoaDonForm);
             hoaDonForm.Show();
+        }
+
+        private void ShowPhieuNhap()
+        {
+            SetActiveButton(navPhieuNhapButton);
+            mainTitleLabel.Text = navPhieuNhapButton.Text;
+
+            CloseActiveForm();
+
+            var phieuNhapForm = new Form_PhieuNhap
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = phieuNhapForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(phieuNhapForm);
+            phieuNhapForm.Show();
         }
 
         private void ShowPlaceholder(string message, Button sourceButton)

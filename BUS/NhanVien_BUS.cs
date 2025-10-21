@@ -36,6 +36,11 @@ namespace mini_supermarket.BUS
 
         public IReadOnlyList<string> GetDefaultRoles() => DefaultRoles;
 
+        public IList<NhanVienDTO> GetAll()
+        {
+            return _nhanVienDao.GetNhanVien();
+        }
+
         public IList<NhanVienDTO> GetNhanVien(string? trangThaiFilter = null)
         {
             return _nhanVienDao.GetNhanVien(trangThaiFilter);
