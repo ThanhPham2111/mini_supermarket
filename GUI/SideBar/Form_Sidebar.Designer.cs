@@ -246,7 +246,7 @@
             this.navPhieuNhapButton.Text = "Phiếu Nhập";
             this.navPhieuNhapButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navPhieuNhapButton.UseVisualStyleBackColor = false;
-            this.navPhieuNhapButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navPhieuNhapButton.Click += new System.EventHandler(this.navPhieuNhapButton_Click);
             // 
             // navHoaDonButton
             // 
