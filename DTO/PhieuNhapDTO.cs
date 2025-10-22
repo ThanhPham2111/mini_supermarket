@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace mini_supermarket.DTO
 {
@@ -8,6 +9,7 @@ namespace mini_supermarket.DTO
         public DateTime? NgayNhap { get; set; }
         public int MaNhaCungCap { get; set; }
         public decimal? TongTien { get; set; }
+        public ICollection<ChiTietPhieuNhapDTO> ChiTietPhieuNhaps { get; set; } = new List<ChiTietPhieuNhapDTO>();
 
         public PhieuNhapDTO()
         {

@@ -18,6 +18,7 @@ namespace mini_supermarket.DTO
         public string? TrangThai { get; set; }
         public string? TenLoai { get; set; }
         public string? TenThuongHieu { get; set; }
+        public int? SoLuong { get; set; }  // Số lượng tồn kho
 
         public SanPhamDTO()
         {
