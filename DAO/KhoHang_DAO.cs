@@ -81,6 +81,104 @@ namespace mini_supermarket.DAO
             }
             return dataTable;
         }
+
+        public bool ExistsByMaSanPham(int maSanPham)
+        {
+            const string query = "SELECT COUNT(1) FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] ExistsByMaSanPham: {ex.Message}");
+                return false;
+            }
+        }
+
+        public KhoHangDTO? GetByMaSanPham(int maSanPham)
+        {
+            const string query = @"SELECT MaSanPham, SoLuong, TrangThai FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new KhoHangDTO
+                            {
+                                MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetByMaSanPham: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        public void UpdateKhoHang(KhoHangDTO khoHang)
+        {
+            const string query = @"UPDATE Tbl_KhoHang SET SoLuong = @SoLuong, TrangThai = @TrangThai WHERE MaSanPham = @MaSanPham";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
+                    command.Parameters.AddWithValue("@SoLuong", khoHang.SoLuong ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] UpdateKhoHang: {ex.Message}");
+            }
+        }
+
+        public void InsertKhoHang(KhoHangDTO khoHang)
+        {
+            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES (@MaSanPham, @SoLuong, @TrangThai)";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
+                    command.Parameters.AddWithValue("@SoLuong", khoHang.SoLuong ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] InsertKhoHang: {ex.Message}");
+            }
+        }
     }
 }
-
