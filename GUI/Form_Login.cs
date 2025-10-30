@@ -22,6 +22,7 @@ namespace mini_supermarket.GUI
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.AcceptButton = Login_btn;
         }
 
         private void Form_Login_Load(object sender, EventArgs e)
@@ -55,5 +56,6 @@ namespace mini_supermarket.GUI
         {
 
         }
+
     }
 }

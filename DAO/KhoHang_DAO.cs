@@ -24,7 +24,8 @@ namespace mini_supermarket.DAO
                        kh.SoLuong,
                        kh.TrangThai
                 FROM dbo.Tbl_KhoHang kh
-                INNER JOIN dbo.Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham";
+                INNER JOIN dbo.Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham"
+                ;
 
             if (!string.IsNullOrWhiteSpace(trangThaiFilter))
             {
@@ -33,7 +34,7 @@ namespace mini_supermarket.DAO
             }
 
             // ORDER BY chỉ các cột trong SELECT
-            command.CommandText += " ORDER BY sp.TenSanPham";
+            command.CommandText += " ORDER BY kh.MaSanPham ASC";
 
             connection.Open();
             using var reader = command.ExecuteReader();
