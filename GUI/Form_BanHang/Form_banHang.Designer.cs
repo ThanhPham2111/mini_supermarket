@@ -80,42 +80,24 @@ namespace mini_supermarket.GUI.Form_BanHang
             // ===== LEFT PANEL =====
             leftPanel = new Panel();
             leftPanel.Dock = DockStyle.Fill;
-            leftPanel.Padding = new Padding(15);
+            leftPanel.Padding = new Padding(10);
             leftPanel.BackColor = Color.White;
             leftPanel.BorderStyle = BorderStyle.FixedSingle;
 
-            // Sales Header
-            salesHeaderPanel = new Panel();
-            lblSalesTitle = new Label();
-            salesHeaderPanel.Dock = DockStyle.Top;
-            salesHeaderPanel.Height = 50;
-            salesHeaderPanel.BackColor = Color.FromArgb(34, 139, 34);
-            lblSalesTitle.Dock = DockStyle.Fill;
-            lblSalesTitle.Text = "Bán Hàng";
-            lblSalesTitle.ForeColor = Color.White;
-            lblSalesTitle.Font = new Font("Roboto", 16F, FontStyle.Bold);
-            lblSalesTitle.TextAlign = ContentAlignment.MiddleLeft;
-            lblSalesTitle.Padding = new Padding(10, 0, 0, 0);
-            salesHeaderPanel.Controls.Add(lblSalesTitle);
-
-            // Search
+            // Search Panel
             searchPanel = new Panel();
+            searchBox = new mini_supermarket.GUI.Style.SearchBoxControl();
+
             searchPanel.Dock = DockStyle.Top;
-            searchPanel.Height = 80;
-            searchPanel.Padding = new Padding(10);
-            searchPanel.BackColor = Color.FromArgb(250, 250, 250);
+            searchPanel.Height = 55;
+            searchPanel.Padding = new Padding(10, 10, 10, 10);
+            searchPanel.BackColor = Color.White;
 
-            // 🔍 Sử dụng custom SearchBoxControl
-            var searchBox = new mini_supermarket.GUI.Style.SearchBoxControl();
-            searchBox.Location = new Point(15, 20);   // vị trí trong panel
-            searchBox.Width = 320;                    // độ rộng
+            searchBox.Location = new Point(10, 10);
+            searchBox.Width = 350;
+            searchBox.Height = 35;
+            searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             searchPanel.Controls.Add(searchBox);
-
-            // Thêm panel vào layout
-            this.Controls.Add(searchPanel);
-
-            // Product Header (phần tiếp theo của bạn)
-
 
             // Product Header
             productHeaderPanel = new Panel();
@@ -136,22 +118,41 @@ namespace mini_supermarket.GUI.Form_BanHang
             dgvProducts.Dock = DockStyle.Fill;
             dgvProducts.BackgroundColor = Color.White;
             dgvProducts.BorderStyle = BorderStyle.None;
-            dgvProducts.RowTemplate.Height = 40;
+            dgvProducts.RowTemplate.Height = 45;
             dgvProducts.RowHeadersVisible = false;
             dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 240, 240);
+            dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvProducts.MultiSelect = false;
+            dgvProducts.ReadOnly = true;
+            dgvProducts.AllowUserToAddRows = false;
+            dgvProducts.AllowUserToDeleteRows = false;
+            dgvProducts.AllowUserToResizeRows = false;
+            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
+            dgvProducts.DefaultCellStyle.SelectionBackColor = Color.FromArgb(144, 238, 144);
+            dgvProducts.DefaultCellStyle.SelectionForeColor = Color.Black;
+            dgvProducts.DefaultCellStyle.Font = new Font("Roboto", 8.5F);
+            dgvProducts.DefaultCellStyle.Padding = new Padding(2);
             dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(34, 139, 34);
             dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            dgvProducts.ColumnHeadersDefaultCellStyle.Padding = new Padding(2);
+            dgvProducts.ColumnHeadersHeight = 32;
             dgvProducts.EnableHeadersVisualStyles = false;
+            dgvProducts.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvProducts.GridColor = Color.FromArgb(230, 230, 230);
 
             productColumnName = new DataGridViewTextBoxColumn();
             productColumnPrice = new DataGridViewTextBoxColumn();
             productColumnQuantity = new DataGridViewTextBoxColumn();
             productColumnPromotion = new DataGridViewTextBoxColumn();
             productColumnName.HeaderText = "Tên sản phẩm";
+            productColumnName.FillWeight = 35;
             productColumnPrice.HeaderText = "Đơn giá";
-            productColumnQuantity.HeaderText = "Số lượng";
+            productColumnPrice.FillWeight = 20;
+            productColumnQuantity.HeaderText = "SL";
+            productColumnQuantity.FillWeight = 12;
             productColumnPromotion.HeaderText = "Khuyến mãi";
+            productColumnPromotion.FillWeight = 33;
             dgvProducts.Columns.AddRange(new DataGridViewColumn[]
             {
                 productColumnName, productColumnPrice, productColumnQuantity, productColumnPromotion
@@ -160,19 +161,22 @@ namespace mini_supermarket.GUI.Form_BanHang
             // Bottom Layout
             bottomLayout = new TableLayoutPanel();
             bottomLayout.Dock = DockStyle.Bottom;
-            bottomLayout.Height = 250;
+            bottomLayout.Height = 210;
             bottomLayout.ColumnCount = 2;
-            bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200F));
+            bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160F));
             bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             bottomLayout.RowCount = 2;
-            bottomLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            bottomLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            bottomLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            bottomLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            bottomLayout.Padding = new Padding(5);
+            bottomLayout.BackColor = Color.White;
 
             productPreviewPanel = new Panel();
             productPreviewPanel.Dock = DockStyle.Fill;
-            productPreviewPanel.BackColor = Color.FromArgb(245, 245, 245);
+            productPreviewPanel.BackColor = Color.FromArgb(248, 249, 250);
             productPreviewPanel.BorderStyle = BorderStyle.FixedSingle;
-            productPreviewPanel.Padding = new Padding(5);
+            productPreviewPanel.Padding = new Padding(10);
+            productPreviewPanel.Margin = new Padding(5);
 
             // Product Actions
             productActionPanel = new FlowLayoutPanel();
@@ -180,29 +184,34 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnAddProduct = new CustomButton();
             productActionPanel.Dock = DockStyle.Fill;
             productActionPanel.FlowDirection = FlowDirection.LeftToRight;
-            productActionPanel.Padding = new Padding(0, 10, 0, 10);
+            productActionPanel.Padding = new Padding(8, 14, 8, 14);
+            productActionPanel.Margin = new Padding(5);
+            productActionPanel.WrapContents = false;
 
-            btnRefresh.Text = "Làm mới";
-            btnRefresh.BackColor = Color.FromArgb(169, 169, 169);
+            btnRefresh.Text = "🔄 Làm mới";
+            btnRefresh.BackColor = Color.FromArgb(108, 117, 125);
             btnRefresh.ForeColor = Color.White;
             btnRefresh.FlatStyle = FlatStyle.Flat;
-            btnRefresh.Font = new Font("Roboto", 12F, FontStyle.Bold);
-            btnRefresh.Size = new Size(140, 45);
-            btnRefresh.FlatAppearance.MouseOverBackColor = Color.FromArgb(149, 149, 149);
+            btnRefresh.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            btnRefresh.Size = new Size(120, 40);
+            btnRefresh.FlatAppearance.MouseOverBackColor = Color.FromArgb(90, 98, 104);
             btnRefresh.FlatAppearance.BorderSize = 0;
-            btnRefresh.Padding = new Padding(10, 5, 10, 5);
-            ((CustomButton)btnRefresh).BorderRadius = 8;
+            btnRefresh.Margin = new Padding(0);
+            btnRefresh.Cursor = Cursors.Hand;
+            btnRefresh.Click += new EventHandler(btnRefresh_Click);
+            ((CustomButton)btnRefresh).BorderRadius = 6;
 
-            btnAddProduct.Text = "Thêm sản phẩm";
-            btnAddProduct.BackColor = Color.FromArgb(34, 139, 34);
+            btnAddProduct.Text = "➕ Thêm vào giỏ";
+            btnAddProduct.BackColor = Color.FromArgb(40, 167, 69);
             btnAddProduct.ForeColor = Color.White;
             btnAddProduct.FlatStyle = FlatStyle.Flat;
-            btnAddProduct.Font = new Font("Roboto", 12F, FontStyle.Bold);
-            btnAddProduct.Size = new Size(160, 45);
-            btnAddProduct.FlatAppearance.MouseOverBackColor = Color.FromArgb(50, 205, 50);
+            btnAddProduct.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            btnAddProduct.Size = new Size(150, 40);
+            btnAddProduct.FlatAppearance.MouseOverBackColor = Color.FromArgb(33, 136, 56);
             btnAddProduct.FlatAppearance.BorderSize = 0;
-            btnAddProduct.Padding = new Padding(10, 5, 10, 5);
-            ((CustomButton)btnAddProduct).BorderRadius = 8;
+            btnAddProduct.Margin = new Padding(10, 0, 0, 0);
+            btnAddProduct.Cursor = Cursors.Hand;
+            ((CustomButton)btnAddProduct).BorderRadius = 6;
 
             productActionPanel.Controls.Add(btnRefresh);
             productActionPanel.Controls.Add(btnAddProduct);
@@ -220,29 +229,34 @@ namespace mini_supermarket.GUI.Form_BanHang
 
             productDetailLayout.Dock = DockStyle.Fill;
             productDetailLayout.ColumnCount = 2;
-            productDetailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            productDetailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
             productDetailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             productDetailLayout.RowCount = 4;
             for (int i = 0; i < 4; i++)
                 productDetailLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             productDetailLayout.Padding = new Padding(10);
+            productDetailLayout.Margin = new Padding(5);
 
-            lblProductName.Text = "Tên sản phẩm";
-            lblUnitPrice.Text = "Đơn giá";
-            lblProductQuantity.Text = "Số lượng";
-            lblProductPromotion.Text = "Khuyến mãi";
+            lblProductName.Text = "Tên SP:";
+            lblUnitPrice.Text = "Đơn giá:";
+            lblProductQuantity.Text = "Số lượng:";
+            lblProductPromotion.Text = "Khuyến mãi:";
 
             foreach (Label l in new[] { lblProductName, lblUnitPrice, lblProductQuantity, lblProductPromotion })
             {
                 l.Dock = DockStyle.Fill;
                 l.TextAlign = ContentAlignment.MiddleLeft;
-                l.Font = new Font("Roboto", 12F);
+                l.Font = new Font("Roboto", 8.5F, FontStyle.Bold);
+                l.ForeColor = Color.FromArgb(52, 58, 64);
             }
 
             foreach (TextBox t in new[] { txtProductName, txtUnitPrice, txtQuantity, txtPromotion })
             {
-                t.Font = new Font("Roboto", 12F);
+                t.Font = new Font("Roboto", 8.5F);
                 t.Dock = DockStyle.Fill;
+                t.BorderStyle = BorderStyle.FixedSingle;
+                t.BackColor = Color.White;
+                t.ReadOnly = true;
             }
 
             productDetailLayout.Controls.Add(lblProductName, 0, 0);
@@ -263,7 +277,6 @@ namespace mini_supermarket.GUI.Form_BanHang
             leftPanel.Controls.Add(dgvProducts);
             leftPanel.Controls.Add(productHeaderPanel);
             leftPanel.Controls.Add(searchPanel);
-            leftPanel.Controls.Add(salesHeaderPanel);
 
             // ===== RIGHT PANEL =====
             rightPanel = new Panel();
@@ -297,54 +310,55 @@ namespace mini_supermarket.GUI.Form_BanHang
             txtEarnedPoints = new TextBox();
             lblUsePoints = new Label();
             txtUsePoints = new TextBox();
-            chkUsePoints = new CheckBox();
 
             infoFormLayout.Dock = DockStyle.Top;
-            infoFormLayout.Height = 180;
+            infoFormLayout.Height = 165;
             infoFormLayout.ColumnCount = 3;
-            infoFormLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140F));
+            infoFormLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
             infoFormLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             infoFormLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
             infoFormLayout.RowCount = 4;
             for (int i = 0; i < 4; i++)
-                infoFormLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
-            infoFormLayout.Padding = new Padding(10);
+                infoFormLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+            infoFormLayout.Padding = new Padding(15, 10, 15, 10);
 
-            lblCustomer.Text = "Khách hàng";
-            lblAvailablePoints.Text = "Điểm hiện có";
-            lblEarnedPoints.Text = "Điểm tích lũy";
-            lblUsePoints.Text = "Sử dụng điểm";
+            lblCustomer.Text = "Khách hàng:";
+            lblAvailablePoints.Text = "Điểm hiện có:";
+            lblEarnedPoints.Text = "Điểm tích lũy:";
+            lblUsePoints.Text = "Dùng điểm:";
 
             foreach (Label l in new[] { lblCustomer, lblAvailablePoints, lblEarnedPoints, lblUsePoints })
             {
                 l.Dock = DockStyle.Fill;
                 l.TextAlign = ContentAlignment.MiddleLeft;
-                l.Font = new Font("Roboto", 12F);
+                l.Font = new Font("Roboto", 8.5F, FontStyle.Bold);
+                l.ForeColor = Color.FromArgb(52, 58, 64);
             }
 
             foreach (TextBox t in new[] { txtCustomer, txtAvailablePoints, txtEarnedPoints, txtUsePoints })
             {
-                t.Font = new Font("Roboto", 12F);
+                t.Font = new Font("Roboto", 8.5F);
                 t.Dock = DockStyle.Fill;
+                t.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+                t.BorderStyle = BorderStyle.FixedSingle;
             }
 
-            txtCustomer.PlaceholderText = "Mã KH hoặc SĐT...";
+            txtAvailablePoints.ReadOnly = true;
+            txtAvailablePoints.BackColor = Color.FromArgb(248, 249, 250);
+            txtEarnedPoints.ReadOnly = true;
+            txtEarnedPoints.BackColor = Color.FromArgb(248, 249, 250);
 
-            btnSelectCustomer.Text = "Chọn";
-            btnSelectCustomer.BackColor = Color.FromArgb(34, 139, 34);
+            btnSelectCustomer.Text = "Chọn KH";
+            btnSelectCustomer.BackColor = Color.FromArgb(0, 123, 255);
             btnSelectCustomer.ForeColor = Color.White;
             btnSelectCustomer.FlatStyle = FlatStyle.Flat;
-            btnSelectCustomer.Font = new Font("Roboto", 12F, FontStyle.Bold);
-            btnSelectCustomer.FlatAppearance.MouseOverBackColor = Color.FromArgb(50, 205, 50);
+            btnSelectCustomer.Font = new Font("Roboto", 8.5F, FontStyle.Bold);
+            btnSelectCustomer.FlatAppearance.MouseOverBackColor = Color.FromArgb(0, 105, 217);
             btnSelectCustomer.FlatAppearance.BorderSize = 0;
-            btnSelectCustomer.Padding = new Padding(10, 5, 20, 5);
-            btnSelectCustomer.Size = new Size(100, 40);
-            ((CustomButton)btnSelectCustomer).BorderRadius = 14;
-
-            chkUsePoints.Text = "Áp dụng điểm";
-            chkUsePoints.Font = new Font("Roboto", 12F);
-            chkUsePoints.AutoSize = true;
-            chkUsePoints.TextAlign = ContentAlignment.MiddleLeft;
+            btnSelectCustomer.Dock = DockStyle.Fill;
+            btnSelectCustomer.Margin = new Padding(5, 5, 0, 5);
+            btnSelectCustomer.Cursor = Cursors.Hand;
+            ((CustomButton)btnSelectCustomer).BorderRadius = 5;
 
             infoFormLayout.Controls.Add(lblCustomer, 0, 0);
             infoFormLayout.Controls.Add(txtCustomer, 1, 0);
@@ -355,7 +369,6 @@ namespace mini_supermarket.GUI.Form_BanHang
             infoFormLayout.Controls.Add(txtEarnedPoints, 1, 2);
             infoFormLayout.Controls.Add(lblUsePoints, 0, 3);
             infoFormLayout.Controls.Add(txtUsePoints, 1, 3);
-            infoFormLayout.Controls.Add(chkUsePoints, 2, 3);
 
             // Order Grid
             dgvOrder = new DataGridView();
@@ -363,21 +376,39 @@ namespace mini_supermarket.GUI.Form_BanHang
             dgvOrder.BackgroundColor = Color.White;
             dgvOrder.BorderStyle = BorderStyle.None;
             dgvOrder.RowHeadersVisible = false;
-            dgvOrder.RowTemplate.Height = 40;
+            dgvOrder.RowTemplate.Height = 45;
             dgvOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvOrder.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 240, 240);
+            dgvOrder.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvOrder.MultiSelect = false;
+            dgvOrder.AllowUserToAddRows = false;
+            dgvOrder.AllowUserToDeleteRows = false;
+            dgvOrder.AllowUserToResizeRows = false;
+            dgvOrder.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
+            dgvOrder.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 193, 7);
+            dgvOrder.DefaultCellStyle.SelectionForeColor = Color.Black;
+            dgvOrder.DefaultCellStyle.Font = new Font("Roboto", 8.5F);
+            dgvOrder.DefaultCellStyle.Padding = new Padding(2);
             dgvOrder.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(34, 139, 34);
             dgvOrder.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvOrder.ColumnHeadersDefaultCellStyle.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            dgvOrder.ColumnHeadersDefaultCellStyle.Padding = new Padding(2);
+            dgvOrder.ColumnHeadersHeight = 32;
             dgvOrder.EnableHeadersVisualStyles = false;
+            dgvOrder.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvOrder.GridColor = Color.FromArgb(230, 230, 230);
 
             orderColumnName = new DataGridViewTextBoxColumn();
             orderColumnPrice = new DataGridViewTextBoxColumn();
             orderColumnQuantity = new DataGridViewTextBoxColumn();
             orderColumnPromotion = new DataGridViewTextBoxColumn();
             orderColumnName.HeaderText = "Tên sản phẩm";
+            orderColumnName.FillWeight = 35;
             orderColumnPrice.HeaderText = "Đơn giá";
-            orderColumnQuantity.HeaderText = "Số lượng";
+            orderColumnPrice.FillWeight = 20;
+            orderColumnQuantity.HeaderText = "SL";
+            orderColumnQuantity.FillWeight = 12;
             orderColumnPromotion.HeaderText = "Khuyến mãi";
+            orderColumnPromotion.FillWeight = 33;
             dgvOrder.Columns.AddRange(new DataGridViewColumn[]
             {
                 orderColumnName, orderColumnPrice, orderColumnQuantity, orderColumnPromotion
@@ -389,31 +420,40 @@ namespace mini_supermarket.GUI.Form_BanHang
             txtTotal = new TextBox();
             btnRemove = new CustomButton();
             totalPanel.Dock = DockStyle.Bottom;
-            totalPanel.Height = 60;
+            totalPanel.Height = 70;
             totalPanel.ColumnCount = 3;
-            totalPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140F));
+            totalPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
             totalPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            totalPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
-            totalPanel.Padding = new Padding(10);
+            totalPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            totalPanel.Padding = new Padding(15, 10, 15, 10);
+            totalPanel.BackColor = Color.FromArgb(248, 249, 250);
 
-            lblTotal.Text = "Tổng tiền";
-            lblTotal.Font = new Font("Roboto", 12F, FontStyle.Bold);
+            lblTotal.Text = "TỔNG TIỀN:";
+            lblTotal.Font = new Font("Roboto", 10F, FontStyle.Bold);
             lblTotal.TextAlign = ContentAlignment.MiddleLeft;
             lblTotal.Dock = DockStyle.Fill;
+            lblTotal.ForeColor = Color.FromArgb(220, 53, 69);
 
-            txtTotal.Font = new Font("Roboto", 12F);
+            txtTotal.Font = new Font("Roboto", 10F, FontStyle.Bold);
             txtTotal.Dock = DockStyle.Fill;
+            txtTotal.TextAlign = HorizontalAlignment.Right;
+            txtTotal.BorderStyle = BorderStyle.FixedSingle;
+            txtTotal.ReadOnly = true;
+            txtTotal.BackColor = Color.White;
+            txtTotal.ForeColor = Color.FromArgb(220, 53, 69);
+            txtTotal.Margin = new Padding(5, 10, 5, 10);
 
-            btnRemove.Text = "Xóa";
-            btnRemove.BackColor = Color.FromArgb(255, 77, 77);
+            btnRemove.Text = "🗑 Xóa";
+            btnRemove.BackColor = Color.FromArgb(220, 53, 69);
             btnRemove.ForeColor = Color.White;
             btnRemove.FlatStyle = FlatStyle.Flat;
-            btnRemove.Font = new Font("Roboto", 12F, FontStyle.Bold);
-            btnRemove.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 99, 99);
+            btnRemove.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            btnRemove.FlatAppearance.MouseOverBackColor = Color.FromArgb(200, 35, 51);
             btnRemove.FlatAppearance.BorderSize = 0;
-            btnRemove.Padding = new Padding(10, 5, 10, 5);
-            btnRemove.Size = new Size(100, 40);
-            ((CustomButton)btnRemove).BorderRadius = 8;
+            btnRemove.Dock = DockStyle.Fill;
+            btnRemove.Margin = new Padding(5, 10, 0, 10);
+            btnRemove.Cursor = Cursors.Hand;
+            ((CustomButton)btnRemove).BorderRadius = 6;
 
             totalPanel.Controls.Add(lblTotal, 0, 0);
             totalPanel.Controls.Add(txtTotal, 1, 0);
@@ -424,31 +464,34 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnCheckout = new CustomButton();
             btnCancel = new CustomButton();
             actionPanel.Dock = DockStyle.Bottom;
-            actionPanel.Height = 60;
+            actionPanel.Height = 65;
             actionPanel.FlowDirection = FlowDirection.RightToLeft;
-            actionPanel.Padding = new Padding(10);
+            actionPanel.Padding = new Padding(12, 12, 12, 12);
+            actionPanel.BackColor = Color.White;
 
-            btnCheckout.Text = "Thanh toán";
-            btnCheckout.BackColor = Color.FromArgb(34, 139, 34);
+            btnCheckout.Text = "💳 Thanh toán";
+            btnCheckout.BackColor = Color.FromArgb(40, 167, 69);
             btnCheckout.ForeColor = Color.White;
             btnCheckout.FlatStyle = FlatStyle.Flat;
-            btnCheckout.Font = new Font("Roboto", 12F, FontStyle.Bold);
-            btnCheckout.Size = new Size(140, 45);
-            btnCheckout.FlatAppearance.MouseOverBackColor = Color.FromArgb(50, 205, 50);
+            btnCheckout.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            btnCheckout.Size = new Size(130, 40);
+            btnCheckout.FlatAppearance.MouseOverBackColor = Color.FromArgb(33, 136, 56);
             btnCheckout.FlatAppearance.BorderSize = 0;
-            btnCheckout.Padding = new Padding(10, 5, 10, 5);
-            ((CustomButton)btnCheckout).BorderRadius = 8;
+            btnCheckout.Margin = new Padding(0);
+            btnCheckout.Cursor = Cursors.Hand;
+            ((CustomButton)btnCheckout).BorderRadius = 6;
 
-            btnCancel.Text = "Hủy";
-            btnCancel.BackColor = Color.FromArgb(169, 169, 169);
+            btnCancel.Text = "✖ Hủy đơn";
+            btnCancel.BackColor = Color.FromArgb(108, 117, 125);
             btnCancel.ForeColor = Color.White;
             btnCancel.FlatStyle = FlatStyle.Flat;
-            btnCancel.Font = new Font("Roboto", 12F, FontStyle.Bold);
-            btnCancel.Size = new Size(120, 45);
-            btnCancel.FlatAppearance.MouseOverBackColor = Color.FromArgb(149, 149, 149);
+            btnCancel.Font = new Font("Roboto", 9F, FontStyle.Bold);
+            btnCancel.Size = new Size(110, 40);
+            btnCancel.FlatAppearance.MouseOverBackColor = Color.FromArgb(90, 98, 104);
             btnCancel.FlatAppearance.BorderSize = 0;
-            btnCancel.Padding = new Padding(10, 5, 10, 5);
-            ((CustomButton)btnCancel).BorderRadius = 8;
+            btnCancel.Margin = new Padding(0, 0, 10, 0);
+            btnCancel.Cursor = Cursors.Hand;
+            ((CustomButton)btnCancel).BorderRadius = 6;
 
             actionPanel.Controls.Add(btnCheckout);
             actionPanel.Controls.Add(btnCancel);
@@ -483,9 +526,9 @@ namespace mini_supermarket.GUI.Form_BanHang
         private Label lblRole, lblGreeting;
         private TableLayoutPanel mainLayout;
         private Panel leftPanel, rightPanel;
-        private Panel salesHeaderPanel, searchPanel, productHeaderPanel;
-        private Label lblSalesTitle, lblSearch, lblProductTitle;
-        private TextBox txtSearch;
+        private Panel searchPanel, productHeaderPanel;
+        private Label lblProductTitle;
+        private mini_supermarket.GUI.Style.SearchBoxControl searchBox;
         private DataGridView dgvProducts;
         private DataGridViewTextBoxColumn productColumnName, productColumnPrice, productColumnQuantity, productColumnPromotion;
         private TableLayoutPanel bottomLayout, productDetailLayout;
@@ -500,7 +543,6 @@ namespace mini_supermarket.GUI.Form_BanHang
         private Label lblCustomer, lblAvailablePoints, lblEarnedPoints, lblUsePoints, lblTotal;
         private TextBox txtCustomer, txtAvailablePoints, txtEarnedPoints, txtUsePoints, txtTotal;
         private CustomButton btnSelectCustomer, btnRemove;
-        private CheckBox chkUsePoints;
         private DataGridView dgvOrder;
         private DataGridViewTextBoxColumn orderColumnName, orderColumnPrice, orderColumnQuantity, orderColumnPromotion;
         private FlowLayoutPanel actionPanel;

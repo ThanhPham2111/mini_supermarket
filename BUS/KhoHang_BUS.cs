@@ -21,6 +21,11 @@ namespace mini_supermarket.BUS
         {
             return khoHangDAO.LayDanhSachThuongHieu();
         }
+
+        public DataTable LayDanhSachSanPhamBanHang()
+        {
+            return khoHangDAO.LayDanhSachSanPhamBanHang();
+        }
     }
 }
 

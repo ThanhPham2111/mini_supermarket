@@ -83,6 +83,41 @@ namespace mini_supermarket.DAO
             return dataTable;
         }
 
+        public DataTable LayDanhSachSanPhamBanHang()
+        {
+            string query = @"
+                SELECT 
+                    sp.MaSanPham,
+                    sp.TenSanPham,
+                    sp.GiaBan,
+                    kh.SoLuong,
+                    ISNULL(km.TenKhuyenMai, N'') AS KhuyenMai,
+                    ISNULL(km.PhanTramGiamGia, 0) AS PhanTramGiam
+                FROM Tbl_SanPham sp
+                INNER JOIN Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham
+                LEFT JOIN Tbl_KhuyenMai km ON sp.MaSanPham = km.MaSanPham 
+                    AND GETDATE() BETWEEN km.NgayBatDau AND km.NgayKetThuc
+                WHERE sp.TrangThai = N'Còn hàng' 
+                    AND kh.SoLuong > 0
+                ORDER BY sp.TenSanPham;";
+
+            DataTable dataTable = new DataTable();
+            try
+            {
+                using (SqlConnection conn = DbConnectionFactory.CreateConnection())
+                {
+                    conn.Open();
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
+                    adapter.Fill(dataTable);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi lấy danh sách sản phẩm bán hàng: " + ex.Message);
+            }
+            return dataTable;
+        }
+
         public bool ExistsByMaSanPham(int maSanPham)
         {
             const string query = "SELECT COUNT(1) FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
