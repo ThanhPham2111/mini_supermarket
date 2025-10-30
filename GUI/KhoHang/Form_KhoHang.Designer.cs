@@ -13,7 +13,7 @@ namespace mini_supermarket.GUI.KhoHang
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        #region Component Designer generated code
 
         private void InitializeComponent()
         {
@@ -26,12 +26,7 @@ namespace mini_supermarket.GUI.KhoHang
             this.btnLamMoi = new System.Windows.Forms.Button();
             this.grpDanhSach = new System.Windows.Forms.GroupBox();
             this.dgvKhoHang = new System.Windows.Forms.DataGridView();
-            this.colMaSP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colTenSanPham = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colTenDonVi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colTenLoai = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colTenThuongHieu = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colSoLuong = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnXuatExcel = new System.Windows.Forms.Button();
             this.grpDanhSach.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKhoHang)).BeginInit();
             this.SuspendLayout();
@@ -40,7 +35,7 @@ namespace mini_supermarket.GUI.KhoHang
             // 
             this.lblTuKhoa.AutoSize = true;
             this.lblTuKhoa.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblTuKhoa.Location = new System.Drawing.Point(12, 9);
+            this.lblTuKhoa.Location = new System.Drawing.Point(20, 15);
             this.lblTuKhoa.Name = "lblTuKhoa";
             this.lblTuKhoa.Size = new System.Drawing.Size(60, 19);
             this.lblTuKhoa.TabIndex = 0;
@@ -49,9 +44,9 @@ namespace mini_supermarket.GUI.KhoHang
             // txtTimKiem
             // 
             this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtTimKiem.Location = new System.Drawing.Point(16, 31);
+            this.txtTimKiem.Location = new System.Drawing.Point(24, 40);
             this.txtTimKiem.Name = "txtTimKiem";
-            this.txtTimKiem.Size = new System.Drawing.Size(280, 25);
+            this.txtTimKiem.Size = new System.Drawing.Size(250, 25);
             this.txtTimKiem.TabIndex = 1;
             this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
             // 
@@ -59,7 +54,7 @@ namespace mini_supermarket.GUI.KhoHang
             // 
             this.lblLoaiSP.AutoSize = true;
             this.lblLoaiSP.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblLoaiSP.Location = new System.Drawing.Point(308, 9);
+            this.lblLoaiSP.Location = new System.Drawing.Point(290, 15);
             this.lblLoaiSP.Name = "lblLoaiSP";
             this.lblLoaiSP.Size = new System.Drawing.Size(100, 19);
             this.lblLoaiSP.TabIndex = 2;
@@ -70,9 +65,9 @@ namespace mini_supermarket.GUI.KhoHang
             this.cboLoaiSP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboLoaiSP.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.cboLoaiSP.FormattingEnabled = true;
-            this.cboLoaiSP.Location = new System.Drawing.Point(312, 31);
+            this.cboLoaiSP.Location = new System.Drawing.Point(294, 40);
             this.cboLoaiSP.Name = "cboLoaiSP";
-            this.cboLoaiSP.Size = new System.Drawing.Size(220, 25);
+            this.cboLoaiSP.Size = new System.Drawing.Size(200, 25);
             this.cboLoaiSP.TabIndex = 3;
             this.cboLoaiSP.SelectedIndexChanged += new System.EventHandler(this.cboLoaiSP_SelectedIndexChanged);
             // 
@@ -80,7 +75,7 @@ namespace mini_supermarket.GUI.KhoHang
             // 
             this.lblThuongHieu.AutoSize = true;
             this.lblThuongHieu.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblThuongHieu.Location = new System.Drawing.Point(548, 9);
+            this.lblThuongHieu.Location = new System.Drawing.Point(510, 15);
             this.lblThuongHieu.Name = "lblThuongHieu";
             this.lblThuongHieu.Size = new System.Drawing.Size(85, 19);
             this.lblThuongHieu.TabIndex = 4;
@@ -91,27 +86,45 @@ namespace mini_supermarket.GUI.KhoHang
             this.cboThuongHieu.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboThuongHieu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.cboThuongHieu.FormattingEnabled = true;
-            this.cboThuongHieu.Location = new System.Drawing.Point(552, 31);
+            this.cboThuongHieu.Location = new System.Drawing.Point(514, 40);
             this.cboThuongHieu.Name = "cboThuongHieu";
-            this.cboThuongHieu.Size = new System.Drawing.Size(220, 25);
+            this.cboThuongHieu.Size = new System.Drawing.Size(200, 25);
             this.cboThuongHieu.TabIndex = 5;
             this.cboThuongHieu.SelectedIndexChanged += new System.EventHandler(this.cboThuongHieu_SelectedIndexChanged);
+
             // 
             // btnLamMoi
             // 
-            this.btnLamMoi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnLamMoi.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(215)))));
             this.btnLamMoi.FlatAppearance.BorderSize = 0;
             this.btnLamMoi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold);
+            this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLamMoi.ForeColor = System.Drawing.Color.White;
-            this.btnLamMoi.Location = new System.Drawing.Point(16, 65);
+            // ** THAY ĐỔI VỊ TRÍ Y **
+            this.btnLamMoi.Location = new System.Drawing.Point(24, 75);
             this.btnLamMoi.Name = "btnLamMoi";
             this.btnLamMoi.Size = new System.Drawing.Size(110, 35);
             this.btnLamMoi.TabIndex = 6;
             this.btnLamMoi.Text = "Làm mới";
             this.btnLamMoi.UseVisualStyleBackColor = false;
             this.btnLamMoi.Click += new System.EventHandler(this.btnLamMoi_Click);
+
+            // 
+            // btnXuatExcel
+            // 
+            this.btnXuatExcel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(137)))), ((int)(((byte)(62)))));
+            this.btnXuatExcel.FlatAppearance.BorderSize = 0;
+            this.btnXuatExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXuatExcel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold);
+            this.btnXuatExcel.ForeColor = System.Drawing.Color.White;
+            this.btnXuatExcel.Location = new System.Drawing.Point(140, 75);
+            this.btnXuatExcel.Name = "btnXuatExcel";
+            this.btnXuatExcel.Size = new System.Drawing.Size(110, 35);
+            this.btnXuatExcel.TabIndex = 7;
+            this.btnXuatExcel.Text = "Xuất Excel";
+            this.btnXuatExcel.UseVisualStyleBackColor = false;
+            this.btnXuatExcel.Click += new System.EventHandler(this.btnXuatExcel_Click);
+
             // 
             // grpDanhSach
             // 
@@ -120,10 +133,10 @@ namespace mini_supermarket.GUI.KhoHang
             | System.Windows.Forms.AnchorStyles.Right)));
             this.grpDanhSach.Controls.Add(this.dgvKhoHang);
             this.grpDanhSach.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.grpDanhSach.Location = new System.Drawing.Point(12, 110);
+            this.grpDanhSach.Location = new System.Drawing.Point(20, 120);
             this.grpDanhSach.Name = "grpDanhSach";
-            this.grpDanhSach.Size = new System.Drawing.Size(1148, 640);
-            this.grpDanhSach.TabIndex = 7;
+            this.grpDanhSach.Size = new System.Drawing.Size(1140, 620);
+            this.grpDanhSach.TabIndex = 8;
             this.grpDanhSach.TabStop = false;
             this.grpDanhSach.Text = "Danh sách tồn kho";
             // 
@@ -132,18 +145,11 @@ namespace mini_supermarket.GUI.KhoHang
             this.dgvKhoHang.AllowUserToAddRows = false;
             this.dgvKhoHang.AllowUserToDeleteRows = false;
             this.dgvKhoHang.AllowUserToResizeRows = false;
-            this.dgvKhoHang.AutoGenerateColumns = false;
+            this.dgvKhoHang.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.dgvKhoHang.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvKhoHang.BackgroundColor = System.Drawing.Color.White;
             this.dgvKhoHang.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvKhoHang.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvKhoHang.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colMaSP,
-            this.colTenSanPham,
-            this.colTenDonVi,
-            this.colTenLoai,
-            this.colTenThuongHieu,
-            this.colSoLuong});
             this.dgvKhoHang.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvKhoHang.Location = new System.Drawing.Point(3, 21);
             this.dgvKhoHang.MultiSelect = false;
@@ -152,58 +158,17 @@ namespace mini_supermarket.GUI.KhoHang
             this.dgvKhoHang.RowHeadersVisible = false;
             this.dgvKhoHang.RowTemplate.Height = 30;
             this.dgvKhoHang.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvKhoHang.Size = new System.Drawing.Size(1142, 616);
+            this.dgvKhoHang.Size = new System.Drawing.Size(1134, 596);
             this.dgvKhoHang.TabIndex = 0;
             this.dgvKhoHang.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvKhoHang_CellDoubleClick);
-            // 
-            // colMaSP
-            // 
-            this.colMaSP.DataPropertyName = "MaSP";
-            this.colMaSP.HeaderText = "Mã SP";
-            this.colMaSP.Name = "MaSP";
-            this.colMaSP.ReadOnly = true;
-            // 
-            // colTenSanPham
-            // 
-            this.colTenSanPham.DataPropertyName = "TenSanPham";
-            this.colTenSanPham.HeaderText = "Tên Sản Phẩm";
-            this.colTenSanPham.Name = "TenSanPham";
-            this.colTenSanPham.ReadOnly = true;
-            // 
-            // colTenDonVi
-            // 
-            this.colTenDonVi.DataPropertyName = "TenDonVi";
-            this.colTenDonVi.HeaderText = "Đơn Vị";
-            this.colTenDonVi.Name = "TenDonVi";
-            this.colTenDonVi.ReadOnly = true;
-            // 
-            // colTenLoai
-            // 
-            this.colTenLoai.DataPropertyName = "TenLoai";
-            this.colTenLoai.HeaderText = "Loại";
-            this.colTenLoai.Name = "TenLoai";
-            this.colTenLoai.ReadOnly = true;
-            // 
-            // colTenThuongHieu
-            // 
-            this.colTenThuongHieu.DataPropertyName = "TenThuongHieu";
-            this.colTenThuongHieu.HeaderText = "Thương Hiệu";
-            this.colTenThuongHieu.Name = "TenThuongHieu";
-            this.colTenThuongHieu.ReadOnly = true;
-            // 
-            // colSoLuong
-            // 
-            this.colSoLuong.DataPropertyName = "SoLuong";
-            this.colSoLuong.HeaderText = "Số Lượng Tồn";
-            this.colSoLuong.Name = "SoLuong";
-            this.colSoLuong.ReadOnly = true;
             // 
             // Form_KhoHang
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(1172, 762);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(245)))), ((int)(((byte)(245)))));
+            this.ClientSize = new System.Drawing.Size(1180, 760); // Đặt kích thước
+            this.Controls.Add(this.btnXuatExcel);
             this.Controls.Add(this.grpDanhSach);
             this.Controls.Add(this.btnLamMoi);
             this.Controls.Add(this.cboThuongHieu);
@@ -215,7 +180,7 @@ namespace mini_supermarket.GUI.KhoHang
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Form_KhoHang";
             this.Text = "Quản Lý Kho Hàng";
-            this.Load += new System.EventHandler(this.Form_KhoHang_Load);
+            this.Load += new System.EventHandler(this.Form_KhoHang_Load); // Đổi tên sự kiện Load
             this.grpDanhSach.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvKhoHang)).EndInit();
             this.ResumeLayout(false);
@@ -224,14 +189,7 @@ namespace mini_supermarket.GUI.KhoHang
         }
 
         #endregion
-        private System.Windows.Forms.GroupBox grpDanhSach;
-        private System.Windows.Forms.DataGridView dgvKhoHang;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colMaSP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTenSanPham;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTenDonVi;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTenLoai;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTenThuongHieu;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colSoLuong;
+
         private System.Windows.Forms.Label lblTuKhoa;
         private System.Windows.Forms.TextBox txtTimKiem;
         private System.Windows.Forms.Label lblLoaiSP;
@@ -239,6 +197,9 @@ namespace mini_supermarket.GUI.KhoHang
         private System.Windows.Forms.Label lblThuongHieu;
         private System.Windows.Forms.ComboBox cboThuongHieu;
         private System.Windows.Forms.Button btnLamMoi;
+        private System.Windows.Forms.GroupBox grpDanhSach;
+        private System.Windows.Forms.DataGridView dgvKhoHang;
+        private System.Windows.Forms.Button btnXuatExcel;
     }
 }
 
