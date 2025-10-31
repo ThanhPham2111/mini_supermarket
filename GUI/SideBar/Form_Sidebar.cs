@@ -8,6 +8,7 @@ using mini_supermarket.GUI.PhieuNhap;
 using mini_supermarket.GUI.NhaCungCap;
 using mini_supermarket.GUI.HoaDon;
 using mini_supermarket.GUI.KhoHang;
+using mini_supermarket.GUI.TaiKhoan;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
 using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
@@ -75,6 +76,10 @@ namespace mini_supermarket.GUI.SideBar
         private void navPhieuNhapButton_Click(object sender, EventArgs e)
         {
             ShowPhieuNhap();
+        }
+        private void navTaiKhoanButton_Click(object sender, EventArgs e)
+        {
+            ShowTaiKhoan();
         }
 
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
@@ -275,6 +280,26 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(phieuNhapForm);
             phieuNhapForm.Show();
+        }
+
+        private void ShowTaiKhoan()
+        {
+            SetActiveButton(navTaiKhoanButton);
+            mainTitleLabel.Text = navTaiKhoanButton.Text;
+
+            CloseActiveForm();
+
+            var taiKhoanForm = new Form_TaiKhoan
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = taiKhoanForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(taiKhoanForm);
+            taiKhoanForm.Show();
         }
 
         private void ShowPlaceholder(string message, Button sourceButton)

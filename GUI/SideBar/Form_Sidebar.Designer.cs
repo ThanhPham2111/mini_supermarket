@@ -94,7 +94,7 @@
             this.navTaiKhoanButton.Text = "Tài Khoản";
             this.navTaiKhoanButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navTaiKhoanButton.UseVisualStyleBackColor = false;
-            this.navTaiKhoanButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navTaiKhoanButton.Click += new System.EventHandler(this.navTaiKhoanButton_Click);
             // 
             // navNhaCungCapButton
             // 

@@ -54,11 +54,11 @@ INSERT INTO Tbl_ChiTietSanPham (MaSanPham, ThuocTinh, GiaNhap, TrangThai) VALUES
 (9, N'Lốc 4 hũ', 15000, N'Ngừng bán'),
 (10, N'Chai nhựa 1.5L', 20000, N'Ngừng bán');
 
--- 6. Nhân viên
+-- 6. Nhân viên (VaiTro phải khớp với TenQuyen trong Tbl_PhanQuyen: Admin, Staff, Warehouse)
 INSERT INTO Tbl_NhanVien (TenNhanVien, GioiTinh, NgaySinh, SoDienThoai, VaiTro, TrangThai) VALUES
-(N'Nguyễn Văn A', N'Nam', '1995-05-20', '0901234567', N'Thu ngân', N'Đang làm'),
-(N'Trần Thị B', N'Nữ', '1998-08-15', '0912345678', N'Quản lý', N'Đang làm'),
-(N'Lê Văn C', N'Nam', '1990-03-10', '0934567890', N'Nhân viên kho', N'Đã nghỉ');
+(N'Nguyễn Văn A', N'Nam', '1995-05-20', '0901234567', N'Staff', N'Đang làm'),
+(N'Trần Thị B', N'Nữ', '1998-08-15', '0912345678', N'Admin', N'Đang làm'),
+(N'Lê Văn C', N'Nam', '1990-03-10', '0934567890', N'Warehouse', N'Đã nghỉ');
 
 -- 7. Phân quyền
 INSERT INTO Tbl_PhanQuyen (TenQuyen, MoTa) VALUES
