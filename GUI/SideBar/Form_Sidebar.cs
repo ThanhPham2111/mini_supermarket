@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
 using mini_supermarket.GUI.Form_BanHang;
 using mini_supermarket.GUI.KhachHang;
 using mini_supermarket.GUI.NhanVien;
@@ -23,6 +24,7 @@ namespace mini_supermarket.GUI.SideBar
         {
             InitializeComponent();
             InitializeLayout();
+            InitializeAssets();
             ShowTrangChu();
         }
 
@@ -33,6 +35,46 @@ namespace mini_supermarket.GUI.SideBar
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
+        }
+
+        private void InitializeAssets()
+        {
+            try
+            {
+                var logoPath = TryFindImagePath("icons8-market-96.png");
+                if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
+                {
+                    logoPictureBox.WaitOnLoad = true;
+                    logoPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+                    logoPictureBox.Image = Image.FromFile(logoPath);
+                }
+                // Ensure docking order: picture (top) -> title (top) -> username (fill)
+                logoPanel.Controls.SetChildIndex(logoPictureBox, 0);
+                logoPanel.Controls.SetChildIndex(logoLabel, 1);
+                logoPanel.Controls.SetChildIndex(userNameLabel, 2);
+                logoPictureBox.BringToFront();
+                logoPictureBox.Visible = true;
+            }
+            catch
+            {
+                // ignore image load errors
+            }
+        }
+
+        private static string? TryFindImagePath(string fileName)
+        {
+            var current = AppDomain.CurrentDomain.BaseDirectory;
+            for (int i = 0; i < 6 && current != null; i++)
+            {
+                var candidate = Path.Combine(current, "img", fileName);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+                var parent = Directory.GetParent(current);
+                current = parent?.FullName;
+            }
+            return null;
         }
 
         private void navTrangChuButton_Click(object sender, EventArgs e)
@@ -334,11 +376,13 @@ namespace mini_supermarket.GUI.SideBar
         {
             if (_activeButton != null)
             {
-                _activeButton.BackColor = Color.FromArgb(52, 58, 64);
+                _activeButton.BackColor = Color.White;
+                _activeButton.ForeColor = Color.FromArgb(33, 37, 41);
             }
 
             _activeButton = button;
-            _activeButton.BackColor = Color.FromArgb(73, 80, 87);
+            _activeButton.BackColor = Color.FromArgb(21, 128, 61); // green-700
+            _activeButton.ForeColor = Color.White;
         }
 
         private void CloseActiveForm()
