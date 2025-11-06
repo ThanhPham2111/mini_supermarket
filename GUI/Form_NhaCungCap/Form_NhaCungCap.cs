@@ -32,17 +32,32 @@ namespace mini_supermarket.GUI.NhaCungCap
         {
             LoadDanhSachTrangThai();
             LoadDanhSachNhaCungCap();
-
+ 
             statusFilterComboBox.SelectedIndexChanged += (_, _) => LocTheoTrangThai();
             searchTextBox.TextChanged += (_, _) => TimKiem();
-
             themButton.Click += ThemButton_Click;
             suaButton.Click += SuaButton_Click;
             xoaButton.Click += XoaButton_Click;
             lamMoiButton.Click += (_, _) => LamMoi();
+             nhaCungCapDataGridView.SelectionChanged += (_, _) => HienThiThongTin();
         }
 
         // ==================== LOAD DỮ LIỆU ====================
+       private void HienThiThongTin()
+        {
+            if (nhaCungCapDataGridView.SelectedRows.Count == 0)
+                return;
+
+            var item = nhaCungCapDataGridView.SelectedRows[0].DataBoundItem as NhaCungCapDTO;
+            if (item == null) return;
+
+            maNhaCungCapTextBox.Text = item.MaNhaCungCap.ToString();
+            tenNhaCungCapTextBox.Text = item.TenNhaCungCap;
+            diaChiTextBox.Text = item.DiaChi;
+            soDienThoaiTextBox.Text = item.SoDienThoai;
+            emailTextBox.Text = item.Email;
+        }
+
 
         private void LoadDanhSachTrangThai()
         {
@@ -60,13 +75,18 @@ namespace mini_supermarket.GUI.NhaCungCap
             HienThiLenBang(_dsNhaCungCap);
         }
 
+      
         private void HienThiLenBang(List<NhaCungCapDTO> ds)
         {
             nhaCungCapDataGridView.AutoGenerateColumns = false;
             nhaCungCapDataGridView.DataSource = ds;
 
-            nhaCungCapDataGridView.ClearSelection();
+            if (nhaCungCapDataGridView.Rows.Count > 0)
+                nhaCungCapDataGridView.Rows[0].Selected = true;
         }
+
+
+
 
         // ==================== SỰ KIỆN ====================
 
@@ -136,7 +156,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             LoadDanhSachNhaCungCap();
         }
 
-
+              
         // ==================== LỌC + TÌM KIẾM ====================
 
         private void LocTheoTrangThai()
@@ -168,12 +188,13 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         // ==================== HỖ TRỢ ====================
 
-        private NhaCungCapDTO GetSelectedItem()
+       private NhaCungCapDTO GetSelectedItem()
         {
             if (nhaCungCapDataGridView.SelectedRows.Count == 0)
                 return null;
 
             return nhaCungCapDataGridView.SelectedRows[0].DataBoundItem as NhaCungCapDTO;
         }
+
     }
 }

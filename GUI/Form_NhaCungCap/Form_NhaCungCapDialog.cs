@@ -24,6 +24,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             InitializeComponent();
         //  cho phép Enter = OK
         this.AcceptButton = okButton;
+        
             _statuses = statuses.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
 
             _isEdit = existingNhaCungCap != null;
