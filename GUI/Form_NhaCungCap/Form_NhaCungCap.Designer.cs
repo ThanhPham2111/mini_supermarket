@@ -31,11 +31,8 @@ namespace mini_supermarket.GUI.NhaCungCap
         private System.Windows.Forms.DataGridViewTextBoxColumn soDienThoaiColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn trangThaiColumn;
-        // add columns
-      
-    
-        // end add columns
-        private System.Windows.Forms.Label roleLabel;
+        private System.Windows.Forms.Button importExcelButton;
+        private System.Windows.Forms.Button exportExcelButton;
 
 
         protected override void Dispose(bool disposing)
@@ -55,6 +52,9 @@ namespace mini_supermarket.GUI.NhaCungCap
             statusFilterComboBox = new System.Windows.Forms.ComboBox();
             searchTextBox = new System.Windows.Forms.TextBox();
             searchButton = new System.Windows.Forms.Button();
+            importExcelButton = new System.Windows.Forms.Button();
+            exportExcelButton = new System.Windows.Forms.Button();
+
             lamMoiButton = new System.Windows.Forms.Button();
             xoaButton = new System.Windows.Forms.Button();
             suaButton = new System.Windows.Forms.Button();
@@ -73,8 +73,36 @@ namespace mini_supermarket.GUI.NhaCungCap
             soDienThoaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             emailColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            roleLabel = new System.Windows.Forms.Label();
+  
            
+                        // Excel green
+            var excelGreen = System.Drawing.Color.FromArgb(33, 115, 70);
+
+            // exportExcelButton
+            exportExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
+            exportExcelButton.Location = new System.Drawing.Point(920, 15);
+            exportExcelButton.Name = "exportExcelButton";
+            exportExcelButton.Size = new System.Drawing.Size(110, 30);
+            exportExcelButton.TabIndex = 20;
+            exportExcelButton.Text = "Export Excel";
+            exportExcelButton.UseVisualStyleBackColor = false;
+            exportExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            exportExcelButton.BackColor = excelGreen;
+            exportExcelButton.ForeColor = System.Drawing.Color.White;
+
+            // importExcelButton
+            importExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
+            importExcelButton.Location = new System.Drawing.Point(1050, 15);
+            importExcelButton.Name = "importExcelButton";
+            importExcelButton.Size = new System.Drawing.Size(110, 30);
+            importExcelButton.TabIndex = 21;
+            importExcelButton.Text = "Import Excel";
+            importExcelButton.UseVisualStyleBackColor = false;
+            importExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            importExcelButton.BackColor = excelGreen;
+            importExcelButton.ForeColor = System.Drawing.Color.White;
+
+
 
             // add init
             diaChiLabel = new System.Windows.Forms.Label();
@@ -117,6 +145,13 @@ namespace mini_supermarket.GUI.NhaCungCap
             customerInfoGroupBox.TabStop = false;
             customerInfoGroupBox.Text = "Thông tin nhà cung cấp";
             customerInfoGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+
+            // customerInfoGroupBox.Controls.Add(exportExcelButton);
+            // customerInfoGroupBox.Controls.Add(importExcelButton);
+
+            Controls.Add(exportExcelButton);
+            Controls.Add(importExcelButton);
+            // năm ngoài form thông tin nhà cung cấp
 
             // emailTextBox
             emailTextBox.Location = new System.Drawing.Point(650, 64);
@@ -343,22 +378,13 @@ namespace mini_supermarket.GUI.NhaCungCap
             trangThaiColumn.ReadOnly = true;
 
 
-            // roleLabel
-            roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            roleLabel.AutoSize = true;
-            roleLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            roleLabel.Location = new System.Drawing.Point(1020, 20);
-            roleLabel.Name = "roleLabel";
-            roleLabel.Size = new System.Drawing.Size(87, 15);
-            roleLabel.TabIndex = 2;
-            roleLabel.Text = "Quyền: admin";
+           
 
             // Form_NhaCungCap
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
             ClientSize = new System.Drawing.Size(1180, 760);
-            Controls.Add(roleLabel);
             Controls.Add(danhSachGroupBox);
             Controls.Add(customerInfoGroupBox);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -371,5 +397,6 @@ namespace mini_supermarket.GUI.NhaCungCap
             ResumeLayout(false);
             PerformLayout();
         }
+       
     }
 }
