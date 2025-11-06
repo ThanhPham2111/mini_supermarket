@@ -7,353 +7,173 @@ using mini_supermarket.BUS;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.NhaCungCap
-
 {
     public partial class Form_NhaCungCap : Form
     {
+        // Hằng hiển thị
         private const string StatusAll = "Tất cả";
 
-        private readonly NhaCungCap_BUS _nhaCungCapBus = new();
-        private readonly BindingSource _bindingSource = new();
-        // private readonly List<string> _roles;
-        private readonly List<string> _statuses;
-        private IList<NhaCungCapDTO> _currentNhaCungCap = Array.Empty<NhaCungCapDTO>();
+        // Tầng nghiệp vụ
+        private readonly NhaCungCap_BUS _bus = new();
+
+        // Lưu trạng thái
+        private List<string> _dsTrangThai = new();
+
+        // Danh sách hiện tại hiển thị
+        private List<NhaCungCapDTO> _dsNhaCungCap = new();
 
         public Form_NhaCungCap()
         {
             InitializeComponent();
             Load += Form_NhaCungCap_Load;
-
-            // _roles = _nhaCungCapBus.GetDefaultRoles().ToList();
-            _statuses = _nhaCungCapBus.GetDefaultStatuses().ToList();
-
         }
 
-        private void Form_NhaCungCap_Load(object? sender, EventArgs e)
+        private void Form_NhaCungCap_Load(object sender, EventArgs e)
         {
-            if (DesignMode)
-            {
-                return;
-            }
+            LoadDanhSachTrangThai();
+            LoadDanhSachNhaCungCap();
+
+            statusFilterComboBox.SelectedIndexChanged += (_, _) => LocTheoTrangThai();
+            searchTextBox.TextChanged += (_, _) => TimKiem();
+
+            themButton.Click += ThemButton_Click;
+            suaButton.Click += SuaButton_Click;
+            xoaButton.Click += XoaButton_Click;
+            lamMoiButton.Click += (_, _) => LamMoi();
+        }
+
+        // ==================== LOAD DỮ LIỆU ====================
+
+        private void LoadDanhSachTrangThai()
+        {
+            _dsTrangThai = _bus.GetDefaultStatuses().ToList();
 
             statusFilterComboBox.Items.Clear();
             statusFilterComboBox.Items.Add(StatusAll);
-            foreach (var status in _statuses)
-            {
-                statusFilterComboBox.Items.Add(status);
-            }
+            statusFilterComboBox.Items.AddRange(_dsTrangThai.ToArray());
             statusFilterComboBox.SelectedIndex = 0;
-            statusFilterComboBox.SelectedIndexChanged += statusFilterComboBox_SelectedIndexChanged;
+        }
 
-            // chucVuComboBox.Items.Clear();
-            // foreach (var role in _roles)
-            // {
-            //     chucVuComboBox.Items.Add(role);
-            // }
-            // chucVuComboBox.SelectedIndex = -1;
+        private void LoadDanhSachNhaCungCap()
+        {
+            _dsNhaCungCap = _bus.GetNhaCungCap();
+            HienThiLenBang(_dsNhaCungCap);
+        }
 
+        private void HienThiLenBang(List<NhaCungCapDTO> ds)
+        {
             nhaCungCapDataGridView.AutoGenerateColumns = false;
-            nhaCungCapDataGridView.DataSource = _bindingSource;
-            nhaCungCapDataGridView.SelectionChanged += nhaCungCapDataGridView_SelectionChanged;
+            nhaCungCapDataGridView.DataSource = ds;
 
-            var toolTip = new ToolTip();
-            toolTip.SetToolTip(themButton, "Thêm nhà cung cấp mới");
-            toolTip.SetToolTip(suaButton, "Sửa thông tin nhà cung cấp đã chọn");
-            toolTip.SetToolTip(xoaButton, "Khóa nhà cung cấp đã chọn"); // Updated: "Khóa" instead of "Xóa"
-            toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
-            toolTip.SetToolTip(searchButton, "Tìm kiếm nhà cung cấp");
-
-            themButton.Click += themButton_Click;
-            suaButton.Click += suaButton_Click;
-            xoaButton.Click += xoaButton_Click;
-            lamMoiButton.Click += lamMoiButton_Click;
-            searchButton.Click += (_, _) => ApplySearchFilter();
-
-            searchTextBox.TextChanged += searchTextBox_TextChanged;
-
-            themButton.Enabled = true;
-            lamMoiButton.Enabled = true;
-            suaButton.Enabled = false;
-            xoaButton.Enabled = false;
-
-            SetInputFieldsEnabled(false);
-
-            LoadNhaCungCapData();
+            nhaCungCapDataGridView.ClearSelection();
         }
 
-        private void nhaCungCapDataGridView_SelectionChanged(object? sender, EventArgs e)
+        // ==================== SỰ KIỆN ====================
+
+        private void ThemButton_Click(object sender, EventArgs e)
         {
-            if (nhaCungCapDataGridView.SelectedRows.Count > 0)
+            using var dialog = new Form_NhaCungCapDialog(_dsTrangThai);
+
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            try
             {
-                var selectedNhaCungCap = (NhaCungCapDTO)nhaCungCapDataGridView.SelectedRows[0].DataBoundItem;
-                maNhaCungCapTextBox.Text = selectedNhaCungCap.MaNhaCungCap.ToString();
-                hoTenTextBox.Text = selectedNhaCungCap.TenNhaCungCap ?? string.Empty;
-                // ngaySinhDateTimePicker.Value = selectedNhaCungCap.NgaySinh ?? DateTime.Today;
-                // gioiTinhNamRadioButton.Checked = selectedNhaCungCap.GioiTinh == "Nam";
-                // gioiTinhNuRadioButton.Checked = selectedNhaCungCap.GioiTinh == "Nữ";
-                // if (!string.IsNullOrEmpty(selectedNhaCungCap.VaiTro) && chucVuComboBox.Items.Contains(selectedNhaCungCap.VaiTro))
-                // {
-                //     chucVuComboBox.SelectedItem = selectedNhaCungCap.VaiTro;
-                // }
-                // else
-                // {
-                //     chucVuComboBox.SelectedIndex = -1;
-                // }
-                soDienThoaiTextBox.Text = selectedNhaCungCap.SoDienThoai ?? string.Empty;
-                diaChiTextBox.Text = selectedNhaCungCap.DiaChi ?? string.Empty;
-                emailTextBox.Text = selectedNhaCungCap.Email ?? string.Empty;
-
-
-                suaButton.Enabled = true;
-                xoaButton.Enabled = true;
-
-                SetInputFieldsEnabled(false);
+                _bus.AddNhaCungCap(dialog.NhaCungCap);
+                LoadDanhSachNhaCungCap();
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể thêm.\n" + ex.Message);
+            }
+        }
+
+        private void SuaButton_Click(object sender, EventArgs e)
+        {
+            var item = GetSelectedItem();
+            if (item == null) return;
+
+            using var dialog = new Form_NhaCungCapDialog(_dsTrangThai, item);
+
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            try
+            {
+                _bus.UpdateNhaCungCap(dialog.NhaCungCap);
+                LoadDanhSachNhaCungCap();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể sửa.\n" + ex.Message);
+            }
+        }
+
+        private void XoaButton_Click(object sender, EventArgs e)
+        {
+            var item = GetSelectedItem();
+            if (item == null) return;
+
+            if (MessageBox.Show("Khóa nhà cung cấp?", "Hỏi", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                item.TrangThai = NhaCungCap_BUS.StatusInactive;
+                _bus.UpdateNhaCungCap(item);
+                LoadDanhSachNhaCungCap();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể khóa.\n" + ex.Message);
+            }
+        }
+
+        private void LamMoi()
+        {
+            searchTextBox.Text = "";
+            statusFilterComboBox.SelectedIndex = 0;
+            LoadDanhSachNhaCungCap();
+        }
+
+
+        // ==================== LỌC + TÌM KIẾM ====================
+
+        private void LocTheoTrangThai()
+        {
+            string trangThai = statusFilterComboBox.SelectedItem?.ToString() ?? StatusAll;
+
+            List<NhaCungCapDTO> kq;
+
+            if (trangThai == StatusAll)
+                kq = _dsNhaCungCap;
             else
-            {
-                maNhaCungCapTextBox.Text = string.Empty;
-                hoTenTextBox.Text = string.Empty;
-                // ngaySinhDateTimePicker.Value = DateTime.Today;
-                // gioiTinhNamRadioButton.Checked = false;
-                // gioiTinhNuRadioButton.Checked = false;
-                // chucVuComboBox.SelectedIndex = -1;
-                soDienThoaiTextBox.Text = string.Empty;
-                diaChiTextBox.Text = string.Empty;
-                emailTextBox.Text = string.Empty;
+                kq = _dsNhaCungCap.Where(x => x.TrangThai == trangThai).ToList();
 
-
-                suaButton.Enabled = false;
-                xoaButton.Enabled = false;
-
-                SetInputFieldsEnabled(false);
-            }
+            HienThiLenBang(kq);
         }
 
-        private void themButton_Click(object? sender, EventArgs e)
+        private void TimKiem()
         {
-            using var dialog = new Form_NhaCungCapDialog(_statuses);
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
-            }
+            string tuKhoa = searchTextBox.Text.Trim().ToLower();
 
-            try
-            {
-                var createdNhaCungCap = _nhaCungCapBus.AddNhaCungCap(dialog.NhaCungCap);
-                LoadNhaCungCapData();
-                SelectNhaCungCapRow(createdNhaCungCap.MaNhaCungCap);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể thêm nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            var kq = _dsNhaCungCap.Where(x =>
+                x.MaNhaCungCap.ToString().Contains(tuKhoa) ||
+                (x.TenNhaCungCap?.ToLower().Contains(tuKhoa) ?? false) ||
+                (x.SoDienThoai?.ToLower().Contains(tuKhoa) ?? false)
+            ).ToList();
+
+            HienThiLenBang(kq);
         }
 
-        private void suaButton_Click(object? sender, EventArgs e)
-        {
-            var selectedNhaCungCap = GetSelectedNhaCungCap();
-            if (selectedNhaCungCap == null)
-            {
-                return;
-            }
+        // ==================== HỖ TRỢ ====================
 
-            using var dialog = new Form_NhaCungCapDialog(_statuses, selectedNhaCungCap);
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
-            }
-
-            try
-            {
-                _nhaCungCapBus.UpdateNhaCungCap(dialog.NhaCungCap);
-                LoadNhaCungCapData();
-                SelectNhaCungCapRow(dialog.NhaCungCap.MaNhaCungCap);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể cập nhật nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void xoaButton_Click(object? sender, EventArgs e)
-        {
-            var selectedNhaCungCap = GetSelectedNhaCungCap();
-            if (selectedNhaCungCap == null)
-            {
-                return;
-            }
-
-            DialogResult confirm = MessageBox.Show(this,
-                $"Bạn có chắc muốn khóa nhà cung cấp '{selectedNhaCungCap.TenNhaCungCap}'? Trạng thái sẽ được chuyển thành 'Khóa'.",
-                "Xác nhận khóa",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes)
-            {
-                return;
-            }
-
-            try
-            {
-                selectedNhaCungCap.TrangThai = NhaCungCap_BUS.StatusInactive; // Set TrangThai to "Khóa"
-                _nhaCungCapBus.UpdateNhaCungCap(selectedNhaCungCap);
-                LoadNhaCungCapData();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể khóa nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void lamMoiButton_Click(object? sender, EventArgs e)
-        {
-            searchTextBox.Text = string.Empty;
-
-            if (statusFilterComboBox.SelectedIndex != 0)
-            {
-                statusFilterComboBox.SelectedIndex = 0;
-            }
-            else
-            {
-                ApplyStatusFilter();
-            }
-
-            LoadNhaCungCapData();
-        }
-
-        private NhaCungCapDTO? GetSelectedNhaCungCap()
+        private NhaCungCapDTO GetSelectedItem()
         {
             if (nhaCungCapDataGridView.SelectedRows.Count == 0)
-            {
                 return null;
-            }
 
             return nhaCungCapDataGridView.SelectedRows[0].DataBoundItem as NhaCungCapDTO;
-        }
-
-        private void SelectNhaCungCapRow(int maNhaCungCap)
-        {
-            if (maNhaCungCap <= 0 || nhaCungCapDataGridView.Rows.Count == 0)
-            {
-                return;
-            }
-
-            foreach (DataGridViewRow row in nhaCungCapDataGridView.Rows)
-            {
-                if (row.DataBoundItem is NhaCungCapDTO nhaCungCap && nhaCungCap.MaNhaCungCap == maNhaCungCap)
-                {
-                    row.Selected = true;
-                    try
-                    {
-                        nhaCungCapDataGridView.FirstDisplayedScrollingRowIndex = row.Index;
-                    }
-                    catch
-                    {
-                        // Ignore if cannot set scroll index
-                    }
-
-                    return;
-                }
-            }
-        }
-
-        private void SetInputFieldsEnabled(bool enabled)
-        {
-            maNhaCungCapTextBox.Enabled = enabled;
-            hoTenTextBox.Enabled = enabled;
-            // ngaySinhDateTimePicker.Enabled = enabled;
-            // gioiTinhNamRadioButton.Enabled = enabled;
-            // gioiTinhNuRadioButton.Enabled = enabled;
-            // chucVuComboBox.Enabled = enabled;
-            diaChiTextBox.Enabled = enabled;
-            emailTextBox.Enabled = enabled;
-
-            soDienThoaiTextBox.Enabled = enabled;
-        }
-
-        private void statusFilterComboBox_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            ApplyStatusFilter();
-        }
-
-        private void searchTextBox_TextChanged(object? sender, EventArgs e)
-        {
-            ApplySearchFilter();
-        }
-
-        private void LoadNhaCungCapData()
-        {
-            try
-            {
-                _currentNhaCungCap = _nhaCungCapBus.GetNhaCungCap();
-                ApplyStatusFilter();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể tải danh sách nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void ApplyStatusFilter()
-        {
-            string? selectedStatus = statusFilterComboBox.SelectedItem as string;
-
-            if (string.IsNullOrWhiteSpace(selectedStatus) || string.Equals(selectedStatus, StatusAll, StringComparison.OrdinalIgnoreCase))
-            {
-                _bindingSource.DataSource = _currentNhaCungCap;
-            }
-            else
-            {
-                var filtered = new List<NhaCungCapDTO>();
-                foreach (var nhaCungCap in _currentNhaCungCap)
-                {
-                    if (string.Equals(nhaCungCap.TrangThai, selectedStatus, StringComparison.OrdinalIgnoreCase))
-                    {
-                        filtered.Add(nhaCungCap);
-                    }
-                }
-                _bindingSource.DataSource = filtered;
-
-            }
-
-            if (!string.IsNullOrEmpty(searchTextBox.Text.Trim()))
-            {
-                ApplySearchFilter();
-            }
-            else
-            {
-                nhaCungCapDataGridView.ClearSelection();
-            }
-        }
-
-        private void ApplySearchFilter()
-        {
-            string searchText = searchTextBox.Text.Trim().ToLower(CultureInfo.GetCultureInfo("vi-VN"));
-            string? selectedStatus = statusFilterComboBox.SelectedItem as string;
-
-            var filtered = new List<NhaCungCapDTO>();
-
-            foreach (var nhaCungCap in _currentNhaCungCap)
-            {
-                bool matchesSearch = string.IsNullOrEmpty(searchText) ||
-                    nhaCungCap.MaNhaCungCap.ToString().ToLower(CultureInfo.GetCultureInfo("vi-VN")).Contains(searchText) ||
-                    (nhaCungCap.TenNhaCungCap?.ToLower(CultureInfo.GetCultureInfo("vi-VN")).Contains(searchText) ?? false) ||
-                    (nhaCungCap.SoDienThoai?.ToLower(CultureInfo.GetCultureInfo("vi-VN")).Contains(searchText) ?? false);
-
-                bool matchesStatus = string.IsNullOrWhiteSpace(selectedStatus) ||
-                    string.Equals(selectedStatus, StatusAll, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(nhaCungCap.TrangThai, selectedStatus, StringComparison.OrdinalIgnoreCase);
-
-                if (matchesSearch && matchesStatus)
-                {
-                    filtered.Add(nhaCungCap);
-                }
-            }
-
-            _bindingSource.DataSource = filtered;
-            nhaCungCapDataGridView.ClearSelection();
         }
     }
 }
