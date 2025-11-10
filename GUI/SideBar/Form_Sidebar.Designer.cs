@@ -170,7 +170,7 @@
             this.navKhuyenMaiButton.Text = "Khuyến Mãi";
             this.navKhuyenMaiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.navKhuyenMaiButton.UseVisualStyleBackColor = false;
-            this.navKhuyenMaiButton.Click += new System.EventHandler(this.NavPlaceholderButton_Click);
+            this.navKhuyenMaiButton.Click += new System.EventHandler(this.navKhuyenMaiButton_Click);
             // 
             // navLoaiSanPhamButton
             // 
