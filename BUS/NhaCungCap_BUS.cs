@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using mini_supermarket.DAO;
 using mini_supermarket.DTO;
 
@@ -8,119 +9,91 @@ namespace mini_supermarket.BUS
 {
     public class NhaCungCap_BUS
     {
+        private readonly NhaCungCap_DAO _dao = new();
+
         public const string StatusActive = "Hoạt động";
         public const string StatusInactive = "Khóa";
 
-        private static readonly string[] DefaultStatuses =
+        private readonly List<string> _dsTrangThai = new()
         {
             StatusActive,
             StatusInactive
         };
 
-        private static readonly HashSet<string> StatusLookup = new(DefaultStatuses, StringComparer.OrdinalIgnoreCase);
-
-        private readonly NhaCungCap_DAO _nhaCungCapDao = new();
-
-        public IReadOnlyList<string> GetAvailableStatuses()
+        public List<string> GetDefaultStatuses()
         {
-            var statuses = new List<string>(DefaultStatuses);
-            return statuses;
+            return _dsTrangThai;
         }
 
-        public IList<NhaCungCapDTO> GetAll()
+        public List<NhaCungCapDTO> GetAll()
         {
-            return _nhaCungCapDao.GetNhaCungCap();
+            return _dao.GetNhaCungCap();
         }
-        public IReadOnlyList<string> GetDefaultStatuses() => DefaultStatuses;
+
+        public List<NhaCungCapDTO> GetNhaCungCap(string? trangThai = null)
+        {
+            return _dao.GetNhaCungCap(trangThai);
+        }
 
         public int GetNextMaNhaCungCap()
         {
-            int maxId = _nhaCungCapDao.GetMaxMaNhaCungCap();
-            return maxId + 1;
+            return _dao.GetMaxMaNhaCungCap() + 1;
         }
 
-        public IList<NhaCungCapDTO> GetNhaCungCap(string? trangThaiFilter = null)
+        public NhaCungCapDTO AddNhaCungCap(NhaCungCapDTO item)
         {
-            return _nhaCungCapDao.GetNhaCungCap(trangThaiFilter);
+            Validate(item, false);
+            item.MaNhaCungCap = _dao.InsertNhaCungCap(item);
+            return item;
         }
 
-        public bool IsValidStatus(string? status)
+        public void UpdateNhaCungCap(NhaCungCapDTO item)
         {
-            return !string.IsNullOrWhiteSpace(status) && StatusLookup.Contains(status);
+            Validate(item, true);
+            _dao.UpdateNhaCungCap(item);
         }
-        public NhaCungCapDTO AddNhaCungCap(NhaCungCapDTO nhaCungCap)
+
+        public void DeleteNhaCungCap(int ma)
         {
-            if (nhaCungCap == null)
-            {
-                throw new ArgumentNullException(nameof(nhaCungCap));
-            }
-
-            ValidateNhaCungCap(nhaCungCap, isUpdate: false);
-
-            int newId = _nhaCungCapDao.InsertNhaCungCap(nhaCungCap);
-            nhaCungCap.MaNhaCungCap = newId;
-            return nhaCungCap;
+            _dao.DeleteNhaCungCap(ma);
         }
 
-        public void UpdateNhaCungCap(NhaCungCapDTO nhaCungCap)
+        // =============================
+        // ✅ VALIDATE
+        // =============================
+        private void Validate(NhaCungCapDTO item, bool updating)
         {
-            if (nhaCungCap == null)
-            {
-                throw new ArgumentNullException(nameof(nhaCungCap));
-            }
+            if (item == null)
+                throw new Exception("Dữ liệu không hợp lệ");
 
-            ValidateNhaCungCap(nhaCungCap, isUpdate: true);
-            _nhaCungCapDao.UpdateNhaCungCap(nhaCungCap);
+            if (updating && item.MaNhaCungCap <= 0)
+                throw new Exception("Mã không hợp lệ");
+
+            if (string.IsNullOrWhiteSpace(item.TenNhaCungCap))
+                throw new Exception("Tên không được để trống");
+
+            if (string.IsNullOrWhiteSpace(item.DiaChi))
+                throw new Exception("Địa chỉ không được để trống");
+
+            if (string.IsNullOrWhiteSpace(item.SoDienThoai))
+                throw new Exception("Số điện thoại không được để trống");
+
+            if (item.SoDienThoai.Length != 10 || !item.SoDienThoai.All(char.IsDigit))
+                throw new Exception("Số điện thoại không hợp lệ");
+
+            if (string.IsNullOrWhiteSpace(item.Email))
+            throw new Exception("Email không được để trống");
+
+
+            // ✅ Trang thái
+            if (string.IsNullOrWhiteSpace(item.TrangThai))
+                item.TrangThai = StatusActive;
+
+            if (!_dsTrangThai.Contains(item.TrangThai))
+                throw new Exception("Trạng thái không hợp lệ");
         }
 
-        public void DeleteNhaCungCap(int maNhaCungCap)
-        {
-            if (maNhaCungCap <= 0)
-            {
-                throw new ArgumentException("Mã nhà cung cấp không hợp lệ.", nameof(maNhaCungCap));
-            }
-
-            _nhaCungCapDao.DeleteNhaCungCap(maNhaCungCap);
-        }
-
-        private static void ValidateNhaCungCap(NhaCungCapDTO nhaCungCap, bool isUpdate)
-        {
-            if (isUpdate && nhaCungCap.MaNhaCungCap <= 0)
-            {
-                throw new ArgumentException("Mã nhà cung cấp không hợp lệ.", nameof(nhaCungCap.MaNhaCungCap));
-            }
-
-            nhaCungCap.TenNhaCungCap = nhaCungCap.TenNhaCungCap?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(nhaCungCap.TenNhaCungCap))
-            {
-                throw new ArgumentException("Tên nhà cung cấp không được để trống.", nameof(nhaCungCap.TenNhaCungCap));
-            }
-
-            nhaCungCap.DiaChi = nhaCungCap.DiaChi?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(nhaCungCap.DiaChi))
-            {
-                throw new ArgumentException("Địa chỉ không được để trống.", nameof(nhaCungCap.DiaChi));
-            }
-
-            nhaCungCap.SoDienThoai = nhaCungCap.SoDienThoai?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(nhaCungCap.SoDienThoai))
-            {
-                throw new ArgumentException("Số điện thoại không được để trống.", nameof(nhaCungCap.SoDienThoai));
-            }
-
-            if (nhaCungCap.SoDienThoai.Length != 10 || !nhaCungCap.SoDienThoai.All(char.IsDigit))
-            {
-                throw new ArgumentException("Số điện thoại phải có 10 số.", nameof(nhaCungCap.SoDienThoai));
-            }
-
-            if (string.IsNullOrWhiteSpace(nhaCungCap.TrangThai))
-            {
-                nhaCungCap.TrangThai = StatusActive;
-            }
-            else if (!DefaultStatuses.Contains(nhaCungCap.TrangThai))
-            {
-                throw new ArgumentException("Trạng thái không hợp lệ.", nameof(nhaCungCap.TrangThai));
-            }
-        }
+       
+       
     }
 }

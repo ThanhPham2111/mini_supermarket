@@ -22,6 +22,7 @@ namespace mini_supermarket.GUI
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+
             
             // Set tab order for better UX
             taiKhoan_txb.TabIndex = 0;
@@ -29,6 +30,7 @@ namespace mini_supermarket.GUI
             Login_btn.TabIndex = 2;
             
             // Enable Enter key to trigger login
+
             this.AcceptButton = Login_btn;
         }
 
@@ -65,5 +67,6 @@ namespace mini_supermarket.GUI
         {
 
         }
+
     }
 }

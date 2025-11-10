@@ -16,8 +16,7 @@ CREATE TABLE Tbl_ThuongHieu (
 CREATE TABLE Tbl_Loai (
     MaLoai INT PRIMARY KEY IDENTITY(1,1),
     TenLoai NVARCHAR(255) NOT NULL,
-    MoTa NVARCHAR(MAX),
-    TrangThai NVARCHAR(50) DEFAULT N'Hoạt động'
+    MoTa NVARCHAR(MAX)
 );
 
 -- 3. Bảng Đơn vị (NEW)

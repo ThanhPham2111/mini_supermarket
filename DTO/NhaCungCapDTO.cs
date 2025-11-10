@@ -2,12 +2,51 @@
 {
     public class NhaCungCapDTO
     {
-        public int MaNhaCungCap { get; set; }
-        public string TenNhaCungCap { get; set; } = string.Empty;
-        public string? DiaChi { get; set; }
-        public string? SoDienThoai { get; set; }
-        public string? Email { get; set; }
-        public string? TrangThai { get; set; }
+        // int là value type -> bắt buộc có giá trị
+        private int _maNhaCungCap;
+        // biến luôn có giá trị -> không bao giờ là null
+        private string _tenNhaCungCap = string.Empty;
+        // có thể null
+        private string? _diaChi;
+        private string? _soDienThoai;
+        private string? _email;
+        private string? _trangThai;
+
+        public int MaNhaCungCap
+        {
+            get { return _maNhaCungCap; }
+            set { _maNhaCungCap = value; }
+        }
+
+        public string TenNhaCungCap
+        {
+            get { return _tenNhaCungCap; }
+            set { _tenNhaCungCap = value; }
+        }
+
+        public string? DiaChi
+        {
+            get { return _diaChi; }
+            set { _diaChi = value; }
+        }
+
+        public string? SoDienThoai
+        {
+            get { return _soDienThoai; }
+            set { _soDienThoai = value; }
+        }
+
+        public string? Email
+        {
+            get { return _email; }
+            set { _email = value; }
+        }
+
+        public string? TrangThai
+        {
+            get { return _trangThai; }
+            set { _trangThai = value; }
+        }
 
         public NhaCungCapDTO()
         {
@@ -21,12 +60,12 @@
             string? email,
             string? trangThai)
         {
-            MaNhaCungCap = maNhaCungCap;
-            TenNhaCungCap = tenNhaCungCap;
-            DiaChi = diaChi;
-            SoDienThoai = soDienThoai;
-            Email = email;
-            TrangThai = trangThai;
+            _maNhaCungCap = maNhaCungCap;
+            _tenNhaCungCap = tenNhaCungCap;
+            _diaChi = diaChi;
+            _soDienThoai = soDienThoai;
+            _email = email;
+            _trangThai = trangThai;
         }
     }
 }
