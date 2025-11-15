@@ -216,5 +216,43 @@ namespace mini_supermarket.DAO
                 Console.WriteLine($"[ERROR] InsertKhoHang: {ex.Message}");
             }
         }
+
+        public DataTable LayThongTinSanPhamChiTiet(int maSanPham)
+        {
+            string query = @"
+                SELECT 
+                    sp.MaSanPham,
+                    sp.TenSanPham,
+                    sp.GiaBan,
+                    sp.HinhAnh,
+                    kh.SoLuong,
+                    ISNULL(km.TenKhuyenMai, N'') AS KhuyenMai,
+                    ISNULL(km.PhanTramGiamGia, 0) AS PhanTramGiam
+                FROM Tbl_SanPham sp
+                INNER JOIN Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham
+                LEFT JOIN Tbl_KhuyenMai km ON sp.MaSanPham = km.MaSanPham 
+                    AND GETDATE() BETWEEN km.NgayBatDau AND km.NgayKetThuc
+                WHERE sp.MaSanPham = @MaSanPham;";
+
+            DataTable dataTable = new DataTable();
+            try
+            {
+                using (SqlConnection conn = DbConnectionFactory.CreateConnection())
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(dataTable);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi lấy thông tin sản phẩm chi tiết: " + ex.Message);
+            }
+            return dataTable;
+        }
     }
 }
