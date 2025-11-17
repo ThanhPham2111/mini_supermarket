@@ -1,4 +1,13 @@
-# Ignore Visual Studio temporary files
+# Ignore local DB connection factory containing machine-specific connection string
+DB/DbConnectionFactory.cs
+
+# OS and build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates# Ignore Visual Studio temporary files
 *.suo
 *.user
 *.sln.docstates
