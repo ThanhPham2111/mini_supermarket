@@ -15,7 +15,8 @@ namespace mini_supermarket.GUI.KhuyenMai
     private DataGridView? dgv;
     private ComboBox? cboFilterProduct;
     private TextBox? txtSearch;
-    private ComboBox? cboMaSanPham; // for input selection of product
+    private Button? btnChooseProduct;
+    private int? _selectedProductId;
     private TextBox? txtTenKhuyenMai;
     private NumericUpDown? nudPhanTram;
     private DateTimePicker? dtpBatDau;
@@ -91,8 +92,18 @@ namespace mini_supermarket.GUI.KhuyenMai
             int lblX = 10, lblW = 120, ctrlX = 140, ctrlW = 260, y = 10, h = 28, gap = 42; // increased control width
 
             inputPanel.Controls.Add(CreateLabel("Sản phẩm:", new Point(lblX, y + 4), new Size(lblW, h)));
-            cboMaSanPham = new ComboBox { Location = new Point(ctrlX, y), Size = new Size(ctrlW, h), DropDownStyle = ComboBoxStyle.DropDownList };
-            inputPanel.Controls.Add(cboMaSanPham);
+            btnChooseProduct = CreateButton("Chọn sản phẩm", new Point(ctrlX, y - 2), new Size(ctrlW, h + 4), SystemColors.Control);
+            btnChooseProduct.Click += BtnChooseProduct_Click;
+            if (btnChooseProduct != null)
+            {
+                // use system/default colors for this chooser button
+                btnChooseProduct.BackColor = SystemColors.Control;
+                btnChooseProduct.ForeColor = SystemColors.ControlText;
+                btnChooseProduct.FlatAppearance.BorderSize = 0;
+                btnChooseProduct.TextAlign = ContentAlignment.MiddleLeft;
+                btnChooseProduct.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+            }
+            inputPanel.Controls.Add(btnChooseProduct);
 
             y += gap;
             inputPanel.Controls.Add(CreateLabel("Tên khuyến mãi:", new Point(lblX, y + 4), new Size(lblW, h)));
@@ -150,7 +161,8 @@ namespace mini_supermarket.GUI.KhuyenMai
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AutoGenerateColumns = false
+                AutoGenerateColumns = false,
+                RowHeadersVisible = false
             };
 
             dgv.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "MãKM", DataPropertyName = "MaKhuyenMai", Width = 60 });
@@ -180,13 +192,16 @@ namespace mini_supermarket.GUI.KhuyenMai
 
         private Label CreateLabel(string text, Point location, Size size)
         {
-            return new Label
+            var lbl = new Label
             {
                 Text = text,
                 Location = location,
-                Size = size,
+                AutoSize = true,
                 Font = new Font("Segoe UI", 9, FontStyle.Regular)
             };
+            // keep a consistent height while allowing width to shrink to content
+            lbl.MinimumSize = new Size(0, size.Height);
+            return lbl;
         }
 
         private void LoadData()
@@ -233,16 +248,34 @@ namespace mini_supermarket.GUI.KhuyenMai
                 cboFilterProduct.ValueMember = "Key";
                 cboFilterProduct.SelectedIndex = 0;
 
-                // populate input product combobox
-                cboMaSanPham!.DataSource = _productList;
-                cboMaSanPham.DisplayMember = "TenSanPham";
-                cboMaSanPham.ValueMember = "MaSanPham";
-                cboMaSanPham.SelectedIndex = -1;
+                // product list is cached for the picker; UI uses a chooser button
+                _selectedProductId = null;
+                if (btnChooseProduct != null) btnChooseProduct.Text = "Chọn sản phẩm";
             }
             catch (Exception ex)
             {
                 // non-fatal: show message but allow the form to continue
                 MessageBox.Show($"Lỗi khi tải danh sách sản phẩm: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void BtnChooseProduct_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                using var picker = new Form_ProductPicker();
+                if (picker.ShowDialog(this) == DialogResult.OK && picker.SelectedProductId.HasValue)
+                {
+                    int id = picker.SelectedProductId.Value;
+                    if (_productList == null) LoadProducts();
+                    _selectedProductId = id;
+                    var it = _productList?.FirstOrDefault(p => p.MaSanPham == id);
+                    if (btnChooseProduct != null) btnChooseProduct.Text = it?.TenSanPham ?? "Chọn sản phẩm";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi chọn sản phẩm: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -266,8 +299,8 @@ namespace mini_supermarket.GUI.KhuyenMai
             if (e.RowIndex < 0) return;
             if (dgv!.Rows[e.RowIndex].DataBoundItem is KhuyenMaiDTO kh)
             {
-                // select product in product combobox
-                try { cboMaSanPham!.SelectedValue = kh.MaSanPham; } catch { /* ignore if not present */ }
+                // set selected product id and display name
+                try { _selectedProductId = kh.MaSanPham; if (btnChooseProduct != null) btnChooseProduct.Text = _productList?.FirstOrDefault(p => p.MaSanPham == kh.MaSanPham)?.TenSanPham ?? "Chọn sản phẩm"; } catch { /* ignore if not present */ }
                 txtTenKhuyenMai!.Text = kh.TenKhuyenMai ?? string.Empty;
                 nudPhanTram!.Value = kh.PhanTramGiamGia ?? 0;
                 dtpBatDau!.Value = kh.NgayBatDau ?? DateTime.Now;
@@ -329,7 +362,8 @@ namespace mini_supermarket.GUI.KhuyenMai
 
         private void BtnClear_Click(object? sender, EventArgs e)
         {
-            cboMaSanPham!.SelectedIndex = -1;
+            _selectedProductId = null;
+            if (btnChooseProduct != null) btnChooseProduct.Text = "Chọn sản phẩm";
             txtTenKhuyenMai!.Clear();
             nudPhanTram!.Value = 0;
             dtpBatDau!.Value = DateTime.Now;
@@ -341,8 +375,9 @@ namespace mini_supermarket.GUI.KhuyenMai
         private KhuyenMaiDTO MapInputsToDto(bool isUpdate)
         {
             int maSanPham;
-            if (cboMaSanPham?.SelectedValue == null || !int.TryParse(cboMaSanPham.SelectedValue.ToString(), out maSanPham) || maSanPham <= 0)
+            if (!_selectedProductId.HasValue || _selectedProductId.Value <= 0)
                 throw new ArgumentException("Mã sản phẩm phải là số nguyên > 0.");
+            maSanPham = _selectedProductId.Value;
 
             var kh = new KhuyenMaiDTO
             {
