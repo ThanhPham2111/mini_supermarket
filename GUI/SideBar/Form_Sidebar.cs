@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
 using mini_supermarket.GUI.Form_BanHang;
 using mini_supermarket.GUI.KhachHang;
+using mini_supermarket.GUI.KhuyenMai;
 using mini_supermarket.GUI.NhanVien;
+using mini_supermarket.GUI.PhieuNhap;
 using mini_supermarket.GUI.NhaCungCap;
 using mini_supermarket.GUI.HoaDon;
+using mini_supermarket.GUI.KhoHang;
+using mini_supermarket.GUI.TaiKhoan;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
+using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
 namespace mini_supermarket.GUI.SideBar
 {
@@ -19,6 +25,7 @@ namespace mini_supermarket.GUI.SideBar
         {
             InitializeComponent();
             InitializeLayout();
+            InitializeAssets();
             ShowTrangChu();
         }
 
@@ -29,6 +36,46 @@ namespace mini_supermarket.GUI.SideBar
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
+        }
+
+        private void InitializeAssets()
+        {
+            try
+            {
+                var logoPath = TryFindImagePath("icons8-market-96.png");
+                if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
+                {
+                    logoPictureBox.WaitOnLoad = true;
+                    logoPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+                    logoPictureBox.Image = Image.FromFile(logoPath);
+                }
+                // Ensure docking order: picture (top) -> title (top) -> username (fill)
+                logoPanel.Controls.SetChildIndex(logoPictureBox, 0);
+                logoPanel.Controls.SetChildIndex(logoLabel, 1);
+                logoPanel.Controls.SetChildIndex(userNameLabel, 2);
+                logoPictureBox.BringToFront();
+                logoPictureBox.Visible = true;
+            }
+            catch
+            {
+                // ignore image load errors
+            }
+        }
+
+        private static string? TryFindImagePath(string fileName)
+        {
+            var current = AppDomain.CurrentDomain.BaseDirectory;
+            for (int i = 0; i < 6 && current != null; i++)
+            {
+                var candidate = Path.Combine(current, "img", fileName);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+                var parent = Directory.GetParent(current);
+                current = parent?.FullName;
+            }
+            return null;
         }
 
         private void navTrangChuButton_Click(object sender, EventArgs e)
@@ -50,6 +97,10 @@ namespace mini_supermarket.GUI.SideBar
         {
             ShowSanPham();
         }
+        private void navLoaiSanPhamButton_Click(object sender, EventArgs e)
+        {
+            ShowLoaiSanPham();
+        }
 
         private void navKhachHangButton_Click(object sender, EventArgs e)
         {
@@ -63,6 +114,19 @@ namespace mini_supermarket.GUI.SideBar
         private void navHoaDonButton_Click(object sender, EventArgs e)
         {
             ShowHoaDon();
+        }
+
+        private void navPhieuNhapButton_Click(object sender, EventArgs e)
+        {
+            ShowPhieuNhap();
+        }
+        private void navTaiKhoanButton_Click(object sender, EventArgs e)
+        {
+            ShowTaiKhoan();
+        }
+        private void navKhuyenMaiButton_Click(object sender, EventArgs e)
+        {
+            ShowKhuyenMai();
         }
 
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
@@ -100,6 +164,30 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(banHangForm);
             banHangForm.Show();
+        }
+        private void ShowKhoHang()
+        {
+            SetActiveButton(navKhoHangButton);
+            mainTitleLabel.Text = navKhoHangButton.Text;
+
+            CloseActiveForm();
+
+            var khoHangForm = new Form_KhoHang
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = khoHangForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(khoHangForm);
+            khoHangForm.Show();
+        }
+
+        private void navKhoHangButton_Click(object sender, EventArgs e)
+        {
+            ShowKhoHang();
         }
 
         private void ShowNhanVien()
@@ -140,6 +228,46 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(sanPhamForm);
             sanPhamForm.Show();
+        }
+
+        private void ShowLoaiSanPham()
+        {
+            SetActiveButton(navLoaiSanPhamButton);
+            mainTitleLabel.Text = navLoaiSanPhamButton.Text;
+
+            CloseActiveForm();
+
+            var form = new FormLoaiSanPham
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = form;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(form);
+            form.Show();
+        }
+
+        private void ShowKhuyenMai()
+        {
+            SetActiveButton(navKhuyenMaiButton);
+            mainTitleLabel.Text = navKhuyenMaiButton.Text;
+
+            CloseActiveForm();
+
+            var khuyenMaiForm = new Form_KhuyenMai
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = khuyenMaiForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(khuyenMaiForm);
+            khuyenMaiForm.Show();
         }
 
         private void ShowKhachHang()
@@ -201,6 +329,46 @@ namespace mini_supermarket.GUI.SideBar
             hoaDonForm.Show();
         }
 
+        private void ShowPhieuNhap()
+        {
+            SetActiveButton(navPhieuNhapButton);
+            mainTitleLabel.Text = navPhieuNhapButton.Text;
+
+            CloseActiveForm();
+
+            var phieuNhapForm = new Form_PhieuNhap
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = phieuNhapForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(phieuNhapForm);
+            phieuNhapForm.Show();
+        }
+
+        private void ShowTaiKhoan()
+        {
+            SetActiveButton(navTaiKhoanButton);
+            mainTitleLabel.Text = navTaiKhoanButton.Text;
+
+            CloseActiveForm();
+
+            var taiKhoanForm = new Form_TaiKhoan
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = taiKhoanForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(taiKhoanForm);
+            taiKhoanForm.Show();
+        }
+
         private void ShowPlaceholder(string message, Button sourceButton)
         {
             SetActiveButton(sourceButton);
@@ -233,11 +401,13 @@ namespace mini_supermarket.GUI.SideBar
         {
             if (_activeButton != null)
             {
-                _activeButton.BackColor = Color.FromArgb(52, 58, 64);
+                _activeButton.BackColor = Color.White;
+                _activeButton.ForeColor = Color.FromArgb(33, 37, 41);
             }
 
             _activeButton = button;
-            _activeButton.BackColor = Color.FromArgb(73, 80, 87);
+            _activeButton.BackColor = Color.FromArgb(21, 128, 61); // green-700
+            _activeButton.ForeColor = Color.White;
         }
 
         private void CloseActiveForm()

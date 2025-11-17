@@ -17,24 +17,28 @@ namespace mini_supermarket.BUS
             StatusInactive
         };
 
-        private static readonly string[] DefaultRoles =
-        {
-            "Quản lý",
-            "Nhân viên bán hàng",
-            "Thu ngân"
-        };
         public int GetNextMaNhanVien()
         {
             int maxId = _nhanVienDao.GetMaxMaNhanVien();
             return maxId + 1;
         }
 
-
         private readonly NhanVien_DAO _nhanVienDao = new();
+        private readonly TaiKhoan_DAO _taiKhoanDao = new();
 
         public IReadOnlyList<string> GetDefaultStatuses() => DefaultStatuses;
 
-        public IReadOnlyList<string> GetDefaultRoles() => DefaultRoles;
+        public IReadOnlyList<string> GetDefaultRoles()
+        {
+            // Load vai trò từ bảng Phân quyền (Tbl_PhanQuyen)
+            var quyenList = _taiKhoanDao.GetAllPhanQuyen();
+            return quyenList.Select(q => q.TenQuyen).ToList();
+        }
+
+        public IList<NhanVienDTO> GetAll()
+        {
+            return _nhanVienDao.GetNhanVien();
+        }
 
         public IList<NhanVienDTO> GetNhanVien(string? trangThaiFilter = null)
         {
@@ -76,7 +80,7 @@ namespace mini_supermarket.BUS
             _nhanVienDao.DeleteNhanVien(maNhanVien);
         }
 
-        private static void ValidateNhanVien(NhanVienDTO nhanVien, bool isUpdate)
+        private void ValidateNhanVien(NhanVienDTO nhanVien, bool isUpdate)
         {
             if (isUpdate && nhanVien.MaNhanVien <= 0)
             {
@@ -111,9 +115,11 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Vai trò không được để trống.", nameof(nhanVien.VaiTro));
             }
 
-            if (!DefaultRoles.Contains(nhanVien.VaiTro))
+            // Validate vai trò từ database
+            var validRoles = GetDefaultRoles();
+            if (!validRoles.Contains(nhanVien.VaiTro))
             {
-                throw new ArgumentException("Chức vụ không hợp lệ", nameof(nhanVien.VaiTro));
+                throw new ArgumentException("Vai trò không hợp lệ. Vui lòng chọn một trong các vai trò: " + string.Join(", ", validRoles), nameof(nhanVien.VaiTro));
             }
 
             if (string.IsNullOrWhiteSpace(nhanVien.TrangThai))
