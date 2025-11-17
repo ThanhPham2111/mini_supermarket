@@ -10,8 +10,15 @@ namespace mini_supermarket.DAO
             var hoaDonList = new List<HoaDonDTO>();
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"SELECT MaHoaDon, MaHoaDonCode, NgayLap, MaNhanVien, MaKhachHang, TongTien from Tbl_HoaDon";
-            command.CommandText += "Order By MaHoaDon";
+            command.CommandText = @"
+                SELECT h.MaHoaDon, h.MaHoaDonCode, h.NgayLap, h.MaNhanVien, h.MaKhachHang, h.TongTien,
+                       nv.TenNhanVien as NhanVien,
+                       ISNULL(kh.TenKhachHang, 'Khách lẻ') as KhachHang
+                FROM Tbl_HoaDon h
+                LEFT JOIN Tbl_NhanVien nv ON h.MaNhanVien = nv.MaNhanVien
+                LEFT JOIN Tbl_KhachHang kh ON h.MaKhachHang = kh.MaKhachHang
+                ORDER BY h.MaHoaDon";
+            connection.Open();
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -20,9 +27,13 @@ namespace mini_supermarket.DAO
                     maHoaDonCode: reader.GetString(reader.GetOrdinal("MaHoaDonCode")),
                     ngayLap: reader.IsDBNull(reader.GetOrdinal("NgayLap")) ? null : reader.GetDateTime(reader.GetOrdinal("NgayLap")),
                     maNhanVien: reader.GetInt32(reader.GetOrdinal("MaNhanVien")),
-                    maKhachHang: reader.GetInt32(reader.GetOrdinal("MaKhachHang")),
-                    tongTien: reader.GetDecimal(reader.GetOrdinal("TongTien"))
-                ));
+                    maKhachHang: reader.IsDBNull(reader.GetOrdinal("MaKhachHang")) ? null : reader.GetInt32(reader.GetOrdinal("MaKhachHang")),
+                    tongTien: reader.IsDBNull(reader.GetOrdinal("TongTien")) ? null : reader.GetDecimal(reader.GetOrdinal("TongTien"))
+                )
+                {
+                    NhanVien = reader.GetString(reader.GetOrdinal("NhanVien")),
+                    KhachHang = reader.GetString(reader.GetOrdinal("KhachHang"))
+                });
             }
             return hoaDonList;
         }
