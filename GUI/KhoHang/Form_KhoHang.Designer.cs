@@ -22,180 +22,281 @@ namespace mini_supermarket.GUI.KhoHang {
         #region Windows Form Designer generated code
         
         private void InitializeComponent() {
-            this.cboLoaiSP = new System.Windows.Forms.ComboBox();
-            this.cboThuongHieu = new System.Windows.Forms.ComboBox();
-            this.cboTrangThai = new System.Windows.Forms.ComboBox();
-            this.txtTimKiem = new System.Windows.Forms.TextBox();
+            this.panelMain = new System.Windows.Forms.Panel();
+            this.groupBoxGrid = new System.Windows.Forms.GroupBox();
             this.dgvKhoHang = new System.Windows.Forms.DataGridView();
+            this.panelFilters = new System.Windows.Forms.Panel();
+            this.tblFilters = new System.Windows.Forms.TableLayoutPanel();
+            this.lblLoai = new System.Windows.Forms.Label();
+            this.cboLoaiSP = new System.Windows.Forms.ComboBox();
+            this.lblThuongHieu = new System.Windows.Forms.Label();
+            this.cboThuongHieu = new System.Windows.Forms.ComboBox();
+            this.lblTrangThai = new System.Windows.Forms.Label();
+            this.cboTrangThai = new System.Windows.Forms.ComboBox();
+            this.lblTimKiem = new System.Windows.Forms.Label();
+            this.txtTimKiem = new System.Windows.Forms.TextBox();
+            this.panelHeader = new System.Windows.Forms.Panel();
+            this.headerActions = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLamMoi = new System.Windows.Forms.Button();
             this.btnSua = new System.Windows.Forms.Button();
+            this.btnNhapExcel = new System.Windows.Forms.Button();
             this.btnXuatExcel = new System.Windows.Forms.Button();
-            this.lblTimKiem = new System.Windows.Forms.Label();
-            this.lblLoai = new System.Windows.Forms.Label();
-            this.lblThuongHieu = new System.Windows.Forms.Label();
-            this.lblTrangThai = new System.Windows.Forms.Label();
+            this.lblHeader = new System.Windows.Forms.Label();
+            this.panelMain.SuspendLayout();
+            this.groupBoxGrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKhoHang)).BeginInit();
+            this.panelFilters.SuspendLayout();
+            this.tblFilters.SuspendLayout();
+            this.panelHeader.SuspendLayout();
+            this.headerActions.SuspendLayout();
             this.SuspendLayout();
             // 
-            // cboLoaiSP
+            // panelMain
             // 
-            this.cboLoaiSP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboLoaiSP.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.cboLoaiSP.Location = new System.Drawing.Point(85, 12);
-            this.cboLoaiSP.Name = "cboLoaiSP";
-            this.cboLoaiSP.Size = new System.Drawing.Size(210, 25);
-            this.cboLoaiSP.TabIndex = 0;
-            this.cboLoaiSP.SelectedIndexChanged += new System.EventHandler(this.cboLoaiSP_SelectedIndexChanged);
+            this.panelMain.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panelMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelMain.Padding = new System.Windows.Forms.Padding(12);
+            this.panelMain.Controls.Add(this.groupBoxGrid);
+            // Add header first, then filters on top of it
+            this.panelMain.Controls.Add(this.panelHeader);
+            this.panelMain.Controls.Add(this.panelFilters);
             // 
-            // cboThuongHieu
+            // groupBoxGrid
             // 
-            this.cboThuongHieu.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboThuongHieu.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.cboThuongHieu.Location = new System.Drawing.Point(395, 12);
-            this.cboThuongHieu.Name = "cboThuongHieu";
-            this.cboThuongHieu.Size = new System.Drawing.Size(210, 25);
-            this.cboThuongHieu.TabIndex = 1;
-            this.cboThuongHieu.SelectedIndexChanged += new System.EventHandler(this.cboThuongHieu_SelectedIndexChanged);
-            // 
-            // cboTrangThai
-            // 
-            this.cboTrangThai.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboTrangThai.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.cboTrangThai.Location = new System.Drawing.Point(685, 12);
-            this.cboTrangThai.Name = "cboTrangThai";
-            this.cboTrangThai.Size = new System.Drawing.Size(170, 25);
-            this.cboTrangThai.TabIndex = 2;
-            this.cboTrangThai.SelectedIndexChanged += new System.EventHandler(this.cboTrangThai_SelectedIndexChanged);
-            // 
-            // txtTimKiem
-            // 
-            this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtTimKiem.Location = new System.Drawing.Point(85, 48);
-            this.txtTimKiem.Name = "txtTimKiem";
-            this.txtTimKiem.Size = new System.Drawing.Size(380, 25);
-            this.txtTimKiem.TabIndex = 3;
-            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
+            this.groupBoxGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxGrid.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.groupBoxGrid.Text = "Danh sách tồn kho";
+            this.groupBoxGrid.BackColor = System.Drawing.Color.White;
+            this.groupBoxGrid.Padding = new System.Windows.Forms.Padding(8);
+            this.groupBoxGrid.Controls.Add(this.dgvKhoHang);
             // 
             // dgvKhoHang
             // 
             this.dgvKhoHang.AllowUserToAddRows = false;
             this.dgvKhoHang.AllowUserToDeleteRows = false;
-            this.dgvKhoHang.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvKhoHang.AllowUserToResizeRows = false;
             this.dgvKhoHang.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvKhoHang.BackgroundColor = System.Drawing.Color.White;
-            this.dgvKhoHang.Location = new System.Drawing.Point(12, 88);
+            this.dgvKhoHang.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvKhoHang.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvKhoHang.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvKhoHang.Location = new System.Drawing.Point(8, 24);
             this.dgvKhoHang.MultiSelect = false;
             this.dgvKhoHang.Name = "dgvKhoHang";
             this.dgvKhoHang.ReadOnly = true;
             this.dgvKhoHang.RowHeadersVisible = false;
+            this.dgvKhoHang.RowTemplate.Height = 30;
             this.dgvKhoHang.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvKhoHang.Size = new System.Drawing.Size(843, 410);
             this.dgvKhoHang.TabIndex = 7;
             this.dgvKhoHang.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvKhoHang_CellFormatting);
             this.dgvKhoHang.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvKhoHang_CellDoubleClick);
+            this.dgvKhoHang.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
+            // 
+            // panelFilters
+            // 
+            this.panelFilters.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelFilters.Height = 120;
+            this.panelFilters.Padding = new System.Windows.Forms.Padding(10);
+            this.panelFilters.BackColor = System.Drawing.Color.White;
+            this.panelFilters.Controls.Add(this.tblFilters);
+            // 
+            // tblFilters
+            // 
+            this.tblFilters.ColumnCount = 6;
+            this.tblFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
+            this.tblFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tblFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.tblFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tblFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.tblFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
+            this.tblFilters.RowCount = 2;
+            this.tblFilters.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.tblFilters.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblFilters.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblFilters.Controls.Add(this.lblLoai, 0, 0);
+            this.tblFilters.Controls.Add(this.cboLoaiSP, 1, 0);
+            this.tblFilters.Controls.Add(this.lblThuongHieu, 2, 0);
+            this.tblFilters.Controls.Add(this.cboThuongHieu, 3, 0);
+            this.tblFilters.Controls.Add(this.lblTrangThai, 4, 0);
+            this.tblFilters.Controls.Add(this.cboTrangThai, 5, 0);
+            this.tblFilters.Controls.Add(this.lblTimKiem, 0, 1);
+            this.tblFilters.Controls.Add(this.txtTimKiem, 1, 1);
+            this.tblFilters.SetColumnSpan(this.txtTimKiem, 5);
+            // 
+            // lblLoai
+            // 
+            this.lblLoai.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblLoai.AutoSize = true;
+            this.lblLoai.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblLoai.Text = "Loại";
+            // 
+            // cboLoaiSP
+            // 
+            this.cboLoaiSP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboLoaiSP.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.cboLoaiSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboLoaiSP.SelectedIndexChanged += new System.EventHandler(this.cboLoaiSP_SelectedIndexChanged);
+            // 
+            // lblThuongHieu
+            // 
+            this.lblThuongHieu.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblThuongHieu.AutoSize = true;
+            this.lblThuongHieu.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblThuongHieu.Text = "Thương hiệu";
+            // 
+            // cboThuongHieu
+            // 
+            this.cboThuongHieu.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboThuongHieu.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.cboThuongHieu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboThuongHieu.SelectedIndexChanged += new System.EventHandler(this.cboThuongHieu_SelectedIndexChanged);
+            // 
+            // lblTrangThai
+            // 
+            this.lblTrangThai.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblTrangThai.AutoSize = true;
+            this.lblTrangThai.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblTrangThai.Text = "Trạng thái";
+            // 
+            // cboTrangThai
+            // 
+            this.cboTrangThai.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTrangThai.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.cboTrangThai.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboTrangThai.SelectedIndexChanged += new System.EventHandler(this.cboTrangThai_SelectedIndexChanged);
+            // 
+            // lblTimKiem
+            // 
+            this.lblTimKiem.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblTimKiem.AutoSize = true;
+            this.lblTimKiem.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblTimKiem.Text = "Tìm kiếm";
+            // 
+            // txtTimKiem
+            // 
+            this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtTimKiem.PlaceholderText = "Tìm kiếm theo mã hoặc tên sản phẩm";
+            this.txtTimKiem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
+            // 
+            // panelHeader
+            // 
+            this.panelHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelHeader.Height = 64;
+            this.panelHeader.Padding = new System.Windows.Forms.Padding(12, 10, 12, 10);
+            this.panelHeader.BackColor = System.Drawing.Color.White;
+            this.panelHeader.Controls.Add(this.headerActions);
+            // removed header text per request
+            // this.panelHeader.Controls.Add(this.lblHeader);
+            // 
+            // headerActions
+            // 
+            this.headerActions.Dock = System.Windows.Forms.DockStyle.Right;
+            this.headerActions.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.headerActions.WrapContents = false;
+            this.headerActions.Padding = new System.Windows.Forms.Padding(0);
+            this.headerActions.Margin = new System.Windows.Forms.Padding(0);
+            this.headerActions.Width = 500;
+            this.headerActions.Controls.Add(this.btnLamMoi);
+            this.headerActions.Controls.Add(this.btnSua);
+            this.headerActions.Controls.Add(this.btnNhapExcel);
+            this.headerActions.Controls.Add(this.btnXuatExcel);
             // 
             // btnLamMoi
             // 
             this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLamMoi.Location = new System.Drawing.Point(475, 46);
-            this.btnLamMoi.Name = "btnLamMoi";
-            this.btnLamMoi.Size = new System.Drawing.Size(95, 30);
-            this.btnLamMoi.TabIndex = 4;
+            this.btnLamMoi.Size = new System.Drawing.Size(110, 35);
+            this.btnLamMoi.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnLamMoi.Text = "Làm mới";
-            this.btnLamMoi.UseVisualStyleBackColor = true;
+            this.btnLamMoi.UseVisualStyleBackColor = false;
+            this.btnLamMoi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLamMoi.FlatAppearance.BorderSize = 0;
+            this.btnLamMoi.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.btnLamMoi.ForeColor = System.Drawing.Color.White;
             this.btnLamMoi.Click += new System.EventHandler(this.btnLamMoi_Click);
             // 
             // btnSua
             // 
             this.btnSua.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnSua.Location = new System.Drawing.Point(576, 46);
-            this.btnSua.Name = "btnSua";
-            this.btnSua.Size = new System.Drawing.Size(95, 30);
-            this.btnSua.TabIndex = 5;
+            this.btnSua.Size = new System.Drawing.Size(95, 35);
+            this.btnSua.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnSua.Text = "Sửa";
-            this.btnSua.UseVisualStyleBackColor = true;
+            this.btnSua.UseVisualStyleBackColor = false;
+            this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSua.FlatAppearance.BorderSize = 0;
+            this.btnSua.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
+            this.btnSua.ForeColor = System.Drawing.Color.White;
             this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
+            // 
+            // btnNhapExcel
+            // 
+            this.btnNhapExcel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnNhapExcel.Size = new System.Drawing.Size(120, 35);
+            this.btnNhapExcel.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnNhapExcel.Text = "Nhập Excel";
+            this.btnNhapExcel.UseVisualStyleBackColor = false;
+            this.btnNhapExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNhapExcel.FlatAppearance.BorderSize = 0;
+            this.btnNhapExcel.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.btnNhapExcel.ForeColor = System.Drawing.Color.White;
+            this.btnNhapExcel.Click += new System.EventHandler(this.btnNhapExcel_Click);
             // 
             // btnXuatExcel
             // 
             this.btnXuatExcel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnXuatExcel.Location = new System.Drawing.Point(677, 46);
-            this.btnXuatExcel.Name = "btnXuatExcel";
-            this.btnXuatExcel.Size = new System.Drawing.Size(178, 30);
-            this.btnXuatExcel.TabIndex = 6;
+            this.btnXuatExcel.Size = new System.Drawing.Size(120, 35);
+            this.btnXuatExcel.Margin = new System.Windows.Forms.Padding(0);
             this.btnXuatExcel.Text = "Xuất Excel";
-            this.btnXuatExcel.UseVisualStyleBackColor = true;
+            this.btnXuatExcel.UseVisualStyleBackColor = false;
+            this.btnXuatExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXuatExcel.FlatAppearance.BorderSize = 0;
+            this.btnXuatExcel.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.btnXuatExcel.ForeColor = System.Drawing.Color.White;
             this.btnXuatExcel.Click += new System.EventHandler(this.btnXuatExcel_Click);
             // 
-            // lblTimKiem
+            // lblHeader
             // 
-            this.lblTimKiem.AutoSize = true;
-            this.lblTimKiem.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblTimKiem.Location = new System.Drawing.Point(12, 51);
-            this.lblTimKiem.Name = "lblTimKiem";
-            this.lblTimKiem.Size = new System.Drawing.Size(69, 19);
-            this.lblTimKiem.TabIndex = 8;
-            this.lblTimKiem.Text = "Tìm kiếm:";
-            // 
-            // lblLoai
-            // 
-            this.lblLoai.AutoSize = true;
-            this.lblLoai.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblLoai.Location = new System.Drawing.Point(12, 15);
-            this.lblLoai.Name = "lblLoai";
-            this.lblLoai.Size = new System.Drawing.Size(35, 19);
-            this.lblLoai.TabIndex = 9;
-            this.lblLoai.Text = "Loại:";
-            // 
-            // lblThuongHieu
-            // 
-            this.lblThuongHieu.AutoSize = true;
-            this.lblThuongHieu.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblThuongHieu.Location = new System.Drawing.Point(315, 15);
-            this.lblThuongHieu.Name = "lblThuongHieu";
-            this.lblThuongHieu.Size = new System.Drawing.Size(86, 19);
-            this.lblThuongHieu.TabIndex = 10;
-            this.lblThuongHieu.Text = "Thương hiệu:";
-            // 
-            // lblTrangThai
-            // 
-            this.lblTrangThai.AutoSize = true;
-            this.lblTrangThai.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblTrangThai.Location = new System.Drawing.Point(611, 15);
-            this.lblTrangThai.Name = "lblTrangThai";
-            this.lblTrangThai.Size = new System.Drawing.Size(73, 19);
-            this.lblTrangThai.TabIndex = 11;
-            this.lblTrangThai.Text = "Trạng thái:";
+            this.lblHeader.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblHeader.Text = "KHO HÀNG";
+            this.lblHeader.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.lblHeader.AutoSize = false;
+            this.lblHeader.Width = 280;
+            this.lblHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblHeader.Visible = false; // hide title per request
             // 
             // Form_KhoHang
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(867, 510);
-            this.Controls.Add(this.lblTrangThai);
-            this.Controls.Add(this.lblThuongHieu);
-            this.Controls.Add(this.lblLoai);
-            this.Controls.Add(this.lblTimKiem);
-            this.Controls.Add(this.btnXuatExcel);
-            this.Controls.Add(this.btnSua);
-            this.Controls.Add(this.btnLamMoi);
-            this.Controls.Add(this.dgvKhoHang);
-            this.Controls.Add(this.txtTimKiem);
-            this.Controls.Add(this.cboTrangThai);
-            this.Controls.Add(this.cboThuongHieu);
-            this.Controls.Add(this.cboLoaiSP);
+            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.ClientSize = new System.Drawing.Size(1200, 720);
+            this.Controls.Add(this.panelMain);
             this.Name = "Form_KhoHang";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Kho hàng";
             this.Load += new System.EventHandler(this.Form_KhoHang_Load);
+            this.panelMain.ResumeLayout(false);
+            this.groupBoxGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvKhoHang)).EndInit();
+            this.panelFilters.ResumeLayout(false);
+            this.tblFilters.ResumeLayout(false);
+            this.tblFilters.PerformLayout();
+            this.panelHeader.ResumeLayout(false);
+            this.headerActions.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
         }
         
         #endregion
+        
+        // New layout containers
+        private System.Windows.Forms.Panel panelMain;
+        private System.Windows.Forms.Panel panelHeader;
+        private System.Windows.Forms.Panel panelFilters;
+        private System.Windows.Forms.TableLayoutPanel tblFilters;
+        private System.Windows.Forms.FlowLayoutPanel headerActions;
+        private System.Windows.Forms.GroupBox groupBoxGrid;
+        private System.Windows.Forms.Label lblHeader;
         
         private System.Windows.Forms.ComboBox cboLoaiSP;
         private System.Windows.Forms.ComboBox cboThuongHieu;
@@ -205,6 +306,7 @@ namespace mini_supermarket.GUI.KhoHang {
         private System.Windows.Forms.Button btnLamMoi;
         private System.Windows.Forms.Button btnSua;
         private System.Windows.Forms.Button btnXuatExcel;
+        private System.Windows.Forms.Button btnNhapExcel;
         private System.Windows.Forms.Label lblTimKiem;
         private System.Windows.Forms.Label lblLoai;
         private System.Windows.Forms.Label lblThuongHieu;

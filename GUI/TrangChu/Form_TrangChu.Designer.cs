@@ -14,9 +14,7 @@ namespace mini_supermarket.GUI.TrangChu
 
         // Khai báo các controls
         private Panel panelMain;
-        private Panel panelHeader;
-        private Label lblHeader;
-        private Button btnRefresh;
+        private Button btnRefresh; // floating icon
         
         private FlowLayoutPanel panelKPI;
         private Panel panelDoanhThu;
@@ -36,6 +34,7 @@ namespace mini_supermarket.GUI.TrangChu
         private Panel panelTop5BanChay;
         
         private Panel panelDataGrid;
+        private Panel panelDataGridHeader;
         private Label lblSapHetHanTitle;
         private DataGridView dgvSanPhamSapHetHan;
 
@@ -53,14 +52,13 @@ namespace mini_supermarket.GUI.TrangChu
             this.components = new System.ComponentModel.Container();
             
             this.panelMain = new Panel();
-            this.panelHeader = new Panel();
-            this.lblHeader = new Label();
             this.btnRefresh = new Button();
             this.panelKPI = new FlowLayoutPanel();
             this.panelCharts = new TableLayoutPanel();
             this.panelDoanhThu7Ngay = new Panel();
             this.panelTop5BanChay = new Panel();
             this.panelDataGrid = new Panel();
+            this.panelDataGridHeader = new Panel();
             this.lblSapHetHanTitle = new Label();
             this.dgvSanPhamSapHetHan = new DataGridView();
 
@@ -77,39 +75,25 @@ namespace mini_supermarket.GUI.TrangChu
             this.panelMain.Controls.Add(this.panelDataGrid);
             this.panelMain.Controls.Add(this.panelCharts);
             this.panelMain.Controls.Add(this.panelKPI);
-            this.panelMain.Controls.Add(this.panelHeader);
+            // add floating icon last so it stays on top
+            this.panelMain.Controls.Add(this.btnRefresh);
+            this.panelMain.Resize += new EventHandler(this.panelMain_Resize);
 
             // 
-            // panelHeader
+            // btnRefresh (floating icon, no white bar)
             // 
-            this.panelHeader.Dock = DockStyle.Top;
-            this.panelHeader.Height = 60;
-            this.panelHeader.Padding = new Padding(15, 10, 15, 10);
-            this.panelHeader.BackColor = Color.White;
-            this.panelHeader.Controls.Add(this.btnRefresh);
-            this.panelHeader.Controls.Add(this.lblHeader);
-
-            // 
-            // lblHeader
-            // 
-            this.lblHeader.Text = "TRANG CHỦ";
-            this.lblHeader.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-            this.lblHeader.ForeColor = Color.FromArgb(0, 120, 215);
-            this.lblHeader.Dock = DockStyle.Left;
-            this.lblHeader.Width = 250;
-            this.lblHeader.TextAlign = ContentAlignment.MiddleLeft;
-
-            // 
-            // btnRefresh
-            // 
-            this.btnRefresh.Text = "Làm mới";
-            this.btnRefresh.BackColor = Color.FromArgb(0, 120, 215);
-            this.btnRefresh.ForeColor = Color.White;
+            this.btnRefresh.Size = new Size(36, 32);
+            this.btnRefresh.Location = new Point(0, 12); // will be repositioned on resize/load
+            this.btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             this.btnRefresh.FlatStyle = FlatStyle.Flat;
-            this.btnRefresh.Width = 110;
-            this.btnRefresh.Height = 35;
-            this.btnRefresh.Dock = DockStyle.Right;
             this.btnRefresh.FlatAppearance.BorderSize = 0;
+            this.btnRefresh.BackColor = Color.Transparent;
+            this.btnRefresh.ForeColor = Color.FromArgb(0, 120, 215);
+            this.btnRefresh.Font = new Font("Segoe MDL2 Assets", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            this.btnRefresh.Text = "\uE72C"; // refresh icon glyph
+            this.btnRefresh.TextAlign = ContentAlignment.MiddleCenter;
+            this.btnRefresh.Cursor = Cursors.Hand;
+            this.btnRefresh.UseVisualStyleBackColor = false;
             this.btnRefresh.Click += new EventHandler(this.btnRefresh_Click);
 
             // 
@@ -175,16 +159,26 @@ namespace mini_supermarket.GUI.TrangChu
             this.panelDataGrid.BackColor = Color.White;
             this.panelDataGrid.Padding = new Padding(15);
             this.panelDataGrid.Controls.Add(this.dgvSanPhamSapHetHan);
-            this.panelDataGrid.Controls.Add(this.lblSapHetHanTitle);
+            this.panelDataGrid.Controls.Add(this.panelDataGridHeader);
+
+            // 
+            // panelDataGridHeader
+            // 
+            this.panelDataGridHeader.Dock = DockStyle.Top;
+            this.panelDataGridHeader.Height = 30;
+            this.panelDataGridHeader.BackColor = Color.White;
+            this.panelDataGridHeader.Padding = new Padding(0);
+            this.panelDataGridHeader.Controls.Add(this.lblSapHetHanTitle);
 
             // 
             // lblSapHetHanTitle
             // 
             this.lblSapHetHanTitle.Text = "Sản Phẩm Sắp Hết Hạn (7 Ngày)";
             this.lblSapHetHanTitle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            this.lblSapHetHanTitle.Dock = DockStyle.Top;
-            this.lblSapHetHanTitle.Height = 30;
+            this.lblSapHetHanTitle.Dock = DockStyle.Left;
+            this.lblSapHetHanTitle.Width = 320;
             this.lblSapHetHanTitle.ForeColor = Color.FromArgb(33, 37, 41);
+            this.lblSapHetHanTitle.TextAlign = ContentAlignment.MiddleLeft;
 
             // 
             // dgvSanPhamSapHetHan

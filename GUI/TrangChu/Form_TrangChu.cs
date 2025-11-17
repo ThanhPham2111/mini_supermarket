@@ -21,6 +21,21 @@ namespace mini_supermarket.GUI.TrangChu
             LoadDoanhThu7Ngay();
             LoadTop5BanChay();
             LoadSanPhamSapHetHan();
+
+            // Đặt lại vị trí icon làm mới ngay lần đầu load
+            panelMain_Resize(sender, e);
+        }
+
+        private void panelMain_Resize(object? sender, EventArgs e)
+        {
+            // Cố định icon làm mới ở góc phải phía trên của panelMain, lệch vào 10px
+            if (btnRefresh != null && panelMain != null)
+            {
+                int x = Math.Max(10, panelMain.ClientSize.Width - btnRefresh.Width - 10);
+                int y = 12; // khoảng cách từ trên xuống
+                btnRefresh.Location = new Point(x, y);
+                btnRefresh.BringToFront();
+            }
         }
 
         private void LoadKPIData()
