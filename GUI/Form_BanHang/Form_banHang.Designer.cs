@@ -470,6 +470,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnRemove.Dock = DockStyle.Fill;
             btnRemove.Margin = new Padding(5, 10, 0, 10);
             btnRemove.Cursor = Cursors.Hand;
+            btnRemove.Click += new EventHandler(btnRemove_Click);
             ((CustomButton)btnRemove).BorderRadius = 6;
 
             totalPanel.Controls.Add(lblTotal, 0, 0);
@@ -508,6 +509,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.Margin = new Padding(0, 0, 10, 0);
             btnCancel.Cursor = Cursors.Hand;
+            btnCancel.Click += new EventHandler(btnCancel_Click);
             ((CustomButton)btnCancel).BorderRadius = 6;
 
             actionPanel.Controls.Add(btnCheckout);
