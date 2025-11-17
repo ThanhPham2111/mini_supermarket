@@ -125,6 +125,10 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Trạng thái không hợp lệ.", nameof(nhanVien.TrangThai));
             }
         }
+        public NhanVienDTO GetNhanVienByID(String maNV)
+        {
+            return _nhanVienDao.GetNhanVienByID(maNV);
+        }
     }
 }
 

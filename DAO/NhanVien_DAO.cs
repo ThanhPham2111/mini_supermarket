@@ -162,5 +162,36 @@ namespace mini_supermarket.DAO
                 Value = nhanVien.TrangThai ?? (object)DBNull.Value
             });
         }
+
+        // Thêm hàm getNhanVienByID()
+        public NhanVienDTO GetNhanVienByID(String maNV)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM dbo.Tbl_NhanVien";
+            command.CommandText += " WHERE MaNhanVien = @MaNhanVien";
+            command.Parameters.Add(new SqlParameter("@MaNhanVien", SqlDbType.NVarChar, 50)
+            {
+                Value = maNV
+            });
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            NhanVienDTO nv_tmp = new NhanVienDTO();
+            if (reader.Read())
+            {
+                nv_tmp = new NhanVienDTO
+                {
+                    MaNhanVien = reader.GetInt32(reader.GetOrdinal("MaNhanVien")),
+                    TenNhanVien = reader.GetString(reader.GetOrdinal("TenNhanVien")),
+                    GioiTinh = reader.IsDBNull(reader.GetOrdinal("GioiTinh")) ? null : reader.GetString(reader.GetOrdinal("GioiTinh")),
+                    NgaySinh = reader.IsDBNull(reader.GetOrdinal("NgaySinh")) ? null : reader.GetDateTime(reader.GetOrdinal("NgaySinh")),
+                    SoDienThoai = reader.IsDBNull(reader.GetOrdinal("SoDienThoai")) ? null : reader.GetString(reader.GetOrdinal("SoDienThoai")),
+                    VaiTro = reader.IsDBNull(reader.GetOrdinal("VaiTro")) ? null : reader.GetString(reader.GetOrdinal("VaiTro")),
+                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                };
+            }
+            return nv_tmp;
+        }
     }
 }
