@@ -140,6 +140,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             dgvProducts.EnableHeadersVisualStyles = false;
             dgvProducts.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvProducts.GridColor = Color.FromArgb(230, 230, 230);
+            dgvProducts.SelectionChanged += DgvProducts_SelectionChanged;
 
             productColumnName = new DataGridViewTextBoxColumn();
             productColumnPrice = new DataGridViewTextBoxColumn();
@@ -178,6 +179,14 @@ namespace mini_supermarket.GUI.Form_BanHang
             productPreviewPanel.Padding = new Padding(10);
             productPreviewPanel.Margin = new Padding(5);
 
+            // Product Image PictureBox
+            picProductImage = new PictureBox();
+            picProductImage.Dock = DockStyle.Fill;
+            picProductImage.SizeMode = PictureBoxSizeMode.Zoom;
+            picProductImage.BackColor = Color.White;
+            picProductImage.BorderStyle = BorderStyle.FixedSingle;
+            productPreviewPanel.Controls.Add(picProductImage);
+
             // Product Actions
             productActionPanel = new FlowLayoutPanel();
             btnRefresh = new CustomButton();
@@ -211,6 +220,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnAddProduct.FlatAppearance.BorderSize = 0;
             btnAddProduct.Margin = new Padding(10, 0, 0, 0);
             btnAddProduct.Cursor = Cursors.Hand;
+            btnAddProduct.Click += new EventHandler(btnAddProduct_Click);
             ((CustomButton)btnAddProduct).BorderRadius = 6;
 
             productActionPanel.Controls.Add(btnRefresh);
@@ -250,7 +260,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                 l.ForeColor = Color.FromArgb(52, 58, 64);
             }
 
-            foreach (TextBox t in new[] { txtProductName, txtUnitPrice, txtQuantity, txtPromotion })
+            foreach (TextBox t in new[] { txtProductName, txtUnitPrice, txtPromotion })
             {
                 t.Font = new Font("Roboto", 8.5F);
                 t.Dock = DockStyle.Fill;
@@ -258,6 +268,13 @@ namespace mini_supermarket.GUI.Form_BanHang
                 t.BackColor = Color.White;
                 t.ReadOnly = true;
             }
+
+            // txtQuantity is editable
+            txtQuantity.Font = new Font("Roboto", 8.5F);
+            txtQuantity.Dock = DockStyle.Fill;
+            txtQuantity.BorderStyle = BorderStyle.FixedSingle;
+            txtQuantity.BackColor = Color.White;
+            txtQuantity.ReadOnly = false;
 
             productDetailLayout.Controls.Add(lblProductName, 0, 0);
             productDetailLayout.Controls.Add(txtProductName, 1, 0);
@@ -453,6 +470,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnRemove.Dock = DockStyle.Fill;
             btnRemove.Margin = new Padding(5, 10, 0, 10);
             btnRemove.Cursor = Cursors.Hand;
+            btnRemove.Click += new EventHandler(btnRemove_Click);
             ((CustomButton)btnRemove).BorderRadius = 6;
 
             totalPanel.Controls.Add(lblTotal, 0, 0);
@@ -491,6 +509,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.Margin = new Padding(0, 0, 10, 0);
             btnCancel.Cursor = Cursors.Hand;
+            btnCancel.Click += new EventHandler(btnCancel_Click);
             ((CustomButton)btnCancel).BorderRadius = 6;
 
             actionPanel.Controls.Add(btnCheckout);
@@ -547,5 +566,8 @@ namespace mini_supermarket.GUI.Form_BanHang
         private DataGridViewTextBoxColumn orderColumnName, orderColumnPrice, orderColumnQuantity, orderColumnPromotion;
         private FlowLayoutPanel actionPanel;
         private CustomButton btnCancel, btnCheckout;
+        private PictureBox picProductImage;
+        private int? selectedProductId = null;
+        private int? selectedProductStock = null;
     }
 }
