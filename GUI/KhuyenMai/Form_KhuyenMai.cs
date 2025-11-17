@@ -150,7 +150,8 @@ namespace mini_supermarket.GUI.KhuyenMai
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AutoGenerateColumns = false
+                AutoGenerateColumns = false,
+                 RowHeadersVisible = false 
             };
 
             dgv.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "MãKM", DataPropertyName = "MaKhuyenMai", Width = 60 });

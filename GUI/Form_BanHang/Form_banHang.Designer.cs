@@ -364,6 +364,9 @@ namespace mini_supermarket.GUI.Form_BanHang
             txtAvailablePoints.BackColor = Color.FromArgb(248, 249, 250);
             txtEarnedPoints.ReadOnly = true;
             txtEarnedPoints.BackColor = Color.FromArgb(248, 249, 250);
+            
+            // Event handler cho txtUsePoints để validate điểm
+            txtUsePoints.TextChanged += new EventHandler(txtUsePoints_TextChanged);
 
             btnSelectCustomer.Text = "Chọn KH";
             btnSelectCustomer.BackColor = Color.FromArgb(0, 123, 255);
@@ -375,6 +378,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnSelectCustomer.Dock = DockStyle.Fill;
             btnSelectCustomer.Margin = new Padding(5, 5, 0, 5);
             btnSelectCustomer.Cursor = Cursors.Hand;
+            btnSelectCustomer.Click += new EventHandler(btnSelectCustomer_Click);
             ((CustomButton)btnSelectCustomer).BorderRadius = 5;
 
             infoFormLayout.Controls.Add(lblCustomer, 0, 0);
@@ -497,6 +501,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             btnCheckout.FlatAppearance.BorderSize = 0;
             btnCheckout.Margin = new Padding(0);
             btnCheckout.Cursor = Cursors.Hand;
+            btnCheckout.Click += new EventHandler(btnCheckout_Click);
             ((CustomButton)btnCheckout).BorderRadius = 6;
 
             btnCancel.Text = "✖ Hủy đơn";
@@ -537,6 +542,12 @@ namespace mini_supermarket.GUI.Form_BanHang
             toolTip.SetToolTip(btnRemove, "Xóa sản phẩm khỏi đơn hàng");
             toolTip.SetToolTip(btnSelectCustomer, "Chọn thông tin khách hàng");
 
+            // Khởi tạo ErrorProvider cho txtUsePoints
+            errorProviderUsePoints = new ErrorProvider();
+            errorProviderUsePoints.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProviderUsePoints.SetIconAlignment(txtUsePoints, ErrorIconAlignment.MiddleRight);
+            errorProviderUsePoints.SetIconPadding(txtUsePoints, -20);
+
             ResumeLayout(false);
         }
 
@@ -569,5 +580,8 @@ namespace mini_supermarket.GUI.Form_BanHang
         private PictureBox picProductImage;
         private int? selectedProductId = null;
         private int? selectedProductStock = null;
+        private int? selectedKhachHangId = null; // Lưu mã khách hàng đã chọn
+        private int? availablePoints = null; // Lưu điểm hiện có của khách hàng
+        private ErrorProvider? errorProviderUsePoints; // ErrorProvider cho txtUsePoints
     }
 }

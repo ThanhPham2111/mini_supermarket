@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_BanHang
 {
@@ -652,6 +653,16 @@ namespace mini_supermarket.GUI.Form_BanHang
                         txtEarnedPoints.Text = "";
                     if (txtUsePoints != null)
                         txtUsePoints.Text = "";
+                    
+                    // Reset mã khách hàng đã chọn và điểm
+                    selectedKhachHangId = null;
+                    availablePoints = null;
+                    
+                    // Clear error
+                    if (errorProviderUsePoints != null && txtUsePoints != null)
+                    {
+                        errorProviderUsePoints.SetError(txtUsePoints, "");
+                    }
 
                     // Bỏ chọn sản phẩm trong danh sách
                     if (dgvProducts != null)
@@ -665,6 +676,175 @@ namespace mini_supermarket.GUI.Form_BanHang
                 MessageBox.Show("Lỗi khi hủy đơn:\n\n" + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnSelectCustomer_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                using (var dialog = new Dialog_ChonKhachHang())
+                {
+                    if (dialog.ShowDialog(this) == DialogResult.OK && dialog.SelectedKhachHang != null)
+                    {
+                        var kh = dialog.SelectedKhachHang;
+                        selectedKhachHangId = kh.MaKhachHang;
+
+                        // Hiển thị thông tin khách hàng
+                        if (txtCustomer != null)
+                        {
+                            txtCustomer.Text = kh.TenKhachHang ?? "";
+                        }
+
+                        if (txtAvailablePoints != null)
+                        {
+                            availablePoints = kh.DiemTichLuy ?? 0;
+                            txtAvailablePoints.Text = availablePoints.Value.ToString();
+                        }
+                        
+                        // Reset ô dùng điểm khi chọn khách hàng mới
+                        if (txtUsePoints != null)
+                        {
+                            txtUsePoints.Text = "";
+                        }
+                        
+                        // Clear error khi chọn khách hàng mới
+                        if (errorProviderUsePoints != null)
+                        {
+                            errorProviderUsePoints.SetError(txtUsePoints, "");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi chọn khách hàng:\n\n{ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnCheckout_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                // Kiểm tra đã chọn khách hàng chưa
+                if (!selectedKhachHangId.HasValue)
+                {
+                    MessageBox.Show("Vui lòng chọn khách hàng trước khi thanh toán!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Kiểm tra có sản phẩm trong giỏ hàng không
+                if (dgvOrder == null || dgvOrder.Rows.Count == 0)
+                {
+                    MessageBox.Show("Giỏ hàng đang trống. Vui lòng thêm sản phẩm vào giỏ hàng!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Kiểm tra điểm sử dụng có vượt quá điểm hiện có không
+                if (!ValidateUsePoints())
+                {
+                    MessageBox.Show("Số điểm sử dụng vượt quá điểm hiện có của khách hàng!", "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (txtUsePoints != null)
+                    {
+                        txtUsePoints.Focus();
+                        txtUsePoints.SelectAll();
+                    }
+                    return;
+                }
+
+                // TODO: Thực hiện thanh toán ở đây
+                MessageBox.Show("Chức năng thanh toán đang được phát triển...", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thanh toán:\n\n{ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void txtUsePoints_TextChanged(object? sender, EventArgs e)
+        {
+            ValidateUsePointsRealtime();
+        }
+
+        private void ValidateUsePointsRealtime()
+        {
+            if (txtUsePoints == null || errorProviderUsePoints == null)
+                return;
+
+            // Nếu chưa chọn khách hàng, không validate
+            if (!availablePoints.HasValue)
+            {
+                errorProviderUsePoints.SetError(txtUsePoints, "");
+                return;
+            }
+
+            string usePointsText = txtUsePoints.Text.Trim();
+
+            // Nếu để trống, không hiển thị lỗi
+            if (string.IsNullOrWhiteSpace(usePointsText))
+            {
+                errorProviderUsePoints.SetError(txtUsePoints, "");
+                return;
+            }
+
+            // Kiểm tra có phải số không
+            if (!int.TryParse(usePointsText, out int usePoints))
+            {
+                errorProviderUsePoints.SetError(txtUsePoints, "!");
+                return;
+            }
+
+            // Kiểm tra số âm
+            if (usePoints < 0)
+            {
+                errorProviderUsePoints.SetError(txtUsePoints, "!");
+                return;
+            }
+
+            // Kiểm tra vượt quá điểm hiện có
+            if (usePoints > availablePoints.Value)
+            {
+                errorProviderUsePoints.SetError(txtUsePoints, "!");
+            }
+            else
+            {
+                errorProviderUsePoints.SetError(txtUsePoints, "");
+            }
+        }
+
+        private bool ValidateUsePoints()
+        {
+            if (txtUsePoints == null)
+                return true; // Nếu không có ô nhập, coi như hợp lệ
+
+            string usePointsText = txtUsePoints.Text.Trim();
+
+            // Nếu để trống, coi như không dùng điểm (hợp lệ)
+            if (string.IsNullOrWhiteSpace(usePointsText))
+                return true;
+
+            // Nếu chưa chọn khách hàng, không validate
+            if (!availablePoints.HasValue)
+                return true;
+
+            // Kiểm tra có phải số không
+            if (!int.TryParse(usePointsText, out int usePoints))
+                return false;
+
+            // Kiểm tra số âm
+            if (usePoints < 0)
+                return false;
+
+            // Kiểm tra vượt quá điểm hiện có
+            if (usePoints > availablePoints.Value)
+                return false;
+
+            return true;
         }
     }
 }
