@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.IO;
 using mini_supermarket.GUI.Form_BanHang;
 using mini_supermarket.GUI.KhachHang;
+using mini_supermarket.GUI.KhuyenMai;
 using mini_supermarket.GUI.NhanVien;
 using mini_supermarket.GUI.PhieuNhap;
 using mini_supermarket.GUI.NhaCungCap;
@@ -122,6 +123,10 @@ namespace mini_supermarket.GUI.SideBar
         private void navTaiKhoanButton_Click(object sender, EventArgs e)
         {
             ShowTaiKhoan();
+        }
+        private void navKhuyenMaiButton_Click(object sender, EventArgs e)
+        {
+            ShowKhuyenMai();
         }
 
         private void NavPlaceholderButton_Click(object sender, EventArgs e)
@@ -243,6 +248,26 @@ namespace mini_supermarket.GUI.SideBar
             contentHostPanel.Controls.Clear();
             contentHostPanel.Controls.Add(form);
             form.Show();
+        }
+
+        private void ShowKhuyenMai()
+        {
+            SetActiveButton(navKhuyenMaiButton);
+            mainTitleLabel.Text = navKhuyenMaiButton.Text;
+
+            CloseActiveForm();
+
+            var khuyenMaiForm = new Form_KhuyenMai
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = khuyenMaiForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(khuyenMaiForm);
+            khuyenMaiForm.Show();
         }
 
         private void ShowKhachHang()
