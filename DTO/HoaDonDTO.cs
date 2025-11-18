@@ -11,6 +11,11 @@ namespace mini_supermarket.DTO
         public int? MaKhachHang { get; set; }
         public decimal? TongTien { get; set; }
 
+        // Properties for display
+        public string NhanVien { get; set; } = string.Empty;
+        public string KhachHang { get; set; } = string.Empty;
+        public decimal? ThanhTien => TongTien;
+
         public HoaDonDTO()
         {
         }

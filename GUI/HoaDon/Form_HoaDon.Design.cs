@@ -1,3 +1,5 @@
+
+
 namespace mini_supermarket.GUI.HoaDon
 {
     partial class Form_HoaDon
@@ -31,13 +33,12 @@ namespace mini_supermarket.GUI.HoaDon
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             invoiceSearchGroupBox = new GroupBox();
             xuatFileButton = new Button();
+            themFileButton = new Button();
             timKiemButton = new Button();
             groupBox2 = new GroupBox();
             searchTextBox = new TextBox();
             searchComboBox = new ComboBox();
             xemChiTietButton = new Button();
-            revenueLabel = new Label();
-            countInvoicesLabel = new Label();
             lamMoiButton = new Button();
             timeSearchGroupBox = new GroupBox();
             label2 = new Label();
@@ -47,7 +48,6 @@ namespace mini_supermarket.GUI.HoaDon
             textBox2 = new TextBox();
             label1 = new Label();
             textBox1 = new TextBox();
-            roleLabel = new Label();
             hoaDonDataGridView = new DataGridView();
             maHoaDonColumn = new DataGridViewTextBoxColumn();
             ngayLapColumn = new DataGridViewTextBoxColumn();
@@ -67,12 +67,11 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             invoiceSearchGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             invoiceSearchGroupBox.BackColor = Color.WhiteSmoke;
-            invoiceSearchGroupBox.Controls.Add(xuatFileButton);
             invoiceSearchGroupBox.Controls.Add(timKiemButton);
             invoiceSearchGroupBox.Controls.Add(groupBox2);
             invoiceSearchGroupBox.Controls.Add(xemChiTietButton);
-            invoiceSearchGroupBox.Controls.Add(revenueLabel);
-            invoiceSearchGroupBox.Controls.Add(countInvoicesLabel);
+            // invoiceSearchGroupBox.Controls.Add(revenueLabel);
+            // invoiceSearchGroupBox.Controls.Add(countInvoicesLabel);
             invoiceSearchGroupBox.Controls.Add(lamMoiButton);
             invoiceSearchGroupBox.Controls.Add(timeSearchGroupBox);
             invoiceSearchGroupBox.Controls.Add(groupBox1);
@@ -82,23 +81,36 @@ namespace mini_supermarket.GUI.HoaDon
             invoiceSearchGroupBox.Margin = new Padding(3, 4, 3, 4);
             invoiceSearchGroupBox.Name = "invoiceSearchGroupBox";
             invoiceSearchGroupBox.Padding = new Padding(3, 4, 3, 4);
-            invoiceSearchGroupBox.Size = new Size(1140, 269);
+            invoiceSearchGroupBox.Size = new Size(1140, 220);
             invoiceSearchGroupBox.TabIndex = 0;
             invoiceSearchGroupBox.TabStop = false;
             invoiceSearchGroupBox.Text = "Tìm kiếm hóa đơn";
             // 
             // xuatFileButton
             // 
-            xuatFileButton.BackColor = Color.FromArgb(45, 190, 97);
+            xuatFileButton.BackColor = Color.FromArgb(33, 115, 70);
             xuatFileButton.FlatStyle = FlatStyle.Flat;
             xuatFileButton.ForeColor = Color.White;
-            xuatFileButton.Location = new Point(1000, 210);
+            xuatFileButton.Location = new Point(1040, 20);
             xuatFileButton.Margin = new Padding(3, 4, 3, 4);
             xuatFileButton.Name = "xuatFileButton";
             xuatFileButton.Size = new Size(137, 40);
             xuatFileButton.TabIndex = 27;
-            xuatFileButton.Text = "Xuất Excel";
+            xuatFileButton.Text = "Export Excel";
             xuatFileButton.UseVisualStyleBackColor = false;
+            // 
+            // themFileButton
+            // 
+            themFileButton.BackColor = Color.FromArgb(33, 115, 70);
+            themFileButton.FlatStyle = FlatStyle.Flat;
+            themFileButton.ForeColor = Color.White;
+            themFileButton.Location = new Point(900, 20);
+            themFileButton.Margin = new Padding(3, 4, 3, 4);
+            themFileButton.Name = "themFileButton";
+            themFileButton.Size = new Size(137, 40);
+            themFileButton.TabIndex = 27;
+            themFileButton.Text = "Import Excel";
+            themFileButton.UseVisualStyleBackColor = false;
             // 
             // timKiemButton
             // 
@@ -131,6 +143,7 @@ namespace mini_supermarket.GUI.HoaDon
             searchTextBox.Name = "searchTextBox";
             searchTextBox.Size = new Size(430, 30);
             searchTextBox.TabIndex = 28;
+            searchTextBox.TextChanged += searchTextBox_TextChanged;
             // 
             // searchComboBox
             // 
@@ -141,6 +154,7 @@ namespace mini_supermarket.GUI.HoaDon
             searchComboBox.Name = "searchComboBox";
             searchComboBox.Size = new Size(140, 31);
             searchComboBox.TabIndex = 27;
+            searchComboBox.SelectedIndexChanged += searchComboBox_SelectedIndexChanged;
             // 
             // xemChiTietButton
             // 
@@ -157,23 +171,23 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // revenueLabel
             // 
-            revenueLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            revenueLabel.AutoSize = true;
-            revenueLabel.Location = new Point(20, 233);
-            revenueLabel.Name = "revenueLabel";
-            revenueLabel.Size = new Size(152, 23);
-            revenueLabel.TabIndex = 22;
-            revenueLabel.Text = "Tổng doanh thu: 0";
+            // revenueLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            // revenueLabel.AutoSize = true;
+            // revenueLabel.Location = new Point(20, 233);
+            // revenueLabel.Name = "revenueLabel";
+            // revenueLabel.Size = new Size(152, 23);
+            // revenueLabel.TabIndex = 22;
+            // revenueLabel.Text = "Tổng doanh thu: 0";
             // 
             // countInvoicesLabel
             // 
-            countInvoicesLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            countInvoicesLabel.AutoSize = true;
-            countInvoicesLabel.Location = new Point(20, 210);
-            countInvoicesLabel.Name = "countInvoicesLabel";
-            countInvoicesLabel.Size = new Size(116, 23);
-            countInvoicesLabel.TabIndex = 21;
-            countInvoicesLabel.Text = "Số hóa đơn: 0";
+            // countInvoicesLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            // countInvoicesLabel.AutoSize = true;
+            // countInvoicesLabel.Location = new Point(20, 210);
+            // countInvoicesLabel.Name = "countInvoicesLabel";
+            // countInvoicesLabel.Size = new Size(116, 23);
+            // countInvoicesLabel.TabIndex = 21;
+            // countInvoicesLabel.Text = "Số hóa đơn: 0";
             // 
             // lamMoiButton
             // 
@@ -209,7 +223,6 @@ namespace mini_supermarket.GUI.HoaDon
             label2.Size = new Size(17, 23);
             label2.TabIndex = 7;
             label2.Text = "-";
-            label2.Click += label2_Click;
             // 
             // dateTimePicker3
             // 
@@ -217,6 +230,9 @@ namespace mini_supermarket.GUI.HoaDon
             dateTimePicker3.Name = "dateTimePicker3";
             dateTimePicker3.Size = new Size(270, 30);
             dateTimePicker3.TabIndex = 6;
+            dateTimePicker3.CustomFormat = "dd/MM/yyyy";
+            dateTimePicker3.Format = DateTimePickerFormat.Custom;
+            dateTimePicker3.ValueChanged += dateTimePicker3_ValueChanged;
             // 
             // dateTimePicker2
             // 
@@ -224,6 +240,9 @@ namespace mini_supermarket.GUI.HoaDon
             dateTimePicker2.Name = "dateTimePicker2";
             dateTimePicker2.Size = new Size(253, 30);
             dateTimePicker2.TabIndex = 5;
+            dateTimePicker2.CustomFormat = "dd/MM/yyyy";
+            dateTimePicker2.Format = DateTimePickerFormat.Custom;
+            dateTimePicker2.ValueChanged += dateTimePicker2_ValueChanged;
             // 
             // groupBox1
             // 
@@ -244,6 +263,7 @@ namespace mini_supermarket.GUI.HoaDon
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(140, 30);
             textBox2.TabIndex = 3;
+            textBox2.TextChanged += textBox2_TextChanged;
             // 
             // label1
             // 
@@ -260,17 +280,18 @@ namespace mini_supermarket.GUI.HoaDon
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(130, 30);
             textBox1.TabIndex = 0;
+            textBox1.TextChanged += textBox1_TextChanged;
             // 
             // roleLabel
             // 
-            roleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            roleLabel.AutoSize = true;
-            roleLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            roleLabel.Location = new Point(1020, 20);
-            roleLabel.Name = "roleLabel";
-            roleLabel.Size = new Size(122, 23);
-            roleLabel.TabIndex = 4;
-            roleLabel.Text = "Quyền: admin";
+            // roleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            // roleLabel.AutoSize = true;
+            // roleLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            // roleLabel.Location = new Point(1020, 20);
+            // roleLabel.Name = "roleLabel";
+            // roleLabel.Size = new Size(122, 23);
+            // roleLabel.TabIndex = 4;
+            // roleLabel.Text = "Quyền: admin";
             // 
             // hoaDonDataGridView
             // 
@@ -294,7 +315,7 @@ namespace mini_supermarket.GUI.HoaDon
             hoaDonDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             hoaDonDataGridView.Size = new Size(1134, 438);
             hoaDonDataGridView.TabIndex = 0;
-            hoaDonDataGridView.CellContentClick += khachHangDataGridView_CellContentClick;
+            hoaDonDataGridView.SelectionChanged += hoaDonDataGridView_SelectionChanged;
             // 
             // maHoaDonColumn
             // 
@@ -345,9 +366,9 @@ namespace mini_supermarket.GUI.HoaDon
             danhSachGroupBox.Controls.Add(hoaDonDataGridView);
             danhSachGroupBox.FlatStyle = FlatStyle.Flat;
             danhSachGroupBox.Font = new Font("Segoe UI", 10F);
-            danhSachGroupBox.Location = new Point(20, 348);
+            danhSachGroupBox.Location = new Point(20, 300);
             danhSachGroupBox.Name = "danhSachGroupBox";
-            danhSachGroupBox.Size = new System.Drawing.Size(1140, 360);
+            danhSachGroupBox.Size = new System.Drawing.Size(1140, 400);
             danhSachGroupBox.TabIndex = 1;
             danhSachGroupBox.TabStop = false;
             danhSachGroupBox.Text = "Danh sách hóa đơn";
@@ -359,13 +380,15 @@ namespace mini_supermarket.GUI.HoaDon
             BackColor = Color.FromArgb(245, 245, 245);
             ClientSize = new Size(1180, 850);
             Controls.Add(danhSachGroupBox);
-            Controls.Add(roleLabel);
+            Controls.Add(themFileButton);
+            Controls.Add(xuatFileButton);
+            // Controls.Add(roleLabel);
             Controls.Add(invoiceSearchGroupBox);
             MinimumSize = new Size(1198, 897);
             Name = "Form_HoaDon";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Quản lý hóa đơn";
-            Load += Form1_Load;
+            Load += Form_HoaDon_Load;
             invoiceSearchGroupBox.ResumeLayout(false);
             invoiceSearchGroupBox.PerformLayout();
             groupBox2.ResumeLayout(false);
@@ -387,14 +410,11 @@ namespace mini_supermarket.GUI.HoaDon
         private TextBox textBox2;
         private Label label1;
         private TextBox textBox1;
-        private Label roleLabel;
         private GroupBox timeSearchGroupBox;
         private Label label2;
         private DateTimePicker dateTimePicker3;
         private DateTimePicker dateTimePicker2;
         private Button lamMoiButton;
-        private Label countInvoicesLabel;
-        private Label revenueLabel;
         private DataGridView hoaDonDataGridView;
         private GroupBox danhSachGroupBox;
         private DataGridViewTextBoxColumn maHoaDonColumn;
@@ -408,5 +428,6 @@ namespace mini_supermarket.GUI.HoaDon
         private ComboBox searchComboBox;
         private Button timKiemButton;
         private Button xuatFileButton;
+        private Button themFileButton;
     }
 }
