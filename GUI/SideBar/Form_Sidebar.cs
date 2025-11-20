@@ -11,6 +11,7 @@ using mini_supermarket.GUI.NhaCungCap;
 using mini_supermarket.GUI.HoaDon;
 using mini_supermarket.GUI.KhoHang;
 using mini_supermarket.GUI.TaiKhoan;
+using mini_supermarket.GUI.TrangChu;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
 using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
@@ -142,8 +143,22 @@ namespace mini_supermarket.GUI.SideBar
 
         private void ShowTrangChu()
         {
-            const string welcomeMessage = "Chuc mung ban den voi Mini Supermarket.";
-            ShowPlaceholder(welcomeMessage, navTrangChuButton);
+            SetActiveButton(navTrangChuButton);
+            mainTitleLabel.Text = navTrangChuButton.Text;
+
+            CloseActiveForm();
+
+            var trangChuForm = new Form_TrangChu
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = trangChuForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(trangChuForm);
+            trangChuForm.Show();
         }
 
         private void ShowBanHang()
