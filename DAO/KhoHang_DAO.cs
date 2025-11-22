@@ -18,6 +18,7 @@ namespace mini_supermarket.DAO
                     l.TenLoai,
                     th.TenThuongHieu,
                     kh.SoLuong,
+                    kh.TrangThai,
                     sp.MaLoai,
                     sp.MaThuongHieu
                 FROM Tbl_KhoHang kh
@@ -215,6 +216,109 @@ namespace mini_supermarket.DAO
             {
                 Console.WriteLine($"[ERROR] InsertKhoHang: {ex.Message}");
             }
+        }
+
+        // PHƯƠNG ÁN 2: Cập nhật kho + Ghi log lịch sử
+        public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
+        {
+            string queryUpdateKho = @"UPDATE Tbl_KhoHang 
+                                      SET SoLuong = @SoLuongMoi, 
+                                          TrangThai = @TrangThai
+                                      WHERE MaSanPham = @MaSanPham";
+
+            string queryInsertLog = @"INSERT INTO Tbl_LichSuThayDoiKho 
+                                      (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi)
+                                      VALUES (@MaSanPham, @SoLuongCu, @SoLuongMoi, @ChenhLech, @LoaiThayDoi, @LyDo, @GhiChu, @MaNhanVien, @NgayThayDoi)";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                {
+                    connection.Open();
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            // 1. Cập nhật số lượng kho
+                            using (SqlCommand cmdUpdate = new SqlCommand(queryUpdateKho, connection, transaction))
+                            {
+                                cmdUpdate.Parameters.AddWithValue("@SoLuongMoi", khoHang.SoLuong ?? (object)DBNull.Value);
+                                cmdUpdate.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                                cmdUpdate.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
+                                cmdUpdate.ExecuteNonQuery();
+                            }
+
+                            // 2. Ghi log lịch sử
+                            using (SqlCommand cmdInsert = new SqlCommand(queryInsertLog, connection, transaction))
+                            {
+                                cmdInsert.Parameters.AddWithValue("@MaSanPham", lichSu.MaSanPham);
+                                cmdInsert.Parameters.AddWithValue("@SoLuongCu", lichSu.SoLuongCu);
+                                cmdInsert.Parameters.AddWithValue("@SoLuongMoi", lichSu.SoLuongMoi);
+                                cmdInsert.Parameters.AddWithValue("@ChenhLech", lichSu.ChenhLech);
+                                cmdInsert.Parameters.AddWithValue("@LoaiThayDoi", lichSu.LoaiThayDoi);
+                                cmdInsert.Parameters.AddWithValue("@LyDo", lichSu.LyDo ?? (object)DBNull.Value);
+                                cmdInsert.Parameters.AddWithValue("@GhiChu", lichSu.GhiChu ?? (object)DBNull.Value);
+                                cmdInsert.Parameters.AddWithValue("@MaNhanVien", lichSu.MaNhanVien);
+                                cmdInsert.Parameters.AddWithValue("@NgayThayDoi", lichSu.NgayThayDoi);
+                                cmdInsert.ExecuteNonQuery();
+                            }
+
+                            transaction.Commit();
+                            return true;
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] CapNhatKhoVaGhiLog: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Lấy lịch sử thay đổi của 1 sản phẩm
+        public DataTable LayLichSuThayDoi(int maSanPham)
+        {
+            string query = @"
+                SELECT 
+                    ls.MaLichSu,
+                    ls.SoLuongCu,
+                    ls.SoLuongMoi,
+                    ls.ChenhLech,
+                    ls.LoaiThayDoi,
+                    ls.LyDo,
+                    ls.GhiChu,
+                    nv.TenNhanVien,
+                    ls.NgayThayDoi
+                FROM Tbl_LichSuThayDoiKho ls
+                JOIN Tbl_NhanVien nv ON ls.MaNhanVien = nv.MaNhanVien
+                WHERE ls.MaSanPham = @MaSanPham
+                ORDER BY ls.NgayThayDoi DESC";
+
+            DataTable dataTable = new DataTable();
+            try
+            {
+                using (SqlConnection conn = DbConnectionFactory.CreateConnection())
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(dataTable);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi lấy lịch sử thay đổi: " + ex.Message);
+            }
+            return dataTable;
         }
 
         public DataTable LayThongTinSanPhamChiTiet(int maSanPham)
