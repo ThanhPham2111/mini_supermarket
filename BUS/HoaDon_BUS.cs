@@ -21,5 +21,26 @@ namespace mini_supermarket.BUS
         {
             return _hoaDonDao.GetChiTietHoaDon(maHoaDon);
         }
+
+        public int CreateHoaDon(HoaDonDTO hoaDon, List<ChiTietHoaDonDTO> chiTietList)
+        {
+            if (hoaDon == null)
+                throw new ArgumentNullException(nameof(hoaDon));
+
+            if (chiTietList == null || chiTietList.Count == 0)
+                throw new ArgumentException("Danh sách chi tiết hóa đơn không được rỗng.", nameof(chiTietList));
+
+            // Insert hóa đơn
+            int maHoaDon = _hoaDonDao.InsertHoaDon(hoaDon);
+
+            // Insert chi tiết hóa đơn
+            foreach (var chiTiet in chiTietList)
+            {
+                chiTiet.MaHoaDon = maHoaDon;
+                _hoaDonDao.InsertChiTietHoaDon(chiTiet);
+            }
+
+            return maHoaDon;
+        }
     }
 }

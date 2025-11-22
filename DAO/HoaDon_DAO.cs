@@ -85,5 +85,91 @@ namespace mini_supermarket.DAO
 
             return chiTietHoaDonList;
         }
+
+        public int InsertHoaDon(HoaDonDTO hoaDon)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO dbo.Tbl_HoaDon (MaNhanVien, MaKhachHang, TongTien, NgayLap)
+                VALUES (@MaNhanVien, @MaKhachHang, @TongTien, GETDATE());
+                SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            command.Parameters.Add(new SqlParameter("@MaNhanVien", SqlDbType.Int)
+            {
+                Value = hoaDon.MaNhanVien
+            });
+
+            if (hoaDon.MaKhachHang.HasValue)
+            {
+                command.Parameters.Add(new SqlParameter("@MaKhachHang", SqlDbType.Int)
+                {
+                    Value = hoaDon.MaKhachHang.Value
+                });
+            }
+            else
+            {
+                command.Parameters.Add(new SqlParameter("@MaKhachHang", SqlDbType.Int)
+                {
+                    Value = DBNull.Value
+                });
+            }
+
+            if (hoaDon.TongTien.HasValue)
+            {
+                command.Parameters.Add(new SqlParameter("@TongTien", SqlDbType.Decimal)
+                {
+                    Value = hoaDon.TongTien.Value
+                });
+            }
+            else
+            {
+                command.Parameters.Add(new SqlParameter("@TongTien", SqlDbType.Decimal)
+                {
+                    Value = DBNull.Value
+                });
+            }
+
+            connection.Open();
+            object? result = command.ExecuteScalar();
+            if (result == null || result == DBNull.Value)
+            {
+                throw new InvalidOperationException("Không thể tạo hóa đơn mới.");
+            }
+
+            return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        public void InsertChiTietHoaDon(ChiTietHoaDonDTO chiTiet)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO dbo.Tbl_ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, GiaBan)
+                VALUES (@MaHoaDon, @MaSanPham, @SoLuong, @GiaBan);";
+
+            command.Parameters.Add(new SqlParameter("@MaHoaDon", SqlDbType.Int)
+            {
+                Value = chiTiet.MaHoaDon
+            });
+
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int)
+            {
+                Value = chiTiet.MaSanPham
+            });
+
+            command.Parameters.Add(new SqlParameter("@SoLuong", SqlDbType.Int)
+            {
+                Value = chiTiet.SoLuong
+            });
+
+            command.Parameters.Add(new SqlParameter("@GiaBan", SqlDbType.Decimal)
+            {
+                Value = chiTiet.GiaBan
+            });
+
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
     }
 }
