@@ -98,6 +98,7 @@ namespace mini_supermarket.GUI.HoaDon
             xuatFileButton.TabIndex = 27;
             xuatFileButton.Text = "Export Excel";
             xuatFileButton.UseVisualStyleBackColor = false;
+            xuatFileButton.Click += exportFileButton_Click;
             // 
             // themFileButton
             // 
@@ -111,6 +112,7 @@ namespace mini_supermarket.GUI.HoaDon
             themFileButton.TabIndex = 27;
             themFileButton.Text = "Import Excel";
             themFileButton.UseVisualStyleBackColor = false;
+            themFileButton.Click += importFileButton_Click;
             // 
             // timKiemButton
             // 
@@ -168,6 +170,7 @@ namespace mini_supermarket.GUI.HoaDon
             xemChiTietButton.TabIndex = 24;
             xemChiTietButton.Text = "Xem chi tiết";
             xemChiTietButton.UseVisualStyleBackColor = false;
+            xemChiTietButton.Click += xemChiTietButton_Click;
             // 
             // revenueLabel
             // 

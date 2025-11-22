@@ -16,5 +16,10 @@ namespace mini_supermarket.BUS
         {
             return _hoaDonDao.GetHoaDon();
         }
+
+        public List<ChiTietHoaDonDTO> GetChiTietHoaDon(string maHoaDon)
+        {
+            return _hoaDonDao.GetChiTietHoaDon(maHoaDon);
+        }
     }
 }
