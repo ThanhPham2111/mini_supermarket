@@ -165,5 +165,32 @@ namespace mini_supermarket.DAO
                 Value = khachHang.TrangThai ?? (object)DBNull.Value
             });
         }
+
+        public void UpdateDiemTichLuy(int maKhachHang, int diemMoi)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE dbo.Tbl_KhachHang
+                SET DiemTichLuy = @DiemTichLuy
+                WHERE MaKhachHang = @MaKhachHang";
+
+            command.Parameters.Add(new SqlParameter("@MaKhachHang", SqlDbType.Int)
+            {
+                Value = maKhachHang
+            });
+
+            command.Parameters.Add(new SqlParameter("@DiemTichLuy", SqlDbType.Int)
+            {
+                Value = diemMoi
+            });
+
+            connection.Open();
+            int rowsAffected = command.ExecuteNonQuery();
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException("Không tìm thấy khách hàng để cập nhật điểm.");
+            }
+        }
     }
 }
