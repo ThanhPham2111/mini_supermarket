@@ -287,5 +287,12 @@ namespace mini_supermarket.GUI.TrangChu
         {
             Form_TrangChu_Load(sender, e);
         }
+
+        // Sự kiện click cho nút Quản lý (được gọi từ Form chính)
+        public void ShowQuanLy()
+        {
+            var formQuanLy = new mini_supermarket.GUI.QuanLy.Form_QuanLy();
+            formQuanLy.ShowDialog();
+        }
     }
 }

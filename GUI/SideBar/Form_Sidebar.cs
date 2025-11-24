@@ -12,6 +12,7 @@ using mini_supermarket.GUI.HoaDon;
 using mini_supermarket.GUI.KhoHang;
 using mini_supermarket.GUI.TaiKhoan;
 using mini_supermarket.GUI.TrangChu;
+using mini_supermarket.GUI.QuanLy;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
 using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
@@ -380,8 +381,32 @@ namespace mini_supermarket.GUI.SideBar
 
             _activeForm = taiKhoanForm;
             contentHostPanel.Controls.Clear();
-            contentHostPanel.Controls.Add(taiKhoanForm);
             taiKhoanForm.Show();
+        }
+
+        private void navQuanLyButton_Click(object sender, EventArgs e)
+        {
+            ShowQuanLy();
+        }
+
+        private void ShowQuanLy()
+        {
+            SetActiveButton(navQuanLyButton);
+            mainTitleLabel.Text = navQuanLyButton.Text;
+
+            CloseActiveForm();
+
+            var quanLyForm = new Form_QuanLy
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            _activeForm = quanLyForm;
+            contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(quanLyForm);
+            quanLyForm.Show();
         }
 
         private void ShowPlaceholder(string message, Button sourceButton)
