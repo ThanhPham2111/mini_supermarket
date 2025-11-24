@@ -9,17 +9,9 @@ using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_BanHang
 {
-    // Class để lưu thông tin sản phẩm trong giỏ hàng
-    public class ProductInfo
-    {
-        public int MaSanPham { get; set; }
-        public decimal GiaBan { get; set; }
-        public decimal PhanTramGiam { get; set; }
-    }
-
     public partial class Form_banHang : Form
     {
-        private KhoHangBUS? khoHangBUS;
+        private BanHang_BUS? banHangBUS;
         private DataTable? allProductsData; // Lưu danh sách sản phẩm gốc để filter
 
         public Form_banHang()
@@ -27,7 +19,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             try
             {
                 InitializeComponent();
-                khoHangBUS = new KhoHangBUS();
+                banHangBUS = new BanHang_BUS();
 
                 // Test database connection trước
                 TestConnection();
@@ -66,14 +58,21 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                if (khoHangBUS == null)
+                if (banHangBUS == null)
                 {
-                    MessageBox.Show("KhoHangBUS chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("BanHang_BUS chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                var testDt = khoHangBUS.LayDanhSachLoai();
-                Console.WriteLine($"Test connection OK. Số loại: {testDt.Rows.Count}");
+                if (banHangBUS.TestConnection(out int soLoai, out string? errorMessage))
+                {
+                    Console.WriteLine($"Test connection OK. Số loại: {soLoai}");
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi kết nối database:\n\n" + errorMessage,
+                        "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -93,15 +92,15 @@ namespace mini_supermarket.GUI.Form_BanHang
                     return;
                 }
 
-                if (khoHangBUS == null)
+                if (banHangBUS == null)
                 {
-                    MessageBox.Show("KhoHangBUS chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("BanHang_BUS chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 Console.WriteLine("Bắt đầu load sản phẩm...");
 
-                DataTable dt = khoHangBUS.LayDanhSachSanPhamBanHang();
+                DataTable dt = banHangBUS.LayDanhSachSanPhamBanHang();
                 Console.WriteLine($"Đã query xong. Số dòng: {dt?.Rows.Count ?? 0}");
 
                 // Lưu danh sách sản phẩm gốc để filter
@@ -184,13 +183,13 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                if (khoHangBUS == null)
+                if (banHangBUS == null)
                 {
-                    MessageBox.Show("KhoHangBUS chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("BanHang_BUS chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                DataTable dt = khoHangBUS.LayThongTinSanPhamChiTiet(maSanPham);
+                DataTable dt = banHangBUS.LayThongTinSanPhamChiTiet(maSanPham);
                 if (dt == null || dt.Rows.Count == 0)
                 {
                     ClearProductDetails();
@@ -296,51 +295,13 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                // Kiểm tra đã chọn sản phẩm chưa
-                if (!selectedProductId.HasValue)
+                if (banHangBUS == null)
                 {
-                    MessageBox.Show("Vui lòng chọn sản phẩm từ danh sách!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("BanHang_BUS chưa được khởi tạo!", "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                // Kiểm tra số lượng tồn kho
-                if (!selectedProductStock.HasValue || selectedProductStock.Value <= 0)
-                {
-                    MessageBox.Show("Sản phẩm này đã hết hàng!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // Validate số lượng nhập
-                if (string.IsNullOrWhiteSpace(txtQuantity.Text))
-                {
-                    MessageBox.Show("Vui lòng nhập số lượng!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    txtQuantity.Focus();
-                    return;
-                }
-
-                if (!int.TryParse(txtQuantity.Text, out int soLuongNhap) || soLuongNhap <= 0)
-                {
-                    MessageBox.Show("Số lượng phải là số nguyên dương!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    txtQuantity.Focus();
-                    txtQuantity.SelectAll();
-                    return;
-                }
-
-                // Kiểm tra số lượng nhập <= số lượng tồn kho
-                if (soLuongNhap > selectedProductStock.Value)
-                {
-                    MessageBox.Show($"Số lượng nhập ({soLuongNhap}) vượt quá số lượng tồn kho ({selectedProductStock.Value})!\n\nVui lòng nhập số lượng nhỏ hơn hoặc bằng {selectedProductStock.Value}.",
-                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    txtQuantity.Focus();
-                    txtQuantity.SelectAll();
-                    return;
-                }
-
-                // Thêm sản phẩm vào giỏ hàng (dgvOrder)
                 if (dgvOrder == null || currentProductName == null || !currentProductPrice.HasValue)
                 {
                     MessageBox.Show("Lỗi: Không thể thêm sản phẩm vào giỏ hàng!", "Lỗi",
@@ -348,69 +309,59 @@ namespace mini_supermarket.GUI.Form_BanHang
                     return;
                 }
 
-                // Kiểm tra sản phẩm đã có trong giỏ chưa
-                bool productExists = false;
                 DataGridViewRow? existingRow = null;
-                
+                int currentQuantity = 0;
+
                 foreach (DataGridViewRow row in dgvOrder.Rows)
                 {
-                    if (row.Tag is ProductInfo info && info.MaSanPham == selectedProductId.Value)
+                    if (row.Tag is BanHangItemDTO info && selectedProductId.HasValue &&
+                        info.MaSanPham == selectedProductId.Value)
                     {
-                        productExists = true;
                         existingRow = row;
+                        if (row.Cells[2].Value != null && int.TryParse(row.Cells[2].Value.ToString(), out int qty))
+                        {
+                            currentQuantity = qty;
+                        }
                         break;
                     }
                 }
 
-                if (productExists && existingRow != null)
+                if (!banHangBUS.ValidateAddProduct(selectedProductId, selectedProductStock, txtQuantity.Text,
+                        currentQuantity, out int soLuongNhap, out string errorMessage))
                 {
-                    // Sản phẩm đã có trong giỏ, cộng số lượng
-                    int currentQuantity = 0;
-                    if (existingRow.Cells[2].Value != null && int.TryParse(existingRow.Cells[2].Value.ToString(), out int qty))
+                    MessageBox.Show(errorMessage, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    if (txtQuantity != null)
                     {
-                        currentQuantity = qty;
-                    }
-
-                    int newQuantity = currentQuantity + soLuongNhap;
-                    
-                    // Kiểm tra số lượng mới không vượt quá tồn kho
-                    if (newQuantity > selectedProductStock.Value)
-                    {
-                        MessageBox.Show($"Số lượng sau khi cộng ({newQuantity}) vượt quá số lượng tồn kho ({selectedProductStock.Value})!\n\nSố lượng hiện tại trong giỏ: {currentQuantity}\nSố lượng muốn thêm: {soLuongNhap}\nSố lượng tồn kho còn lại: {selectedProductStock.Value - currentQuantity}",
-                            "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         txtQuantity.Focus();
                         txtQuantity.SelectAll();
-                        return;
                     }
+                    return;
+                }
 
-                    // Cập nhật số lượng
+                if (existingRow != null)
+                {
+                    int newQuantity = currentQuantity + soLuongNhap;
                     existingRow.Cells[2].Value = newQuantity;
                 }
                 else
                 {
-                    // Sản phẩm chưa có trong giỏ, thêm mới
-                    // Format hiển thị
                     string giaBanStr = currentProductPrice.Value.ToString("N0") + " đ";
                     string khuyenMaiStr = currentProductPromotion ?? "";
 
-                    // Thêm row vào dgvOrder
                     int rowIndex = dgvOrder.Rows.Add(currentProductName, giaBanStr, soLuongNhap, khuyenMaiStr);
-                    
-                    // Lưu thông tin vào Tag để tính tổng tiền
-                    var productInfo = new ProductInfo
+
+                    var productInfo = new BanHangItemDTO
                     {
-                        MaSanPham = selectedProductId.Value,
+                        MaSanPham = selectedProductId!.Value,
                         GiaBan = currentProductPrice.Value,
                         PhanTramGiam = currentProductDiscount ?? 0
                     };
                     dgvOrder.Rows[rowIndex].Tag = productInfo;
                 }
 
-                // Cập nhật tổng tiền và điểm tích lũy
                 UpdateTotal();
                 UpdateEarnedPoints();
 
-                // Reset số lượng về 1 sau khi thêm
                 txtQuantity.Text = "1";
             }
             catch (Exception ex)
@@ -424,42 +375,20 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                if (dgvOrder == null || txtTotal == null)
+                if (dgvOrder == null || txtTotal == null || banHangBUS == null)
                     return;
 
-                decimal total = 0;
+                var cartItems = GetCartItems();
+                decimal total = banHangBUS.TinhTongTien(cartItems);
 
-                foreach (DataGridViewRow row in dgvOrder.Rows)
-                {
-                    if (row.Tag == null)
-                        continue;
+                int usePoints = 0;
+                bool canApplyPoints = TryGetUsePoints(out usePoints, false, total);
+                decimal discount = (canApplyPoints && usePoints > 0)
+                    ? banHangBUS.TinhGiamTuDiem(total, usePoints)
+                    : 0;
 
-                    try
-                    {
-                        // Lấy thông tin từ Tag
-                        if (row.Tag is ProductInfo productInfo)
-                        {
-                            // Lấy số lượng từ cột
-                            if (row.Cells[2].Value != null && int.TryParse(row.Cells[2].Value.ToString(), out int soLuong))
-                            {
-                                // Tính tiền: (GiaBan * SoLuong) - (GiaBan * SoLuong * PhanTramGiam / 100)
-                                decimal thanhTien = productInfo.GiaBan * soLuong;
-                                if (productInfo.PhanTramGiam > 0)
-                                {
-                                    thanhTien = thanhTien - (thanhTien * productInfo.PhanTramGiam / 100);
-                                }
-                                total += thanhTien;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Lỗi khi tính tổng tiền cho row: {ex.Message}");
-                    }
-                }
-
-                // Hiển thị tổng tiền
-                txtTotal.Text = total.ToString("N0") + " đ";
+                decimal payable = total - discount;
+                txtTotal.Text = payable.ToString("N0") + " đ";
             }
             catch (Exception ex)
             {
@@ -504,22 +433,11 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                if (dgvOrder == null || txtEarnedPoints == null)
+                if (dgvOrder == null || txtEarnedPoints == null || banHangBUS == null)
                     return;
 
-                int totalPoints = 0;
-
-                foreach (DataGridViewRow row in dgvOrder.Rows)
-                {
-                    // Lấy số lượng từ cột
-                    if (row.Cells[2].Value != null && int.TryParse(row.Cells[2].Value.ToString(), out int soLuong))
-                    {
-                        // 1 sản phẩm = 1 điểm (theo số lượng)
-                        totalPoints += soLuong;
-                    }
-                }
-
-                // Hiển thị điểm tích lũy
+                var cartItems = GetCartItems();
+                int totalPoints = banHangBUS.TinhDiemTichLuy(cartItems);
                 txtEarnedPoints.Text = totalPoints.ToString();
             }
             catch (Exception ex)
@@ -528,6 +446,32 @@ namespace mini_supermarket.GUI.Form_BanHang
                 if (txtEarnedPoints != null)
                     txtEarnedPoints.Text = "0";
             }
+        }
+
+        private List<BanHangCartItemDTO> GetCartItems()
+        {
+            List<BanHangCartItemDTO> cartItems = new List<BanHangCartItemDTO>();
+
+            if (dgvOrder == null)
+                return cartItems;
+
+            foreach (DataGridViewRow row in dgvOrder.Rows)
+            {
+                if (row.Tag is BanHangItemDTO productInfo &&
+                    row.Cells[2].Value != null &&
+                    int.TryParse(row.Cells[2].Value.ToString(), out int soLuong))
+                {
+                    cartItems.Add(new BanHangCartItemDTO
+                    {
+                        MaSanPham = productInfo.MaSanPham,
+                        GiaBan = productInfo.GiaBan,
+                        PhanTramGiam = productInfo.PhanTramGiam,
+                        SoLuong = soLuong
+                    });
+                }
+            }
+
+            return cartItems;
         }
 
         private void SearchBox_TextChanged(object? sender, EventArgs e)
@@ -662,7 +606,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                     // Clear error
                     if (errorProviderUsePoints != null && txtUsePoints != null)
                     {
-                        errorProviderUsePoints.SetError(txtUsePoints, "");
+                        errorProviderUsePoints.SetError(txtUsePoints!, "");
                     }
 
                     // Bỏ chọn sản phẩm trong danh sách
@@ -711,7 +655,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                         // Clear error khi chọn khách hàng mới
                         if (errorProviderUsePoints != null)
                         {
-                            errorProviderUsePoints.SetError(txtUsePoints, "");
+                            errorProviderUsePoints.SetError(txtUsePoints!, "");
                         }
                     }
                 }
@@ -743,11 +687,12 @@ namespace mini_supermarket.GUI.Form_BanHang
                     return;
                 }
 
-                // Kiểm tra điểm sử dụng có vượt quá điểm hiện có không
-                if (!ValidateUsePoints())
+                var cartItems = GetCartItems();
+                decimal orderTotal = banHangBUS != null ? banHangBUS.TinhTongTien(cartItems) : 0;
+
+                // Kiểm tra điểm sử dụng có hợp lệ không
+                if (!TryGetUsePoints(out _, true, orderTotal))
                 {
-                    MessageBox.Show("Số điểm sử dụng vượt quá điểm hiện có của khách hàng!", "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     if (txtUsePoints != null)
                     {
                         txtUsePoints.Focus();
@@ -782,102 +727,51 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                // Lấy tổng tiền
-                decimal tongTien = CalculateTotalAmount();
-                
-                // Lấy điểm tích lũy
-                int diemTichLuy = GetEarnedPoints();
-                
-                // Lấy điểm sử dụng (nếu có)
-                int diemSuDung = GetUsedPoints();
+                if (banHangBUS == null)
+                {
+                    throw new InvalidOperationException("BanHang_BUS chưa được khởi tạo.");
+                }
 
-                // Lấy điểm hiện có của khách hàng
+                if (!selectedKhachHangId.HasValue)
+                {
+                    throw new InvalidOperationException("Vui lòng chọn khách hàng trước khi thanh toán!");
+                }
+
+                var cartItems = GetCartItems();
+                if (cartItems.Count == 0)
+                {
+                    throw new InvalidOperationException("Giỏ hàng đang trống.");
+                }
+
+                decimal orderTotal = banHangBUS.TinhTongTien(cartItems);
+                if (!TryGetUsePoints(out int diemSuDung, false, orderTotal))
+                {
+                    throw new InvalidOperationException("Số điểm sử dụng không hợp lệ.");
+                }
+
                 int diemHienCo = availablePoints ?? 0;
-
-                // Tính điểm mới cho khách hàng
-                int diemMoi;
-                if (diemSuDung == 0)
-                {
-                    // Không dùng điểm: điểm hiện có + điểm tích lũy
-                    diemMoi = diemHienCo + diemTichLuy;
-                }
-                else
-                {
-                    // Có dùng điểm: (điểm hiện có - điểm sử dụng) + điểm tích lũy
-                    // Đã validate ở trên nên diemHienCo - diemSuDung >= 0
-                    diemMoi = (diemHienCo - diemSuDung) + diemTichLuy;
-                }
-
-                // Tạo hóa đơn
-                HoaDonDTO hoaDon = new HoaDonDTO
-                {
-                    MaNhanVien = GetCurrentEmployeeId(), // Lấy từ session, tạm thời dùng 1
-                    MaKhachHang = selectedKhachHangId.Value,
-                    TongTien = tongTien,
-                    NgayLap = DateTime.Now
-                };
-
-                // Tạo danh sách chi tiết hóa đơn
-                List<ChiTietHoaDonDTO> chiTietList = new List<ChiTietHoaDonDTO>();
-                foreach (DataGridViewRow row in dgvOrder.Rows)
-                {
-                    if (row.Tag is ProductInfo productInfo)
-                    {
-                        if (row.Cells[2].Value != null && int.TryParse(row.Cells[2].Value.ToString(), out int soLuong))
-                        {
-                            // Tính giá sau giảm
-                            decimal giaBan = productInfo.GiaBan;
-                            if (productInfo.PhanTramGiam > 0)
-                            {
-                                giaBan = giaBan - (giaBan * productInfo.PhanTramGiam / 100);
-                            }
-
-                            chiTietList.Add(new ChiTietHoaDonDTO
-                            {
-                                MaSanPham = productInfo.MaSanPham,
-                                SoLuong = soLuong,
-                                GiaBan = giaBan
-                            });
-                        }
-                    }
-                }
-
-                // Tạo hóa đơn và chi tiết trong database
-                HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
-                int maHoaDon = hoaDonBUS.CreateHoaDon(hoaDon, chiTietList);
-
-                // Cập nhật số lượng kho cho từng sản phẩm
-                KhoHangBUS khoHangBUS = new KhoHangBUS();
                 int maNhanVien = GetCurrentEmployeeId();
-                
-                foreach (DataGridViewRow row in dgvOrder.Rows)
-                {
-                    if (row.Tag is ProductInfo productInfo)
-                    {
-                        if (row.Cells[2].Value != null && int.TryParse(row.Cells[2].Value.ToString(), out int soLuong))
-                        {
-                            khoHangBUS.GiamSoLuongKho(productInfo.MaSanPham, soLuong, maNhanVien);
-                        }
-                    }
-                }
 
-                // Cập nhật điểm tích lũy cho khách hàng
-                KhachHang_BUS khachHangBUS = new KhachHang_BUS();
-                khachHangBUS.UpdateDiemTichLuy(selectedKhachHangId.Value, diemMoi);
+                BanHangPaymentResultDTO result = banHangBUS.ProcessPayment(
+                    selectedKhachHangId.Value,
+                    maNhanVien,
+                    cartItems,
+                    diemHienCo,
+                    diemSuDung);
 
-                // Thông báo thành công
                 MessageBox.Show(
                     $"Thanh toán thành công!\n\n" +
-                    $"Mã hóa đơn: HD{maHoaDon:D3}\n" +
-                    $"Tổng tiền: {tongTien:N0} đ\n" +
-                    $"Điểm tích lũy: +{diemTichLuy}\n" +
-                    $"Điểm sử dụng: {(diemSuDung > 0 ? diemSuDung.ToString() : "0")}\n" +
-                    $"Điểm mới của khách hàng: {diemMoi}",
+                    $"Mã hóa đơn: HD{result.MaHoaDon:D3}\n" +
+                    $"Tổng tiền trước điểm: {result.TongTienTruocDiem:N0} đ\n" +
+                    $"Giảm giá bằng điểm: -{result.GiamTuDiem:N0} đ\n" +
+                    $"Tổng cần thanh toán: {result.TongTienThanhToan:N0} đ\n" +
+                    $"Điểm tích lũy: +{result.DiemTichLuy}\n" +
+                    $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")}\n" +
+                    $"Điểm mới của khách hàng: {result.DiemMoi}",
                     "Thành công",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
-                // Reset form sau khi thanh toán thành công
                 ResetFormAfterPayment();
             }
             catch (Exception ex)
@@ -886,50 +780,45 @@ namespace mini_supermarket.GUI.Form_BanHang
             }
         }
 
-        private decimal CalculateTotalAmount()
+        private bool TryGetUsePoints(out int usePoints, bool showMessageOnError = false, decimal? currentOrderTotal = null)
         {
-            decimal total = 0;
-            if (dgvOrder == null)
-                return total;
+            usePoints = 0;
 
-            foreach (DataGridViewRow row in dgvOrder.Rows)
+            if (banHangBUS == null)
+                return true;
+
+            decimal? maxAmount = currentOrderTotal;
+            if (!maxAmount.HasValue)
             {
-                if (row.Tag is ProductInfo productInfo)
+                var snapshot = GetCartItems();
+                if (snapshot.Count > 0)
                 {
-                    if (row.Cells[2].Value != null && int.TryParse(row.Cells[2].Value.ToString(), out int soLuong))
-                    {
-                        decimal thanhTien = productInfo.GiaBan * soLuong;
-                        if (productInfo.PhanTramGiam > 0)
-                        {
-                            thanhTien = thanhTien - (thanhTien * productInfo.PhanTramGiam / 100);
-                        }
-                        total += thanhTien;
-                    }
+                    maxAmount = banHangBUS.TinhTongTien(snapshot);
+                }
+                else
+                {
+                    maxAmount = 0;
                 }
             }
-            return total;
-        }
 
-        private int GetEarnedPoints()
-        {
-            if (txtEarnedPoints == null || string.IsNullOrWhiteSpace(txtEarnedPoints.Text))
-                return 0;
+            bool isValid = banHangBUS.ValidateUsePoints(
+                availablePoints,
+                txtUsePoints?.Text,
+                out usePoints,
+                out string errorMessage,
+                treatEmptyAsZero: true,
+                maxAllowedAmount: maxAmount);
 
-            if (int.TryParse(txtEarnedPoints.Text, out int points))
-                return points;
+            if (!isValid)
+            {
+                usePoints = 0;
+                if (showMessageOnError && !string.IsNullOrEmpty(errorMessage))
+                {
+                    MessageBox.Show(errorMessage, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
 
-            return 0;
-        }
-
-        private int GetUsedPoints()
-        {
-            if (txtUsePoints == null || string.IsNullOrWhiteSpace(txtUsePoints.Text))
-                return 0;
-
-            if (int.TryParse(txtUsePoints.Text.Trim(), out int points))
-                return points;
-
-            return 0;
+            return isValid;
         }
 
         private int GetCurrentEmployeeId()
@@ -977,7 +866,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             // Clear error
             if (errorProviderUsePoints != null && txtUsePoints != null)
             {
-                errorProviderUsePoints.SetError(txtUsePoints, "");
+                errorProviderUsePoints.SetError(txtUsePoints!, "");
             }
 
             // Bỏ chọn sản phẩm trong danh sách
@@ -990,82 +879,31 @@ namespace mini_supermarket.GUI.Form_BanHang
         private void txtUsePoints_TextChanged(object? sender, EventArgs e)
         {
             ValidateUsePointsRealtime();
+            UpdateTotal();
         }
 
         private void ValidateUsePointsRealtime()
         {
-            if (txtUsePoints == null || errorProviderUsePoints == null)
+            if (txtUsePoints == null || errorProviderUsePoints == null || banHangBUS == null)
                 return;
 
-            // Nếu chưa chọn khách hàng, không validate
             if (!availablePoints.HasValue)
             {
-                errorProviderUsePoints.SetError(txtUsePoints, "");
+                errorProviderUsePoints.SetError(txtUsePoints!, "");
                 return;
             }
 
-            string usePointsText = txtUsePoints.Text.Trim();
+            var cartItems = GetCartItems();
+            decimal orderTotal = banHangBUS.TinhTongTien(cartItems);
+            bool isValid = banHangBUS.ValidateUsePoints(
+                availablePoints,
+                txtUsePoints.Text,
+                out _,
+                out _,
+                treatEmptyAsZero: true,
+                maxAllowedAmount: orderTotal);
 
-            // Nếu để trống, không hiển thị lỗi
-            if (string.IsNullOrWhiteSpace(usePointsText))
-            {
-                errorProviderUsePoints.SetError(txtUsePoints, "");
-                return;
-            }
-
-            // Kiểm tra có phải số không
-            if (!int.TryParse(usePointsText, out int usePoints))
-            {
-                errorProviderUsePoints.SetError(txtUsePoints, "!");
-                return;
-            }
-
-            // Kiểm tra số âm
-            if (usePoints < 0)
-            {
-                errorProviderUsePoints.SetError(txtUsePoints, "!");
-                return;
-            }
-
-            // Kiểm tra vượt quá điểm hiện có
-            if (usePoints > availablePoints.Value)
-            {
-                errorProviderUsePoints.SetError(txtUsePoints, "!");
-            }
-            else
-            {
-                errorProviderUsePoints.SetError(txtUsePoints, "");
-            }
-        }
-
-        private bool ValidateUsePoints()
-        {
-            if (txtUsePoints == null)
-                return true; // Nếu không có ô nhập, coi như hợp lệ
-
-            string usePointsText = txtUsePoints.Text.Trim();
-
-            // Nếu để trống, coi như không dùng điểm (hợp lệ)
-            if (string.IsNullOrWhiteSpace(usePointsText))
-                return true;
-
-            // Nếu chưa chọn khách hàng, không validate
-            if (!availablePoints.HasValue)
-                return true;
-
-            // Kiểm tra có phải số không
-            if (!int.TryParse(usePointsText, out int usePoints))
-                return false;
-
-            // Kiểm tra số âm
-            if (usePoints < 0)
-                return false;
-
-            // Kiểm tra vượt quá điểm hiện có
-            if (usePoints > availablePoints.Value)
-                return false;
-
-            return true;
+            errorProviderUsePoints.SetError(txtUsePoints!, isValid ? "" : "!");
         }
     }
 }

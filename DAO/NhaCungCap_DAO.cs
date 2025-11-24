@@ -44,6 +44,8 @@ namespace mini_supermarket.DAO
         return list;
     }
 
+    
+
     // Lấy mã nhà cung cấp lớn nhất trong DB
     public int GetMaxMaNhaCungCap()
         {
