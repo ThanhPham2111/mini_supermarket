@@ -31,11 +31,11 @@ INSERT INTO Tbl_DonVi (TenDonVi, MoTa) VALUES
 -- 4. Tbl_SanPham
 -- Giả sử ID tự tăng bắt đầu từ 1
 INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, HinhAnh, XuatXu, Hsd, TrangThai) VALUES 
-(N'Sữa tươi Vinamilk 1L', 5, 1, 1, N'Sữa tươi tiệt trùng không đường', 32000, NULL, N'Việt Nam', '2025-12-31', N'Đang bán'),
-(N'Coca Cola 330ml', 2, 2, 1, N'Nước giải khát có gas', 10000, NULL, N'Việt Nam', '2025-06-30', N'Đang bán'),
-(N'Mì Hảo Hảo Tôm Chua Cay', 3, 4, 2, N'Mì ăn liền hương vị tôm chua cay', 4500, NULL, N'Việt Nam', '2024-12-31', N'Đang bán'),
-(N'Dầu gội Clear Men', 1, 6, 4, N'Dầu gội sạch gàu cho nam', 65000, NULL, N'Việt Nam', '2026-01-01', N'Đang bán'),
-(N'Nước mắm Nam Ngư', 1, 6, 3, N'Nước mắm chinsu nam ngư', 35000, NULL, N'Việt Nam', '2025-05-20', N'Đang bán');
+(N'Sữa tươi Vinamilk 1L', 5, 1, 1, N'Sữa tươi tiệt trùng không đường', 32000, NULL, N'Việt Nam', '2025-12-31', N'Còn hàng'),
+(N'Coca Cola 330ml', 2, 2, 1, N'Nước giải khát có gas', 10000, NULL, N'Việt Nam', '2025-06-30', N'Còn hàng'),
+(N'Mì Hảo Hảo Tôm Chua Cay', 3, 4, 2, N'Mì ăn liền hương vị tôm chua cay', 4500, NULL, N'Việt Nam', '2024-12-31', N'Còn hàng'),
+(N'Dầu gội Clear Men', 1, 6, 4, N'Dầu gội sạch gàu cho nam', 65000, NULL, N'Việt Nam', '2026-01-01', N'Còn hàng'),
+(N'Nước mắm Nam Ngư', 1, 6, 3, N'Nước mắm chinsu nam ngư', 35000, NULL, N'Việt Nam', '2025-05-20', N'Còn hàng');
 
 -- 5. Tbl_NhanVien
 INSERT INTO Tbl_NhanVien (TenNhanVien, GioiTinh, NgaySinh, SoDienThoai, VaiTro, TrangThai) VALUES 
