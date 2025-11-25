@@ -47,6 +47,15 @@ namespace mini_supermarket.GUI.QuanLy
             dgvPermissions.Columns.Clear();
             dgvPermissions.Rows.Clear();
 
+            // Column 0: Select All checkbox for this function
+            var colSelectAll = new DataGridViewCheckBoxColumn();
+            colSelectAll.HeaderText = "Tất cả";
+            colSelectAll.Name = "colSelectAll";
+            colSelectAll.Width = 80; // Increased from 60
+            colSelectAll.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            colSelectAll.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvPermissions.Columns.Add(colSelectAll);
+
             // Column 1: Function Name (Read-only)
             var colFunc = new DataGridViewTextBoxColumn();
             colFunc.HeaderText = "Chức năng";
@@ -72,9 +81,14 @@ namespace mini_supermarket.GUI.QuanLy
             {
                 var rowIndex = dgvPermissions.Rows.Add();
                 var row = dgvPermissions.Rows[rowIndex];
+                row.Cells["colSelectAll"].Value = false;
                 row.Cells["colChucNang"].Value = cn.TenChucNang;
                 row.Tag = cn.MaChucNang; // Store ID in Tag
             }
+
+            // Add event handler for checkbox changes
+            dgvPermissions.CellValueChanged += dgvPermissions_CellValueChanged;
+            dgvPermissions.CurrentCellDirtyStateChanged += dgvPermissions_CurrentCellDirtyStateChanged;
         }
 
         private void listBoxRoles_SelectedIndexChanged(object sender, EventArgs e)
@@ -91,7 +105,8 @@ namespace mini_supermarket.GUI.QuanLy
             // Reset all checkboxes
             foreach (DataGridViewRow row in dgvPermissions.Rows)
             {
-                for (int i = 1; i < dgvPermissions.Columns.Count; i++)
+                row.Cells["colSelectAll"].Value = false;
+                for (int i = 2; i < dgvPermissions.Columns.Count; i++) // Start from 2 (skip SelectAll and ChucNang)
                 {
                     row.Cells[i].Value = false;
                 }
@@ -118,6 +133,9 @@ namespace mini_supermarket.GUI.QuanLy
                     }
                 }
             }
+
+            // Update "Select All" checkboxes based on current state
+            UpdateSelectAllCheckboxes();
         }
 
         private void btnSavePermissions_Click(object sender, EventArgs e)
@@ -151,16 +169,24 @@ namespace mini_supermarket.GUI.QuanLy
 
         private void btnAddRole_Click(object sender, EventArgs e)
         {
-            string roleName = Microsoft.VisualBasic.Interaction.InputBox("Nhập tên Role mới:", "Thêm Role", "");
-            if (!string.IsNullOrWhiteSpace(roleName))
+            using (var dialog = new Dialog_ThemVaiTro())
             {
-                if (_dao.AddRole(roleName, ""))
+                if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    LoadRoles();
-                }
-                else
-                {
-                    MessageBox.Show("Lỗi khi thêm Role.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    string roleName = dialog.TenVaiTro;
+                    string moTa = dialog.MoTa;
+
+                    if (_dao.AddRole(roleName, moTa))
+                    {
+                        MessageBox.Show("Thêm vai trò thành công!", "Thông báo", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadRoles();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Lỗi khi thêm vai trò.", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
@@ -178,9 +204,12 @@ namespace mini_supermarket.GUI.QuanLy
                         // Clear grid
                         foreach (DataGridViewRow row in dgvPermissions.Rows)
                         {
-                            for (int i = 1; i < dgvPermissions.Columns.Count; i++)
+                            for (int i = 0; i < dgvPermissions.Columns.Count; i++) // Start from 0 to include colSelectAll
                             {
-                                row.Cells[i].Value = false;
+                                if (i != dgvPermissions.Columns["colChucNang"].Index) // Skip function name column
+                                {
+                                    row.Cells[i].Value = false;
+                                }
                             }
                         }
                     }
@@ -189,6 +218,82 @@ namespace mini_supermarket.GUI.QuanLy
                         MessageBox.Show("Lỗi khi xóa Role.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+            }
+        }
+
+        private bool _isUpdating = false; // Flag to prevent recursive updates
+
+        // Event handler to commit checkbox changes immediately
+        private void dgvPermissions_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvPermissions.IsCurrentCellDirty && dgvPermissions.CurrentCell is DataGridViewCheckBoxCell)
+            {
+                dgvPermissions.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        // Event handler for checkbox value changes
+        private void dgvPermissions_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || _isUpdating) return;
+
+            var row = dgvPermissions.Rows[e.RowIndex];
+            
+            // If "Select All" checkbox was changed
+            if (e.ColumnIndex == dgvPermissions.Columns["colSelectAll"].Index)
+            {
+                _isUpdating = true;
+                try
+                {
+                    bool selectAll = Convert.ToBoolean(row.Cells["colSelectAll"].Value);
+                    
+                    // Set ALL permission checkboxes in this row (including "Xem")
+                    for (int i = 2; i < dgvPermissions.Columns.Count; i++) // Skip colSelectAll and colChucNang
+                    {
+                        row.Cells[i].Value = selectAll;
+                    }
+                }
+                finally
+                {
+                    _isUpdating = false;
+                }
+            }
+            // If any permission checkbox was changed, update "Select All" checkbox
+            else if (e.ColumnIndex >= 2) // Permission columns start from index 2
+            {
+                UpdateSelectAllForRow(row);
+            }
+        }
+
+        // Update "Select All" checkbox for a specific row based on its permission checkboxes
+        private void UpdateSelectAllForRow(DataGridViewRow row)
+        {
+            bool allChecked = true;
+            bool anyChecked = false;
+
+            for (int i = 2; i < dgvPermissions.Columns.Count; i++)
+            {
+                bool isChecked = Convert.ToBoolean(row.Cells[i].Value);
+                if (isChecked)
+                {
+                    anyChecked = true;
+                }
+                else
+                {
+                    allChecked = false;
+                }
+            }
+
+            // Set "Select All" to true only if ALL permissions are checked
+            row.Cells["colSelectAll"].Value = allChecked && anyChecked;
+        }
+
+        // Update all "Select All" checkboxes based on current permission states
+        private void UpdateSelectAllCheckboxes()
+        {
+            foreach (DataGridViewRow row in dgvPermissions.Rows)
+            {
+                UpdateSelectAllForRow(row);
             }
         }
     }

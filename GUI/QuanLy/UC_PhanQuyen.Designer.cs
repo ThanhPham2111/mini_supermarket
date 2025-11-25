@@ -101,12 +101,11 @@ namespace mini_supermarket.GUI.QuanLy
             // groupBoxRoles
             // 
             this.groupBoxRoles.Controls.Add(this.listBoxRoles);
-            this.groupBoxRoles.Controls.Add(this.panelRoleActions);
             this.groupBoxRoles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxRoles.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
             this.groupBoxRoles.Location = new System.Drawing.Point(0, 0);
             this.groupBoxRoles.Name = "groupBoxRoles";
-            this.groupBoxRoles.Padding = new System.Windows.Forms.Padding(10);
+            this.groupBoxRoles.Padding = new System.Windows.Forms.Padding(10, 10, 10, 15); // Added bottom padding
             this.groupBoxRoles.Size = new System.Drawing.Size(220, 680); // Updated from 300
             this.groupBoxRoles.TabIndex = 0;
             this.groupBoxRoles.TabStop = false;
@@ -125,44 +124,6 @@ namespace mini_supermarket.GUI.QuanLy
             this.listBoxRoles.SelectedIndexChanged += new System.EventHandler(this.listBoxRoles_SelectedIndexChanged);
 
             // 
-            // panelRoleActions
-            // 
-            this.panelRoleActions.Controls.Add(this.btnAddRole);
-            this.panelRoleActions.Controls.Add(this.btnDeleteRole);
-            this.panelRoleActions.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelRoleActions.Height = 60;
-            this.panelRoleActions.Location = new System.Drawing.Point(10, 610);
-            this.panelRoleActions.Padding = new Padding(0, 10, 0, 0);
-
-            // 
-            // btnAddRole
-            // 
-            this.btnAddRole.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnAddRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddRole.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Blue
-            this.btnAddRole.ForeColor = System.Drawing.Color.White;
-            this.btnAddRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnAddRole.Location = new System.Drawing.Point(0, 10);
-            this.btnAddRole.Name = "btnAddRole";
-            this.btnAddRole.Size = new System.Drawing.Size(95, 50); // Reduced from 130
-            this.btnAddRole.Text = "Thêm";
-            this.btnAddRole.Click += new System.EventHandler(this.btnAddRole_Click);
-
-            // 
-            // btnDeleteRole
-            // 
-            this.btnDeleteRole.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnDeleteRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeleteRole.BackColor = System.Drawing.Color.FromArgb(255, 77, 77); // Red
-            this.btnDeleteRole.ForeColor = System.Drawing.Color.White;
-            this.btnDeleteRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnDeleteRole.Location = new System.Drawing.Point(105, 10); // Adjusted position
-            this.btnDeleteRole.Name = "btnDeleteRole";
-            this.btnDeleteRole.Size = new System.Drawing.Size(95, 50); // Reduced from 130
-            this.btnDeleteRole.Text = "Xóa";
-            this.btnDeleteRole.Click += new System.EventHandler(this.btnDeleteRole_Click);
-
-            // 
             // groupBoxPermissions
             // 
             this.groupBoxPermissions.Controls.Add(this.dgvPermissions); // Add Grid LAST (Index 0) so it fills remaining space
@@ -172,7 +133,7 @@ namespace mini_supermarket.GUI.QuanLy
             this.groupBoxPermissions.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
             this.groupBoxPermissions.Location = new System.Drawing.Point(0, 0);
             this.groupBoxPermissions.Name = "groupBoxPermissions";
-            this.groupBoxPermissions.Padding = new System.Windows.Forms.Padding(10);
+            this.groupBoxPermissions.Padding = new System.Windows.Forms.Padding(10, 10, 10, 15); // Added bottom padding
             this.groupBoxPermissions.Size = new System.Drawing.Size(850, 680); // Updated from 790 (1080 - 220 - 10)
             this.groupBoxPermissions.TabIndex = 0;
             this.groupBoxPermissions.TabStop = false;
@@ -199,10 +160,41 @@ namespace mini_supermarket.GUI.QuanLy
             // 
             // panelPermActions
             // 
+            this.panelPermActions.Controls.Add(this.btnAddRole);
+            this.panelPermActions.Controls.Add(this.btnDeleteRole);
             this.panelPermActions.Controls.Add(this.btnSavePermissions);
-            this.panelPermActions.Dock = System.Windows.Forms.DockStyle.Top; // Move Save button to top for visibility
+            this.panelPermActions.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelPermActions.Height = 50;
             this.panelPermActions.Padding = new Padding(0, 0, 0, 10);
+
+            // 
+            // btnAddRole
+            // 
+            this.btnAddRole.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnAddRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddRole.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Blue
+            this.btnAddRole.ForeColor = System.Drawing.Color.White;
+            this.btnAddRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnAddRole.Location = new System.Drawing.Point(0, 0);
+            this.btnAddRole.Name = "btnAddRole";
+            this.btnAddRole.Size = new System.Drawing.Size(100, 40);
+            this.btnAddRole.Text = "Thêm vai trò";
+            this.btnAddRole.Click += new System.EventHandler(this.btnAddRole_Click);
+
+            // 
+            // btnDeleteRole
+            // 
+            this.btnDeleteRole.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnDeleteRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDeleteRole.BackColor = System.Drawing.Color.FromArgb(255, 77, 77); // Red
+            this.btnDeleteRole.ForeColor = System.Drawing.Color.White;
+            this.btnDeleteRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnDeleteRole.Location = new System.Drawing.Point(105, 0);
+            this.btnDeleteRole.Margin = new Padding(5, 0, 0, 0);
+            this.btnDeleteRole.Name = "btnDeleteRole";
+            this.btnDeleteRole.Size = new System.Drawing.Size(100, 40);
+            this.btnDeleteRole.Text = "Xóa vai trò";
+            this.btnDeleteRole.Click += new System.EventHandler(this.btnDeleteRole_Click);
 
             // 
             // btnSavePermissions
@@ -212,7 +204,7 @@ namespace mini_supermarket.GUI.QuanLy
             this.btnSavePermissions.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Blue
             this.btnSavePermissions.ForeColor = System.Drawing.Color.White;
             this.btnSavePermissions.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnSavePermissions.Location = new System.Drawing.Point(620, 0);
+            this.btnSavePermissions.Location = new System.Drawing.Point(670, 0);
             this.btnSavePermissions.Name = "btnSavePermissions";
             this.btnSavePermissions.Size = new System.Drawing.Size(150, 40);
             this.btnSavePermissions.Text = "Lưu thay đổi";
