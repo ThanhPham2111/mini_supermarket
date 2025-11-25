@@ -381,6 +381,7 @@ namespace mini_supermarket.GUI.SideBar
 
             _activeForm = taiKhoanForm;
             contentHostPanel.Controls.Clear();
+            contentHostPanel.Controls.Add(taiKhoanForm); // Missing line - add form to panel
             taiKhoanForm.Show();
         }
 

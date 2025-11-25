@@ -84,7 +84,7 @@ namespace mini_supermarket.GUI.QuanLy
             // Important: Set Size before SplitterDistance to avoid clamping
             this.splitContainer1.Size = new System.Drawing.Size(1080, 680);
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1; // Fix the left panel width
-            this.splitContainer1.SplitterDistance = 300; // Set distance FIRST
+            this.splitContainer1.SplitterDistance = 130; // Reduced from 300 to give more space to permissions grid
             this.splitContainer1.IsSplitterFixed = true; // Then lock
             this.splitContainer1.SplitterWidth = 10;
             this.splitContainer1.TabIndex = 0;
@@ -107,10 +107,10 @@ namespace mini_supermarket.GUI.QuanLy
             this.groupBoxRoles.Location = new System.Drawing.Point(0, 0);
             this.groupBoxRoles.Name = "groupBoxRoles";
             this.groupBoxRoles.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBoxRoles.Size = new System.Drawing.Size(300, 680);
+            this.groupBoxRoles.Size = new System.Drawing.Size(220, 680); // Updated from 300
             this.groupBoxRoles.TabIndex = 0;
             this.groupBoxRoles.TabStop = false;
-            this.groupBoxRoles.Text = "Danh sách Vai trò";
+            this.groupBoxRoles.Text = "Vai trò"; // Shortened text
 
             // 
             // listBoxRoles
@@ -141,11 +141,11 @@ namespace mini_supermarket.GUI.QuanLy
             this.btnAddRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddRole.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Blue
             this.btnAddRole.ForeColor = System.Drawing.Color.White;
-            this.btnAddRole.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAddRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnAddRole.Location = new System.Drawing.Point(0, 10);
             this.btnAddRole.Name = "btnAddRole";
-            this.btnAddRole.Size = new System.Drawing.Size(130, 50);
-            this.btnAddRole.Text = "Thêm Vai trò";
+            this.btnAddRole.Size = new System.Drawing.Size(95, 50); // Reduced from 130
+            this.btnAddRole.Text = "Thêm";
             this.btnAddRole.Click += new System.EventHandler(this.btnAddRole_Click);
 
             // 
@@ -155,11 +155,11 @@ namespace mini_supermarket.GUI.QuanLy
             this.btnDeleteRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteRole.BackColor = System.Drawing.Color.FromArgb(255, 77, 77); // Red
             this.btnDeleteRole.ForeColor = System.Drawing.Color.White;
-            this.btnDeleteRole.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnDeleteRole.Location = new System.Drawing.Point(150, 10);
+            this.btnDeleteRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnDeleteRole.Location = new System.Drawing.Point(105, 10); // Adjusted position
             this.btnDeleteRole.Name = "btnDeleteRole";
-            this.btnDeleteRole.Size = new System.Drawing.Size(130, 50);
-            this.btnDeleteRole.Text = "Xóa Vai trò";
+            this.btnDeleteRole.Size = new System.Drawing.Size(95, 50); // Reduced from 130
+            this.btnDeleteRole.Text = "Xóa";
             this.btnDeleteRole.Click += new System.EventHandler(this.btnDeleteRole_Click);
 
             // 
@@ -173,7 +173,7 @@ namespace mini_supermarket.GUI.QuanLy
             this.groupBoxPermissions.Location = new System.Drawing.Point(0, 0);
             this.groupBoxPermissions.Name = "groupBoxPermissions";
             this.groupBoxPermissions.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBoxPermissions.Size = new System.Drawing.Size(790, 680);
+            this.groupBoxPermissions.Size = new System.Drawing.Size(850, 680); // Updated from 790 (1080 - 220 - 10)
             this.groupBoxPermissions.TabIndex = 0;
             this.groupBoxPermissions.TabStop = false;
             this.groupBoxPermissions.Text = "Chi tiết Phân quyền";
