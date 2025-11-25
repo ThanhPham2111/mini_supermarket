@@ -33,7 +33,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn gioiTinhColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDienThoaiColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn trangThaiColumn;
-        private System.Windows.Forms.Label roleLabel;
 
         protected override void Dispose(bool disposing)
         {
@@ -44,6 +43,9 @@
 
             base.Dispose(disposing);
         }
+
+        private System.Windows.Forms.Button importExcelButton;
+        private System.Windows.Forms.Button exportExcelButton;
 
         private void InitializeComponent()
         {
@@ -56,6 +58,8 @@
             xoaButton = new System.Windows.Forms.Button();
             suaButton = new System.Windows.Forms.Button();
             themButton = new System.Windows.Forms.Button();
+            importExcelButton = new System.Windows.Forms.Button();
+            exportExcelButton = new System.Windows.Forms.Button();
             soDienThoaiTextBox = new System.Windows.Forms.TextBox();
             soDienThoaiLabel = new System.Windows.Forms.Label();
             chucVuComboBox = new System.Windows.Forms.ComboBox();
@@ -78,7 +82,6 @@
             gioiTinhColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             soDienThoaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            roleLabel = new System.Windows.Forms.Label();
 
             employeeInfoGroupBox.SuspendLayout();
             danhSachGroupBox.SuspendLayout();
@@ -115,6 +118,33 @@
             employeeInfoGroupBox.TabStop = false;
             employeeInfoGroupBox.Text = "Thông tin nhân viên";
             employeeInfoGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+
+            // Excel green
+            var excelGreen = System.Drawing.Color.FromArgb(33, 115, 70);
+
+            // exportExcelButton
+            exportExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
+            exportExcelButton.Location = new System.Drawing.Point(920, 15);
+            exportExcelButton.Name = "exportExcelButton";
+            exportExcelButton.Size = new System.Drawing.Size(110, 30);
+            exportExcelButton.TabIndex = 20;
+            exportExcelButton.Text = "Export Excel";
+            exportExcelButton.UseVisualStyleBackColor = false;
+            exportExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            exportExcelButton.BackColor = excelGreen;
+            exportExcelButton.ForeColor = System.Drawing.Color.White;
+
+            // importExcelButton
+            importExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
+            importExcelButton.Location = new System.Drawing.Point(1050, 15);
+            importExcelButton.Name = "importExcelButton";
+            importExcelButton.Size = new System.Drawing.Size(110, 30);
+            importExcelButton.TabIndex = 21;
+            importExcelButton.Text = "Import Excel";
+            importExcelButton.UseVisualStyleBackColor = false;
+            importExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            importExcelButton.BackColor = excelGreen;
+            importExcelButton.ForeColor = System.Drawing.Color.White;
 
             // statusFilterComboBox
             statusFilterComboBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
@@ -378,22 +408,13 @@
             trangThaiColumn.Name = "trangThaiColumn";
             trangThaiColumn.ReadOnly = true;
 
-            // roleLabel
-            roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            roleLabel.AutoSize = true;
-            roleLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            roleLabel.Location = new System.Drawing.Point(1020, 20);
-            roleLabel.Name = "roleLabel";
-            roleLabel.Size = new System.Drawing.Size(87, 15);
-            roleLabel.TabIndex = 2;
-            roleLabel.Text = "Quyền: admin";
-
             // Form_NhanVien
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
             ClientSize = new System.Drawing.Size(1180, 760);
-            Controls.Add(roleLabel);
+            Controls.Add(exportExcelButton);
+            Controls.Add(importExcelButton);
             Controls.Add(danhSachGroupBox);
             Controls.Add(employeeInfoGroupBox);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;

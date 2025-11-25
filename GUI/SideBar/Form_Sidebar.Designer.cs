@@ -61,8 +61,8 @@
             this.sidebarPanel.BackColor = System.Drawing.Color.White;
             this.sidebarPanel.Controls.Add(this.navQuanLyButton);
             this.sidebarPanel.Controls.Add(this.navTaiKhoanButton);
-            this.sidebarPanel.Controls.Add(this.navNhaCungCapButton);
             this.sidebarPanel.Controls.Add(this.navNhanVienButton);
+            this.sidebarPanel.Controls.Add(this.navNhaCungCapButton);
             this.sidebarPanel.Controls.Add(this.navKhachHangButton);
             this.sidebarPanel.Controls.Add(this.navKhuyenMaiButton);
             this.sidebarPanel.Controls.Add(this.navLoaiSanPhamButton);

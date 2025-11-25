@@ -5,6 +5,8 @@ using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
+using ClosedXML.Excel;
+using System.Data;
 
 namespace mini_supermarket.GUI.KhachHang
 {
@@ -69,6 +71,9 @@ namespace mini_supermarket.GUI.KhachHang
             searchButton.Click += (_, _) => ApplySearchFilter();
 
             searchTextBox.TextChanged += searchTextBox_TextChanged;
+
+            importExcelButton.Click += ImportExcelButton_Click;
+            exportExcelButton.Click += ExportExcelButton_Click;
 
             themButton.Enabled = true;
             lamMoiButton.Enabled = true;
@@ -353,6 +358,85 @@ namespace mini_supermarket.GUI.KhachHang
 
             _bindingSource.DataSource = filtered;
             khachHangDataGridView.ClearSelection();
+        }
+        private void ExportExcelButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Lưu Excel"
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+
+            DataTable dt = new DataTable();
+
+            // Lấy header
+            foreach (DataGridViewColumn col in khachHangDataGridView.Columns)
+                dt.Columns.Add(col.HeaderText);
+
+            // Lấy dữ liệu
+            foreach (DataGridViewRow row in khachHangDataGridView.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                var data = new object[row.Cells.Count];
+                for (int i = 0; i < row.Cells.Count; i++)
+                {
+                    data[i] = row.Cells[i].Value;
+                }
+                dt.Rows.Add(data);
+            }
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt, "Khách Hàng");
+                wb.SaveAs(sfd.FileName);
+            }
+
+            MessageBox.Show("✅ Xuất Excel thành công!");
+        }
+
+        private void ImportExcelButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Chọn file Excel"
+            };
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            DataTable dt = new DataTable();
+
+            using (XLWorkbook wb = new XLWorkbook(ofd.FileName))
+            {
+                var ws = wb.Worksheet(1);
+                bool firstRow = true;
+
+                foreach (var row in ws.RowsUsed())
+                {
+                    if (firstRow)
+                    {
+                        // Tạo column
+                        foreach (var cell in row.Cells())
+                            dt.Columns.Add(cell.Value.ToString());
+
+                        firstRow = false;
+                    }
+                    else
+                    {
+                        dt.Rows.Add(row.Cells().Select(c => c.Value).ToArray());
+                    }
+                }
+            }
+
+            // hiển thị lên bảng
+            khachHangDataGridView.DataSource = dt;
+
+            MessageBox.Show("✅ Nhập Excel thành công!");
         }
     }
 }

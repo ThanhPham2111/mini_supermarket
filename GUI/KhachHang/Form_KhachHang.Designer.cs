@@ -3,24 +3,19 @@ namespace mini_supermarket.GUI.KhachHang
     partial class Form_KhachHang
     {
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.GroupBox customerInfoGroupBox;
+        private System.Windows.Forms.GroupBox khachHangInfoGroupBox;
         private System.Windows.Forms.Label maKhachHangLabel;
         private System.Windows.Forms.TextBox maKhachHangTextBox;
         private System.Windows.Forms.Label hoTenLabel;
         private System.Windows.Forms.TextBox hoTenTextBox;
         private System.Windows.Forms.Label soDienThoaiLabel;
         private System.Windows.Forms.TextBox soDienThoaiTextBox;
-        // Add components
-        // diaChi component
         private System.Windows.Forms.Label diaChiLabel;
         private System.Windows.Forms.TextBox diaChiTextBox;
-        // email component
         private System.Windows.Forms.Label emailLabel;
         private System.Windows.Forms.TextBox emailTextBox;
-        // diemTichLuy component
         private System.Windows.Forms.Label diemTichLuyLabel;
         private System.Windows.Forms.TextBox diemTichLuyTextBox;
-        // end add component
         private System.Windows.Forms.Button themButton;
         private System.Windows.Forms.Button suaButton;
         private System.Windows.Forms.Button xoaButton;
@@ -31,16 +26,14 @@ namespace mini_supermarket.GUI.KhachHang
         private System.Windows.Forms.GroupBox danhSachGroupBox;
         private System.Windows.Forms.DataGridView khachHangDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn maKhachHangColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn diaChiColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn hoTenColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDienThoaiColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn trangThaiColumn;
-        // add columns
+        private System.Windows.Forms.DataGridViewTextBoxColumn diaChiColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn diemTichLuyColumn;
-        // end add columns
-        private System.Windows.Forms.Label roleLabel;
-
+        private System.Windows.Forms.DataGridViewTextBoxColumn trangThaiColumn;
+        private System.Windows.Forms.Button importExcelButton;
+        private System.Windows.Forms.Button exportExcelButton;
 
         protected override void Dispose(bool disposing)
         {
@@ -54,15 +47,22 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            customerInfoGroupBox = new System.Windows.Forms.GroupBox();
+            khachHangInfoGroupBox = new System.Windows.Forms.GroupBox();
             statusFilterComboBox = new System.Windows.Forms.ComboBox();
             searchTextBox = new System.Windows.Forms.TextBox();
             searchButton = new System.Windows.Forms.Button();
+            importExcelButton = new System.Windows.Forms.Button();
+            exportExcelButton = new System.Windows.Forms.Button();
             lamMoiButton = new System.Windows.Forms.Button();
             xoaButton = new System.Windows.Forms.Button();
             suaButton = new System.Windows.Forms.Button();
             themButton = new System.Windows.Forms.Button();
+            diemTichLuyTextBox = new System.Windows.Forms.TextBox();
+            diemTichLuyLabel = new System.Windows.Forms.Label();
+            emailTextBox = new System.Windows.Forms.TextBox();
+            emailLabel = new System.Windows.Forms.Label();
+            diaChiTextBox = new System.Windows.Forms.TextBox();
+            diaChiLabel = new System.Windows.Forms.Label();
             soDienThoaiTextBox = new System.Windows.Forms.TextBox();
             soDienThoaiLabel = new System.Windows.Forms.Label();
             hoTenTextBox = new System.Windows.Forms.TextBox();
@@ -72,105 +72,77 @@ namespace mini_supermarket.GUI.KhachHang
             danhSachGroupBox = new System.Windows.Forms.GroupBox();
             khachHangDataGridView = new System.Windows.Forms.DataGridView();
             maKhachHangColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            diaChiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             hoTenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             soDienThoaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            roleLabel = new System.Windows.Forms.Label();
-
-            // add init
-            diaChiLabel = new System.Windows.Forms.Label();
-            diaChiTextBox = new System.Windows.Forms.TextBox();
-            emailLabel = new System.Windows.Forms.Label();
-            emailTextBox = new System.Windows.Forms.TextBox();
-            diemTichLuyLabel = new System.Windows.Forms.Label();
-            diemTichLuyTextBox = new System.Windows.Forms.TextBox();
             diaChiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             emailColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             diemTichLuyColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            // end add init
+            trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 
-            customerInfoGroupBox.SuspendLayout();
+            // Excel green
+            var excelGreen = System.Drawing.Color.FromArgb(33, 115, 70);
+
+            // exportExcelButton
+            exportExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
+            exportExcelButton.Location = new System.Drawing.Point(920, 15);
+            exportExcelButton.Name = "exportExcelButton";
+            exportExcelButton.Size = new System.Drawing.Size(110, 30);
+            exportExcelButton.TabIndex = 20;
+            exportExcelButton.Text = "Export Excel";
+            exportExcelButton.UseVisualStyleBackColor = false;
+            exportExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            exportExcelButton.BackColor = excelGreen;
+            exportExcelButton.ForeColor = System.Drawing.Color.White;
+
+            // importExcelButton
+            importExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
+            importExcelButton.Location = new System.Drawing.Point(1050, 15);
+            importExcelButton.Name = "importExcelButton";
+            importExcelButton.Size = new System.Drawing.Size(110, 30);
+            importExcelButton.TabIndex = 21;
+            importExcelButton.Text = "Import Excel";
+            importExcelButton.UseVisualStyleBackColor = false;
+            importExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            importExcelButton.BackColor = excelGreen;
+            importExcelButton.ForeColor = System.Drawing.Color.White;
+
+            khachHangInfoGroupBox.SuspendLayout();
             danhSachGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)khachHangDataGridView).BeginInit();
             SuspendLayout();
 
-            // customerInfoGroupBox
-            customerInfoGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            // add component in GroupBox
-            customerInfoGroupBox.Controls.Add(diemTichLuyTextBox);
-            customerInfoGroupBox.Controls.Add(diemTichLuyLabel);
-            customerInfoGroupBox.Controls.Add(emailTextBox);
-            customerInfoGroupBox.Controls.Add(emailLabel);
-            customerInfoGroupBox.Controls.Add(diaChiTextBox);
-            customerInfoGroupBox.Controls.Add(diaChiLabel);
-            // end add component in GroupBox
-            customerInfoGroupBox.Controls.Add(statusFilterComboBox);
-            customerInfoGroupBox.Controls.Add(searchTextBox);
-            customerInfoGroupBox.Controls.Add(searchButton);
-            customerInfoGroupBox.Controls.Add(lamMoiButton);
-            customerInfoGroupBox.Controls.Add(xoaButton);
-            customerInfoGroupBox.Controls.Add(suaButton);
-            customerInfoGroupBox.Controls.Add(themButton);
-            customerInfoGroupBox.Controls.Add(soDienThoaiTextBox);
-            customerInfoGroupBox.Controls.Add(soDienThoaiLabel);
-            customerInfoGroupBox.Controls.Add(hoTenTextBox);
-            customerInfoGroupBox.Controls.Add(hoTenLabel);
-            customerInfoGroupBox.Controls.Add(maKhachHangTextBox);
-            customerInfoGroupBox.Controls.Add(maKhachHangLabel);
-            customerInfoGroupBox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
-            customerInfoGroupBox.Location = new System.Drawing.Point(20, 50);
-            customerInfoGroupBox.Name = "customerInfoGroupBox";
-            customerInfoGroupBox.Size = new System.Drawing.Size(1140, 240);
-            customerInfoGroupBox.TabIndex = 0;
-            customerInfoGroupBox.TabStop = false;
-            customerInfoGroupBox.Text = "Thông tin khách hàng";
-            customerInfoGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            // khachHangInfoGroupBox
+            khachHangInfoGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            khachHangInfoGroupBox.Controls.Add(statusFilterComboBox);
+            khachHangInfoGroupBox.Controls.Add(searchTextBox);
+            khachHangInfoGroupBox.Controls.Add(searchButton);
+            khachHangInfoGroupBox.Controls.Add(lamMoiButton);
+            khachHangInfoGroupBox.Controls.Add(xoaButton);
+            khachHangInfoGroupBox.Controls.Add(suaButton);
+            khachHangInfoGroupBox.Controls.Add(themButton);
+            khachHangInfoGroupBox.Controls.Add(diemTichLuyTextBox);
+            khachHangInfoGroupBox.Controls.Add(diemTichLuyLabel);
+            khachHangInfoGroupBox.Controls.Add(emailTextBox);
+            khachHangInfoGroupBox.Controls.Add(emailLabel);
+            khachHangInfoGroupBox.Controls.Add(diaChiTextBox);
+            khachHangInfoGroupBox.Controls.Add(diaChiLabel);
+            khachHangInfoGroupBox.Controls.Add(soDienThoaiTextBox);
+            khachHangInfoGroupBox.Controls.Add(soDienThoaiLabel);
+            khachHangInfoGroupBox.Controls.Add(hoTenTextBox);
+            khachHangInfoGroupBox.Controls.Add(hoTenLabel);
+            khachHangInfoGroupBox.Controls.Add(maKhachHangTextBox);
+            khachHangInfoGroupBox.Controls.Add(maKhachHangLabel);
+            khachHangInfoGroupBox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
+            khachHangInfoGroupBox.Location = new System.Drawing.Point(20, 50);
+            khachHangInfoGroupBox.Name = "khachHangInfoGroupBox";
+            khachHangInfoGroupBox.Size = new System.Drawing.Size(1140, 240);
+            khachHangInfoGroupBox.TabIndex = 0;
+            khachHangInfoGroupBox.TabStop = false;
+            khachHangInfoGroupBox.Text = "Thông tin khách hàng";
+            khachHangInfoGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
-            // add css for new component
-            // diemTichLuyTextBox
-            diemTichLuyTextBox.Location = new System.Drawing.Point(150, 100);
-            diemTichLuyTextBox.Name = "diemTichLuyTextBox";
-            diemTichLuyTextBox.Size = new System.Drawing.Size(250, 28);
-            diemTichLuyTextBox.TabIndex = 10;
-
-            // diemTichLuyLabel
-            diemTichLuyLabel.AutoSize = true;
-            diemTichLuyLabel.Location = new System.Drawing.Point(20, 104);
-            diemTichLuyLabel.Name = "diemTichLuyLabel";
-            diemTichLuyLabel.Size = new System.Drawing.Size(54, 15);
-            diemTichLuyLabel.TabIndex = 9;
-            diemTichLuyLabel.Text = "Điểm tích lũy";
-
-            // emailTextBox
-            emailTextBox.Location = new System.Drawing.Point(650, 64);
-            emailTextBox.Name = "emailTextBox";
-            emailTextBox.Size = new System.Drawing.Size(250, 28);
-            emailTextBox.TabIndex = 7;
-            // emailTextBox.PlaceholderText = "Email";
-
-            // emailLabel
-            emailLabel.AutoSize = true;
-            emailLabel.Location = new System.Drawing.Point(550, 64);
-            emailLabel.Name = "emailLabel";
-            emailLabel.Size = new System.Drawing.Size(53, 15);
-            emailLabel.TabIndex = 6;
-            emailLabel.Text = "Email";
-
-            // diaChiTextBox
-            diaChiTextBox.Location = new System.Drawing.Point(150, 64);
-            diaChiTextBox.Name = "diaChiTextBox";
-            diaChiTextBox.Size = new System.Drawing.Size(250, 28);
-            diaChiTextBox.TabIndex = 5;
-            // diaChiTextBox.PlaceholderText = "Địa chỉ";
-
-            // diaChiLabel
-            diaChiLabel.AutoSize = true;
-            diaChiLabel.Location = new System.Drawing.Point(20, 64);
-            diaChiLabel.Name = "diaChiLabel";
-            diaChiLabel.Size = new System.Drawing.Size(54, 15);
-            diaChiLabel.TabIndex = 4;
-            diaChiLabel.Text = "Địa chỉ";
+            Controls.Add(exportExcelButton);
+            Controls.Add(importExcelButton);
 
             // statusFilterComboBox
             statusFilterComboBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
@@ -216,7 +188,7 @@ namespace mini_supermarket.GUI.KhachHang
             xoaButton.Name = "xoaButton";
             xoaButton.Size = new System.Drawing.Size(120, 30);
             xoaButton.TabIndex = 15;
-            xoaButton.Text = "Xóa";
+            xoaButton.Text = "Khóa";
             xoaButton.UseVisualStyleBackColor = true;
             xoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             xoaButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77);
@@ -244,32 +216,79 @@ namespace mini_supermarket.GUI.KhachHang
             themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
             themButton.ForeColor = System.Drawing.Color.White;
 
+            // diemTichLuyTextBox
+            diemTichLuyTextBox.Location = new System.Drawing.Point(650, 110);
+            diemTichLuyTextBox.Name = "diemTichLuyTextBox";
+            diemTichLuyTextBox.ReadOnly = true;
+            diemTichLuyTextBox.Size = new System.Drawing.Size(250, 28);
+            diemTichLuyTextBox.TabIndex = 12;
+
+            // diemTichLuyLabel
+            diemTichLuyLabel.AutoSize = true;
+            diemTichLuyLabel.Location = new System.Drawing.Point(550, 114);
+            diemTichLuyLabel.Name = "diemTichLuyLabel";
+            diemTichLuyLabel.Size = new System.Drawing.Size(84, 15);
+            diemTichLuyLabel.TabIndex = 11;
+            diemTichLuyLabel.Text = "Điểm tích lũy";
+
+            // emailTextBox
+            emailTextBox.Location = new System.Drawing.Point(650, 64);
+            emailTextBox.Name = "emailTextBox";
+            emailTextBox.ReadOnly = true;
+            emailTextBox.Size = new System.Drawing.Size(250, 28);
+            emailTextBox.TabIndex = 7;
+
+            // emailLabel
+            emailLabel.AutoSize = true;
+            emailLabel.Location = new System.Drawing.Point(550, 64);
+            emailLabel.Name = "emailLabel";
+            emailLabel.Size = new System.Drawing.Size(53, 15);
+            emailLabel.TabIndex = 6;
+            emailLabel.Text = "Email";
+
+            // diaChiTextBox
+            diaChiTextBox.Location = new System.Drawing.Point(150, 110);
+            diaChiTextBox.Name = "diaChiTextBox";
+            diaChiTextBox.ReadOnly = true;
+            diaChiTextBox.Size = new System.Drawing.Size(250, 28);
+            diaChiTextBox.TabIndex = 5;
+
+            // diaChiLabel
+            diaChiLabel.AutoSize = true;
+            diaChiLabel.Location = new System.Drawing.Point(20, 110);
+            diaChiLabel.Name = "diaChiLabel";
+            diaChiLabel.Size = new System.Drawing.Size(54, 15);
+            diaChiLabel.TabIndex = 4;
+            diaChiLabel.Text = "Địa chỉ";
+
             // soDienThoaiTextBox
-            soDienThoaiTextBox.Location = new System.Drawing.Point(650, 100);
+            soDienThoaiTextBox.Location = new System.Drawing.Point(150, 64);
             soDienThoaiTextBox.Name = "soDienThoaiTextBox";
+            soDienThoaiTextBox.ReadOnly = true;
             soDienThoaiTextBox.Size = new System.Drawing.Size(250, 28);
-            soDienThoaiTextBox.TabIndex = 12;
+            soDienThoaiTextBox.TabIndex = 3;
 
             // soDienThoaiLabel
             soDienThoaiLabel.AutoSize = true;
-            soDienThoaiLabel.Location = new System.Drawing.Point(550, 104);
+            soDienThoaiLabel.Location = new System.Drawing.Point(20, 64);
             soDienThoaiLabel.Name = "soDienThoaiLabel";
             soDienThoaiLabel.Size = new System.Drawing.Size(83, 15);
-            soDienThoaiLabel.TabIndex = 11;
+            soDienThoaiLabel.TabIndex = 2;
             soDienThoaiLabel.Text = "Số điện thoại";
 
             // hoTenTextBox
             hoTenTextBox.Location = new System.Drawing.Point(650, 20);
             hoTenTextBox.Name = "hoTenTextBox";
+            hoTenTextBox.ReadOnly = true;
             hoTenTextBox.Size = new System.Drawing.Size(250, 28);
-            hoTenTextBox.TabIndex = 3;
+            hoTenTextBox.TabIndex = 1;
 
             // hoTenLabel
             hoTenLabel.AutoSize = true;
             hoTenLabel.Location = new System.Drawing.Point(550, 24);
             hoTenLabel.Name = "hoTenLabel";
             hoTenLabel.Size = new System.Drawing.Size(46, 15);
-            hoTenLabel.TabIndex = 2;
+            hoTenLabel.TabIndex = 1;
             hoTenLabel.Text = "Họ tên";
 
             // maKhachHangTextBox
@@ -310,10 +329,10 @@ namespace mini_supermarket.GUI.KhachHang
             {
                 maKhachHangColumn,
                 hoTenColumn,
+                soDienThoaiColumn,
                 diaChiColumn,
                 emailColumn,
                 diemTichLuyColumn,
-                soDienThoaiColumn,
                 trangThaiColumn
             });
             khachHangDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -331,15 +350,9 @@ namespace mini_supermarket.GUI.KhachHang
             // maKhachHangColumn
             maKhachHangColumn.DataPropertyName = "MaKhachHang";
             maKhachHangColumn.HeaderText = "Mã KH";
-            maKhachHangColumn.MinimumWidth = 100;
+            maKhachHangColumn.MinimumWidth = 80;
             maKhachHangColumn.Name = "maKhachHangColumn";
             maKhachHangColumn.ReadOnly = true;
-
-            // diaChiColumn
-            diaChiColumn.DataPropertyName = "DiaChi";
-            diaChiColumn.HeaderText = "Địa chỉ";
-            diaChiColumn.Name = "diaChiColumn";
-            diaChiColumn.ReadOnly = true;
 
             // hoTenColumn
             hoTenColumn.DataPropertyName = "TenKhachHang";
@@ -353,13 +366,12 @@ namespace mini_supermarket.GUI.KhachHang
             soDienThoaiColumn.Name = "soDienThoaiColumn";
             soDienThoaiColumn.ReadOnly = true;
 
-            // trangThaiColumn
-            trangThaiColumn.DataPropertyName = "TrangThai";
-            trangThaiColumn.HeaderText = "Trạng thái";
-            trangThaiColumn.Name = "trangThaiColumn";
-            trangThaiColumn.ReadOnly = true;
+            // diaChiColumn
+            diaChiColumn.DataPropertyName = "DiaChi";
+            diaChiColumn.HeaderText = "Địa chỉ";
+            diaChiColumn.Name = "diaChiColumn";
+            diaChiColumn.ReadOnly = true;
 
-            // add css new column
             // emailColumn
             emailColumn.DataPropertyName = "Email";
             emailColumn.HeaderText = "Email";
@@ -372,29 +384,24 @@ namespace mini_supermarket.GUI.KhachHang
             diemTichLuyColumn.Name = "diemTichLuyColumn";
             diemTichLuyColumn.ReadOnly = true;
 
-            // roleLabel
-            roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            roleLabel.AutoSize = true;
-            roleLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            roleLabel.Location = new System.Drawing.Point(1020, 20);
-            roleLabel.Name = "roleLabel";
-            roleLabel.Size = new System.Drawing.Size(87, 15);
-            roleLabel.TabIndex = 2;
-            roleLabel.Text = "Quyền: admin";
+            // trangThaiColumn
+            trangThaiColumn.DataPropertyName = "TrangThai";
+            trangThaiColumn.HeaderText = "Trạng thái";
+            trangThaiColumn.Name = "trangThaiColumn";
+            trangThaiColumn.ReadOnly = true;
 
             // Form_KhachHang
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
             ClientSize = new System.Drawing.Size(1180, 760);
-            Controls.Add(roleLabel);
             Controls.Add(danhSachGroupBox);
-            Controls.Add(customerInfoGroupBox);
+            Controls.Add(khachHangInfoGroupBox);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             Name = "Form_KhachHang";
             Text = "Quản lý khách hàng";
-            customerInfoGroupBox.ResumeLayout(false);
-            customerInfoGroupBox.PerformLayout();
+            khachHangInfoGroupBox.ResumeLayout(false);
+            khachHangInfoGroupBox.PerformLayout();
             danhSachGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)khachHangDataGridView).EndInit();
             ResumeLayout(false);
@@ -402,3 +409,4 @@ namespace mini_supermarket.GUI.KhachHang
         }
     }
 }
+
