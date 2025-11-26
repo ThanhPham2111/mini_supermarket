@@ -22,22 +22,11 @@ namespace mini_supermarket.GUI
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-
-            
-            // Set tab order for better UX
-            taiKhoan_txb.TabIndex = 0;
-            matKhau_txb.TabIndex = 1;
-            Login_btn.TabIndex = 2;
-            
-            // Enable Enter key to trigger login
-
-            this.AcceptButton = Login_btn;
         }
 
         private void Form_Login_Load(object sender, EventArgs e)
         {
-            // Focus on username textbox when form loads
-            taiKhoan_txb.Focus();
+            panel3.BackColor = Color.FromArgb(150, 0, 0, 0);
         }
 
         private void panel2_Paint(object sender, PaintEventArgs e)
@@ -68,5 +57,14 @@ namespace mini_supermarket.GUI
 
         }
 
+        private void panel3_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -31,6 +31,7 @@ namespace mini_supermarket.GUI.HoaDon
                 return;
             }
             searchComboBox.SelectedIndex = 0;
+            trangThaiComboBox.SelectedIndex = 0; // Mặc định chọn "Tất cả"
             hoaDonDataGridView.AutoGenerateColumns = false;
             hoaDonDataGridView.DataSource = _bindingSource;
 
@@ -44,6 +45,8 @@ namespace mini_supermarket.GUI.HoaDon
             toolTip.SetToolTip(xuatFileButton, "Export Excel");
 
             timKiemButton.Click += timKiemButton_Click;
+            trangThaiComboBox.SelectedIndexChanged += trangThaiComboBox_SelectedIndexChanged;
+            hoaDonDataGridView.CellFormatting += hoaDonDataGridView_CellFormatting;
             // xemChiTietButton.Click += xemChiTietButton_Click;
             // lamMoiButton.Click += lamMoiButton_Click;
             // themFileButton.Click += themFileButton_Click;
@@ -95,6 +98,7 @@ namespace mini_supermarket.GUI.HoaDon
             textBox2.Clear();
             dateTimePicker2.Value = DateTime.Today;
             dateTimePicker3.Value = DateTime.Today;
+            trangThaiComboBox.SelectedIndex = 0; // Reset về "Tất cả"
         }
 
         private void timKiemButton_Click(object sender, EventArgs e)
@@ -196,6 +200,22 @@ namespace mini_supermarket.GUI.HoaDon
                 }
 
                 _bindingSource.DataSource = new BindingList<HoaDonDTO>(filteredByAmount);
+            }
+
+            // 4. Xử lý lọc theo trạng thái
+            if (trangThaiComboBox.SelectedIndex > 0) // Nếu không chọn "Tất cả"
+            {
+                var currentData = (BindingList<HoaDonDTO>)_bindingSource.DataSource;
+                string? selectedTrangThai = trangThaiComboBox.SelectedItem?.ToString();
+                
+                if (!string.IsNullOrEmpty(selectedTrangThai))
+                {
+                    var filteredByTrangThai = currentData.Where(h => 
+                        h.TrangThai != null && h.TrangThai.Equals(selectedTrangThai, StringComparison.OrdinalIgnoreCase)).ToList();
+                    
+                    Console.WriteLine($"Lọc theo trạng thái '{selectedTrangThai}': {filteredByTrangThai.Count} hóa đơn");
+                    _bindingSource.DataSource = new BindingList<HoaDonDTO>(filteredByTrangThai);
+                }
             }
         }
 
@@ -405,6 +425,55 @@ namespace mini_supermarket.GUI.HoaDon
             catch (Exception ex)
             {
                 MessageBox.Show($"❌ Lỗi khi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void trangThaiComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            // Gọi hàm tìm kiếm khi trạng thái thay đổi
+            timKiemButton_Click(sender, e);
+        }
+
+        private void hoaDonDataGridView_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (hoaDonDataGridView.Rows[e.RowIndex].DataBoundItem is HoaDonDTO hoaDon)
+            {
+                // Kiểm tra nếu trạng thái là "Đã hủy"
+                if (hoaDon.TrangThai != null && hoaDon.TrangThai.Equals("Đã hủy", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Đổi màu nền của cả hàng thành đỏ nhạt
+                    hoaDonDataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
+                    hoaDonDataGridView.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.DarkRed;
+                }
+                else
+                {
+                    // Reset về màu mặc định
+                    hoaDonDataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+                    hoaDonDataGridView.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void huyButton_Click(object? sender, EventArgs e){
+            var selectedHoaDon = hoaDonDataGridView.SelectedRows[0].DataBoundItem as HoaDonDTO;
+            if(selectedHoaDon != null){
+                var result = MessageBox.Show(this, $"Bạn có chắc chắn muốn hủy hóa đơn #{selectedHoaDon.MaHoaDon}?", "Xác nhận hủy hóa đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if(result == DialogResult.Yes){
+                    try{
+                        int rowAffected = _hoaDonBus.HuyHoaDon(selectedHoaDon);
+                        if(rowAffected > 0){
+                            MessageBox.Show(this, $"✅ Hủy hóa đơn #{selectedHoaDon.MaHoaDon} thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            // Cập nhật lại trạng thái trong danh sách hiện tại
+                            selectedHoaDon.TrangThai = "Đã hủy";
+                            hoaDonDataGridView.Refresh();
+                        } else {
+                            MessageBox.Show(this, $"❌ Hủy hóa đơn #{selectedHoaDon.MaHoaDon} thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    } catch(Exception ex)
+                    {
+                        MessageBox.Show(this, $"❌ Lỗi khi hủy hóa đơn: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
         }
     }

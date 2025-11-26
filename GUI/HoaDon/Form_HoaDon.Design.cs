@@ -40,6 +40,7 @@ namespace mini_supermarket.GUI.HoaDon
             searchComboBox = new ComboBox();
             xemChiTietButton = new Button();
             lamMoiButton = new Button();
+            huyButton = new Button();
             timeSearchGroupBox = new GroupBox();
             label2 = new Label();
             dateTimePicker3 = new DateTimePicker();
@@ -54,11 +55,16 @@ namespace mini_supermarket.GUI.HoaDon
             nhanVienColumn = new DataGridViewTextBoxColumn();
             khachHangColumn = new DataGridViewTextBoxColumn();
             thanhTienColumn = new DataGridViewTextBoxColumn();
+            trangThaiColumn = new DataGridViewTextBoxColumn();
             danhSachGroupBox = new GroupBox();
+            trangThaiGroupBox = new GroupBox();
+            trangThaiComboBox = new ComboBox();
+            trangThaiLabel = new Label();
             invoiceSearchGroupBox.SuspendLayout();
             groupBox2.SuspendLayout();
             timeSearchGroupBox.SuspendLayout();
             groupBox1.SuspendLayout();
+            trangThaiGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)hoaDonDataGridView).BeginInit();
             danhSachGroupBox.SuspendLayout();
             SuspendLayout();
@@ -67,7 +73,8 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             invoiceSearchGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             invoiceSearchGroupBox.BackColor = Color.WhiteSmoke;
-            invoiceSearchGroupBox.Controls.Add(timKiemButton);
+            // invoiceSearchGroupBox.Controls.Add(timKiemButton);
+            invoiceSearchGroupBox.Controls.Add(huyButton);
             invoiceSearchGroupBox.Controls.Add(groupBox2);
             invoiceSearchGroupBox.Controls.Add(xemChiTietButton);
             // invoiceSearchGroupBox.Controls.Add(revenueLabel);
@@ -75,6 +82,7 @@ namespace mini_supermarket.GUI.HoaDon
             invoiceSearchGroupBox.Controls.Add(lamMoiButton);
             invoiceSearchGroupBox.Controls.Add(timeSearchGroupBox);
             invoiceSearchGroupBox.Controls.Add(groupBox1);
+            invoiceSearchGroupBox.Controls.Add(trangThaiGroupBox);
             invoiceSearchGroupBox.FlatStyle = FlatStyle.Flat;
             invoiceSearchGroupBox.Font = new Font("Segoe UI", 10F);
             invoiceSearchGroupBox.Location = new Point(20, 60);
@@ -113,6 +121,20 @@ namespace mini_supermarket.GUI.HoaDon
             themFileButton.Text = "Import Excel";
             themFileButton.UseVisualStyleBackColor = false;
             themFileButton.Click += importFileButton_Click;
+            // 
+            // huyButton
+            // 
+            huyButton.BackColor = Color.FromArgb(255, 0, 0);
+            huyButton.FlatStyle = FlatStyle.Flat;
+            huyButton.ForeColor = Color.White;
+            huyButton.Location = new Point(1000, 69);
+            huyButton.Margin = new Padding(3, 4, 3, 4);
+            huyButton.Name = "huyButton";
+            huyButton.Size = new Size(137, 40);
+            huyButton.TabIndex = 24;
+            huyButton.Text = "Hủy";
+            huyButton.UseVisualStyleBackColor = false;
+            huyButton.Click += huyButton_Click;
             // 
             // timKiemButton
             // 
@@ -296,6 +318,37 @@ namespace mini_supermarket.GUI.HoaDon
             // roleLabel.TabIndex = 4;
             // roleLabel.Text = "Quyền: admin";
             // 
+            // trangThaiGroupBox
+            // 
+            trangThaiGroupBox.Controls.Add(trangThaiComboBox);
+            // trangThaiGroupBox.Controls.Add(trangThaiLabel);
+            trangThaiGroupBox.Font = new Font("Segoe UI", 9F);
+            trangThaiGroupBox.Location = new Point(640, 120);
+            trangThaiGroupBox.Name = "trangThaiGroupBox";
+            trangThaiGroupBox.Size = new Size(200, 70);
+            trangThaiGroupBox.TabIndex = 7;
+            trangThaiGroupBox.TabStop = false;
+            trangThaiGroupBox.Text = "Trạng thái";
+            // 
+            // trangThaiLabel
+            // 
+            trangThaiLabel.AutoSize = true;
+            trangThaiLabel.Location = new Point(10, 25);
+            trangThaiLabel.Name = "trangThaiLabel";
+            trangThaiLabel.Size = new Size(75, 20);
+            trangThaiLabel.TabIndex = 0;
+            trangThaiLabel.Text = "Trạng thái:";
+            // 
+            // trangThaiComboBox
+            // 
+            trangThaiComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            trangThaiComboBox.FormattingEnabled = true;
+            trangThaiComboBox.Items.AddRange(new object[] { "Tất cả", "Đã xuất", "Đã hủy" });
+            trangThaiComboBox.Location = new Point(10, 28);
+            trangThaiComboBox.Name = "trangThaiComboBox";
+            trangThaiComboBox.Size = new Size(180, 28);
+            trangThaiComboBox.TabIndex = 0;
+            // 
             // hoaDonDataGridView
             // 
             hoaDonDataGridView.AllowUserToAddRows = false;
@@ -305,7 +358,7 @@ namespace mini_supermarket.GUI.HoaDon
             hoaDonDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             hoaDonDataGridView.BackgroundColor = Color.White;
             hoaDonDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            hoaDonDataGridView.Columns.AddRange(new DataGridViewColumn[] { maHoaDonColumn, ngayLapColumn, nhanVienColumn, khachHangColumn, thanhTienColumn });
+            hoaDonDataGridView.Columns.AddRange(new DataGridViewColumn[] { maHoaDonColumn, ngayLapColumn, nhanVienColumn, khachHangColumn, thanhTienColumn, trangThaiColumn });
             hoaDonDataGridView.Dock = DockStyle.Fill;
             hoaDonDataGridView.Location = new Point(3, 26);
             hoaDonDataGridView.Margin = new Padding(3, 4, 3, 4);
@@ -363,6 +416,14 @@ namespace mini_supermarket.GUI.HoaDon
             thanhTienColumn.Name = "thanhTienColumn";
             thanhTienColumn.ReadOnly = true;
             // 
+            // trangThaiColumn
+            // 
+            trangThaiColumn.DataPropertyName = "TrangThai";
+            trangThaiColumn.HeaderText = "Trạng thái";
+            trangThaiColumn.MinimumWidth = 6;
+            trangThaiColumn.Name = "trangThaiColumn";
+            trangThaiColumn.ReadOnly = true;
+            // 
             // danhSachGroupBox
             // 
             danhSachGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -383,7 +444,7 @@ namespace mini_supermarket.GUI.HoaDon
             BackColor = Color.FromArgb(245, 245, 245);
             ClientSize = new Size(1180, 850);
             Controls.Add(danhSachGroupBox);
-            Controls.Add(themFileButton);
+            // Controls.Add(themFileButton);
             Controls.Add(xuatFileButton);
             // Controls.Add(roleLabel);
             Controls.Add(invoiceSearchGroupBox);
@@ -400,6 +461,8 @@ namespace mini_supermarket.GUI.HoaDon
             timeSearchGroupBox.PerformLayout();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            trangThaiGroupBox.ResumeLayout(false);
+            trangThaiGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)hoaDonDataGridView).EndInit();
             danhSachGroupBox.ResumeLayout(false);
             ResumeLayout(false);
@@ -425,12 +488,17 @@ namespace mini_supermarket.GUI.HoaDon
         private DataGridViewTextBoxColumn nhanVienColumn;
         private DataGridViewTextBoxColumn khachHangColumn;
         private DataGridViewTextBoxColumn thanhTienColumn;
+        private DataGridViewTextBoxColumn trangThaiColumn;
         private Button xemChiTietButton;
         private GroupBox groupBox2;
         private TextBox searchTextBox;
         private ComboBox searchComboBox;
         private Button timKiemButton;
+        private Button huyButton;
         private Button xuatFileButton;
         private Button themFileButton;
+        private GroupBox trangThaiGroupBox;
+        private ComboBox trangThaiComboBox;
+        private Label trangThaiLabel;
     }
 }
