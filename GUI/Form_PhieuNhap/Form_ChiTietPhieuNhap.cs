@@ -287,14 +287,6 @@ namespace mini_supermarket.GUI.PhieuNhap
                 Width = 100,
                 DataPropertyName = "TenDonVi"
             });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "SoLuong",
-                HeaderText = "Số lượng",
-                Width = 100,
-                DataPropertyName = "SoLuong",
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
-            });
 
             // Load dữ liệu sản phẩm, lọc bỏ các sản phẩm đã thêm
             List<SanPhamDTO> originalData = sanPhamCache?
