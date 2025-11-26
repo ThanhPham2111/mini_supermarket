@@ -17,7 +17,7 @@ namespace mini_supermarket.DAO
             command.CommandText = @"
                 SELECT h.MaHoaDon, h.MaHoaDonCode, h.NgayLap, h.MaNhanVien, h.MaKhachHang, h.TongTien,
                        nv.TenNhanVien as NhanVien,
-                       ISNULL(kh.TenKhachHang, 'Khách lẻ') as KhachHang
+                       ISNULL(kh.TenKhachHang, N'Khách lẻ') as KhachHang
                 FROM Tbl_HoaDon h
                 LEFT JOIN Tbl_NhanVien nv ON h.MaNhanVien = nv.MaNhanVien
                 LEFT JOIN Tbl_KhachHang kh ON h.MaKhachHang = kh.MaKhachHang

@@ -201,7 +201,7 @@ namespace mini_supermarket.BUS
         }
 
         public BanHangPaymentResultDTO ProcessPayment(
-            int maKhachHang,
+            int? maKhachHang,
             int maNhanVien,
             IEnumerable<BanHangCartItemDTO> cartItems,
             int diemHienCo,
@@ -213,18 +213,24 @@ namespace mini_supermarket.BUS
                 throw new InvalidOperationException("Giỏ hàng đang trống.");
             }
 
-            int diemTichLuy = TinhDiemTichLuy(items);
+            // Nếu không có khách hàng, không cho dùng điểm
+            if (!maKhachHang.HasValue && diemSuDung > 0)
+            {
+                throw new InvalidOperationException("Khách lẻ không thể sử dụng điểm tích lũy.");
+            }
+
+            int diemTichLuy = maKhachHang.HasValue ? TinhDiemTichLuy(items) : 0;
             decimal tongTienTruocDiem = TinhTongTien(items);
             decimal giamTuDiem = TinhGiamTuDiem(tongTienTruocDiem, diemSuDung);
             decimal tongTienThanhToan = tongTienTruocDiem - giamTuDiem;
 
-            if (diemSuDung > diemHienCo)
+            if (maKhachHang.HasValue && diemSuDung > diemHienCo)
             {
                 throw new InvalidOperationException("Điểm sử dụng vượt quá điểm hiện có.");
             }
 
             int diemSuDungThucTe = (int)(giamTuDiem / GiaTriMotDiem);
-            int diemMoi = (diemHienCo - diemSuDungThucTe) + diemTichLuy;
+            int diemMoi = maKhachHang.HasValue ? (diemHienCo - diemSuDungThucTe) + diemTichLuy : 0;
 
             HoaDonDTO hoaDon = new HoaDonDTO
             {
@@ -250,7 +256,11 @@ namespace mini_supermarket.BUS
                 khoHangBUS.GiamSoLuongKho(item.MaSanPham, item.SoLuong, maNhanVien);
             }
 
-            khachHangBUS.UpdateDiemTichLuy(maKhachHang, diemMoi);
+            // Chỉ cập nhật điểm khi có khách hàng
+            if (maKhachHang.HasValue)
+            {
+                khachHangBUS.UpdateDiemTichLuy(maKhachHang.Value, diemMoi);
+            }
 
             return new BanHangPaymentResultDTO
             {

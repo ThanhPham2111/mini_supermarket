@@ -671,14 +671,6 @@ namespace mini_supermarket.GUI.Form_BanHang
         {
             try
             {
-                // Kiểm tra đã chọn khách hàng chưa
-                if (!selectedKhachHangId.HasValue)
-                {
-                    MessageBox.Show("Vui lòng chọn khách hàng trước khi thanh toán!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
                 // Kiểm tra có sản phẩm trong giỏ hàng không
                 if (dgvOrder == null || dgvOrder.Rows.Count == 0)
                 {
@@ -690,15 +682,33 @@ namespace mini_supermarket.GUI.Form_BanHang
                 var cartItems = GetCartItems();
                 decimal orderTotal = banHangBUS != null ? banHangBUS.TinhTongTien(cartItems) : 0;
 
-                // Kiểm tra điểm sử dụng có hợp lệ không
-                if (!TryGetUsePoints(out _, true, orderTotal))
+                // Kiểm tra điểm sử dụng có hợp lệ không (chỉ khi có khách hàng)
+                if (selectedKhachHangId.HasValue)
                 {
-                    if (txtUsePoints != null)
+                    if (!TryGetUsePoints(out _, true, orderTotal))
                     {
-                        txtUsePoints.Focus();
-                        txtUsePoints.SelectAll();
+                        if (txtUsePoints != null)
+                        {
+                            txtUsePoints.Focus();
+                            txtUsePoints.SelectAll();
+                        }
+                        return;
                     }
-                    return;
+                }
+                else
+                {
+                    // Nếu không có khách hàng, đảm bảo không dùng điểm
+                    if (txtUsePoints != null && !string.IsNullOrWhiteSpace(txtUsePoints.Text))
+                    {
+                        MessageBox.Show("Khách lẻ không thể sử dụng điểm tích lũy. Vui lòng xóa điểm sử dụng!", "Thông báo",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        if (txtUsePoints != null)
+                        {
+                            txtUsePoints.Focus();
+                            txtUsePoints.SelectAll();
+                        }
+                        return;
+                    }
                 }
 
                 // Xác nhận thanh toán
@@ -732,11 +742,6 @@ namespace mini_supermarket.GUI.Form_BanHang
                     throw new InvalidOperationException("BanHang_BUS chưa được khởi tạo.");
                 }
 
-                if (!selectedKhachHangId.HasValue)
-                {
-                    throw new InvalidOperationException("Vui lòng chọn khách hàng trước khi thanh toán!");
-                }
-
                 var cartItems = GetCartItems();
                 if (cartItems.Count == 0)
                 {
@@ -744,30 +749,53 @@ namespace mini_supermarket.GUI.Form_BanHang
                 }
 
                 decimal orderTotal = banHangBUS.TinhTongTien(cartItems);
-                if (!TryGetUsePoints(out int diemSuDung, false, orderTotal))
+                int diemSuDung = 0;
+                int diemHienCo = 0;
+
+                // Chỉ xử lý điểm khi có khách hàng
+                if (selectedKhachHangId.HasValue)
                 {
-                    throw new InvalidOperationException("Số điểm sử dụng không hợp lệ.");
+                    if (!TryGetUsePoints(out diemSuDung, false, orderTotal))
+                    {
+                        throw new InvalidOperationException("Số điểm sử dụng không hợp lệ.");
+                    }
+                    diemHienCo = availablePoints ?? 0;
                 }
 
-                int diemHienCo = availablePoints ?? 0;
                 int maNhanVien = GetCurrentEmployeeId();
 
                 BanHangPaymentResultDTO result = banHangBUS.ProcessPayment(
-                    selectedKhachHangId.Value,
+                    selectedKhachHangId,
                     maNhanVien,
                     cartItems,
                     diemHienCo,
                     diemSuDung);
 
-                MessageBox.Show(
-                    $"Thanh toán thành công!\n\n" +
+                // Tạo thông báo thành công
+                string message = $"Thanh toán thành công!\n\n" +
                     $"Mã hóa đơn: HD{result.MaHoaDon:D3}\n" +
-                    $"Tổng tiền trước điểm: {result.TongTienTruocDiem:N0} đ\n" +
-                    $"Giảm giá bằng điểm: -{result.GiamTuDiem:N0} đ\n" +
-                    $"Tổng cần thanh toán: {result.TongTienThanhToan:N0} đ\n" +
-                    $"Điểm tích lũy: +{result.DiemTichLuy}\n" +
-                    $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")}\n" +
-                    $"Điểm mới của khách hàng: {result.DiemMoi}",
+                    $"Tổng tiền trước điểm: {result.TongTienTruocDiem:N0} đ\n";
+                
+                if (result.GiamTuDiem > 0)
+                {
+                    message += $"Giảm giá bằng điểm: -{result.GiamTuDiem:N0} đ\n";
+                }
+                
+                message += $"Tổng cần thanh toán: {result.TongTienThanhToan:N0} đ\n";
+                
+                if (selectedKhachHangId.HasValue)
+                {
+                    message += $"Điểm tích lũy: +{result.DiemTichLuy}\n" +
+                        $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")}\n" +
+                        $"Điểm mới của khách hàng: {result.DiemMoi}";
+                }
+                else
+                {
+                    message += "Khách hàng: Khách lẻ";
+                }
+
+                MessageBox.Show(
+                    message,
                     "Thành công",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
