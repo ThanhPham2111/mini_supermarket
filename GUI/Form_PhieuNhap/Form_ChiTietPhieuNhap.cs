@@ -78,7 +78,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 var nhaCungCapBUS = new NhaCungCap_BUS();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
+                var nhaCungCapList = nhaCungCapBUS.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
 
                 cboNhaCungCap.Items.Clear();
                 cboNhaCungCap.Items.Add(new { MaNhaCungCap = 0, TenNhaCungCap = "-- Chọn nhà cung cấp --" });
