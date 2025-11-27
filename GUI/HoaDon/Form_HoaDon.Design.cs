@@ -124,7 +124,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // huyButton
             // 
-            huyButton.BackColor = Color.FromArgb(255, 0, 0);
+            huyButton.BackColor = Color.FromArgb(255, 77, 77);
             huyButton.FlatStyle = FlatStyle.Flat;
             huyButton.ForeColor = Color.White;
             huyButton.Location = new Point(1000, 69);
