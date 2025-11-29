@@ -42,5 +42,13 @@ namespace mini_supermarket.BUS
 
             return maHoaDon;
         }
+
+        public int HuyHoaDon(HoaDonDTO hoaDon)
+        {
+            if (hoaDon == null)
+                throw new ArgumentNullException(nameof(hoaDon));
+
+            return _hoaDonDao.HuyHoaDon(hoaDon);
+        }
     }
 }

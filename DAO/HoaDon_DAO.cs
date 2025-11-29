@@ -15,7 +15,7 @@ namespace mini_supermarket.DAO
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
             command.CommandText = @"
-                SELECT h.MaHoaDon, h.MaHoaDonCode, h.NgayLap, h.MaNhanVien, h.MaKhachHang, h.TongTien,
+                SELECT h.MaHoaDon, h.MaHoaDonCode, h.NgayLap, h.MaNhanVien, h.MaKhachHang, h.TongTien, h.TrangThai,
                        nv.TenNhanVien as NhanVien,
                        ISNULL(kh.TenKhachHang, N'Khách lẻ') as KhachHang
                 FROM Tbl_HoaDon h
@@ -32,7 +32,8 @@ namespace mini_supermarket.DAO
                     ngayLap: reader.IsDBNull(reader.GetOrdinal("NgayLap")) ? null : reader.GetDateTime(reader.GetOrdinal("NgayLap")),
                     maNhanVien: reader.GetInt32(reader.GetOrdinal("MaNhanVien")),
                     maKhachHang: reader.IsDBNull(reader.GetOrdinal("MaKhachHang")) ? null : reader.GetInt32(reader.GetOrdinal("MaKhachHang")),
-                    tongTien: reader.IsDBNull(reader.GetOrdinal("TongTien")) ? null : reader.GetDecimal(reader.GetOrdinal("TongTien"))
+                    tongTien: reader.IsDBNull(reader.GetOrdinal("TongTien")) ? null : reader.GetDecimal(reader.GetOrdinal("TongTien")),
+                    trangThai: reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? string.Empty : reader.GetString(reader.GetOrdinal("TrangThai"))
                 )
                 {
                     NhanVien = reader.GetString(reader.GetOrdinal("NhanVien")),
@@ -170,6 +171,19 @@ namespace mini_supermarket.DAO
 
             connection.Open();
             command.ExecuteNonQuery();
+        }
+    
+        public int HuyHoaDon(HoaDonDTO hoaDon){
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+            UPDATE dbo.Tbl_HoaDon
+            Set TrangThai = N'Đã hủy'
+            WHERE MaHoaDon = @MaHoaDon;";
+            command.Parameters.AddWithValue("@MaHoaDon", hoaDon.MaHoaDon);
+            connection.Open();
+            int rs = command.ExecuteNonQuery();
+            return rs;
         }
     }
 }

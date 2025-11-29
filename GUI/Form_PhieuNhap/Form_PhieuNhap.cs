@@ -611,7 +611,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 var nhaCungCapBUS = new NhaCungCap_BUS();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
+                var nhaCungCapList = nhaCungCapBUS.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
                 
                 cboSupplier.Items.Clear();
                 cboSupplier.Items.Add("🏢 Nhà cung cấp");

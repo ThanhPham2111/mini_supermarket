@@ -15,6 +15,7 @@ namespace mini_supermarket.DTO
         public string NhanVien { get; set; } = string.Empty;
         public string KhachHang { get; set; } = string.Empty;
         public decimal? ThanhTien => TongTien;
+        public string TrangThai { get; set; } = string.Empty;
 
         public HoaDonDTO()
         {
@@ -26,7 +27,8 @@ namespace mini_supermarket.DTO
             DateTime? ngayLap,
             int maNhanVien,
             int? maKhachHang,
-            decimal? tongTien)
+            decimal? tongTien,
+            string trangThai)
         {
             MaHoaDon = maHoaDon;
             MaHoaDonCode = maHoaDonCode;
@@ -34,6 +36,7 @@ namespace mini_supermarket.DTO
             MaNhanVien = maNhanVien;
             MaKhachHang = maKhachHang;
             TongTien = tongTien;
+            TrangThai = trangThai;
         }
     }
 }

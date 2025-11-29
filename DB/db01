@@ -9,7 +9,8 @@ GO
 -- 1. Bảng Thương hiệu
 CREATE TABLE Tbl_ThuongHieu (
     MaThuongHieu INT PRIMARY KEY IDENTITY(1,1),
-    TenThuongHieu NVARCHAR(255) NOT NULL
+    TenThuongHieu NVARCHAR(255) NOT NULL,
+    TrangThai NVARCHAR(50) DEFAULT N'Hoạt động'
 );
 
 -- 2. Bảng Loại sản phẩm
@@ -24,7 +25,8 @@ CREATE TABLE Tbl_Loai (
 CREATE TABLE Tbl_DonVi (
     MaDonVi INT PRIMARY KEY IDENTITY(1,1),
     TenDonVi NVARCHAR(100) NOT NULL,
-    MoTa NVARCHAR(255)
+    MoTa NVARCHAR(255),
+    TrangThai NVARCHAR(50) DEFAULT N'Hoạt động'
 );
 
 -- 4. Bảng Sản phẩm

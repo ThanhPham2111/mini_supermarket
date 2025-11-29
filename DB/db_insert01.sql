@@ -2,14 +2,15 @@ USE mini_sp01;
 GO
 
 -- 1. Tbl_ThuongHieu
-INSERT INTO Tbl_ThuongHieu (TenThuongHieu) VALUES 
-(N'Vinamilk'),
-(N'Coca Cola'),
-(N'Pepsi'),
-(N'Hảo Hảo'),
-(N'Kinh Đô'),
-(N'Unilever'),
-(N'Nestlé');
+INSERT INTO Tbl_ThuongHieu (TenThuongHieu, TrangThai) VALUES 
+(N'Vinamilk', N'Hoạt động'),
+(N'Coca Cola', N'Hoạt động'),
+(N'Pepsi', N'Hoạt động'),
+(N'Hảo Hảo', N'Hoạt động'),
+(N'Kinh Đô', N'Hoạt động'),
+(N'Unilever', N'Hoạt động'),
+(N'Nestlé', N'Hoạt động'),
+(N'Thương hiệu ngưng hoạt động', N'Ngưng hoạt động');
 
 -- 2. Tbl_Loai
 INSERT INTO Tbl_Loai (TenLoai, MoTa, TrangThai) VALUES 
@@ -20,13 +21,14 @@ INSERT INTO Tbl_Loai (TenLoai, MoTa, TrangThai) VALUES
 (N'Thực phẩm tươi sống', N'Thịt, cá, rau củ', N'Hoạt động');
 
 -- 3. Tbl_DonVi
-INSERT INTO Tbl_DonVi (TenDonVi, MoTa) VALUES 
-(N'Chai', N''),
-(N'Lon', N''),
-(N'Gói', N''),
-(N'Thùng', N''),
-(N'Hộp', N''),
-(N'Kg', N'');
+INSERT INTO Tbl_DonVi (TenDonVi, MoTa, TrangThai) VALUES 
+(N'Chai', N'', N'Hoạt động'),
+(N'Lon', N'', N'Hoạt động'),
+(N'Gói', N'', N'Hoạt động'),
+(N'Thùng', N'', N'Hoạt động'),
+(N'Hộp', N'', N'Hoạt động'),
+(N'Kg', N'', N'Hoạt động'),
+(N'Đơn vị ngưng hoạt động', N'Đơn vị đã ngưng sử dụng', N'Ngưng hoạt động');
 
 -- 4. Tbl_SanPham
 -- Giả sử ID tự tăng bắt đầu từ 1
@@ -66,9 +68,9 @@ INSERT INTO Tbl_KhachHang (TenKhachHang, SoDienThoai, DiaChi, Email, DiemTichLuy
 
 -- 9. Tbl_NhaCungCap
 INSERT INTO Tbl_NhaCungCap (TenNhaCungCap, DiaChi, SoDienThoai, Email, TrangThai) VALUES 
-(N'Công ty CP Vinamilk', N'Số 10, Tân Trào, Q7, TP.HCM', '02854155555', 'vinamilk@vinamilk.com.vn', N'Hợp tác'),
-(N'Công ty TNHH Coca-Cola VN', N'Xa lộ Hà Nội, Thủ Đức', '02838966999', 'coca@cocacola.com', N'Hợp tác'),
-(N'Acecook Việt Nam', N'KCN Tân Bình', '02838154064', 'info@acecook.com', N'Hợp tác');
+(N'Công ty CP Vinamilk', N'Số 10, Tân Trào, Q7, TP.HCM', '02854155555', 'vinamilk@vinamilk.com.vn', N'Hoạt động'),
+(N'Công ty TNHH Coca-Cola VN', N'Xa lộ Hà Nội, Thủ Đức', '02838966999', 'coca@cocacola.com', N'Hoạt động'),
+(N'Acecook Việt Nam', N'KCN Tân Bình', '02838154064', 'info@acecook.com', N'Hoạt động');
 
 -- 10. Tbl_KhoHang
 INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES 

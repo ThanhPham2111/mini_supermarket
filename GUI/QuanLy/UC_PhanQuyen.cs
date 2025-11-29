@@ -285,7 +285,17 @@ namespace mini_supermarket.GUI.QuanLy
             }
 
             // Set "Select All" to true only if ALL permissions are checked
-            row.Cells["colSelectAll"].Value = allChecked && anyChecked;
+            // Use _isUpdating flag to prevent triggering CellValueChanged event
+            // which would cause all child checkboxes to be unchecked
+            _isUpdating = true;
+            try
+            {
+                row.Cells["colSelectAll"].Value = allChecked && anyChecked;
+            }
+            finally
+            {
+                _isUpdating = false;
+            }
         }
 
         // Update all "Select All" checkboxes based on current permission states

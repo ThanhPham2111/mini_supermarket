@@ -78,7 +78,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 var nhaCungCapBUS = new NhaCungCap_BUS();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
+                var nhaCungCapList = nhaCungCapBUS.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
 
                 cboNhaCungCap.Items.Clear();
                 cboNhaCungCap.Items.Add(new { MaNhaCungCap = 0, TenNhaCungCap = "-- Chọn nhà cung cấp --" });
@@ -286,14 +286,6 @@ namespace mini_supermarket.GUI.PhieuNhap
                 HeaderText = "Đơn vị",
                 Width = 100,
                 DataPropertyName = "TenDonVi"
-            });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "SoLuong",
-                HeaderText = "Số lượng",
-                Width = 100,
-                DataPropertyName = "SoLuong",
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
             // Load dữ liệu sản phẩm, lọc bỏ các sản phẩm đã thêm
