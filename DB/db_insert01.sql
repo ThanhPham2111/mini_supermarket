@@ -126,9 +126,9 @@ INSERT INTO Tbl_PhanQuyenChiTiet (MaQuyen, MaChucNang, MaLoaiQuyen, DuocPhep)
 SELECT 3, 9, MaLoaiQuyen, 1 FROM Tbl_LoaiQuyen WHERE TenQuyen IN (N'Xem', N'Thêm');
 
 -- 14. Tbl_HoaDon (Vài hóa đơn mẫu)
-INSERT INTO Tbl_HoaDon (MaNhanVien, MaKhachHang, TongTien, NgayLap) VALUES 
-(2, 1, 42000, GETDATE()),
-(2, 2, 65000, DATEADD(day, -1, GETDATE()));
+INSERT INTO Tbl_HoaDon (MaNhanVien, MaKhachHang, TongTien, NgayLap, TrangThai) VALUES 
+(2, 1, 42000, GETDATE(), N'Đã xuất'),
+(2, 2, 65000, DATEADD(day, -1, GETDATE()), N'Đã xuất');
 
 -- 15. Tbl_ChiTietHoaDon
 -- Hóa đơn 1: 1 Sữa (32k) + 1 Coca (10k) = 42k
@@ -152,6 +152,11 @@ INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, T
 INSERT INTO Tbl_KhuyenMai (MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa) VALUES 
 (2, N'Mua hè sảng khoái', 10.00, '2025-06-01', '2025-08-31', N'Giảm giá nước ngọt');
 
--- 19. Tbl_LichSuThayDoiKho
-INSERT INTO Tbl_LichSuThayDoiKho (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, MaNhanVien, NgayThayDoi) VALUES 
-(1, 0, 100, 100, N'Nhập hàng', N'Nhập hàng đầu kỳ', 3, DATEADD(month, -1, GETDATE()));
+-- 19. Tbl_LichSuTichDiem
+INSERT INTO Tbl_LichSuTichDiem (MaKhachHang, MaHoaDon, DiemCong, DiemSuDung, NgayCapNhat, MoTa) VALUES 
+(2, 1, 4, 0, GETDATE(), N'Tích điểm từ hóa đơn 1'),
+(2, 2, 6, 0, DATEADD(day, -1, GETDATE()), N'Tích điểm từ hóa đơn 2');
+
+-- 20. Tbl_LichSuThayDoiKho
+INSERT INTO Tbl_LichSuThayDoiKho (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi) VALUES 
+(1, 0, 100, 100, N'Nhập hàng', N'Nhập hàng đầu kỳ', N'Nhập hàng từ nhà cung cấp Vinamilk', 3, DATEADD(month, -1, GETDATE()));

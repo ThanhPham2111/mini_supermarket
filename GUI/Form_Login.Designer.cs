@@ -57,7 +57,6 @@
             // 
             // panel2
             // 
-            panel2.BackgroundImage = Image.FromFile("../../../img/Screenshot 2025-11-24 133431.png");
             panel2.BackgroundImageLayout = ImageLayout.Stretch;
             panel2.Controls.Add(panel3);
             panel2.Location = new Point(3, 0);

@@ -106,6 +106,7 @@ CREATE TABLE Tbl_HoaDon (
     MaNhanVien INT NOT NULL,
     MaKhachHang INT NULL,
     TongTien DECIMAL(18, 2),
+    TrangThai NVARCHAR(50) DEFAULT N'Đã xuất',
     FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien),
     FOREIGN KEY (MaKhachHang) REFERENCES Tbl_KhachHang(MaKhachHang)
 );
