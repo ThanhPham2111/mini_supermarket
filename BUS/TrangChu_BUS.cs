@@ -7,6 +7,7 @@ namespace mini_supermarket.BUS
     public class TrangChuBUS
     {
         private TrangChuDAO trangChuDAO = new TrangChuDAO();
+        private KhoHangDAO khoHangDAO = new KhoHangDAO();
 
         public decimal GetDoanhThuHomNay()
         {
@@ -30,6 +31,49 @@ namespace mini_supermarket.BUS
             return trangChuDAO.GetSoLuongSanPhamHetHang();
         }
 
+        public int GetSoLuongSanPhamSapHetHang()
+        {
+            try
+            {
+                DataTable dt = khoHangDAO.LaySanPhamSapHetHang();
+                return dt?.Rows.Count ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public int GetSoLuongSanPhamTiemCan()
+        {
+            try
+            {
+                DataTable dt = khoHangDAO.LaySanPhamSapHetHang();
+                int count = 0;
+                foreach (DataRow row in dt.Rows)
+                {
+                    int soLuong = Convert.ToInt32(row["SoLuong"]);
+                    if (soLuong >= 1 && soLuong <= 5)
+                        count++;
+                }
+                return count;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public DataTable GetSanPhamSapHetHang()
+        {
+            return khoHangDAO.LaySanPhamSapHetHang();
+        }
+
+        public DataTable GetSanPhamHetHang()
+        {
+            return khoHangDAO.LaySanPhamHetHang();
+        }
+
         public DataTable GetDoanhThu7Ngay()
         {
             return trangChuDAO.GetDoanhThu7Ngay();
@@ -43,6 +87,11 @@ namespace mini_supermarket.BUS
         public DataTable GetSanPhamSapHetHan()
         {
             return trangChuDAO.GetSanPhamSapHetHan();
+        }
+
+        public DataTable GetKhachHangMuaNhieuNhat()
+        {
+            return trangChuDAO.GetKhachHangMuaNhieuNhat();
         }
     }
 }

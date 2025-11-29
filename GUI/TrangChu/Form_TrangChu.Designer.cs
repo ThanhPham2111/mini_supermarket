@@ -5,6 +5,7 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms.DataVisualization.Charting; // Thêm cho Chart
 
 namespace mini_supermarket.GUI.TrangChu
 {
@@ -12,31 +13,42 @@ namespace mini_supermarket.GUI.TrangChu
     {
         private System.ComponentModel.IContainer components = null;
 
-        // Khai báo các controls
-        private Panel panelMain;
+        // Khai báo các controls (thêm Chart, ToolTip, và top khách hàng)
+        private TableLayoutPanel panelMain; // Thay Panel bằng TableLayoutPanel cho responsive
         private Button btnRefresh; // floating icon
-        
+        private ToolTip toolTip1; // Thêm ToolTip
+
         private FlowLayoutPanel panelKPI;
         private Panel panelDoanhThu;
         private Label lblDoanhThuTitle;
         private Label lblDoanhThuValue;
-        
+        private Label lblDoanhThuIcon;
+
         private Panel panelSoHoaDon;
         private Label lblSoHoaDonTitle;
         private Label lblSoHoaDonValue;
-        
+        private Label lblSoHoaDonIcon;
+
         private Panel panelHangHet;
         private Label lblHangHetTitle;
         private Label lblHangHetValue;
-        
+        private Label lblHangHetIcon;
+
         private TableLayoutPanel panelCharts;
-        private Panel panelDoanhThu7Ngay;
-        private Panel panelTop5BanChay;
-        
+        private Chart chartDoanhThu7Ngay;
+        private Chart chartTop5BanChay;
+
         private Panel panelDataGrid;
         private Panel panelDataGridHeader;
         private Label lblSapHetHanTitle;
         private DataGridView dgvSanPhamSapHetHan;
+
+        private Panel panelTopKhachHang;
+        private Panel panelTopKhachHangHeader;
+        private Label lblTopKhachHangTitle;
+        private DataGridView dgvTopKhachHang;
+
+        private Panel panelRefreshBar; // Panel chứa nút refresh
 
         protected override void Dispose(bool disposing)
         {
@@ -50,71 +62,101 @@ namespace mini_supermarket.GUI.TrangChu
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            
-            this.panelMain = new Panel();
+
+            this.panelMain = new TableLayoutPanel();
             this.btnRefresh = new Button();
+            this.toolTip1 = new ToolTip(this.components);
             this.panelKPI = new FlowLayoutPanel();
             this.panelCharts = new TableLayoutPanel();
-            this.panelDoanhThu7Ngay = new Panel();
-            this.panelTop5BanChay = new Panel();
+            this.chartDoanhThu7Ngay = new Chart();
+            this.chartTop5BanChay = new Chart();
             this.panelDataGrid = new Panel();
             this.panelDataGridHeader = new Panel();
             this.lblSapHetHanTitle = new Label();
             this.dgvSanPhamSapHetHan = new DataGridView();
+            this.panelTopKhachHang = new Panel();
+            this.panelTopKhachHangHeader = new Panel();
+            this.lblTopKhachHangTitle = new Label();
+            this.dgvTopKhachHang = new DataGridView();
+            this.panelRefreshBar = new Panel();
 
             this.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSanPhamSapHetHan)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartDoanhThu7Ngay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartTop5BanChay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTopKhachHang)).BeginInit();
 
             // 
-            // panelMain
+            // panelMain (TableLayoutPanel cho responsive)
             // 
             this.panelMain.Dock = DockStyle.Fill;
             this.panelMain.BackColor = Color.WhiteSmoke;
             this.panelMain.Padding = new Padding(10);
             this.panelMain.AutoScroll = true;
-            this.panelMain.Controls.Add(this.panelDataGrid);
-            this.panelMain.Controls.Add(this.panelCharts);
-            this.panelMain.Controls.Add(this.panelKPI);
-            // add floating icon last so it stays on top
-            this.panelMain.Controls.Add(this.btnRefresh);
+            this.panelMain.RowCount = 6;
+            this.panelMain.ColumnCount = 1;
+            this.panelMain.RowStyles.Clear();
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 48)); // Refresh bar
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); // KPI
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 320)); // Charts
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 250)); // DataGrid sản phẩm hết hạn cố định
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 200)); // Top khách hàng
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // cảnh báo
+            this.panelMain.Controls.Add(this.panelRefreshBar, 0, 0); // refresh bar lên đầu
+            this.panelMain.Controls.Add(this.panelKPI, 0, 1);
+            this.panelMain.Controls.Add(this.panelCharts, 0, 2);
+            this.panelMain.Controls.Add(this.panelDataGrid, 0, 3);
+            this.panelMain.Controls.Add(this.panelTopKhachHang, 0, 4);
             this.panelMain.Resize += new EventHandler(this.panelMain_Resize);
 
             // 
-            // btnRefresh (floating icon, no white bar)
+            // btnRefresh (floating icon, với loading feedback)
             // 
-            this.btnRefresh.Size = new Size(36, 32);
-            this.btnRefresh.Location = new Point(0, 12); // will be repositioned on resize/load
+            this.btnRefresh.Dock = DockStyle.Right;
+            this.btnRefresh.Size = new Size(40, 32);
+            this.btnRefresh.TextAlign = ContentAlignment.MiddleCenter;
+            this.btnRefresh.Location = new Point(panelRefreshBar.Width - 52, 8);
             this.btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             this.btnRefresh.FlatStyle = FlatStyle.Flat;
             this.btnRefresh.FlatAppearance.BorderSize = 0;
             this.btnRefresh.BackColor = Color.Transparent;
             this.btnRefresh.ForeColor = Color.FromArgb(0, 120, 215);
-            this.btnRefresh.Font = new Font("Segoe MDL2 Assets", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            this.btnRefresh.Text = "\uE72C"; // refresh icon glyph
-            this.btnRefresh.TextAlign = ContentAlignment.MiddleCenter;
+            this.btnRefresh.Font = new Font("Segoe MDL2 Assets", 14F, FontStyle.Regular, GraphicsUnit.Point);
+            this.btnRefresh.Text = "\uE72C";
             this.btnRefresh.Cursor = Cursors.Hand;
             this.btnRefresh.UseVisualStyleBackColor = false;
             this.btnRefresh.Click += new EventHandler(this.btnRefresh_Click);
+            this.toolTip1.SetToolTip(this.btnRefresh, "Làm mới dữ liệu");
+
+            // 
+            // panelRefreshBar
+            // 
+            this.panelRefreshBar.Height = 48;
+            this.panelRefreshBar.Dock = DockStyle.Top;
+            this.panelRefreshBar.BackColor = Color.WhiteSmoke;
+            this.panelRefreshBar.Padding = new Padding(0, 8, 12, 8);
+            this.panelRefreshBar.Margin = new Padding(0);
+            this.panelRefreshBar.Controls.Add(this.btnRefresh);
 
             // 
             // panelKPI
             // 
-            this.panelKPI.Dock = DockStyle.Top;
+            this.panelKPI.Dock = DockStyle.Fill;
             this.panelKPI.Height = 110;
             this.panelKPI.FlowDirection = FlowDirection.LeftToRight;
             this.panelKPI.WrapContents = false;
             this.panelKPI.BackColor = Color.WhiteSmoke;
             this.panelKPI.Padding = new Padding(0, 10, 0, 10);
-            
-            // Tạo KPI panels
-            this.panelDoanhThu = CreateKpiPanel("DOANH THU HÔM NAY", out this.lblDoanhThuTitle, out this.lblDoanhThuValue, Color.FromArgb(0, 120, 215));
-            this.panelSoHoaDon = CreateKpiPanel("SỐ HÓA ĐƠN HÔM NAY", out this.lblSoHoaDonTitle, out this.lblSoHoaDonValue, Color.FromArgb(16, 137, 62));
-            this.panelHangHet = CreateKpiPanel("SỐ HÀNG ĐÃ HẾT", out this.lblHangHetTitle, out this.lblHangHetValue, Color.FromArgb(220, 53, 69));
-            
+
+            // Tạo KPI panels với icon
+            this.panelDoanhThu = CreateKpiPanel("DOANH THU HÔM NAY", out this.lblDoanhThuTitle, out this.lblDoanhThuValue, out this.lblDoanhThuIcon, Color.FromArgb(0, 120, 215), "\uE8D2");
+            this.panelSoHoaDon = CreateKpiPanel("SỐ HÓA ĐƠN HÔM NAY", out this.lblSoHoaDonTitle, out this.lblSoHoaDonValue, out this.lblSoHoaDonIcon, Color.FromArgb(16, 137, 62), "\uE7C3");
+            this.panelHangHet = CreateKpiPanel("SỐ HÀNG ĐÃ HẾT", out this.lblHangHetTitle, out this.lblHangHetValue, out this.lblHangHetIcon, Color.FromArgb(220, 53, 69), "\uEA6A");
+
             this.lblDoanhThuValue.Text = "0 đ";
             this.lblSoHoaDonValue.Text = "0";
             this.lblHangHetValue.Text = "0";
-            
+
             this.panelKPI.Controls.Add(this.panelDoanhThu);
             this.panelKPI.Controls.Add(this.panelSoHoaDon);
             this.panelKPI.Controls.Add(this.panelHangHet);
@@ -122,42 +164,41 @@ namespace mini_supermarket.GUI.TrangChu
             // 
             // panelCharts
             // 
-            this.panelCharts.Dock = DockStyle.Top;
-            this.panelCharts.Height = 270;
+            this.panelCharts.Dock = DockStyle.Fill;
+            this.panelCharts.Height = 320;
             this.panelCharts.ColumnCount = 2;
             this.panelCharts.RowCount = 1;
             this.panelCharts.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             this.panelCharts.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            this.panelCharts.Controls.Add(this.panelDoanhThu7Ngay, 0, 0);
-            this.panelCharts.Controls.Add(this.panelTop5BanChay, 1, 0);
+            this.panelCharts.Controls.Add(this.chartDoanhThu7Ngay, 0, 0);
+            this.panelCharts.Controls.Add(this.chartTop5BanChay, 1, 0);
             this.panelCharts.BackColor = Color.WhiteSmoke;
             this.panelCharts.Padding = new Padding(0, 10, 0, 10);
 
             // 
-            // panelDoanhThu7Ngay
+            // chartDoanhThu7Ngay
             // 
-            this.panelDoanhThu7Ngay.Dock = DockStyle.Fill;
-            this.panelDoanhThu7Ngay.BackColor = Color.White;
-            this.panelDoanhThu7Ngay.BorderStyle = BorderStyle.FixedSingle;
-            this.panelDoanhThu7Ngay.AutoScroll = true;
-            this.panelDoanhThu7Ngay.Margin = new Padding(0, 0, 5, 0);
+            this.chartDoanhThu7Ngay.Dock = DockStyle.Fill;
+            this.chartDoanhThu7Ngay.BackColor = Color.White;
+            this.chartDoanhThu7Ngay.BorderlineColor = Color.LightGray;
+            this.chartDoanhThu7Ngay.BorderlineWidth = 1;
 
             // 
-            // panelTop5BanChay
+            // chartTop5BanChay
             // 
-            this.panelTop5BanChay.Dock = DockStyle.Fill;
-            this.panelTop5BanChay.BackColor = Color.White;
-            this.panelTop5BanChay.BorderStyle = BorderStyle.FixedSingle;
-            this.panelTop5BanChay.AutoScroll = true;
-            this.panelTop5BanChay.Margin = new Padding(5, 0, 0, 0);
+            this.chartTop5BanChay.Dock = DockStyle.Fill;
+            this.chartTop5BanChay.BackColor = Color.White;
+            this.chartTop5BanChay.BorderlineColor = Color.LightGray;
+            this.chartTop5BanChay.BorderlineWidth = 1;
 
             // 
             // panelDataGrid
             // 
-            this.panelDataGrid.Dock = DockStyle.Top;
-            this.panelDataGrid.Height = 280;
+            this.panelDataGrid.Dock = DockStyle.Fill;
+            this.panelDataGrid.Height = 250;
             this.panelDataGrid.BackColor = Color.White;
             this.panelDataGrid.Padding = new Padding(15);
+            this.panelDataGrid.AutoScroll = true;
             this.panelDataGrid.Controls.Add(this.dgvSanPhamSapHetHan);
             this.panelDataGrid.Controls.Add(this.panelDataGridHeader);
 
@@ -165,7 +206,7 @@ namespace mini_supermarket.GUI.TrangChu
             // panelDataGridHeader
             // 
             this.panelDataGridHeader.Dock = DockStyle.Top;
-            this.panelDataGridHeader.Height = 30;
+            this.panelDataGridHeader.Height = 35;
             this.panelDataGridHeader.BackColor = Color.White;
             this.panelDataGridHeader.Padding = new Padding(0);
             this.panelDataGridHeader.Controls.Add(this.lblSapHetHanTitle);
@@ -174,9 +215,9 @@ namespace mini_supermarket.GUI.TrangChu
             // lblSapHetHanTitle
             // 
             this.lblSapHetHanTitle.Text = "Sản Phẩm Sắp Hết Hạn (7 Ngày)";
-            this.lblSapHetHanTitle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.lblSapHetHanTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             this.lblSapHetHanTitle.Dock = DockStyle.Left;
-            this.lblSapHetHanTitle.Width = 320;
+            this.lblSapHetHanTitle.Width = 350;
             this.lblSapHetHanTitle.ForeColor = Color.FromArgb(33, 37, 41);
             this.lblSapHetHanTitle.TextAlign = ContentAlignment.MiddleLeft;
 
@@ -192,47 +233,110 @@ namespace mini_supermarket.GUI.TrangChu
             this.dgvSanPhamSapHetHan.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             this.dgvSanPhamSapHetHan.AllowUserToAddRows = false;
             this.dgvSanPhamSapHetHan.AllowUserToDeleteRows = false;
+            this.dgvSanPhamSapHetHan.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
+            this.dgvSanPhamSapHetHan.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
+            this.dgvSanPhamSapHetHan.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            this.dgvSanPhamSapHetHan.GridColor = Color.LightGray;
+            this.dgvSanPhamSapHetHan.ScrollBars = ScrollBars.Vertical;
+
+            // 
+            // panelTopKhachHang
+            // 
+            this.panelTopKhachHang.Dock = DockStyle.Fill;
+            this.panelTopKhachHang.Height = 200;
+            this.panelTopKhachHang.BackColor = Color.White;
+            this.panelTopKhachHang.Padding = new Padding(15);
+            this.panelTopKhachHang.AutoScroll = true;
+            this.panelTopKhachHang.Controls.Add(this.dgvTopKhachHang);
+            this.panelTopKhachHang.Controls.Add(this.panelTopKhachHangHeader);
+
+            // 
+            // panelTopKhachHangHeader
+            // 
+            this.panelTopKhachHangHeader.Dock = DockStyle.Top;
+            this.panelTopKhachHangHeader.Height = 30;
+            this.panelTopKhachHangHeader.BackColor = Color.White;
+            this.panelTopKhachHangHeader.Padding = new Padding(0);
+            this.panelTopKhachHangHeader.Controls.Add(this.lblTopKhachHangTitle);
+
+            // 
+            // lblTopKhachHangTitle
+            // 
+            this.lblTopKhachHangTitle.Text = "Top 5 Khách Hàng Mua Nhiều Nhất";
+            this.lblTopKhachHangTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            this.lblTopKhachHangTitle.Dock = DockStyle.Left;
+            this.lblTopKhachHangTitle.Width = 300;
+            this.lblTopKhachHangTitle.ForeColor = Color.FromArgb(33, 37, 41);
+            this.lblTopKhachHangTitle.TextAlign = ContentAlignment.MiddleLeft;
+
+            // 
+            // dgvTopKhachHang
+            // 
+            this.dgvTopKhachHang.Dock = DockStyle.Fill;
+            this.dgvTopKhachHang.BackgroundColor = Color.White;
+            this.dgvTopKhachHang.BorderStyle = BorderStyle.None;
+            this.dgvTopKhachHang.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvTopKhachHang.ReadOnly = true;
+            this.dgvTopKhachHang.RowHeadersVisible = false;
+            this.dgvTopKhachHang.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvTopKhachHang.AllowUserToAddRows = false;
+            this.dgvTopKhachHang.AllowUserToDeleteRows = false;
+            this.dgvTopKhachHang.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
+            this.dgvTopKhachHang.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            this.dgvTopKhachHang.GridColor = Color.LightGray;
+            this.dgvTopKhachHang.ScrollBars = ScrollBars.Vertical;
 
             // 
             // Form_TrangChu
             // 
             this.ClientSize = new Size(1200, 800);
+            this.MinimumSize = new Size(800, 600);
             this.Controls.Add(this.panelMain);
             this.Text = "Trang Chủ";
             this.BackColor = Color.WhiteSmoke;
             this.Load += new EventHandler(this.Form_TrangChu_Load);
 
             ((System.ComponentModel.ISupportInitialize)(this.dgvSanPhamSapHetHan)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartDoanhThu7Ngay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartTop5BanChay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTopKhachHang)).EndInit();
             this.ResumeLayout(false);
         }
 
-        private Panel CreateKpiPanel(string title, out Label titleLbl, out Label valueLbl, Color valueColor)
+        private Panel CreateKpiPanel(string title, out Label titleLbl, out Label valueLbl, out Label iconLbl, Color valueColor, string iconText)
         {
             Panel panel = new Panel();
             panel.Width = 380;
-            panel.Height = 90;
+            panel.Height = 100;
             panel.BackColor = Color.White;
             panel.Margin = new Padding(0, 0, 10, 0);
             panel.Padding = new Padding(12);
+            panel.BorderStyle = BorderStyle.FixedSingle;
+
+            iconLbl = new Label();
+            iconLbl.Text = iconText;
+            iconLbl.Font = new Font("Segoe MDL2 Assets", 24F);
+            iconLbl.ForeColor = valueColor;
+            iconLbl.Location = new Point(12, 15);
+            iconLbl.Size = new Size(40, 40);
+            panel.Controls.Add(iconLbl);
 
             titleLbl = new Label();
             titleLbl.Text = title;
-            titleLbl.Dock = DockStyle.Top;
-            titleLbl.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            titleLbl.Location = new Point(60, 12);
+            titleLbl.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             titleLbl.ForeColor = Color.Gray;
-            titleLbl.Height = 22;
-            titleLbl.TextAlign = ContentAlignment.MiddleLeft;
+            titleLbl.Size = new Size(250, 22);
+            panel.Controls.Add(titleLbl);
 
             valueLbl = new Label();
             valueLbl.Text = "0";
-            valueLbl.Dock = DockStyle.Fill;
-            valueLbl.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            valueLbl.Location = new Point(60, 40);
+            valueLbl.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             valueLbl.ForeColor = valueColor;
-            valueLbl.TextAlign = ContentAlignment.MiddleLeft;
-
+            valueLbl.Size = new Size(250, 45);
             panel.Controls.Add(valueLbl);
-            panel.Controls.Add(titleLbl);
-            
+
             return panel;
         }
     }
