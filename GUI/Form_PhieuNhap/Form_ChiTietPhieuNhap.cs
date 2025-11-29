@@ -31,7 +31,7 @@ namespace mini_supermarket.GUI.PhieuNhap
         private Panel productRowsContainerPanel = null!;
         private ComboBox cboNhaCungCap = null!;
         private DateTimePicker dtpNgayNhap = null!;
-        private Button btnAdd = null!, btnCancel = null!, btnClose = null!;
+        private Button btnAdd = null!, btnCancel = null!;
         private Label lblTongTien = null!;
 
         // Product row dimensions
@@ -39,7 +39,7 @@ namespace mini_supermarket.GUI.PhieuNhap
         private const int COL2_WIDTH = 100;  // Số lượng
         private const int COL3_WIDTH = 130;  // Đơn giá
         private const int COL4_WIDTH = 140;  // Thành tiền
-        private const int COL5_WIDTH = 50;   // Xóa
+        private const int COL5_WIDTH = 100;   // Xóa
         private const int ROW_HEIGHT = 38;
         private const int ROW_MARGIN = 5;
 
@@ -49,11 +49,11 @@ namespace mini_supermarket.GUI.PhieuNhap
         private IList<SanPhamDTO>? sanPhamCache = null;
 
         // Modern color scheme
-        private readonly Color primaryColor = Color.FromArgb(33, 150, 243);      // Modern Blue
-        private readonly Color primaryDarkColor = Color.FromArgb(25, 118, 210);  // Darker Blue
-        private readonly Color successColor = Color.FromArgb(76, 175, 80);       // Green
-        private readonly Color cancelColor = Color.FromArgb(158, 158, 158);      // Gray
-        private readonly Color backgroundColor = Color.FromArgb(250, 251, 252);  // Light Gray
+        private readonly Color primaryColor = Color.FromArgb(0, 120, 215);      // Standard Blue
+        private readonly Color primaryDarkColor = Color.FromArgb(0, 90, 158);   // Darker Blue
+        private readonly Color successColor = Color.FromArgb(16, 137, 62);      // Standard Green
+        private readonly Color cancelColor = Color.FromArgb(108, 117, 125);     // Gray
+        private readonly Color backgroundColor = Color.WhiteSmoke;              // Light Gray
         private readonly Color cardColor = Color.White;
         private readonly Color borderColor = Color.FromArgb(224, 224, 224);
         private readonly Color textPrimaryColor = Color.FromArgb(33, 33, 33);
@@ -506,20 +506,17 @@ namespace mini_supermarket.GUI.PhieuNhap
             InitializeMainPanel();
             InitializeHeader();
             InitializeInfoSection();
-            InitializeProductSection();
-            InitializeTotalSection();
-            InitializeActionButtons();
+            InitializeFooterSection(); // Footer first (Dock Bottom)
+            InitializeProductSection(); // Fill remaining space
         }
 
         private void InitializeMainPanel()
         {
             mainPanel = new Panel
             {
-                Location = new Point(0, 0),
-                Size = new Size(1000, 710),
-                BackColor = cardColor,
-                Padding = new Padding(0),
-                AutoScroll = true
+                Dock = DockStyle.Fill,
+                BackColor = backgroundColor,
+                Padding = new Padding(20)
             };
             this.Controls.Add(mainPanel);
         }
@@ -528,181 +525,233 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             headerPanel = new Panel
             {
-                Location = new Point(0, 0),
-                Size = new Size(1000, 80),
-                BackColor = cardColor
+                Dock = DockStyle.Top,
+                Height = 60,
+                BackColor = cardColor,
+                Padding = new Padding(15, 10, 15, 10)
             };
             mainPanel.Controls.Add(headerPanel);
 
-            // Icon and Title
-            Label lblIcon = new Label
-            {
-                Text = "📦",
-                Location = new Point(35, 20),
-                Size = new Size(40, 40),
-                Font = new Font("Segoe UI", 20),
-                BackColor = Color.Transparent
-            };
-            headerPanel.Controls.Add(lblIcon);
-
+            // Title
             Label lblTitle = new Label
             {
-                Text = "Thêm phiếu nhập hàng",
-                Location = new Point(80, 20),
-                Size = new Size(450, 40),
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = textPrimaryColor,
-                BackColor = Color.Transparent,
-                AutoSize = false,
+                Text = "THÊM PHIẾU NHẬP HÀNG",
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                ForeColor = primaryColor,
                 TextAlign = ContentAlignment.MiddleLeft
             };
             headerPanel.Controls.Add(lblTitle);
-            // Bottom border
-            Panel line = new Panel
-            {
-                Location = new Point(0, 79),
-                Size = new Size(1000, 1),
-                BackColor = borderColor
-            };
-            headerPanel.Controls.Add(line);
         }
 
         private void InitializeInfoSection()
         {
             infoSectionPanel = new Panel
             {
-                Location = new Point(35, 100),
-                Size = new Size(930, 100),
-                BackColor = backgroundColor,
-                Padding = new Padding(20)
+                Dock = DockStyle.Top,
+                Height = 100,
+                BackColor = cardColor,
+                Padding = new Padding(20),
+                Margin = new Padding(0, 20, 0, 20)
             };
             mainPanel.Controls.Add(infoSectionPanel);
+            infoSectionPanel.BringToFront(); // Ensure order
 
-            // Section title with icon
-            Label lblSectionIcon = new Label
+            TableLayoutPanel tblInfo = new TableLayoutPanel
             {
-                Text = "ℹ️",
-                Location = new Point(0, 0),
-                Size = new Size(30, 30),
-                Font = new Font("Segoe UI", 14),
-                BackColor = Color.Transparent
+                Dock = DockStyle.Fill,
+                ColumnCount = 4,
+                RowCount = 2,
+                Padding = new Padding(0)
             };
-            infoSectionPanel.Controls.Add(lblSectionIcon);
-
-            Label lblSection = new Label
-            {
-                Text = "Thông tin chung",
-                Location = new Point(35, 0),
-                Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
-                ForeColor = textPrimaryColor,
-                BackColor = Color.Transparent
-            };
-            infoSectionPanel.Controls.Add(lblSection);
-
-            int startY = 50;
-            int labelW = 130;
-            int fieldW = 280;
-            int fieldH = 38;
-            int gapX = 50;
-            int col1X = 0;
-            int col2X = col1X + labelW + fieldW + gapX;
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            
+            infoSectionPanel.Controls.Add(tblInfo);
 
             // Row 1: Ngày nhập & Nhà cung cấp
-            CreateStyledLabel("Ngày nhập", col1X, startY, labelW, infoSectionPanel);
-            dtpNgayNhap = CreateStyledDateTimePicker(col1X + labelW, startY, fieldW, fieldH, infoSectionPanel);
+            Label lblNgayNhap = new Label { Text = "Ngày nhập:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10) };
+            dtpNgayNhap = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10) };
 
-            CreateStyledLabel("Nhà cung cấp", col2X, startY, labelW, infoSectionPanel);
-            cboNhaCungCap = CreateStyledComboBox(col2X + labelW, startY, fieldW, fieldH, infoSectionPanel);
+            Label lblNhaCungCap = new Label { Text = "Nhà cung cấp:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10) };
+            cboNhaCungCap = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
+
+            tblInfo.Controls.Add(lblNgayNhap, 0, 0);
+            tblInfo.Controls.Add(dtpNgayNhap, 1, 0);
+            tblInfo.Controls.Add(lblNhaCungCap, 2, 0);
+            tblInfo.Controls.Add(cboNhaCungCap, 3, 0);
+        }
+
+        private void InitializeFooterSection()
+        {
+            Panel footerPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 80,
+                BackColor = cardColor,
+                Padding = new Padding(20)
+            };
+            mainPanel.Controls.Add(footerPanel);
+
+            // Total Label
+            lblTongTien = new Label
+            {
+                Text = "0 đ",
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                ForeColor = Color.Red,
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(0, 10, 0, 0)
+            };
+            footerPanel.Controls.Add(lblTongTien);
+
+            Label lblTotalText = new Label
+            {
+                Text = "Tổng tiền:",
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(0, 15, 10, 0)
+            };
+            footerPanel.Controls.Add(lblTotalText);
+
+            // Buttons
+            FlowLayoutPanel flowButtons = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight
+            };
+            footerPanel.Controls.Add(flowButtons);
+
+            btnAdd = new Button
+            {
+                Text = "Lưu phiếu nhập",
+                Size = new Size(150, 40),
+                BackColor = primaryColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnAdd.FlatAppearance.BorderSize = 0;
+            btnAdd.Click += BtnAdd_Click;
+
+            btnCancel = new Button
+            {
+                Text = "Hủy",
+                Size = new Size(100, 40),
+                BackColor = cancelColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10),
+                Cursor = Cursors.Hand,
+                Margin = new Padding(10, 0, 0, 0)
+            };
+            btnCancel.FlatAppearance.BorderSize = 0;
+            btnCancel.Click += (s, e) => this.Close();
+
+            flowButtons.Controls.Add(btnAdd);
+            flowButtons.Controls.Add(btnCancel);
         }
 
         private void InitializeProductSection()
         {
-            // Header section with title and button (outside the main panel)
-            int headerY = 200;
-            
-            // Section title with icon
-            Label lblSectionIcon = new Label
+            productSectionPanel = new Panel
             {
-                Text = "📋",
-                Location = new Point(35, headerY),
-                Size = new Size(30, 30),
-                Font = new Font("Segoe UI", 14),
-                BackColor = Color.Transparent
+                Dock = DockStyle.Fill,
+                BackColor = cardColor,
+                Padding = new Padding(20),
+                Margin = new Padding(0, 20, 0, 0)
             };
-            mainPanel.Controls.Add(lblSectionIcon);
+            mainPanel.Controls.Add(productSectionPanel);
+            productSectionPanel.BringToFront();
 
-            Label lblSection = new Label
+            // Header for products
+            Panel pnlProductHeader = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 55,  // Tăng height để tạo khoảng cách với table header bên dưới
+                Padding = new Padding(0, 0, 0, 15) // Thêm padding bottom
+            };
+            productSectionPanel.Controls.Add(pnlProductHeader);
+
+            Label lblProductTitle = new Label
             {
                 Text = "Chi tiết sản phẩm",
-                Location = new Point(70, headerY),
-                Size = new Size(250, 30),
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 ForeColor = textPrimaryColor,
-                BackColor = Color.Transparent
+                TextAlign = ContentAlignment.MiddleLeft
             };
-            mainPanel.Controls.Add(lblSection);
+            pnlProductHeader.Controls.Add(lblProductTitle);
 
-            // Add button to add new product (next to label)
             Button btnAddProduct = new Button
             {
                 Text = "+ Thêm sản phẩm",
-                Location = new Point(764, headerY + 2),
-                Size = new Size(140, 28),
-                BackColor = Color.FromArgb(240, 245, 250),
-                ForeColor = primaryColor,
+                Dock = DockStyle.Right,
+                Size = new Size(150, 35),
+                BackColor = successColor,
+                ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
-            btnAddProduct.FlatAppearance.BorderColor = primaryColor;
-            btnAddProduct.FlatAppearance.BorderSize = 1;
-            btnAddProduct.MouseEnter += (s, e) => {
-                btnAddProduct.BackColor = primaryColor;
-                btnAddProduct.ForeColor = Color.White;
-            };
-            btnAddProduct.MouseLeave += (s, e) => {
-                btnAddProduct.BackColor = Color.FromArgb(240, 245, 250);
-                btnAddProduct.ForeColor = primaryColor;
-            };
+            btnAddProduct.FlatAppearance.BorderSize = 0;
             btnAddProduct.Click += (s, e) => AddProductRow();
-            mainPanel.Controls.Add(btnAddProduct);
+            pnlProductHeader.Controls.Add(btnAddProduct);
 
-            // Product data panel
-            productSectionPanel = new Panel
+            // Table Header
+            Panel pnlTableHeader = new Panel
             {
-                Location = new Point(35, 240),
-                Size = new Size(930, 300),
-                BackColor = backgroundColor,
-                Padding = new Padding(20),
-                AutoScroll = true
+                Dock = DockStyle.Top,
+                Height = 40,
+                BackColor = primaryColor,
+                Margin = new Padding(0, 10, 0, 0)
             };
-            mainPanel.Controls.Add(productSectionPanel);
+            productSectionPanel.Controls.Add(pnlTableHeader);
+            pnlTableHeader.BringToFront();
 
-            // Create header row
-            int tableHeaderY = 0;
-            int headerH = 35;
+            // Helper to add header labels
+            void AddHeader(string text, int width, DockStyle dock)
+            {
+                Label lbl = new Label
+                {
+                    Text = text,
+                    Width = width,
+                    Dock = dock,
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+                pnlTableHeader.Controls.Add(lbl);
+                lbl.BringToFront(); // Dock order matters
+            }
 
-            CreateTableHeader("Sản phẩm", 0, tableHeaderY, COL1_WIDTH, headerH, productSectionPanel);
-            CreateTableHeader("Số lượng", COL1_WIDTH, tableHeaderY, COL2_WIDTH, headerH, productSectionPanel);
-            CreateTableHeader("Đơn giá", COL1_WIDTH + COL2_WIDTH, tableHeaderY, COL3_WIDTH, headerH, productSectionPanel);
-            CreateTableHeader("Thành tiền", COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, tableHeaderY, COL4_WIDTH, headerH, productSectionPanel);
-            CreateTableHeader("", COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH, tableHeaderY, COL5_WIDTH, headerH, productSectionPanel);
+            // Dock Right to Left
+            AddHeader("", COL5_WIDTH, DockStyle.Right); // Delete
+            AddHeader("Thành tiền", COL4_WIDTH, DockStyle.Right);
+            AddHeader("Đơn giá", COL3_WIDTH, DockStyle.Right);
+            AddHeader("Số lượng", COL2_WIDTH, DockStyle.Right);
+            AddHeader("Sản phẩm", COL1_WIDTH, DockStyle.Fill); // Fill the rest
 
-            // Create container panel for product rows
+            // Product Rows Container
             productRowsContainerPanel = new Panel
             {
-                Location = new Point(0, tableHeaderY + headerH + 10),
-                Size = new Size(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + COL5_WIDTH, 200),
-                BackColor = Color.White,
-                AutoSize = false,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.White
             };
             productSectionPanel.Controls.Add(productRowsContainerPanel);
-
-            // Không tự động thêm hàng đầu tiên nữa
-            // AddProductRow();
+            productRowsContainerPanel.BringToFront();
         }
+
 
         private void AddProductRow()
         {
@@ -718,7 +767,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             TextBox txtProduct = new TextBox
             {
                 Location = new Point(0, rowY),
-                Size = new Size(COL1_WIDTH, ROW_HEIGHT),
+                Size = new Size(COL1_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 BackColor = Color.White,
                 ForeColor = textPrimaryColor,
@@ -732,7 +781,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             NumericUpDown nudQty = new NumericUpDown
             {
                 Location = new Point(COL1_WIDTH + 5, rowY),
-                Size = new Size(COL2_WIDTH - 10, ROW_HEIGHT),
+                Size = new Size(COL2_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 Minimum = 1,
                 Maximum = 10000,
@@ -745,13 +794,13 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox đơn giá
             TextBox txtPrice = new TextBox
             {
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + 5, rowY),
-                Size = new Size(COL3_WIDTH - 10, ROW_HEIGHT),
+                Location = new Point(COL1_WIDTH + COL2_WIDTH, rowY),
+                Size = new Size(COL3_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 BorderStyle = BorderStyle.FixedSingle,
                 BackColor = Color.White,
                 ForeColor = textPrimaryColor,
-                Padding = new Padding(5, 0, 5, 0),
+                TextAlign = HorizontalAlignment.Right,
                 Text = giaBan.ToString("N0")
             };
             productRowsContainerPanel.Controls.Add(txtPrice);
@@ -759,15 +808,15 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox thành tiền (read-only/disabled)
             TextBox txtTotal = new TextBox
             {
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + 5, rowY),
-                Size = new Size(COL4_WIDTH - 10, ROW_HEIGHT),
+                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, rowY),
+                Size = new Size(COL4_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 BorderStyle = BorderStyle.FixedSingle,
                 ReadOnly = true,
                 Enabled = false,
                 BackColor = Color.FromArgb(248, 249, 250),
                 ForeColor = primaryColor,
-                Padding = new Padding(5, 0, 5, 0),
+                TextAlign = HorizontalAlignment.Right,
                 Text = giaBan.ToString("N0")
             };
             productRowsContainerPanel.Controls.Add(txtTotal);
@@ -776,7 +825,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnDelete = new Button
             {
                 Text = "✕",
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 8, rowY-3),
+                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 5, rowY + 4),
                 Size = new Size(30, 30),
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 BackColor = Color.FromArgb(255, 245, 245),
@@ -884,7 +933,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 if (ctrl is TextBox txt && 
                     txt.ReadOnly && 
                     txt.Enabled == false &&
-                    ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + 5 &&
+                    ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH &&
                     !string.IsNullOrWhiteSpace(txt.Text))
                 {
                     // Parse the text, removing thousand separators
@@ -900,170 +949,6 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 lblTongTien.Text = grandTotal.ToString("N0") + " đ";
             }
-        }
-
-        private void CreateTableHeader(string text, int x, int y, int width, int height, Panel parent)
-        {
-            Label header = new Label
-            {
-                Text = text,
-                Location = new Point(x, y),
-                Size = new Size(width, height),
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                ForeColor = Color.White,
-                BackColor = primaryColor,
-                TextAlign = ContentAlignment.MiddleCenter,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            parent.Controls.Add(header);
-        }
-
-        private void InitializeTotalSection()
-        {
-            // Panel chứa tổng tiền
-            Panel totalPanel = new Panel
-            {
-                Location = new Point(35, 545),
-                Size = new Size(930, 50),
-                BackColor = Color.FromArgb(248, 249, 250),
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            mainPanel.Controls.Add(totalPanel);
-
-            // Label "Tổng tiền:"
-            Label lblTongTienText = new Label
-            {
-                Text = "Tổng tiền:",
-                Location = new Point(570, 12),
-                Size = new Size(150, 25),
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                ForeColor = textPrimaryColor,
-                TextAlign = ContentAlignment.MiddleRight,
-                BackColor = Color.Transparent
-            };
-            totalPanel.Controls.Add(lblTongTienText);
-
-            // Label hiển thị số tiền
-            lblTongTien = new Label
-            {
-                Text = "0 đ",
-                Location = new Point(730, 12),
-                Size = new Size(180, 25),
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
-                ForeColor = primaryColor,
-                TextAlign = ContentAlignment.MiddleRight,
-                BackColor = Color.Transparent
-            };
-            totalPanel.Controls.Add(lblTongTien);
-        }
-
-        private void InitializeActionButtons()
-        {
-            // Add button with modern styling
-            btnAdd = new Button
-            {
-                Text = "✓  Thêm phiếu nhập",
-                Location = new Point(590, 610),
-                Size = new Size(260, 45),
-                BackColor = primaryColor,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                Cursor = Cursors.Hand,
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            btnAdd.FlatAppearance.BorderSize = 0;
-            btnAdd.MouseEnter += (s, e) => btnAdd.BackColor = primaryDarkColor;
-            btnAdd.MouseLeave += (s, e) => btnAdd.BackColor = primaryColor;
-            btnAdd.Click += BtnAdd_Click;
-            mainPanel.Controls.Add(btnAdd);
-
-            // Cancel button
-            btnCancel = new Button
-            {
-                Text = "Hủy",
-                Location = new Point(870, 610),
-                Size = new Size(95, 45),
-                BackColor = Color.White,
-                ForeColor = textSecondaryColor,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 11, FontStyle.Regular),
-                Cursor = Cursors.Hand
-            };
-            btnCancel.FlatAppearance.BorderColor = borderColor;
-            btnCancel.FlatAppearance.BorderSize = 1;
-            btnCancel.MouseEnter += (s, e) => {
-                btnCancel.BackColor = Color.FromArgb(245, 245, 245);
-                btnCancel.ForeColor = textPrimaryColor;
-            };
-            btnCancel.MouseLeave += (s, e) => {
-                btnCancel.BackColor = Color.White;
-                btnCancel.ForeColor = textSecondaryColor;
-            };
-            btnCancel.Click += (s, e) => this.Close();
-            mainPanel.Controls.Add(btnCancel);
-        }
-
-        // Helper methods for creating styled controls
-        private Label CreateStyledLabel(string text, int x, int y, int width, Panel parent)
-        {
-            Label lbl = new Label
-            {
-                Text = text,
-                Location = new Point(x, y),
-                Size = new Size(width, 28),
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                ForeColor = textSecondaryColor,
-                BackColor = Color.Transparent
-            };
-            parent.Controls.Add(lbl);
-            return lbl;
-        }
-
-        private TextBox CreateStyledTextBox(int x, int y, int width, int height, Panel parent, bool readOnly = false)
-        {
-            TextBox txt = new TextBox
-            {
-                Location = new Point(x, y),
-                Size = new Size(width, height),
-                Font = new Font("Segoe UI", 11),
-                BorderStyle = BorderStyle.FixedSingle,
-                ReadOnly = readOnly,
-                BackColor = readOnly ? Color.FromArgb(248, 249, 250) : Color.White,
-                ForeColor = textPrimaryColor,
-                Padding = new Padding(5, 0, 5, 0)
-            };
-            parent.Controls.Add(txt);
-            return txt;
-        }
-
-        private ComboBox CreateStyledComboBox(int x, int y, int width, int height, Panel parent)
-        {
-            ComboBox cbo = new ComboBox
-            {
-                Location = new Point(x, y),
-                Size = new Size(width, height),
-                Font = new Font("Segoe UI", 11),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                BackColor = Color.White,
-                ForeColor = textPrimaryColor
-            };
-            parent.Controls.Add(cbo);
-            return cbo;
-        }
-
-        private DateTimePicker CreateStyledDateTimePicker(int x, int y, int width, int height, Panel parent)
-        {
-            DateTimePicker dtp = new DateTimePicker
-            {
-                Location = new Point(x, y),
-                Size = new Size(width, height),
-                Font = new Font("Segoe UI", 11),
-                Format = DateTimePickerFormat.Custom,
-                CustomFormat = "dd/MM/yyyy"
-            };
-            parent.Controls.Add(dtp);
-            return dtp;
         }
 
         private void BtnAdd_Click(object? sender, EventArgs e)
@@ -1197,7 +1082,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                                 txtPrice = txt;
                             // txtTotal: ReadOnly và Enabled = false, ở vị trí cột 4
                             else if (txt.ReadOnly && !txt.Enabled && 
-                                     ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + 5)
+                                     ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH)
                                 txtTotal = txt;
                         }
                     }
