@@ -32,7 +32,7 @@ INSERT INTO Tbl_DonVi (TenDonVi, MoTa, TrangThai) VALUES
 
 -- 4. Tbl_SanPham
 -- Giả sử ID tự tăng bắt đầu từ 1
-INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, HinhAnh, XuatXu, Hsd, TrangThai) VALUES 
+INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan, HinhAnh, XuatXu, HSD, TrangThai) VALUES 
 (N'Sữa tươi Vinamilk 1L', 5, 1, 1, N'Sữa tươi tiệt trùng không đường', 32000, NULL, N'Việt Nam', '2025-12-31', N'Còn hàng'),
 (N'Coca Cola 330ml', 2, 2, 1, N'Nước giải khát có gas', 10000, NULL, N'Việt Nam', '2025-06-30', N'Còn hàng'),
 (N'Mì Hảo Hảo Tôm Chua Cay', 3, 4, 2, N'Mì ăn liền hương vị tôm chua cay', 4500, NULL, N'Việt Nam', '2024-12-31', N'Còn hàng'),
@@ -141,8 +141,8 @@ INSERT INTO Tbl_ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, GiaBan) VALUES
 (2, 4, 1, 65000);
 
 -- 16. Tbl_PhieuNhap
-INSERT INTO Tbl_PhieuNhap (NgayNhap, MaNhaCungCap, TongTien) VALUES 
-(DATEADD(month, -1, GETDATE()), 1, 3200000);
+INSERT INTO Tbl_PhieuNhap (NgayNhap, MaNhaCungCap, TongTien, TrangThai, LyDoHuy) VALUES 
+(DATEADD(month, -1, GETDATE()), 1, 3200000, N'Đang nhập', NULL);
 
 -- 17. Tbl_ChiTietPhieuNhap
 INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, ThanhTien) VALUES 

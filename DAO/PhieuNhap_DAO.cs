@@ -15,7 +15,7 @@ namespace mini_supermarket.DAO
 
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"SELECT MaPhieuNhap, TongTien, NgayNhap, MaNhaCungCap
+            command.CommandText = @"SELECT MaPhieuNhap, TongTien, NgayNhap, MaNhaCungCap, TrangThai, LyDoHuy
                                      FROM dbo.Tbl_PhieuNhap
                                      ORDER BY MaPhieuNhap";
 
@@ -28,7 +28,9 @@ namespace mini_supermarket.DAO
                     MaPhieuNhap = reader.GetInt32(reader.GetOrdinal("MaPhieuNhap")),
                     TongTien = reader.GetDecimal(reader.GetOrdinal("TongTien")),
                     NgayNhap = reader.GetDateTime(reader.GetOrdinal("NgayNhap")),
-                    MaNhaCungCap = reader.GetInt32(reader.GetOrdinal("MaNhaCungCap"))
+                    MaNhaCungCap = reader.GetInt32(reader.GetOrdinal("MaNhaCungCap")),
+                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                    LyDoHuy = reader.IsDBNull(reader.GetOrdinal("LyDoHuy")) ? null : reader.GetString(reader.GetOrdinal("LyDoHuy"))
                 });
             }
 
@@ -45,7 +47,7 @@ namespace mini_supermarket.DAO
             // 1. Lấy thông tin phiếu nhập
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = @"SELECT MaPhieuNhap, TongTien, NgayNhap, MaNhaCungCap
+                command.CommandText = @"SELECT MaPhieuNhap, TongTien, NgayNhap, MaNhaCungCap, TrangThai, LyDoHuy
                                        FROM dbo.Tbl_PhieuNhap
                                        WHERE MaPhieuNhap = @MaPhieuNhap";
 
@@ -62,7 +64,9 @@ namespace mini_supermarket.DAO
                         MaPhieuNhap = reader.GetInt32(reader.GetOrdinal("MaPhieuNhap")),
                         TongTien = reader.GetDecimal(reader.GetOrdinal("TongTien")),
                         NgayNhap = reader.GetDateTime(reader.GetOrdinal("NgayNhap")),
-                        MaNhaCungCap = reader.GetInt32(reader.GetOrdinal("MaNhaCungCap"))
+                        MaNhaCungCap = reader.GetInt32(reader.GetOrdinal("MaNhaCungCap")),
+                        TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                        LyDoHuy = reader.IsDBNull(reader.GetOrdinal("LyDoHuy")) ? null : reader.GetString(reader.GetOrdinal("LyDoHuy"))
                     };
                 }
             }
@@ -114,8 +118,8 @@ namespace mini_supermarket.DAO
                 using (var command = connection.CreateCommand())
                 {
                     command.Transaction = transaction;
-                    command.CommandText = @"INSERT INTO dbo.Tbl_PhieuNhap (TongTien, NgayNhap, MaNhaCungCap)
-                                           VALUES (@TongTien, @NgayNhap, @MaNhaCungCap);
+                    command.CommandText = @"INSERT INTO dbo.Tbl_PhieuNhap (TongTien, NgayNhap, MaNhaCungCap, TrangThai, LyDoHuy)
+                                           VALUES (@TongTien, @NgayNhap, @MaNhaCungCap, @TrangThai, @LyDoHuy);
                                            SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
                     command.Parameters.Add(new SqlParameter("@TongTien", SqlDbType.Decimal)
@@ -131,6 +135,16 @@ namespace mini_supermarket.DAO
                     command.Parameters.Add(new SqlParameter("@MaNhaCungCap", SqlDbType.Int)
                     {
                         Value = phieuNhap.MaNhaCungCap
+                    });
+
+                    command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
+                    {
+                        Value = phieuNhap.TrangThai ?? (object)DBNull.Value
+                    });
+
+                    command.Parameters.Add(new SqlParameter("@LyDoHuy", SqlDbType.NVarChar, -1)
+                    {
+                        Value = phieuNhap.LyDoHuy ?? (object)DBNull.Value
                     });
 
                     object? result = command.ExecuteScalar();
@@ -201,7 +215,9 @@ namespace mini_supermarket.DAO
             command.CommandText = @"UPDATE dbo.Tbl_PhieuNhap
                                      SET TongTien = @TongTien,
                                          NgayNhap = @NgayNhap,
-                                         MaNhaCungCap = @MaNhaCungCap
+                                         MaNhaCungCap = @MaNhaCungCap,
+                                         TrangThai = @TrangThai,
+                                         LyDoHuy = @LyDoHuy
                                      WHERE MaPhieuNhap = @MaPhieuNhap";
 
             AddPhieuNhapParameters(command, phieuNhap, includeKey: true);
@@ -214,21 +230,103 @@ namespace mini_supermarket.DAO
             }
         }
 
-        public void DeletePhieuNhap(int maPhieuNhap)
+        public void UpdateTrangThaiPhieuNhap(int maPhieuNhap, string trangThai)
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
-            command.CommandText = @"DELETE FROM dbo.Tbl_PhieuNhap WHERE MaPhieuNhap = @MaPhieuNhap";
+            command.CommandText = @"UPDATE dbo.Tbl_PhieuNhap
+                                     SET TrangThai = @TrangThai
+                                     WHERE MaPhieuNhap = @MaPhieuNhap";
+
             command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
             {
                 Value = maPhieuNhap
+            });
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
+            {
+                Value = trangThai
             });
 
             connection.Open();
             int rowsAffected = command.ExecuteNonQuery();
             if (rowsAffected == 0)
             {
-                throw new InvalidOperationException("Không tìm thấy phiếu nhập để xóa.");
+                throw new InvalidOperationException("Không tìm thấy phiếu nhập để cập nhật.");
+            }
+        }
+
+        public void HuyPhieuNhap(int maPhieuNhap, string lyDoHuy)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE dbo.Tbl_PhieuNhap
+                                     SET TrangThai = N'Hủy',
+                                         LyDoHuy = @LyDoHuy
+                                     WHERE MaPhieuNhap = @MaPhieuNhap";
+
+            command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
+            {
+                Value = maPhieuNhap
+            });
+
+            command.Parameters.Add(new SqlParameter("@LyDoHuy", SqlDbType.NVarChar, -1)
+            {
+                Value = lyDoHuy ?? (object)DBNull.Value
+            });
+
+            connection.Open();
+            int rowsAffected = command.ExecuteNonQuery();
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException("Không tìm thấy phiếu nhập để hủy.");
+            }
+        }
+
+        public void DeletePhieuNhap(int maPhieuNhap)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            connection.Open();
+            
+            using var transaction = connection.BeginTransaction();
+            
+            try
+            {
+                // 1. Xóa chi tiết phiếu nhập trước
+                using (var command = connection.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = @"DELETE FROM dbo.Tbl_ChiTietPhieuNhap WHERE MaPhieuNhap = @MaPhieuNhap";
+                    command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
+                    {
+                        Value = maPhieuNhap
+                    });
+                    command.ExecuteNonQuery();
+                }
+                
+                // 2. Xóa phiếu nhập
+                using (var command = connection.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = @"DELETE FROM dbo.Tbl_PhieuNhap WHERE MaPhieuNhap = @MaPhieuNhap";
+                    command.Parameters.Add(new SqlParameter("@MaPhieuNhap", SqlDbType.Int)
+                    {
+                        Value = maPhieuNhap
+                    });
+                    
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        throw new InvalidOperationException("Không tìm thấy phiếu nhập để xóa.");
+                    }
+                }
+                
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
             }
         }
 
@@ -305,6 +403,16 @@ namespace mini_supermarket.DAO
                     Value = phieuNhap.MaNhaCungCap
                 });
             }
+
+            command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
+            {
+                Value = phieuNhap.TrangThai ?? (object)DBNull.Value
+            });
+
+            command.Parameters.Add(new SqlParameter("@LyDoHuy", SqlDbType.NVarChar, -1)
+            {
+                Value = phieuNhap.LyDoHuy ?? (object)DBNull.Value
+            });
         }
     }
 }

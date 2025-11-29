@@ -38,48 +38,15 @@ namespace mini_supermarket.BUS
 
             try
             {
-                // 1. Thêm phiếu nhập vào database
+                // Đặt trạng thái mặc định là "Đang nhập"
+                phieuNhap.TrangThai = "Đang nhập";
+                
+                // Thêm phiếu nhập vào database
                 int newId = _phieuNhapDao.InsertPhieuNhap(phieuNhap);
                 phieuNhap.MaPhieuNhap = newId;
                 
-                // 2. Cập nhật số lượng trong kho hàng cho từng chi tiết phiếu nhập
-                if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
-                {
-                    foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
-                    {
-                        // Kiểm tra sản phẩm đã có trong kho hàng chưa
-                        bool exists = _khoHangDao.ExistsByMaSanPham(chiTiet.MaSanPham);
-                        
-                        if (exists)
-                        {
-                            // Đã có trong kho -> Lấy thông tin hiện tại và cộng thêm số lượng
-                            var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
-                            if (khoHangHienTai != null)
-                            {
-                                int soLuongMoi = (khoHangHienTai.SoLuong ?? 0) + chiTiet.SoLuong;
-                                
-                                KhoHangDTO khoHangUpdate = new KhoHangDTO
-                                {
-                                    MaSanPham = chiTiet.MaSanPham,
-                                    SoLuong = soLuongMoi,
-                                    TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
-                                };
-                                _khoHangDao.UpdateKhoHang(khoHangUpdate);
-                            }
-                        }
-                        else
-                        {
-                            // Chưa có trong kho -> Thêm mới
-                            KhoHangDTO khoHangNew = new KhoHangDTO
-                            {
-                                MaSanPham = chiTiet.MaSanPham,
-                                SoLuong = chiTiet.SoLuong,
-                                TrangThai = chiTiet.SoLuong > 0 ? "Còn hàng" : "Hết hàng"
-                            };
-                            _khoHangDao.InsertKhoHang(khoHangNew);
-                        }
-                    }
-                }
+                // QUAN TRỌNG: KHÔNG cập nhật kho ở đây
+                // Chỉ cập nhật kho khi gọi XacNhanNhapKho()
                 
                 return phieuNhap;
             }
@@ -98,12 +65,163 @@ namespace mini_supermarket.BUS
             _phieuNhapDao.UpdatePhieuNhap(phieuNhap);
         }
 
+        public void XacNhanNhapKho(int maPhieuNhap)
+        {
+            if (maPhieuNhap <= 0)
+                throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
+
+            try
+            {
+                // 1. Lấy thông tin phiếu nhập
+                var phieuNhap = _phieuNhapDao.GetPhieuNhapById(maPhieuNhap);
+                
+                if (phieuNhap == null)
+                    throw new InvalidOperationException("Không tìm thấy phiếu nhập.");
+                
+                // Kiểm tra trạng thái hiện tại
+                if (phieuNhap.TrangThai == "Nhập thành công")
+                    throw new InvalidOperationException("Phiếu nhập đã được xác nhận trước đó.");
+                
+                // 2. Cập nhật trạng thái phiếu nhập
+                _phieuNhapDao.UpdateTrangThaiPhieuNhap(maPhieuNhap, "Nhập thành công");
+                
+                // 3. Cập nhật số lượng vào kho hàng
+                if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
+                {
+                    foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
+                    {
+                        // Lấy số lượng cũ
+                        int soLuongCu = 0;
+                        var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
+                        if (khoHangHienTai != null)
+                        {
+                            soLuongCu = khoHangHienTai.SoLuong ?? 0;
+                        }
+                        
+                        // Kiểm tra sản phẩm đã có trong kho hàng chưa
+                        bool exists = _khoHangDao.ExistsByMaSanPham(chiTiet.MaSanPham);
+                        
+                        int soLuongMoi = soLuongCu + chiTiet.SoLuong;
+                        
+                        // Tạo DTO kho hàng
+                        KhoHangDTO khoHangUpdate = new KhoHangDTO
+                        {
+                            MaSanPham = chiTiet.MaSanPham,
+                            SoLuong = soLuongMoi,
+                            TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
+                        };
+                        
+                        // Tạo DTO lịch sử
+                        var lichSu = new LichSuThayDoiKhoDTO
+                        {
+                            MaSanPham = chiTiet.MaSanPham,
+                            SoLuongCu = soLuongCu,
+                            SoLuongMoi = soLuongMoi,
+                            ChenhLech = chiTiet.SoLuong,
+                            LoaiThayDoi = "Nhập hàng",
+                            LyDo = string.Format("Nhập hàng từ phiếu nhập PN{0:D3}", maPhieuNhap),
+                            GhiChu = string.Format("Xác nhận nhập kho - Phiếu nhập PN{0:D3}", maPhieuNhap),
+                            MaNhanVien = 1, // TODO: Lấy từ session đăng nhập
+                            NgayThayDoi = DateTime.Now
+                        };
+                        
+                        if (exists)
+                        {
+                            // Cập nhật kho và ghi log
+                            _khoHangDao.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
+                        }
+                        else
+                        {
+                            // Thêm mới vào kho
+                            _khoHangDao.InsertKhoHang(khoHangUpdate);
+                            // Ghi log riêng (nếu cần)
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi xác nhận nhập kho: {ex.Message}", ex);
+            }
+        }
+
         public void DeletePhieuNhap(int maPhieuNhap)
         {
             if (maPhieuNhap <= 0)
                 throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
 
             _phieuNhapDao.DeletePhieuNhap(maPhieuNhap);
+        }
+
+        public void HuyPhieuNhap(int maPhieuNhap, string lyDoHuy)
+        {
+            if (maPhieuNhap <= 0)
+                throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
+
+            if (string.IsNullOrWhiteSpace(lyDoHuy))
+                throw new ArgumentException("Lý do hủy không được để trống.", nameof(lyDoHuy));
+
+            try
+            {
+                // 1. Lấy thông tin phiếu nhập
+                var phieuNhap = _phieuNhapDao.GetPhieuNhapById(maPhieuNhap);
+                
+                if (phieuNhap == null)
+                    throw new InvalidOperationException("Không tìm thấy phiếu nhập.");
+
+                // 2. Nếu phiếu nhập đã được xác nhận (Nhập thành công), cần trừ lại số lượng trong kho
+                if (phieuNhap.TrangThai == "Nhập thành công")
+                {
+                    if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
+                    {
+                        foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
+                        {
+                            // Lấy số lượng cũ
+                            int soLuongCu = 0;
+                            var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
+                            if (khoHangHienTai != null)
+                            {
+                                soLuongCu = khoHangHienTai.SoLuong ?? 0;
+                            }
+                            
+                            // Trừ số lượng
+                            int soLuongMoi = Math.Max(0, soLuongCu - chiTiet.SoLuong);
+                            
+                            // Tạo DTO kho hàng
+                            KhoHangDTO khoHangUpdate = new KhoHangDTO
+                            {
+                                MaSanPham = chiTiet.MaSanPham,
+                                SoLuong = soLuongMoi,
+                                TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
+                            };
+                            
+                            // Tạo DTO lịch sử
+                            var lichSu = new LichSuThayDoiKhoDTO
+                            {
+                                MaSanPham = chiTiet.MaSanPham,
+                                SoLuongCu = soLuongCu,
+                                SoLuongMoi = soLuongMoi,
+                                ChenhLech = -chiTiet.SoLuong, // Số âm vì trừ
+                                LoaiThayDoi = "Hủy phiếu nhập",
+                                LyDo = string.Format("Hủy phiếu nhập PN{0:D3}", maPhieuNhap),
+                                GhiChu = lyDoHuy,
+                                MaNhanVien = 1, // TODO: Lấy từ session đăng nhập
+                                NgayThayDoi = DateTime.Now
+                            };
+                            
+                            // Cập nhật kho và ghi log
+                            _khoHangDao.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
+                        }
+                    }
+                }
+
+                // 3. Cập nhật trạng thái phiếu nhập thành "Hủy"
+                _phieuNhapDao.HuyPhieuNhap(maPhieuNhap, lyDoHuy);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi hủy phiếu nhập: {ex.Message}", ex);
+            }
         }
 
         // public IList<PhieuNhapDTO> SearchPhieuNhap(string keyword)

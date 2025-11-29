@@ -151,6 +151,8 @@ CREATE TABLE Tbl_PhieuNhap (
     NgayNhap DATE DEFAULT GETDATE(),
     MaNhaCungCap INT NOT NULL,
     TongTien DECIMAL(18, 2),
+    TrangThai NVARCHAR(50) DEFAULT N'Đang nhập',
+    LyDoHuy NVARCHAR(MAX),
     FOREIGN KEY (MaNhaCungCap) REFERENCES Tbl_NhaCungCap(MaNhaCungCap)
 );
 
