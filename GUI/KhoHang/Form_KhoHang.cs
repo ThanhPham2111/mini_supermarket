@@ -92,8 +92,10 @@ namespace mini_supermarket.GUI.KhoHang
             if (dgvKhoHang.Columns["Hsd"] != null) dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn Sử Dụng";
             if (dgvKhoHang.Columns["SoLuong"] != null) dgvKhoHang.Columns["SoLuong"].HeaderText = "Số Lượng Tồn";
             if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng Thái";
-            if (dgvKhoHang.Columns["GiaNhap"] != null) dgvKhoHang.Columns["GiaNhap"].HeaderText = "Giá nhập";
-            if (dgvKhoHang.Columns["GiaBan"] != null) dgvKhoHang.Columns["GiaBan"].HeaderText = "Giá bán";
+            
+            // Ẩn các cột giá nếu chúng vẫn tồn tại (phòng trường hợp dữ liệu cũ)
+            if (dgvKhoHang.Columns["GiaNhap"] != null) dgvKhoHang.Columns["GiaNhap"].Visible = false;
+            if (dgvKhoHang.Columns["GiaBan"] != null) dgvKhoHang.Columns["GiaBan"].Visible = false;
 
             // Căn giữa nội dung các cột
             foreach (DataGridViewColumn column in dgvKhoHang.Columns)
@@ -293,8 +295,8 @@ namespace mini_supermarket.GUI.KhoHang
                     using (ExcelPackage package = new ExcelPackage())
                     {
                         var ws = package.Workbook.Worksheets.Add("MauKhoHang");
-                        // Header
-                        string[] headers = { "Mã SP", "Tên SP", "Loại", "Thương hiệu", "Đơn vị", "Số lượng", "Giá nhập", "Giá bán" };
+                        // Header (đã bỏ cột Giá nhập và Giá bán)
+                        string[] headers = { "Mã SP", "Tên SP", "Loại", "Thương hiệu", "Đơn vị", "Số lượng" };
                         for (int i = 0; i < headers.Length; i++)
                         {
                             ws.Cells[1, i + 1].Value = headers[i];
@@ -310,8 +312,6 @@ namespace mini_supermarket.GUI.KhoHang
                         ws.Cells[2, 4].Value = "Vinamilk";
                         ws.Cells[2, 5].Value = "Hộp";
                         ws.Cells[2, 6].Value = "100";
-                        ws.Cells[2, 7].Value = "30000";
-                        ws.Cells[2, 8].Value = "32000";
                         ws.Cells[2, 1, 2, headers.Length].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         ws.Cells.AutoFitColumns();
                         FileInfo excelFile = new FileInfo(saveFileDialog.FileName);

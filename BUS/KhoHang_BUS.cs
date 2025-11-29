@@ -229,6 +229,38 @@ namespace mini_supermarket.BUS
             return khoHangDAO.LaySanPhamHetHang();
         }
 
+        // Lấy giá nhập mới nhất của sản phẩm từ ChiTietPhieuNhap
+        public decimal? GetGiaNhapMoiNhat(int maSanPham)
+        {
+            return khoHangDAO.GetGiaNhapMoiNhat(maSanPham);
+        }
+
+        // Lấy danh sách kho hàng kèm giá nhập và giá bán
+        public IList<KhoHangDTO> GetAllKhoHangWithPrice()
+        {
+            return khoHangDAO.GetAllKhoHangWithPrice();
+        }
+
+        // Cập nhật kho và ghi log (wrapper method cho DAO)
+        public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
+        {
+            if (khoHang == null)
+                throw new ArgumentNullException(nameof(khoHang));
+            if (lichSu == null)
+                throw new ArgumentNullException(nameof(lichSu));
+
+            return khoHangDAO.CapNhatKhoVaGhiLog(khoHang, lichSu);
+        }
+
+        // Thêm mới kho hàng (wrapper method cho DAO)
+        public void InsertKhoHang(KhoHangDTO khoHang)
+        {
+            if (khoHang == null)
+                throw new ArgumentNullException(nameof(khoHang));
+
+            khoHangDAO.InsertKhoHang(khoHang);
+        }
+
         /// <summary>
         /// Nhập kho hàng loạt từ file Excel.
         /// </summary>

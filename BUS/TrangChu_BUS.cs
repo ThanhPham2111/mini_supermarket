@@ -7,7 +7,7 @@ namespace mini_supermarket.BUS
     public class TrangChuBUS
     {
         private TrangChuDAO trangChuDAO = new TrangChuDAO();
-        private KhoHangDAO khoHangDAO = new KhoHangDAO();
+        private KhoHangBUS khoHangBUS = new KhoHangBUS();
 
         public decimal GetDoanhThuHomNay()
         {
@@ -35,7 +35,7 @@ namespace mini_supermarket.BUS
         {
             try
             {
-                DataTable dt = khoHangDAO.LaySanPhamSapHetHang();
+                DataTable dt = khoHangBUS.LaySanPhamSapHetHang();
                 return dt?.Rows.Count ?? 0;
             }
             catch
@@ -48,7 +48,7 @@ namespace mini_supermarket.BUS
         {
             try
             {
-                DataTable dt = khoHangDAO.LaySanPhamSapHetHang();
+                DataTable dt = khoHangBUS.LaySanPhamSapHetHang();
                 int count = 0;
                 foreach (DataRow row in dt.Rows)
                 {
@@ -66,12 +66,12 @@ namespace mini_supermarket.BUS
 
         public DataTable GetSanPhamSapHetHang()
         {
-            return khoHangDAO.LaySanPhamSapHetHang();
+            return khoHangBUS.LaySanPhamSapHetHang();
         }
 
         public DataTable GetSanPhamHetHang()
         {
-            return khoHangDAO.LaySanPhamHetHang();
+            return khoHangBUS.LaySanPhamHetHang();
         }
 
         public DataTable GetDoanhThu7Ngay()

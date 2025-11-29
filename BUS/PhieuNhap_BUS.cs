@@ -8,7 +8,7 @@ namespace mini_supermarket.BUS
     public class PhieuNhap_BUS
     {
         private readonly PhieuNhap_DAO _phieuNhapDao = new PhieuNhap_DAO();
-        private readonly KhoHangDAO _khoHangDao = new KhoHangDAO();
+        private readonly KhoHangBUS _khoHangBus = new KhoHangBUS();
 
         /*  public int GetNextMaPhieuNhap()
          {
@@ -85,25 +85,27 @@ namespace mini_supermarket.BUS
                 // 2. Cập nhật trạng thái phiếu nhập
                 _phieuNhapDao.UpdateTrangThaiPhieuNhap(maPhieuNhap, "Nhập thành công");
                 
-                // 3. Cập nhật số lượng vào kho hàng
+                // 3. Cập nhật số lượng vào kho hàng và giá bán vào Tbl_SanPham
+                var loiNhuanBus = new LoiNhuan_BUS();
+                
                 if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
                 {
                     foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
                     {
                         // Lấy số lượng cũ
                         int soLuongCu = 0;
-                        var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
+                        var khoHangHienTai = _khoHangBus.GetByMaSanPham(chiTiet.MaSanPham);
                         if (khoHangHienTai != null)
                         {
                             soLuongCu = khoHangHienTai.SoLuong ?? 0;
                         }
                         
                         // Kiểm tra sản phẩm đã có trong kho hàng chưa
-                        bool exists = _khoHangDao.ExistsByMaSanPham(chiTiet.MaSanPham);
+                        bool exists = _khoHangBus.KiemTraTonTai(chiTiet.MaSanPham);
                         
                         int soLuongMoi = soLuongCu + chiTiet.SoLuong;
                         
-                        // Tạo DTO kho hàng
+                        // Tạo DTO kho hàng (chỉ số lượng, không có giá)
                         KhoHangDTO khoHangUpdate = new KhoHangDTO
                         {
                             MaSanPham = chiTiet.MaSanPham,
@@ -128,14 +130,18 @@ namespace mini_supermarket.BUS
                         if (exists)
                         {
                             // Cập nhật kho và ghi log
-                            _khoHangDao.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
+                            _khoHangBus.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
                         }
                         else
                         {
                             // Thêm mới vào kho
-                            _khoHangDao.InsertKhoHang(khoHangUpdate);
+                            _khoHangBus.InsertKhoHang(khoHangUpdate);
                             // Ghi log riêng (nếu cần)
                         }
+                        
+                        // 4. QUAN TRỌNG: Cập nhật giá bán vào Tbl_SanPham với logic giá nhập mới
+                        // Giá nhập mới = DonGiaNhap từ chi tiết phiếu nhập
+                        loiNhuanBus.CapNhatGiaBanKhiGiaNhapThayDoi(chiTiet.MaSanPham, chiTiet.DonGiaNhap);
                     }
                 }
             }
@@ -178,7 +184,7 @@ namespace mini_supermarket.BUS
                         {
                             // Lấy số lượng cũ
                             int soLuongCu = 0;
-                            var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
+                            var khoHangHienTai = _khoHangBus.GetByMaSanPham(chiTiet.MaSanPham);
                             if (khoHangHienTai != null)
                             {
                                 soLuongCu = khoHangHienTai.SoLuong ?? 0;
@@ -210,7 +216,7 @@ namespace mini_supermarket.BUS
                             };
                             
                             // Cập nhật kho và ghi log
-                            _khoHangDao.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
+                            _khoHangBus.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
                         }
                     }
                 }

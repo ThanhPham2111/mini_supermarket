@@ -21,20 +21,12 @@ namespace mini_supermarket.DAO
                     kh.TrangThai,
                     sp.MaLoai,
                     sp.MaThuongHieu,
-                    sp.GiaBan,
-                    sp.Hsd, 
-                    gn.GiaNhap
+                    sp.Hsd
                 FROM Tbl_KhoHang kh
                 JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham
                 LEFT JOIN Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
                 LEFT JOIN Tbl_Loai l ON sp.MaLoai = l.MaLoai
-                LEFT JOIN Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu
-                OUTER APPLY (
-                    SELECT TOP 1 ctpn.DonGiaNhap AS GiaNhap
-                    FROM Tbl_ChiTietPhieuNhap ctpn
-                    WHERE ctpn.MaSanPham = sp.MaSanPham
-                    ORDER BY ctpn.MaPhieuNhap DESC
-                ) AS gn;";
+                LEFT JOIN Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu;";
 
             DataTable dataTable = new DataTable();
             try
@@ -155,7 +147,8 @@ namespace mini_supermarket.DAO
 
         public KhoHangDTO? GetByMaSanPham(int maSanPham)
         {
-            const string query = @"SELECT MaSanPham, SoLuong, TrangThai FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+            const string query = @"SELECT MaSanPham, SoLuong, TrangThai 
+                                   FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
 
             try
             {
@@ -189,7 +182,10 @@ namespace mini_supermarket.DAO
 
         public void UpdateKhoHang(KhoHangDTO khoHang)
         {
-            const string query = @"UPDATE Tbl_KhoHang SET SoLuong = @SoLuong, TrangThai = @TrangThai WHERE MaSanPham = @MaSanPham";
+            const string query = @"UPDATE Tbl_KhoHang 
+                                   SET SoLuong = @SoLuong, 
+                                       TrangThai = @TrangThai
+                                   WHERE MaSanPham = @MaSanPham";
 
             try
             {
@@ -212,7 +208,8 @@ namespace mini_supermarket.DAO
 
         public void InsertKhoHang(KhoHangDTO khoHang)
         {
-            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES (@MaSanPham, @SoLuong, @TrangThai)";
+            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) 
+                                   VALUES (@MaSanPham, @SoLuong, @TrangThai)";
 
             try
             {
@@ -231,6 +228,60 @@ namespace mini_supermarket.DAO
                 Console.WriteLine($"[ERROR] InsertKhoHang: {ex.Message}");
                 throw;
             }
+        }
+
+        public IList<KhoHangDTO> GetAllKhoHangWithPrice()
+        {
+            var list = new List<KhoHangDTO>();
+            const string query = @"
+                SELECT 
+                    kh.MaSanPham,
+                    sp.TenSanPham,
+                    kh.SoLuong,
+                    kh.TrangThai,
+                    -- Lấy giá nhập mới nhất từ ChiTietPhieuNhap
+                    (SELECT TOP 1 ctpn.DonGiaNhap
+                     FROM Tbl_ChiTietPhieuNhap ctpn
+                     INNER JOIN Tbl_PhieuNhap pn ON ctpn.MaPhieuNhap = pn.MaPhieuNhap
+                     WHERE ctpn.MaSanPham = kh.MaSanPham
+                       AND pn.TrangThai = N'Nhập thành công'
+                     ORDER BY pn.NgayNhap DESC, ctpn.MaChiTietPhieuNhap DESC) AS GiaNhap,
+                    -- Lấy giá bán từ Tbl_SanPham
+                    sp.GiaBan AS GiaBan
+                FROM Tbl_KhoHang kh
+                INNER JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham
+                ORDER BY sp.TenSanPham";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new KhoHangDTO
+                            {
+                                MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                TenSanPham = reader.IsDBNull(reader.GetOrdinal("TenSanPham")) ? null : reader.GetString(reader.GetOrdinal("TenSanPham")),
+                                SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                                GiaNhap = reader.IsDBNull(reader.GetOrdinal("GiaNhap")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaNhap")),
+                                GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan"))
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetAllKhoHangWithPrice: {ex.Message}");
+                throw;
+            }
+
+            return list;
         }
 
         // PHƯƠNG ÁN 2: Cập nhật kho + Ghi log lịch sử 
@@ -465,6 +516,40 @@ namespace mini_supermarket.DAO
                 throw;
             }
             return dataTable;
+        }
+
+        // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
+        public decimal? GetGiaNhapMoiNhat(int maSanPham)
+        {
+            const string query = @"
+                SELECT TOP 1 ctpn.DonGiaNhap
+                FROM Tbl_ChiTietPhieuNhap ctpn
+                INNER JOIN Tbl_PhieuNhap pn ON ctpn.MaPhieuNhap = pn.MaPhieuNhap
+                WHERE ctpn.MaSanPham = @MaSanPham
+                  AND pn.TrangThai = N'Nhập thành công'
+                ORDER BY pn.NgayNhap DESC, ctpn.MaChiTietPhieuNhap DESC";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToDecimal(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetGiaNhapMoiNhat: {ex.Message}");
+                throw;
+            }
+
+            return null;
         }
 
         public bool GiamSoLuongVaGhiLog(int maSanPham, int soLuongGiam, LichSuThayDoiKhoDTO lichSu)

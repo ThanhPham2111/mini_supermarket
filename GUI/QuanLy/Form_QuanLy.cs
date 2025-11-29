@@ -86,6 +86,11 @@ namespace mini_supermarket.GUI.QuanLy
             var ucPhanQuyen = new UC_PhanQuyen();
             ucPhanQuyen.Dock = DockStyle.Fill;
             tabPhanQuyen.Controls.Add(ucPhanQuyen);
+
+            // Load UC_LoiNhuan into tabLoiNhuan
+            var ucLoiNhuan = new UC_LoiNhuan();
+            ucLoiNhuan.Dock = DockStyle.Fill;
+            tabLoiNhuan.Controls.Add(ucLoiNhuan);
         }
     }
 }
