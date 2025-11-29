@@ -49,7 +49,7 @@ namespace mini_supermarket.DAO
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi khi lấy danh sách tồn kho: " + ex.Message);
-                throw; // Ném lại lỗi để lớp BUS xử lý
+                throw;
             }
             return dataTable;
         }
@@ -233,7 +233,7 @@ namespace mini_supermarket.DAO
             }
         }
 
-        // PHƯƠNG ÁN 2: Cập nhật kho + Ghi log lịch sử (Đã được nâng cấp thành UPSERT)
+        // PHƯƠNG ÁN 2: Cập nhật kho + Ghi log lịch sử 
         public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
         {
             string queryUpdateKho = @"UPDATE Tbl_KhoHang 
@@ -467,9 +467,6 @@ namespace mini_supermarket.DAO
             return dataTable;
         }
 
-        /// <summary>
-        /// Giảm số lượng kho và ghi log trong cùng một transaction.
-        /// </summary>
         public bool GiamSoLuongVaGhiLog(int maSanPham, int soLuongGiam, LichSuThayDoiKhoDTO lichSu)
         {
             using (var connection = DbConnectionFactory.CreateConnection())

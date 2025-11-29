@@ -31,9 +31,6 @@ namespace mini_supermarket.BUS
             return trangChuDAO.GetSoLuongSanPhamHetHang();
         }
 
-        /// <summary>
-        /// L?y s? l??ng s?n ph?m s?p h?t hàng (1-10)
-        /// </summary>
         public int GetSoLuongSanPhamSapHetHang()
         {
             try
@@ -47,9 +44,6 @@ namespace mini_supermarket.BUS
             }
         }
 
-        /// <summary>
-        /// L?y s? l??ng s?n ph?m ? tr?ng thái t?n c?n (1-5)
-        /// </summary>
         public int GetSoLuongSanPhamTiemCan()
         {
             try
@@ -70,17 +64,11 @@ namespace mini_supermarket.BUS
             }
         }
 
-        /// <summary>
-        /// L?y danh sách s?n ph?m s?p h?t hàng
-        /// </summary>
         public DataTable GetSanPhamSapHetHang()
         {
             return khoHangDAO.LaySanPhamSapHetHang();
         }
 
-        /// <summary>
-        /// L?y danh sách s?n ph?m h?t hàng
-        /// </summary>
         public DataTable GetSanPhamHetHang()
         {
             return khoHangDAO.LaySanPhamHetHang();

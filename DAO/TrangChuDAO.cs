@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using mini_supermarket.DB;
@@ -12,7 +12,7 @@ namespace mini_supermarket.DAO
             const string sql = "SELECT SUM(TongTien) FROM Tbl_HoaDon WHERE CONVERT(date, NgayLap) = CONVERT(date, GETDATE())";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+            cmd.CommandTimeout = 60;
             conn.Open();
             return cmd.ExecuteScalar();
         }
@@ -22,7 +22,7 @@ namespace mini_supermarket.DAO
             const string sql = "SELECT COUNT(MaHoaDon) FROM Tbl_HoaDon WHERE CONVERT(date, NgayLap) = CONVERT(date, GETDATE())";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+            cmd.CommandTimeout = 60; 
             conn.Open();
             var result = cmd.ExecuteScalar();
             return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
@@ -33,7 +33,7 @@ namespace mini_supermarket.DAO
             const string sql = "SELECT COUNT(MaSanPham) FROM Tbl_KhoHang WHERE SoLuong = 0";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+            cmd.CommandTimeout = 60; 
             conn.Open();
             var result = cmd.ExecuteScalar();
             return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
@@ -48,7 +48,7 @@ namespace mini_supermarket.DAO
                                   ORDER BY Ngay ASC";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+            cmd.CommandTimeout = 60; 
             using var adapter = new SqlDataAdapter(cmd);
             var dt = new DataTable();
             conn.Open();
@@ -67,7 +67,7 @@ namespace mini_supermarket.DAO
                                   ORDER BY TongSoLuong DESC";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+            cmd.CommandTimeout = 60; 
             using var adapter = new SqlDataAdapter(cmd);
             var dt = new DataTable();
             conn.Open();
@@ -83,7 +83,7 @@ namespace mini_supermarket.DAO
                                   ORDER BY HSD ASC";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+            cmd.CommandTimeout = 60; 
             using var adapter = new SqlDataAdapter(cmd);
             var dt = new DataTable();
             conn.Open();
@@ -104,7 +104,7 @@ namespace mini_supermarket.DAO
                                       ORDER BY TongSoLuong DESC";
                 using var conn = DbConnectionFactory.CreateConnection();
                 using var cmd = new SqlCommand(sql, conn);
-                cmd.CommandTimeout = 60; // T?ng th?i gian ch? lÍn 60 gi‚y
+                cmd.CommandTimeout = 60; 
                 using var adapter = new SqlDataAdapter(cmd);
                 var dt = new DataTable();
                 conn.Open();
@@ -113,7 +113,7 @@ namespace mini_supermarket.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine("L?i khi l?y danh s·ch kh·ch h‡ng mua nhi?u nh?t: " + ex.Message);
+                Console.WriteLine("L·ªói khi l·∫•y danh s√°ch kh√°ch h√†ng mua nhi·ªÅu nh·∫•t: " + ex.Message);
                 throw;
             }
         }

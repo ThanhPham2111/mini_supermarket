@@ -70,41 +70,6 @@ namespace mini_supermarket.BUS
                 return TRANG_THAI_CON_HANG;
         }
 
-        // Cập nhật số lượng kho (không ghi log)
-        public void CapNhatKhoHang(KhoHangDTO khoHang)
-        {
-            if (khoHang == null)
-                throw new ArgumentNullException(nameof(khoHang));
-
-            if (khoHang.MaSanPham <= 0)
-                throw new ArgumentException("Mã sản phẩm không hợp lệ");
-
-            if (khoHang.SoLuong < 0)
-                throw new ArgumentException("Số lượng không được âm");
-
-            // Tự động cập nhật trạng thái dựa trên số lượng
-            khoHang.TrangThai = XacDinhTrangThaiKho(khoHang.SoLuong ?? 0);
-
-            khoHangDAO.UpdateKhoHang(khoHang);
-        }
-
-        // Thêm mới sản phẩm vào kho
-        public void ThemSanPhamVaoKho(KhoHangDTO khoHang)
-        {
-            if (khoHang == null)
-                throw new ArgumentNullException(nameof(khoHang));
-
-            if (khoHang.MaSanPham <= 0)
-                throw new ArgumentException("Mã sản phẩm không hợp lệ");
-
-            if (khoHang.SoLuong < 0)
-                throw new ArgumentException("Số lượng không được âm");
-
-            // Tự động xác định trạng thái
-            khoHang.TrangThai = XacDinhTrangThaiKho(khoHang.SoLuong ?? 0);
-
-            khoHangDAO.InsertKhoHang(khoHang);
-        }
 
         // Cập nhật số lượng kho có ghi log lịch sử
         public bool CapNhatSoLuongKho(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
@@ -151,25 +116,8 @@ namespace mini_supermarket.BUS
             return khoHangDAO.LayThongTinSanPhamChiTiet(maSanPham);
         }
 
-        // Kiểm tra tồn kho có đủ trước khi bán
-        public bool KiemTraTonKhoDu(int maSanPham, int soLuongCan)
-        {
-            if (maSanPham <= 0)
-                throw new ArgumentException("Mã sản phẩm không hợp lệ");
 
-            if (soLuongCan <= 0)
-                throw new ArgumentException("Số lượng cần phải lớn hơn 0");
-
-            var khoHang = khoHangDAO.GetByMaSanPham(maSanPham);
-            
-            if (khoHang == null)
-                return false;
-
-            int soLuongHienTai = khoHang.SoLuong ?? 0;
-            return soLuongHienTai >= soLuongCan;
-        }
-
-        // Giảm số lượng kho khi bán hàng - ĐÃ SỬA LẠI ĐỂ AN TOÀN HƠN
+        // Giảm số lượng kho khi bán hàng
         public bool GiamSoLuongKho(int maSanPham, int soLuongGiam, int maNhanVien)
         {
             if (maSanPham <= 0)
