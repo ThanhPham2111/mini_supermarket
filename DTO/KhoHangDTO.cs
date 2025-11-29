@@ -6,16 +6,20 @@
         public string? TenSanPham { get; set; }
         public int? SoLuong { get; set; }
         public string? TrangThai { get; set; }
+        public decimal? GiaNhap { get; set; } // Giá nhập
+        public decimal? GiaBan { get; set; } // Giá bán
 
         public KhoHangDTO()
         {
         }
 
-        public KhoHangDTO(int maSanPham, int? soLuong, string? trangThai)
+        public KhoHangDTO(int maSanPham, int? soLuong, string? trangThai, decimal? giaNhap = null, decimal? giaBan = null)
         {
             MaSanPham = maSanPham;
             SoLuong = soLuong;
             TrangThai = trangThai;
+            GiaNhap = giaNhap;
+            GiaBan = giaBan;
         }
     }
 }

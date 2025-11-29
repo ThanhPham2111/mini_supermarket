@@ -12,6 +12,7 @@ namespace mini_supermarket.DAO
             const string sql = "SELECT SUM(TongTien) FROM Tbl_HoaDon WHERE CONVERT(date, NgayLap) = CONVERT(date, GETDATE())";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
             conn.Open();
             return cmd.ExecuteScalar();
         }
@@ -21,6 +22,7 @@ namespace mini_supermarket.DAO
             const string sql = "SELECT COUNT(MaHoaDon) FROM Tbl_HoaDon WHERE CONVERT(date, NgayLap) = CONVERT(date, GETDATE())";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
             conn.Open();
             var result = cmd.ExecuteScalar();
             return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
@@ -31,6 +33,7 @@ namespace mini_supermarket.DAO
             const string sql = "SELECT COUNT(MaSanPham) FROM Tbl_KhoHang WHERE SoLuong = 0";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
             conn.Open();
             var result = cmd.ExecuteScalar();
             return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
@@ -45,6 +48,7 @@ namespace mini_supermarket.DAO
                                   ORDER BY Ngay ASC";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
             using var adapter = new SqlDataAdapter(cmd);
             var dt = new DataTable();
             conn.Open();
@@ -63,6 +67,7 @@ namespace mini_supermarket.DAO
                                   ORDER BY TongSoLuong DESC";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
             using var adapter = new SqlDataAdapter(cmd);
             var dt = new DataTable();
             conn.Open();
@@ -78,11 +83,39 @@ namespace mini_supermarket.DAO
                                   ORDER BY HSD ASC";
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
             using var adapter = new SqlDataAdapter(cmd);
             var dt = new DataTable();
             conn.Open();
             adapter.Fill(dt);
             return dt;
+        }
+
+        public DataTable GetKhachHangMuaNhieuNhat()
+        {
+            try
+            {
+                const string sql = @"SELECT kh.TenKhachHang, SUM(ct.SoLuong) AS TongSoLuong
+                                      FROM Tbl_ChiTietHoaDon ct
+                                      JOIN Tbl_HoaDon hd ON ct.MaHoaDon = hd.MaHoaDon
+                                      JOIN Tbl_KhachHang kh ON hd.MaKhachHang = kh.MaKhachHang
+                                      WHERE hd.NgayLap >= DATEADD(day, -30, GETDATE())
+                                      GROUP BY kh.TenKhachHang
+                                      ORDER BY TongSoLuong DESC";
+                using var conn = DbConnectionFactory.CreateConnection();
+                using var cmd = new SqlCommand(sql, conn);
+                cmd.CommandTimeout = 60; // T?ng th?i gian ch? lên 60 giây
+                using var adapter = new SqlDataAdapter(cmd);
+                var dt = new DataTable();
+                conn.Open();
+                adapter.Fill(dt);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("L?i khi l?y danh sách khách hàng mua nhi?u nh?t: " + ex.Message);
+                throw;
+            }
         }
     }
 }
