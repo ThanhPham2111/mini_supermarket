@@ -309,9 +309,9 @@ namespace mini_supermarket.GUI.TrangChu
             panel.Width = 380;
             panel.Height = 100;
             panel.BackColor = Color.White;
-            panel.Margin = new Padding(0, 0, 10, 0);
+            panel.Margin = new Padding(5); // Adjust margin to ensure spacing
             panel.Padding = new Padding(12);
-            panel.BorderStyle = BorderStyle.FixedSingle;
+            panel.BorderStyle = BorderStyle.None; // Remove border completely
 
             iconLbl = new Label();
             iconLbl.Text = iconText;

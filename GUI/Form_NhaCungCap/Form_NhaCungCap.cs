@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -5,8 +7,9 @@ using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
-using ClosedXML.Excel;
+using OfficeOpenXml;
 using System.Data;
+using System.IO;
 
 namespace mini_supermarket.GUI.NhaCungCap
 {
@@ -215,29 +218,20 @@ namespace mini_supermarket.GUI.NhaCungCap
     if (sfd.ShowDialog() != DialogResult.OK)
         return;
 
-    DataTable dt = new DataTable();
-
-    // Lấy header
-    foreach (DataGridViewColumn col in nhaCungCapDataGridView.Columns)
-        dt.Columns.Add(col.HeaderText);
-
-    // Lấy dữ liệu
-    foreach (DataGridViewRow row in nhaCungCapDataGridView.Rows)
+    var list = nhaCungCapDataGridView.DataSource as List<NhaCungCapDTO>;
+    if (list == null || list.Count == 0)
     {
-        if (row.IsNewRow) continue;
-
-        var data = new object[row.Cells.Count];
-        for (int i = 0; i < row.Cells.Count; i++)
-        {
-            data[i] = row.Cells[i].Value;
-        }
-        dt.Rows.Add(data);
+        MessageBox.Show("Không có dữ liệu để xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        return;
     }
 
-    using (XLWorkbook wb = new XLWorkbook())
+    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+    using (ExcelPackage package = new ExcelPackage())
     {
-        wb.Worksheets.Add(dt, "Nhà Cung Cấp");
-        wb.SaveAs(sfd.FileName);
+        ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Nhà Cung Cấp");
+        worksheet.Cells["A1"].LoadFromCollection(list, true);
+        worksheet.Cells.AutoFitColumns();
+        package.SaveAs(sfd.FileName);
     }
 
     MessageBox.Show("✅ Xuất Excel thành công!");
@@ -253,32 +247,35 @@ namespace mini_supermarket.GUI.NhaCungCap
         if (ofd.ShowDialog() != DialogResult.OK)
             return;
 
-        DataTable dt = new DataTable();
+        var importedList = new List<NhaCungCapDTO>();
 
-        using (XLWorkbook wb = new XLWorkbook(ofd.FileName))
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using (ExcelPackage package = new ExcelPackage(new FileInfo(ofd.FileName)))
         {
-            var ws = wb.Worksheet(1);
-            bool firstRow = true;
+            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+            int rowCount = worksheet.Dimension.Rows;
+            int colCount = worksheet.Dimension.Columns;
 
-            foreach (var row in ws.RowsUsed())
+            for (int row = 2; row <= rowCount; row++) // start from row 2 to skip header
             {
-                if (firstRow)
+                if (colCount >= 5)
                 {
-                    // Tạo column
-                    foreach (var cell in row.Cells())
-                        dt.Columns.Add(cell.Value.ToString());
-
-                    firstRow = false;
-                }
-                else
-                {
-                    dt.Rows.Add(row.Cells().Select(c => c.Value).ToArray());
+                    var item = new NhaCungCapDTO
+                    {
+                        MaNhaCungCap = int.TryParse(worksheet.Cells[row, 1].Text, out var ma) ? ma : 0,
+                        TenNhaCungCap = worksheet.Cells[row, 2].Text ?? "",
+                        DiaChi = worksheet.Cells[row, 3].Text ?? "",
+                        SoDienThoai = worksheet.Cells[row, 4].Text ?? "",
+                        Email = worksheet.Cells[row, 5].Text ?? "",
+                        TrangThai = colCount > 5 ? worksheet.Cells[row, 6].Text ?? "" : ""
+                    };
+                    importedList.Add(item);
                 }
             }
         }
 
         // hiển thị lên bảng
-        nhaCungCapDataGridView.DataSource = dt;
+        nhaCungCapDataGridView.DataSource = importedList;
 
         MessageBox.Show("✅ Nhập Excel thành công!");
     }

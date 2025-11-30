@@ -31,8 +31,8 @@ namespace mini_supermarket.BUS
             errorMessage = null;
             try
             {
-                DataTable dt = khoHangBUS.LayDanhSachLoai();
-                soLoaiSanPham = dt.Rows.Count;
+                var list = khoHangBUS.LayDanhSachLoai();
+                soLoaiSanPham = list.Count;
                 return true;
             }
             catch (Exception ex)
@@ -42,12 +42,12 @@ namespace mini_supermarket.BUS
             }
         }
 
-        public DataTable LayDanhSachSanPhamBanHang()
+        public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
             return khoHangBUS.LayDanhSachSanPhamBanHang();
         }
 
-        public DataTable LayThongTinSanPhamChiTiet(int maSanPham)
+        public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
             return khoHangBUS.LayThongTinSanPhamChiTiet(maSanPham);
         }
