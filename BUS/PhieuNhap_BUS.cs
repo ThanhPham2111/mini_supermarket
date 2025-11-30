@@ -92,51 +92,18 @@ namespace mini_supermarket.BUS
                 {
                     foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
                     {
-                        // Lấy số lượng cũ
-                        int soLuongCu = 0;
-                        var khoHangHienTai = _khoHangBus.GetByMaSanPham(chiTiet.MaSanPham);
-                        if (khoHangHienTai != null)
-                        {
-                            soLuongCu = khoHangHienTai.SoLuong ?? 0;
-                        }
+                        // Sử dụng KhoHang_BUS.TangSoLuongKho để đảm bảo logic nghiệp vụ
+                        bool success = _khoHangBus.TangSoLuongKho(
+                            chiTiet.MaSanPham,
+                            chiTiet.SoLuong,
+                            1, // TODO: Lấy từ session đăng nhập
+                            string.Format("Nhập hàng từ phiếu nhập PN{0:D3}", maPhieuNhap),
+                            string.Format("Xác nhận nhập kho - Phiếu nhập PN{0:D3}", maPhieuNhap)
+                        );
                         
-                        // Kiểm tra sản phẩm đã có trong kho hàng chưa
-                        bool exists = _khoHangBus.KiemTraTonTai(chiTiet.MaSanPham);
-                        
-                        int soLuongMoi = soLuongCu + chiTiet.SoLuong;
-                        
-                        // Tạo DTO kho hàng (chỉ số lượng, không có giá)
-                        KhoHangDTO khoHangUpdate = new KhoHangDTO
+                        if (!success)
                         {
-                            MaSanPham = chiTiet.MaSanPham,
-                            SoLuong = soLuongMoi,
-                            TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
-                        };
-                        
-                        // Tạo DTO lịch sử
-                        var lichSu = new LichSuThayDoiKhoDTO
-                        {
-                            MaSanPham = chiTiet.MaSanPham,
-                            SoLuongCu = soLuongCu,
-                            SoLuongMoi = soLuongMoi,
-                            ChenhLech = chiTiet.SoLuong,
-                            LoaiThayDoi = "Nhập hàng",
-                            LyDo = string.Format("Nhập hàng từ phiếu nhập PN{0:D3}", maPhieuNhap),
-                            GhiChu = string.Format("Xác nhận nhập kho - Phiếu nhập PN{0:D3}", maPhieuNhap),
-                            MaNhanVien = 1, // TODO: Lấy từ session đăng nhập
-                            NgayThayDoi = DateTime.Now
-                        };
-                        
-                        if (exists)
-                        {
-                            // Cập nhật kho và ghi log
-                            _khoHangBus.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
-                        }
-                        else
-                        {
-                            // Thêm mới vào kho
-                            _khoHangBus.InsertKhoHang(khoHangUpdate);
-                            // Ghi log riêng (nếu cần)
+                            throw new InvalidOperationException($"Không thể cập nhật kho cho sản phẩm {chiTiet.MaSanPham}");
                         }
                         
                         // 4. QUAN TRỌNG: Cập nhật giá bán vào Tbl_SanPham với logic giá nhập mới
@@ -182,41 +149,17 @@ namespace mini_supermarket.BUS
                     {
                         foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
                         {
-                            // Lấy số lượng cũ
-                            int soLuongCu = 0;
-                            var khoHangHienTai = _khoHangBus.GetByMaSanPham(chiTiet.MaSanPham);
-                            if (khoHangHienTai != null)
+                            // Sử dụng KhoHang_BUS.GiamSoLuongKho để đảm bảo logic nghiệp vụ
+                            bool success = _khoHangBus.GiamSoLuongKho(
+                                chiTiet.MaSanPham,
+                                chiTiet.SoLuong,
+                                1 // TODO: Lấy từ session đăng nhập
+                            );
+                            
+                            if (!success)
                             {
-                                soLuongCu = khoHangHienTai.SoLuong ?? 0;
+                                throw new InvalidOperationException($"Không thể giảm kho cho sản phẩm {chiTiet.MaSanPham}");
                             }
-                            
-                            // Trừ số lượng
-                            int soLuongMoi = Math.Max(0, soLuongCu - chiTiet.SoLuong);
-                            
-                            // Tạo DTO kho hàng
-                            KhoHangDTO khoHangUpdate = new KhoHangDTO
-                            {
-                                MaSanPham = chiTiet.MaSanPham,
-                                SoLuong = soLuongMoi,
-                                TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
-                            };
-                            
-                            // Tạo DTO lịch sử
-                            var lichSu = new LichSuThayDoiKhoDTO
-                            {
-                                MaSanPham = chiTiet.MaSanPham,
-                                SoLuongCu = soLuongCu,
-                                SoLuongMoi = soLuongMoi,
-                                ChenhLech = -chiTiet.SoLuong, // Số âm vì trừ
-                                LoaiThayDoi = "Hủy phiếu nhập",
-                                LyDo = string.Format("Hủy phiếu nhập PN{0:D3}", maPhieuNhap),
-                                GhiChu = lyDoHuy,
-                                MaNhanVien = 1, // TODO: Lấy từ session đăng nhập
-                                NgayThayDoi = DateTime.Now
-                            };
-                            
-                            // Cập nhật kho và ghi log
-                            _khoHangBus.CapNhatKhoVaGhiLog(khoHangUpdate, lichSu);
                         }
                     }
                 }

@@ -270,9 +270,9 @@ namespace mini_supermarket.BUS
 
         /// <summary>
         /// Nhập kho hàng loạt từ file Excel.
-        /// Trả về true nếu có ít nhất một cập nhật thành công, false nếu không.
+        /// Trả về kết quả nhập kho bao gồm trạng thái thành công, danh sách lỗi và cập nhật.
         /// </summary>
-        public bool NhapKhoTuExcel(string filePath, int maNhanVien)
+        public (bool HasUpdates, List<string> Errors, List<string> Updates) NhapKhoTuExcel(string filePath, int maNhanVien)
         {
             if (string.IsNullOrEmpty(filePath))
                 throw new ArgumentException("Đường dẫn file không hợp lệ.");
@@ -308,30 +308,58 @@ namespace mini_supermarket.BUS
 
                 for (int row = 2; row <= rowCount; row++)
                 {
-                    // Bỏ qua nếu không có mã sản phẩm
-                    if (worksheet.Cells[row, colMaSP].Value == null || !int.TryParse(worksheet.Cells[row, colMaSP].Value.ToString(), out int maSp))
+                    // Đọc Mã SP
+                    string maSpText = worksheet.Cells[row, colMaSP].Value?.ToString()?.Trim() ?? "";
+                    // Đọc Số lượng
+                    string soLuongText = worksheet.Cells[row, colSoLuong].Value?.ToString()?.Trim() ?? "";
+
+                    // Nếu cả hai đều trống, bỏ qua dòng mà không báo lỗi
+                    if (string.IsNullOrEmpty(maSpText) && string.IsNullOrEmpty(soLuongText))
                     {
-                        errors.Add($"Dòng {row}: Mã sản phẩm không hợp lệ.");
                         continue;
                     }
 
-                    // Lấy số lượng mới, nếu không có thì bỏ qua dòng này
-                    if (worksheet.Cells[row, colSoLuong].Value == null || !int.TryParse(worksheet.Cells[row, colSoLuong].Value.ToString(), out int soLuongMoi))
+                    // Nếu mã SP trống nhưng số lượng có, báo lỗi
+                    if (string.IsNullOrEmpty(maSpText) && !string.IsNullOrEmpty(soLuongText))
                     {
-                        errors.Add($"Dòng {row}: Số lượng không hợp lệ.");
+                        errors.Add($"Dòng {row}: Mã sản phẩm trống nhưng có số lượng.");
                         continue;
                     }
 
+                    // Nếu mã SP có nhưng số lượng trống, bỏ qua
+                    if (!string.IsNullOrEmpty(maSpText) && string.IsNullOrEmpty(soLuongText))
+                    {
+                        continue;
+                    }
+
+                    // Validate Mã SP
+                    if (!int.TryParse(maSpText, out int maSp))
+                    {
+                        errors.Add($"Dòng {row}: Mã sản phẩm không phải là số nguyên ('{maSpText}').");
+                        continue;
+                    }
+
+                    // Validate Số lượng
+                    if (!int.TryParse(soLuongText, out int soLuongMoi))
+                    {
+                        errors.Add($"Dòng {row}: Số lượng không phải là số nguyên ('{soLuongText}').");
+                        continue;
+                    }
                     if (soLuongMoi < 0)
                     {
-                        errors.Add($"Dòng {row}: Số lượng không được âm.");
+                        errors.Add($"Dòng {row}: Số lượng không được âm ({soLuongMoi}).");
+                        continue;
+                    }
+                    if (soLuongMoi == 0)
+                    {
+                        errors.Add($"Dòng {row}: Số lượng phải lớn hơn 0 ({soLuongMoi}).");
                         continue;
                     }
 
                     var khoHienTai = khoHangDAO.GetByMaSanPham(maSp);
                     if (khoHienTai == null)
                     {
-                        errors.Add($"Dòng {row}: Sản phẩm với mã {maSp} không tồn tại trong kho.");
+                        errors.Add($"Dòng {row}: Sản phẩm mã {maSp} không tồn tại.");
                         continue;
                     }
 
@@ -368,10 +396,17 @@ namespace mini_supermarket.BUS
 
                     try
                     {
-                        // Gọi phương thức upsert an toàn
-                        khoHangDAO.CapNhatKhoVaGhiLog(khoUpdate, lichSu);
-                        updates.Add($"Sản phẩm {maSp}: {(chenhLech > 0 ? "+" : "")}{chenhLech} (cũ: {soLuongCu}, mới: {soLuongMoi})");
-                        hasUpdates = true;
+                        // Gọi phương thức BUS để cập nhật kho và ghi log
+                        bool success = CapNhatSoLuongKho(khoUpdate, lichSu);
+                        if (success)
+                        {
+                            updates.Add($"Sản phẩm {maSp}: {(chenhLech > 0 ? "+" : "")}{chenhLech} (cũ: {soLuongCu}, mới: {soLuongMoi})");
+                            hasUpdates = true;
+                        }
+                        else
+                        {
+                            errors.Add($"Dòng {row}: Không thể cập nhật sản phẩm {maSp}");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -380,24 +415,7 @@ namespace mini_supermarket.BUS
                 }
             }
 
-            // Hiển thị kết quả
-            string message = "";
-            if (errors.Any())
-            {
-                message += "Có lỗi trong quá trình nhập:\n" + string.Join("\n", errors) + "\n\n";
-            }
-            if (updates.Any())
-            {
-                message += "Cập nhật thành công:\n" + string.Join("\n", updates);
-            }
-            if (!errors.Any() && !updates.Any())
-            {
-                message = "Không có dữ liệu hợp lệ để cập nhật.";
-            }
-
-            MessageBox.Show(message, hasUpdates ? "Kết quả nhập Excel" : "Thông báo", MessageBoxButtons.OK, hasUpdates ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-
-            return hasUpdates;
+            return (hasUpdates, errors, updates);
         }
 
         // Lấy giá nhập mới nhất của sản phẩm từ ChiTietPhieuNhap
@@ -410,6 +428,58 @@ namespace mini_supermarket.BUS
         public IList<KhoHangDTO> GetAllKhoHangWithPrice()
         {
             return khoHangDAO.GetAllKhoHangWithPrice();
+        }
+
+        /// <summary>
+        /// Xuất danh sách tồn kho ra file Excel.
+        /// </summary>
+        public void XuatDanhSachTonKhoRaExcel(IList<TonKhoDTO> data, string filePath)
+        {
+            if (data == null || data.Count == 0)
+                throw new ArgumentException("Không có dữ liệu để xuất.");
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("TonKho");
+                worksheet.Cells["A1"].LoadFromCollection(data, true);
+                worksheet.Cells.AutoFitColumns();
+                FileInfo excelFile = new FileInfo(filePath);
+                package.SaveAs(excelFile);
+            }
+        }
+
+        /// <summary>
+        /// Xuất file mẫu nhập kho (chỉ có Mã SP và Tên SP, Số lượng trống).
+        /// </summary>
+        public void XuatFileMauNhapKho(string filePath)
+        {
+            var allProducts = LayDanhSachTonKho();
+            if (allProducts == null || allProducts.Count == 0)
+                throw new InvalidOperationException("Không có sản phẩm nào trong kho để xuất mẫu.");
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("MauNhapKho");
+
+                // Header
+                worksheet.Cells[1, 1].Value = "Mã SP";
+                worksheet.Cells[1, 2].Value = "Tên sản phẩm";
+                worksheet.Cells[1, 3].Value = "Số lượng"; // Để trống
+
+                // Dữ liệu: Chỉ điền Mã và Tên, Số lượng để trống
+                for (int i = 0; i < allProducts.Count; i++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = allProducts[i].MaSanPham;
+                    worksheet.Cells[i + 2, 2].Value = allProducts[i].TenSanPham;
+                    // Cột 3 (Số lượng) để trống
+                }
+
+                worksheet.Cells.AutoFitColumns();
+                FileInfo excelFile = new FileInfo(filePath);
+                package.SaveAs(excelFile);
+            }
         }
     }
 }

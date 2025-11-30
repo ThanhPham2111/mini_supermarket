@@ -5,9 +5,6 @@ using mini_supermarket.DTO;
 
 namespace mini_supermarket.BUS
 {
-    /// <summary>
-    /// BUS cho L?ch s? thay ??i kho: ki?m tra tham s? v? ?i?u ph?i DAO.
-    /// </summary>
     public class LichSuThayDoiKho_BUS
     {
         private readonly LichSuThayDoiKho_DAO _dao = new();
@@ -20,7 +17,6 @@ namespace mini_supermarket.BUS
             if (log.SoLuongMoi < 0 || log.SoLuongCu < 0) throw new ArgumentException("So luong khong hop le.");
             if (log.ChenhLech != log.SoLuongMoi - log.SoLuongCu)
             {
-                // ??m b?o nh?t qu?n
                 log.ChenhLech = log.SoLuongMoi - log.SoLuongCu;
             }
             return _dao.Insert(log);
@@ -41,7 +37,6 @@ namespace mini_supermarket.BUS
 
         public IList<LichSuThayDoiKhoDTO> TraCuu(DateTime? from, DateTime? to, string? loaiThayDoi, int? maNhanVien, int? maSanPham)
         {
-            // chu?n h?a kho?ng th?i gian (to: end of day + epsilon)
             DateTime? toExclusive = to?.Date.AddDays(1);
             return _dao.GetByFilter(from?.Date, toExclusive, string.IsNullOrWhiteSpace(loaiThayDoi) ? null : loaiThayDoi.Trim(), maNhanVien, maSanPham);
         }
