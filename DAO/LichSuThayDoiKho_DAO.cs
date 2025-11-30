@@ -36,37 +36,74 @@ namespace mini_supermarket.DAO
             return cmd.ExecuteNonQuery();
         }
 
-        public DataTable GetByProduct(int maSanPham, int top = 50)
+        public IList<LichSuThayDoiKhoDTO> GetByProduct(int maSanPham, int top = 50)
         {
-            var dt = new DataTable();
+            var list = new List<LichSuThayDoiKhoDTO>();
             using var conn = DbConnectionFactory.CreateConnection();
+            conn.Open();
             using var cmd = conn.CreateCommand();
             cmd.CommandText = @"SELECT TOP(@Top) ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi\n                                FROM Tbl_LichSuThayDoiKho ls\n                                JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham\n                                JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien\n                                WHERE ls.MaSanPham = @MaSP\n                                ORDER BY ls.NgayThayDoi DESC";
             cmd.Parameters.Add(new SqlParameter("@Top", top));
             cmd.Parameters.Add(new SqlParameter("@MaSP", maSanPham));
-            conn.Open();
-            using var adapter = new SqlDataAdapter(cmd);
-            adapter.Fill(dt);
-            return dt;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var dto = new LichSuThayDoiKhoDTO
+                {
+                    MaLichSu = reader.GetInt32(0),
+                    MaSanPham = reader.GetInt32(1),
+                    TenSanPham = reader.GetString(2),
+                    SoLuongCu = reader.GetInt32(3),
+                    SoLuongMoi = reader.GetInt32(4),
+                    ChenhLech = reader.GetInt32(5),
+                    LoaiThayDoi = reader.GetString(6),
+                    LyDo = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    GhiChu = reader.IsDBNull(8) ? null : reader.GetString(8),
+                    MaNhanVien = reader.GetInt32(9),
+                    TenNhanVien = reader.GetString(10),
+                    NgayThayDoi = reader.GetDateTime(11)
+                };
+                list.Add(dto);
+            }
+            return list;
         }
 
-        public DataTable GetRecent(int top = 20)
+        public IList<LichSuThayDoiKhoDTO> GetRecent(int top = 20)
         {
-            var dt = new DataTable();
+            var list = new List<LichSuThayDoiKhoDTO>();
             using var conn = DbConnectionFactory.CreateConnection();
+            conn.Open();
             using var cmd = conn.CreateCommand();
             cmd.CommandText = @"SELECT TOP(@Top) ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi\n                                FROM Tbl_LichSuThayDoiKho ls\n                                JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham\n                                JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien\n                                ORDER BY ls.NgayThayDoi DESC";
             cmd.Parameters.Add(new SqlParameter("@Top", top));
-            conn.Open();
-            using var adapter = new SqlDataAdapter(cmd);
-            adapter.Fill(dt);
-            return dt;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var dto = new LichSuThayDoiKhoDTO
+                {
+                    MaLichSu = reader.GetInt32(0),
+                    MaSanPham = reader.GetInt32(1),
+                    TenSanPham = reader.GetString(2),
+                    SoLuongCu = reader.GetInt32(3),
+                    SoLuongMoi = reader.GetInt32(4),
+                    ChenhLech = reader.GetInt32(5),
+                    LoaiThayDoi = reader.GetString(6),
+                    LyDo = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    GhiChu = reader.IsDBNull(8) ? null : reader.GetString(8),
+                    MaNhanVien = reader.GetInt32(9),
+                    TenNhanVien = reader.GetString(10),
+                    NgayThayDoi = reader.GetDateTime(11)
+                };
+                list.Add(dto);
+            }
+            return list;
         }
 
-        public DataTable GetByFilter(DateTime? from, DateTime? to, string? loaiThayDoi, int? maNhanVien, int? maSanPham)
+        public IList<LichSuThayDoiKhoDTO> GetByFilter(DateTime? from, DateTime? to, string? loaiThayDoi, int? maNhanVien, int? maSanPham)
         {
-            var dt = new DataTable();
+            var list = new List<LichSuThayDoiKhoDTO>();
             using var conn = DbConnectionFactory.CreateConnection();
+            conn.Open();
             using var cmd = conn.CreateCommand();
             var sql = @"SELECT ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi\n                        FROM Tbl_LichSuThayDoiKho ls\n                        JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham\n                        JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien\n                        WHERE 1=1";
             if (from.HasValue)
@@ -96,10 +133,27 @@ namespace mini_supermarket.DAO
             }
             sql += " ORDER BY ls.NgayThayDoi DESC";
             cmd.CommandText = sql;
-            conn.Open();
-            using var adapter = new SqlDataAdapter(cmd);
-            adapter.Fill(dt);
-            return dt;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var dto = new LichSuThayDoiKhoDTO
+                {
+                    MaLichSu = reader.GetInt32(0),
+                    MaSanPham = reader.GetInt32(1),
+                    TenSanPham = reader.GetString(2),
+                    SoLuongCu = reader.GetInt32(3),
+                    SoLuongMoi = reader.GetInt32(4),
+                    ChenhLech = reader.GetInt32(5),
+                    LoaiThayDoi = reader.GetString(6),
+                    LyDo = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    GhiChu = reader.IsDBNull(8) ? null : reader.GetString(8),
+                    MaNhanVien = reader.GetInt32(9),
+                    TenNhanVien = reader.GetString(10),
+                    NgayThayDoi = reader.GetDateTime(11)
+                };
+                list.Add(dto);
+            }
+            return list;
         }
 
         private static void AddParams(SqlCommand cmd, LichSuThayDoiKhoDTO log)
