@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using System.Collections.Generic;
 
 namespace mini_supermarket.GUI.KhoHang
 {
@@ -25,19 +26,19 @@ namespace mini_supermarket.GUI.KhoHang
         {
             try
             {
-                DataTable dtLichSu = khoHangBUS.LayLichSuThayDoi(maSanPham);
-                dgvLichSu.DataSource = dtLichSu;
+                var listLichSu = khoHangBUS.LayLichSuThayDoi(maSanPham);
+                dgvLichSu.DataSource = listLichSu;
 
                 // Định dạng cột
-                dgvLichSu.Columns["MaLichSu"].HeaderText = "Mã Lịch Sử";
-                dgvLichSu.Columns["SoLuongCu"].HeaderText = "Số Lượng Cũ";
-                dgvLichSu.Columns["SoLuongMoi"].HeaderText = "Số Lượng Mới";
-                dgvLichSu.Columns["ChenhLech"].HeaderText = "Chênh Lệch";
-                dgvLichSu.Columns["LoaiThayDoi"].HeaderText = "Loại Thay Đổi";
-                dgvLichSu.Columns["LyDo"].HeaderText = "Lý Do";
-                dgvLichSu.Columns["GhiChu"].HeaderText = "Ghi Chú";
-                dgvLichSu.Columns["TenNhanVien"].HeaderText = "Nhân Viên";
-                dgvLichSu.Columns["NgayThayDoi"].HeaderText = "Ngày Thay Đổi";
+                if (dgvLichSu.Columns["MaLichSu"] != null) dgvLichSu.Columns["MaLichSu"].HeaderText = "Mã Lịch Sử";
+                if (dgvLichSu.Columns["SoLuongCu"] != null) dgvLichSu.Columns["SoLuongCu"].HeaderText = "Số Lượng Cũ";
+                if (dgvLichSu.Columns["SoLuongMoi"] != null) dgvLichSu.Columns["SoLuongMoi"].HeaderText = "Số Lượng Mới";
+                if (dgvLichSu.Columns["ChenhLech"] != null) dgvLichSu.Columns["ChenhLech"].HeaderText = "Chênh Lệch";
+                if (dgvLichSu.Columns["LoaiThayDoi"] != null) dgvLichSu.Columns["LoaiThayDoi"].HeaderText = "Loại Thay Đổi";
+                if (dgvLichSu.Columns["LyDo"] != null) dgvLichSu.Columns["LyDo"].HeaderText = "Lý Do";
+                if (dgvLichSu.Columns["GhiChu"] != null) dgvLichSu.Columns["GhiChu"].HeaderText = "Ghi Chú";
+                if (dgvLichSu.Columns["TenNhanVien"] != null) dgvLichSu.Columns["TenNhanVien"].HeaderText = "Nhân Viên";
+                if (dgvLichSu.Columns["NgayThayDoi"] != null) dgvLichSu.Columns["NgayThayDoi"].HeaderText = "Ngày Thay Đổi";
 
                 dgvLichSu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }

@@ -50,7 +50,7 @@ namespace mini_supermarket.GUI.TrangChu
         {
             try
             {
-                DataTable dt = trangChuBUS.GetDoanhThu7Ngay();
+                var list = trangChuBUS.GetDoanhThu7Ngay();
                 chartDoanhThu7Ngay.Series.Clear();
                 chartDoanhThu7Ngay.ChartAreas.Clear();
 
@@ -63,11 +63,9 @@ namespace mini_supermarket.GUI.TrangChu
                 series.ChartType = SeriesChartType.Bar;
                 series.Color = Color.FromArgb(0, 120, 215);
 
-                foreach (DataRow row in dt.Rows)
+                foreach (var item in list)
                 {
-                    DateTime ngay = Convert.ToDateTime(row["Ngay"]);
-                    decimal tongDoanhThu = row["TongDoanhThu"] == DBNull.Value ? 0 : Convert.ToDecimal(row["TongDoanhThu"]);
-                    series.Points.AddXY(ngay.ToString("dd/MM"), (double)tongDoanhThu);
+                    series.Points.AddXY(item.Ngay.ToString("dd/MM"), (double)item.TongDoanhThu);
                 }
 
                 chartDoanhThu7Ngay.Series.Add(series);
@@ -85,7 +83,7 @@ namespace mini_supermarket.GUI.TrangChu
         {
             try
             {
-                DataTable dt = trangChuBUS.GetTop5BanChay();
+                var list = trangChuBUS.GetTop5BanChay();
                 chartTop5BanChay.Series.Clear();
                 chartTop5BanChay.ChartAreas.Clear();
 
@@ -98,12 +96,11 @@ namespace mini_supermarket.GUI.TrangChu
                 series.ChartType = SeriesChartType.Bar;
                 series.Color = Color.FromArgb(16, 137, 62);
 
-                foreach (DataRow row in dt.Rows)
+                foreach (var item in list)
                 {
-                    string tenSanPham = row["TenSanPham"].ToString() ?? "";
-                    int tongSoLuong = Convert.ToInt32(row["TongSoLuong"]);
+                    string tenSanPham = item.TenSanPham;
                     if (tenSanPham.Length > 15) tenSanPham = tenSanPham.Substring(0, 12) + "...";
-                    series.Points.AddXY(tenSanPham, tongSoLuong);
+                    series.Points.AddXY(tenSanPham, item.TongSoLuong);
                 }
 
                 chartTop5BanChay.Series.Add(series);
@@ -121,8 +118,8 @@ namespace mini_supermarket.GUI.TrangChu
         {
             try
             {
-                DataTable dt = trangChuBUS.GetSanPhamSapHetHan();
-                dgvSanPhamSapHetHan.DataSource = dt;
+                var list = trangChuBUS.GetSanPhamSapHetHan();
+                dgvSanPhamSapHetHan.DataSource = list;
 
                 if (dgvSanPhamSapHetHan.Columns.Contains("TenSanPham"))
                 {
@@ -139,9 +136,8 @@ namespace mini_supermarket.GUI.TrangChu
 
                 foreach (DataGridViewRow row in dgvSanPhamSapHetHan.Rows)
                 {
-                    if (row.Cells["HSD"].Value != DBNull.Value)
+                    if (row.Cells["HSD"].Value != null && row.Cells["HSD"].Value is DateTime hsd)
                     {
-                        DateTime hsd = Convert.ToDateTime(row.Cells["HSD"].Value);
                         int soNgayConLai = (hsd - DateTime.Now).Days;
 
                         if (soNgayConLai <= 3)
@@ -166,8 +162,8 @@ namespace mini_supermarket.GUI.TrangChu
         {
             try
             {
-                DataTable dt = trangChuBUS.GetKhachHangMuaNhieuNhat();
-                dgvTopKhachHang.DataSource = dt;
+                var list = trangChuBUS.GetKhachHangMuaNhieuNhat();
+                dgvTopKhachHang.DataSource = list;
 
                 if (dgvTopKhachHang.Columns.Contains("TenKhachHang"))
                 {
@@ -175,11 +171,11 @@ namespace mini_supermarket.GUI.TrangChu
                     dgvTopKhachHang.Columns["TenKhachHang"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 }
 
-                if (dgvTopKhachHang.Columns.Contains("TongDoanhThu"))
+                if (dgvTopKhachHang.Columns.Contains("TongSoLuong"))
                 {
-                    dgvTopKhachHang.Columns["TongDoanhThu"].HeaderText = "Tổng Doanh Thu";
-                    dgvTopKhachHang.Columns["TongDoanhThu"].Width = 150;
-                    dgvTopKhachHang.Columns["TongDoanhThu"].DefaultCellStyle.Format = "N0 đ";
+                    dgvTopKhachHang.Columns["TongSoLuong"].HeaderText = "Tổng Số Lượng";
+                    dgvTopKhachHang.Columns["TongSoLuong"].Width = 150;
+                    dgvTopKhachHang.Columns["TongSoLuong"].DefaultCellStyle.Format = "N0";
                 }
             }
             catch (Exception ex)

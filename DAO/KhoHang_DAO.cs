@@ -3,12 +3,13 @@ using mini_supermarket.DTO;
 using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace mini_supermarket.DAO
 {
     public class KhoHangDAO
     {
-        public DataTable LayDanhSachTonKho()
+        public IList<TonKhoDTO> LayDanhSachTonKho()
         {
             string query = @"
                 SELECT 
@@ -36,35 +37,73 @@ namespace mini_supermarket.DAO
                     ORDER BY ctpn.MaPhieuNhap DESC
                 ) AS gn;";
 
-            DataTable dataTable = new DataTable();
+            var list = new List<TonKhoDTO>();
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
                 {
                     conn.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    adapter.Fill(dataTable);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new TonKhoDTO
+                                {
+                                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSP")),
+                                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                                    TenDonVi = reader.IsDBNull(reader.GetOrdinal("TenDonVi")) ? null : reader.GetString(reader.GetOrdinal("TenDonVi")),
+                                    TenLoai = reader.IsDBNull(reader.GetOrdinal("TenLoai")) ? null : reader.GetString(reader.GetOrdinal("TenLoai")),
+                                    TenThuongHieu = reader.IsDBNull(reader.GetOrdinal("TenThuongHieu")) ? null : reader.GetString(reader.GetOrdinal("TenThuongHieu")),
+                                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                                    MaLoai = reader.IsDBNull(reader.GetOrdinal("MaLoai")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("MaLoai")),
+                                    MaThuongHieu = reader.IsDBNull(reader.GetOrdinal("MaThuongHieu")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("MaThuongHieu")),
+                                    GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
+                                    Hsd = reader.IsDBNull(reader.GetOrdinal("Hsd")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("Hsd")),
+                                    GiaNhap = reader.IsDBNull(reader.GetOrdinal("GiaNhap")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaNhap"))
+                                };
+                                list.Add(item);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi khi lấy danh sách tồn kho: " + ex.Message);
-                throw;
+                throw; // Ném lại lỗi để lớp BUS xử lý
             }
-            return dataTable;
+            return list;
         }
 
-        public DataTable LayDanhSachLoai()
+        public IList<LoaiDTO> LayDanhSachLoai()
         {
-            DataTable dataTable = new DataTable();
+            var list = new List<LoaiDTO>();
             string query = "SELECT MaLoai, TenLoai FROM Tbl_Loai;";
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
                 {
                     conn.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    adapter.Fill(dataTable);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new LoaiDTO
+                                {
+                                    MaLoai = reader.GetInt32(reader.GetOrdinal("MaLoai")),
+                                    TenLoai = reader.GetString(reader.GetOrdinal("TenLoai")),
+                                    MoTa = null,
+                                    TrangThai = "HoatDong"
+                                };
+                                list.Add(item);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -72,20 +111,34 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy danh sách loại: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
-        public DataTable LayDanhSachThuongHieu()
+        public IList<ThuongHieuDTO> LayDanhSachThuongHieu()
         {
-            DataTable dataTable = new DataTable();
+            var list = new List<ThuongHieuDTO>();
             string query = "SELECT MaThuongHieu, TenThuongHieu FROM Tbl_ThuongHieu;";
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
                 {
                     conn.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    adapter.Fill(dataTable);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new ThuongHieuDTO
+                                {
+                                    MaThuongHieu = reader.GetInt32(reader.GetOrdinal("MaThuongHieu")),
+                                    TenThuongHieu = reader.GetString(reader.GetOrdinal("TenThuongHieu")),
+                                    TrangThai = "HoatDong"
+                                };
+                                list.Add(item);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -93,10 +146,10 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy danh sách thương hiệu: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
-        public DataTable LayDanhSachSanPhamBanHang()
+        public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
             string query = @"
                 SELECT 
@@ -113,14 +166,31 @@ namespace mini_supermarket.DAO
                 WHERE kh.SoLuong > 0 -- Chỉ cần kiểm tra số lượng trong kho > 0
                 ORDER BY sp.TenSanPham;";
 
-            DataTable dataTable = new DataTable();
+            var list = new List<SanPhamBanHangDTO>();
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
                 {
                     conn.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    adapter.Fill(dataTable);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new SanPhamBanHangDTO
+                                {
+                                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                                    GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
+                                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                    KhuyenMai = reader.GetString(reader.GetOrdinal("KhuyenMai")),
+                                    PhanTramGiam = reader.GetDecimal(reader.GetOrdinal("PhanTramGiam"))
+                                };
+                                list.Add(item);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -128,7 +198,7 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy danh sách sản phẩm bán hàng: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
         public bool ExistsByMaSanPham(int maSanPham)
@@ -233,7 +303,6 @@ namespace mini_supermarket.DAO
             }
         }
 
-        // PHƯƠNG ÁN 2: Cập nhật kho + Ghi log lịch sử 
         public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
         {
             string queryUpdateKho = @"UPDATE Tbl_KhoHang 
@@ -316,7 +385,7 @@ namespace mini_supermarket.DAO
         }
 
         // Lấy lịch sử thay đổi của 1 sản phẩm
-        public DataTable LayLichSuThayDoi(int maSanPham)
+        public IList<LichSuThayDoiKhoDTO> LayLichSuThayDoi(int maSanPham)
         {
             string query = @"
                 SELECT 
@@ -334,7 +403,7 @@ namespace mini_supermarket.DAO
                 WHERE ls.MaSanPham = @MaSanPham
                 ORDER BY ls.NgayThayDoi DESC";
 
-            DataTable dataTable = new DataTable();
+            var list = new List<LichSuThayDoiKhoDTO>();
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
@@ -343,8 +412,27 @@ namespace mini_supermarket.DAO
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@MaSanPham", maSanPham);
-                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                        adapter.Fill(dataTable);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new LichSuThayDoiKhoDTO
+                                {
+                                    MaLichSu = reader.GetInt32(reader.GetOrdinal("MaLichSu")),
+                                    MaSanPham = maSanPham, // từ parameter
+                                    SoLuongCu = reader.GetInt32(reader.GetOrdinal("SoLuongCu")),
+                                    SoLuongMoi = reader.GetInt32(reader.GetOrdinal("SoLuongMoi")),
+                                    ChenhLech = reader.GetInt32(reader.GetOrdinal("ChenhLech")),
+                                    LoaiThayDoi = reader.GetString(reader.GetOrdinal("LoaiThayDoi")),
+                                    LyDo = reader.IsDBNull(reader.GetOrdinal("LyDo")) ? null : reader.GetString(reader.GetOrdinal("LyDo")),
+                                    GhiChu = reader.IsDBNull(reader.GetOrdinal("GhiChu")) ? null : reader.GetString(reader.GetOrdinal("GhiChu")),
+                                    MaNhanVien = 0, // không select, set default
+                                    TenNhanVien = reader.GetString(reader.GetOrdinal("TenNhanVien")),
+                                    NgayThayDoi = reader.GetDateTime(reader.GetOrdinal("NgayThayDoi"))
+                                };
+                                list.Add(item);
+                            }
+                        }
                     }
                 }
             }
@@ -353,10 +441,10 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy lịch sử thay đổi: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
-        public DataTable LayThongTinSanPhamChiTiet(int maSanPham)
+        public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
             string query = @"
                 SELECT 
@@ -373,7 +461,7 @@ namespace mini_supermarket.DAO
                     AND GETDATE() BETWEEN km.NgayBatDau AND km.NgayKetThuc
                 WHERE sp.MaSanPham = @MaSanPham;";
 
-            DataTable dataTable = new DataTable();
+            var list = new List<SanPhamChiTietDTO>();
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
@@ -382,8 +470,23 @@ namespace mini_supermarket.DAO
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@MaSanPham", maSanPham);
-                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                        adapter.Fill(dataTable);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new SanPhamChiTietDTO
+                                {
+                                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                                    GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
+                                    HinhAnh = reader.IsDBNull(reader.GetOrdinal("HinhAnh")) ? null : reader.GetString(reader.GetOrdinal("HinhAnh")),
+                                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                    KhuyenMai = reader.GetString(reader.GetOrdinal("KhuyenMai")),
+                                    PhanTramGiam = reader.GetDecimal(reader.GetOrdinal("PhanTramGiam"))
+                                };
+                                list.Add(item);
+                            }
+                        }
                     }
                 }
             }
@@ -392,11 +495,11 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy thông tin sản phẩm chi tiết: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
         // Lấy danh sách sản phẩm sắp hết hàng (từ 1 đến 10)
-        public DataTable LaySanPhamSapHetHang()
+        public IList<SanPhamKhoDTO> LaySanPhamSapHetHang()
         {
             string query = @"
                 SELECT 
@@ -413,14 +516,31 @@ namespace mini_supermarket.DAO
                 WHERE kh.SoLuong > 0 AND kh.SoLuong <= 10
                 ORDER BY kh.SoLuong ASC, sp.TenSanPham ASC;";
 
-            DataTable dataTable = new DataTable();
+            var list = new List<SanPhamKhoDTO>();
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
                 {
                     conn.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    adapter.Fill(dataTable);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new SanPhamKhoDTO
+                                {
+                                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                    GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
+                                    TenDonVi = reader.IsDBNull(reader.GetOrdinal("TenDonVi")) ? null : reader.GetString(reader.GetOrdinal("TenDonVi")),
+                                    TenLoai = reader.IsDBNull(reader.GetOrdinal("TenLoai")) ? null : reader.GetString(reader.GetOrdinal("TenLoai"))
+                                };
+                                list.Add(item);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -428,11 +548,11 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy danh sách sắp hết hàng: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
         // Lấy danh sách sản phẩm hết hàng hoàn toàn
-        public DataTable LaySanPhamHetHang()
+        public IList<SanPhamKhoDTO> LaySanPhamHetHang()
         {
             string query = @"
                 SELECT 
@@ -449,14 +569,31 @@ namespace mini_supermarket.DAO
                 WHERE kh.SoLuong = 0
                 ORDER BY sp.TenSanPham ASC;";
 
-            DataTable dataTable = new DataTable();
+            var list = new List<SanPhamKhoDTO>();
             try
             {
                 using (SqlConnection conn = DbConnectionFactory.CreateConnection())
                 {
                     conn.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    adapter.Fill(dataTable);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new SanPhamKhoDTO
+                                {
+                                    MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                                    SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                    GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
+                                    TenDonVi = reader.IsDBNull(reader.GetOrdinal("TenDonVi")) ? null : reader.GetString(reader.GetOrdinal("TenDonVi")),
+                                    TenLoai = reader.IsDBNull(reader.GetOrdinal("TenLoai")) ? null : reader.GetString(reader.GetOrdinal("TenLoai"))
+                                };
+                                list.Add(item);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -464,9 +601,12 @@ namespace mini_supermarket.DAO
                 Console.WriteLine("Lỗi khi lấy danh sách hết hàng: " + ex.Message);
                 throw;
             }
-            return dataTable;
+            return list;
         }
 
+        /// <summary>
+        /// Giảm số lượng kho và ghi log trong cùng một transaction.
+        /// </summary>
         public bool GiamSoLuongVaGhiLog(int maSanPham, int soLuongGiam, LichSuThayDoiKhoDTO lichSu)
         {
             using (var connection = DbConnectionFactory.CreateConnection())

@@ -1,6 +1,9 @@
 using mini_supermarket.DAO;
 using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
+using mini_supermarket.DTO;
 
 namespace mini_supermarket.BUS
 {
@@ -35,8 +38,8 @@ namespace mini_supermarket.BUS
         {
             try
             {
-                DataTable dt = khoHangDAO.LaySanPhamSapHetHang();
-                return dt?.Rows.Count ?? 0;
+                var list = khoHangDAO.LaySanPhamSapHetHang();
+                return list?.Count ?? 0;
             }
             catch
             {
@@ -48,11 +51,11 @@ namespace mini_supermarket.BUS
         {
             try
             {
-                DataTable dt = khoHangDAO.LaySanPhamSapHetHang();
+                var list = khoHangDAO.LaySanPhamSapHetHang();
                 int count = 0;
-                foreach (DataRow row in dt.Rows)
+                foreach (var item in list)
                 {
-                    int soLuong = Convert.ToInt32(row["SoLuong"]);
+                    int soLuong = item.SoLuong ?? 0;
                     if (soLuong >= 1 && soLuong <= 5)
                         count++;
                 }
@@ -64,32 +67,32 @@ namespace mini_supermarket.BUS
             }
         }
 
-        public DataTable GetSanPhamSapHetHang()
+        public IList<SanPhamKhoDTO> GetSanPhamSapHetHang()
         {
             return khoHangDAO.LaySanPhamSapHetHang();
         }
 
-        public DataTable GetSanPhamHetHang()
+        public IList<SanPhamKhoDTO> GetSanPhamHetHang()
         {
             return khoHangDAO.LaySanPhamHetHang();
         }
 
-        public DataTable GetDoanhThu7Ngay()
+        public IList<DoanhThuNgayDTO> GetDoanhThu7Ngay()
         {
             return trangChuDAO.GetDoanhThu7Ngay();
         }
 
-        public DataTable GetTop5BanChay()
+        public IList<TopBanChayDTO> GetTop5BanChay()
         {
             return trangChuDAO.GetTop5BanChay();
         }
 
-        public DataTable GetSanPhamSapHetHan()
+        public IList<SanPhamHetHanDTO> GetSanPhamSapHetHan()
         {
             return trangChuDAO.GetSanPhamSapHetHan();
         }
 
-        public DataTable GetKhachHangMuaNhieuNhat()
+        public IList<KhachHangMuaNhieuDTO> GetKhachHangMuaNhieuNhat()
         {
             return trangChuDAO.GetKhachHangMuaNhieuNhat();
         }

@@ -2,6 +2,8 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using mini_supermarket.DB;
+using System.Collections.Generic;
+using mini_supermarket.DTO;
 
 namespace mini_supermarket.DAO
 {
@@ -39,24 +41,32 @@ namespace mini_supermarket.DAO
             return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
         }
 
-        public DataTable GetDoanhThu7Ngay()
+        public IList<DoanhThuNgayDTO> GetDoanhThu7Ngay()
         {
             const string sql = @"SELECT CONVERT(date, NgayLap) AS Ngay, SUM(TongTien) AS TongDoanhThu
                                   FROM Tbl_HoaDon
                                   WHERE NgayLap >= DATEADD(day, -7, GETDATE())
                                   GROUP BY CONVERT(date, NgayLap)
                                   ORDER BY Ngay ASC";
+            var list = new List<DoanhThuNgayDTO>();
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
             cmd.CommandTimeout = 60; 
-            using var adapter = new SqlDataAdapter(cmd);
-            var dt = new DataTable();
             conn.Open();
-            adapter.Fill(dt);
-            return dt;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var item = new DoanhThuNgayDTO
+                {
+                    Ngay = reader.GetDateTime(reader.GetOrdinal("Ngay")),
+                    TongDoanhThu = reader.IsDBNull(reader.GetOrdinal("TongDoanhThu")) ? 0 : reader.GetDecimal(reader.GetOrdinal("TongDoanhThu"))
+                };
+                list.Add(item);
+            }
+            return list;
         }
 
-        public DataTable GetTop5BanChay()
+        public IList<TopBanChayDTO> GetTop5BanChay()
         {
             const string sql = @"SELECT TOP 5 sp.TenSanPham, SUM(ct.SoLuong) AS TongSoLuong
                                   FROM Tbl_ChiTietHoaDon ct
@@ -65,33 +75,49 @@ namespace mini_supermarket.DAO
                                   WHERE hd.NgayLap >= DATEADD(day, -30, GETDATE())
                                   GROUP BY sp.TenSanPham
                                   ORDER BY TongSoLuong DESC";
+            var list = new List<TopBanChayDTO>();
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
             cmd.CommandTimeout = 60; 
-            using var adapter = new SqlDataAdapter(cmd);
-            var dt = new DataTable();
             conn.Open();
-            adapter.Fill(dt);
-            return dt;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var item = new TopBanChayDTO
+                {
+                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                    TongSoLuong = reader.GetInt32(reader.GetOrdinal("TongSoLuong"))
+                };
+                list.Add(item);
+            }
+            return list;
         }
 
-        public DataTable GetSanPhamSapHetHan()
+        public IList<SanPhamHetHanDTO> GetSanPhamSapHetHan()
         {
             const string sql = @"SELECT TenSanPham, HSD
                                   FROM Tbl_SanPham
                                   WHERE HSD BETWEEN GETDATE() AND DATEADD(day, 7, GETDATE())
                                   ORDER BY HSD ASC";
+            var list = new List<SanPhamHetHanDTO>();
             using var conn = DbConnectionFactory.CreateConnection();
             using var cmd = new SqlCommand(sql, conn);
             cmd.CommandTimeout = 60; 
-            using var adapter = new SqlDataAdapter(cmd);
-            var dt = new DataTable();
             conn.Open();
-            adapter.Fill(dt);
-            return dt;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var item = new SanPhamHetHanDTO
+                {
+                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                    HSD = reader.IsDBNull(reader.GetOrdinal("HSD")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("HSD"))
+                };
+                list.Add(item);
+            }
+            return list;
         }
 
-        public DataTable GetKhachHangMuaNhieuNhat()
+        public IList<KhachHangMuaNhieuDTO> GetKhachHangMuaNhieuNhat()
         {
             try
             {
@@ -102,14 +128,22 @@ namespace mini_supermarket.DAO
                                       WHERE hd.NgayLap >= DATEADD(day, -30, GETDATE())
                                       GROUP BY kh.TenKhachHang
                                       ORDER BY TongSoLuong DESC";
+                var list = new List<KhachHangMuaNhieuDTO>();
                 using var conn = DbConnectionFactory.CreateConnection();
                 using var cmd = new SqlCommand(sql, conn);
                 cmd.CommandTimeout = 60; 
-                using var adapter = new SqlDataAdapter(cmd);
-                var dt = new DataTable();
                 conn.Open();
-                adapter.Fill(dt);
-                return dt;
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    var item = new KhachHangMuaNhieuDTO
+                    {
+                        TenKhachHang = reader.GetString(reader.GetOrdinal("TenKhachHang")),
+                        TongSoLuong = reader.GetInt32(reader.GetOrdinal("TongSoLuong"))
+                    };
+                    list.Add(item);
+                }
+                return list;
             }
             catch (Exception ex)
             {

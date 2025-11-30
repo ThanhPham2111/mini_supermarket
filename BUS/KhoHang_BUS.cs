@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using OfficeOpenXml;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace mini_supermarket.BUS
 {
@@ -22,25 +23,25 @@ namespace mini_supermarket.BUS
         public const string TRANG_THAI_TIEM_CAN = "Cảnh báo - Tiệm cận";
 
         // Lấy danh sách tồn kho
-        public DataTable LayDanhSachTonKho()
+        public IList<TonKhoDTO> LayDanhSachTonKho()
         {
             return khoHangDAO.LayDanhSachTonKho();
         }
 
         // Lấy danh sách loại sản phẩm
-        public DataTable LayDanhSachLoai()
+        public IList<LoaiDTO> LayDanhSachLoai()
         {
             return khoHangDAO.LayDanhSachLoai();
         }
 
         // Lấy danh sách thương hiệu
-        public DataTable LayDanhSachThuongHieu()
+        public IList<ThuongHieuDTO> LayDanhSachThuongHieu()
         {
             return khoHangDAO.LayDanhSachThuongHieu();
         }
 
         // Lấy danh sách sản phẩm cho bán hàng
-        public DataTable LayDanhSachSanPhamBanHang()
+        public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
             return khoHangDAO.LayDanhSachSanPhamBanHang();
         }
@@ -99,7 +100,7 @@ namespace mini_supermarket.BUS
         }
 
         // Lấy lịch sử thay đổi của sản phẩm
-        public DataTable LayLichSuThayDoi(int maSanPham)
+        public IList<LichSuThayDoiKhoDTO> LayLichSuThayDoi(int maSanPham)
         {
             if (maSanPham <= 0)
                 throw new ArgumentException("Mã sản phẩm không hợp lệ");
@@ -108,7 +109,7 @@ namespace mini_supermarket.BUS
         }
 
         // Lấy thông tin chi tiết sản phẩm
-        public DataTable LayThongTinSanPhamChiTiet(int maSanPham)
+        public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
             if (maSanPham <= 0)
                 throw new ArgumentException("Mã sản phẩm không hợp lệ");
@@ -116,8 +117,24 @@ namespace mini_supermarket.BUS
             return khoHangDAO.LayThongTinSanPhamChiTiet(maSanPham);
         }
 
+        // Kiểm tra tồn kho có đủ trước khi bán
+        public bool KiemTraTonKhoDu(int maSanPham, int soLuongCan)
+        {
+            if (maSanPham <= 0)
+                throw new ArgumentException("Mã sản phẩm không hợp lệ");
 
-        // Giảm số lượng kho khi bán hàng
+            if (soLuongCan <= 0)
+                throw new ArgumentException("Số lượng cần phải lớn hơn 0");
+
+            var khoHang = khoHangDAO.GetByMaSanPham(maSanPham);
+            
+            if (khoHang == null)
+                return false;
+
+            int soLuongHienTai = khoHang.SoLuong ?? 0;
+            return soLuongHienTai >= soLuongCan;
+        }
+
         public bool GiamSoLuongKho(int maSanPham, int soLuongGiam, int maNhanVien)
         {
             if (maSanPham <= 0)
@@ -218,13 +235,13 @@ namespace mini_supermarket.BUS
         }
 
         // Lấy danh sách sản phẩm sắp hết hàng
-        public DataTable LaySanPhamSapHetHang()
+        public IList<SanPhamKhoDTO> LaySanPhamSapHetHang()
         {
             return khoHangDAO.LaySanPhamSapHetHang();
         }
 
         // Lấy danh sách sản phẩm hết hàng
-        public DataTable LaySanPhamHetHang()
+        public IList<SanPhamKhoDTO> LaySanPhamHetHang()
         {
             return khoHangDAO.LaySanPhamHetHang();
         }

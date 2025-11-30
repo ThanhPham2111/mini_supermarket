@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
@@ -12,7 +12,7 @@ namespace mini_supermarket.GUI.Form_BanHang
     public partial class Form_banHang : Form
     {
         private BanHang_BUS? banHangBUS;
-        private DataTable? allProductsData; // Lưu danh sách sản phẩm gốc để filter
+        private IList<SanPhamBanHangDTO>? allProductsData; // Lưu danh sách sản phẩm gốc để filter
 
         public Form_banHang()
         {
@@ -100,14 +100,13 @@ namespace mini_supermarket.GUI.Form_BanHang
 
                 Console.WriteLine("Bắt đầu load sản phẩm...");
 
-                DataTable dt = banHangBUS.LayDanhSachSanPhamBanHang();
-                Console.WriteLine($"Đã query xong. Số dòng: {dt?.Rows.Count ?? 0}");
+                var list = banHangBUS.LayDanhSachSanPhamBanHang();
 
                 // Lưu danh sách sản phẩm gốc để filter
-                allProductsData = dt?.Copy();
+                allProductsData = list;
 
                 // Debug: Kiểm tra số lượng dữ liệu
-                if (dt == null || dt.Rows.Count == 0)
+                if (list == null || list.Count == 0)
                 {
                     MessageBox.Show("Không có sản phẩm nào trong kho!\n\nVui lòng kiểm tra:\n" +
                         "1. Đã có dữ liệu trong bảng Tbl_SanPham chưa?\n" +
@@ -122,7 +121,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                 Console.WriteLine("Đã clear rows");
 
                 // Load sản phẩm từ DataTable
-                LoadProductsFromDataTable(dt);
+                LoadProductsFromList(allProductsData);
             }
             catch (Exception ex)
             {
@@ -189,25 +188,25 @@ namespace mini_supermarket.GUI.Form_BanHang
                     return;
                 }
 
-                DataTable dt = banHangBUS.LayThongTinSanPhamChiTiet(maSanPham);
-                if (dt == null || dt.Rows.Count == 0)
+                var list = banHangBUS.LayThongTinSanPhamChiTiet(maSanPham);
+                if (list == null || list.Count == 0)
                 {
                     ClearProductDetails();
                     return;
                 }
 
-                DataRow row = dt.Rows[0];
+                var item = list[0];
                 
                 // Lưu thông tin sản phẩm được chọn
                 selectedProductId = maSanPham;
-                selectedProductStock = row["SoLuong"] != DBNull.Value ? Convert.ToInt32(row["SoLuong"]) : 0;
+                selectedProductStock = item.SoLuong ?? 0;
 
                 // Lưu thông tin để thêm vào giỏ
-                currentProductName = row["TenSanPham"]?.ToString() ?? "";
-                currentProductPrice = row["GiaBan"] != DBNull.Value ? Convert.ToDecimal(row["GiaBan"]) : 0;
-                currentProductDiscount = row["PhanTramGiam"] != DBNull.Value ? Convert.ToDecimal(row["PhanTramGiam"]) : 0;
+                currentProductName = item.TenSanPham;
+                currentProductPrice = item.GiaBan;
+                currentProductDiscount = item.PhanTramGiam;
                 
-                string khuyenMai = row["KhuyenMai"]?.ToString() ?? "";
+                string khuyenMai = item.KhuyenMai ?? "";
                 if (!string.IsNullOrEmpty(khuyenMai) && currentProductDiscount > 0)
                 {
                     currentProductPromotion = $"{khuyenMai} (-{currentProductDiscount}%)";
@@ -226,8 +225,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                 txtPromotion.Text = currentProductPromotion;
 
                 // Load ảnh sản phẩm
-                string? hinhAnh = row["HinhAnh"]?.ToString();
-                LoadProductImage(hinhAnh);
+                LoadProductImage(item.HinhAnh);
             }
             catch (Exception ex)
             {
@@ -489,26 +487,21 @@ namespace mini_supermarket.GUI.Form_BanHang
                 if (string.IsNullOrEmpty(searchText))
                 {
                     // Nếu không có từ khóa, hiển thị tất cả
-                    LoadProductsFromDataTable(allProductsData);
+                    LoadProductsFromList(allProductsData);
                 }
                 else
                 {
                     // Filter dữ liệu
                     string searchLower = searchText.ToLower();
-                    DataTable filteredData = allProductsData.Clone();
-
-                    foreach (DataRow row in allProductsData.Rows)
+                    var filtered = allProductsData.Where(item =>
                     {
-                        string tenSanPham = row["TenSanPham"]?.ToString()?.ToLower() ?? "";
-                        string maSanPham = row["MaSanPham"]?.ToString() ?? "";
+                        string tenSanPham = item.TenSanPham.ToLower();
+                        string maSanPham = item.MaSanPham.ToString();
 
-                        if (tenSanPham.Contains(searchLower) || maSanPham.Contains(searchText))
-                        {
-                            filteredData.ImportRow(row);
-                        }
-                    }
+                        return tenSanPham.Contains(searchLower) || maSanPham.Contains(searchText);
+                    }).ToList();
 
-                    LoadProductsFromDataTable(filteredData);
+                    LoadProductsFromList(filtered);
                 }
             }
             catch (Exception ex)
@@ -517,44 +510,32 @@ namespace mini_supermarket.GUI.Form_BanHang
             }
         }
 
-        private void LoadProductsFromDataTable(DataTable dt)
+        private void LoadProductsFromList(IList<SanPhamBanHangDTO> list)
         {
             try
             {
-                if (dgvProducts == null || dt == null)
+                if (dgvProducts == null || list == null)
                     return;
 
-                int count = 0;
-                foreach (DataRow row in dt.Rows)
+                foreach (var item in list)
                 {
-                    try
-                    {
-                        string tenSanPham = row["TenSanPham"]?.ToString() ?? "";
-                        decimal giaBan = row["GiaBan"] != DBNull.Value ? Convert.ToDecimal(row["GiaBan"]) : 0;
-                        int soLuong = row["SoLuong"] != DBNull.Value ? Convert.ToInt32(row["SoLuong"]) : 0;
-                        string khuyenMai = row["KhuyenMai"]?.ToString() ?? "";
-                        decimal phanTramGiam = row["PhanTramGiam"] != DBNull.Value ? Convert.ToDecimal(row["PhanTramGiam"]) : 0;
+                    string tenSanPham = item.TenSanPham ?? "";
+                    decimal giaBan = item.GiaBan ?? 0m;
+                    int soLuong = item.SoLuong ?? 0;
+                    string khuyenMai = item.KhuyenMai ?? "";
+                    decimal phanTramGiam = item.PhanTramGiam;
 
-                        // Format hiển thị
-                        string giaBanStr = giaBan.ToString("N0") + " đ";
-                        string khuyenMaiStr = string.IsNullOrEmpty(khuyenMai) ? "" : $"{khuyenMai} (-{phanTramGiam}%)";
+                    string giaBanStr = giaBan.ToString("N0") + " đ";
+                    string khuyenMaiStr = string.IsNullOrEmpty(khuyenMai) ? "" : $"{khuyenMai} (-{phanTramGiam}%)";
 
-                        // Thêm row vào DataGridView
-                        dgvProducts.Rows.Add(tenSanPham, giaBanStr, soLuong, khuyenMaiStr);
+                    dgvProducts.Rows.Add(tenSanPham, giaBanStr, soLuong, khuyenMaiStr);
 
-                        // Lưu MaSanPham vào Tag của row để dùng sau
-                        dgvProducts.Rows[dgvProducts.Rows.Count - 1].Tag = row["MaSanPham"];
-                        count++;
-                    }
-                    catch (Exception rowEx)
-                    {
-                        Console.WriteLine($"Lỗi khi thêm row {count}: {rowEx.Message}");
-                    }
+                    dgvProducts.Rows[dgvProducts.Rows.Count - 1].Tag = item.MaSanPham;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Lỗi khi load sản phẩm từ DataTable: {ex.Message}");
+                Console.WriteLine($"Lỗi khi load sản phẩm từ list: {ex.Message}");
             }
         }
 

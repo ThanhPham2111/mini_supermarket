@@ -1,3 +1,5 @@
+#nullable enable
+
 using mini_supermarket.BUS;
 using mini_supermarket.GUI.Form_SanPham;
 using mini_supermarket.DTO;
@@ -8,13 +10,14 @@ using System.Windows.Forms;
 using System.IO;
 using System.Linq;
 using OfficeOpenXml;
+using System.Collections.Generic;
 
 namespace mini_supermarket.GUI.KhoHang
 {
     public partial class Form_KhoHang : Form
     {
         private KhoHangBUS khoHangBUS = new KhoHangBUS();
-        private DataTable? dtProducts = null;
+        private IList<TonKhoDTO>? dtProducts = null;
         private const int NGUONG_CANH_BAO = 10; // Ngưỡng cảnh báo hàng sắp hết
         private ToolTip toolTipTenSP = new ToolTip(); // ToolTip để hiển thị tên sản phẩm đầy đủ
 
@@ -36,35 +39,37 @@ namespace mini_supermarket.GUI.KhoHang
         private void LoadComboBoxes()
         {
             // Load Loại sản phẩm
-            DataTable dtLoai = khoHangBUS.LayDanhSachLoai();
-            DataRow drLoai = dtLoai.NewRow();
-            drLoai["MaLoai"] = -1;
-            drLoai["TenLoai"] = "Tất cả loại";
-            dtLoai.Rows.InsertAt(drLoai, 0);
-            cboLoaiSP.DataSource = dtLoai;
-            cboLoaiSP.DisplayMember = "TenLoai";
-            cboLoaiSP.ValueMember = "MaLoai";
+            var listLoai = khoHangBUS.LayDanhSachLoai();
+            var comboListLoai = new List<KeyValuePair<int, string>> { new KeyValuePair<int, string>(-1, "Tất cả loại") };
+            foreach (var item in listLoai)
+            {
+                comboListLoai.Add(new KeyValuePair<int, string>(item.MaLoai, item.TenLoai));
+            }
+            cboLoaiSP.DataSource = comboListLoai;
+            cboLoaiSP.DisplayMember = "Value";
+            cboLoaiSP.ValueMember = "Key";
 
             // Load Thương hiệu
-            DataTable dtThuongHieu = khoHangBUS.LayDanhSachThuongHieu();
-            DataRow drTH = dtThuongHieu.NewRow();
-            drTH["MaThuongHieu"] = -1;
-            drTH["TenThuongHieu"] = "Tất cả thương hiệu";
-            dtThuongHieu.Rows.InsertAt(drTH, 0);
-            cboThuongHieu.DataSource = dtThuongHieu;
-            cboThuongHieu.DisplayMember = "TenThuongHieu";
-            cboThuongHieu.ValueMember = "MaThuongHieu";
+            var listThuongHieu = khoHangBUS.LayDanhSachThuongHieu();
+            var comboListThuongHieu = new List<KeyValuePair<int, string>> { new KeyValuePair<int, string>(-1, "Tất cả thương hiệu") };
+            foreach (var item in listThuongHieu)
+            {
+                comboListThuongHieu.Add(new KeyValuePair<int, string>(item.MaThuongHieu, item.TenThuongHieu));
+            }
+            cboThuongHieu.DataSource = comboListThuongHieu;
+            cboThuongHieu.DisplayMember = "Value";
+            cboThuongHieu.ValueMember = "Key";
 
             // Load Trạng thái
-            DataTable dtTrangThai = new DataTable();
-            dtTrangThai.Columns.Add("Value", typeof(string));
-            dtTrangThai.Columns.Add("Display", typeof(string));
-            dtTrangThai.Rows.Add("", "Tất cả trạng thái");
-            dtTrangThai.Rows.Add("Còn hàng", "Còn hàng");
-            dtTrangThai.Rows.Add("Hết hàng", "Hết hàng");
-            cboTrangThai.DataSource = dtTrangThai;
-            cboTrangThai.DisplayMember = "Display";
-            cboTrangThai.ValueMember = "Value";
+            var comboListTrangThai = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("", "Tất cả trạng thái"),
+                new KeyValuePair<string, string>("Còn hàng", "Còn hàng"),
+                new KeyValuePair<string, string>("Hết hàng", "Hết hàng")
+            };
+            cboTrangThai.DataSource = comboListTrangThai;
+            cboTrangThai.DisplayMember = "Value";
+            cboTrangThai.ValueMember = "Key";
         }
 
         private void LoadDataGridView()
@@ -73,7 +78,7 @@ namespace mini_supermarket.GUI.KhoHang
 
             if (dtProducts != null)
             {
-                dtProducts.CaseSensitive = false;
+                // Không cần CaseSensitive cho IList
             }
 
             dgvKhoHang.DataSource = dtProducts;
@@ -84,18 +89,16 @@ namespace mini_supermarket.GUI.KhoHang
         {
             if (dgvKhoHang.Columns["MaLoai"] != null) dgvKhoHang.Columns["MaLoai"].Visible = false;
             if (dgvKhoHang.Columns["MaThuongHieu"] != null) dgvKhoHang.Columns["MaThuongHieu"].Visible = false;
-            if (dgvKhoHang.Columns["MaSP"] != null) dgvKhoHang.Columns["MaSP"].HeaderText = "Mã SP";
-            if (dgvKhoHang.Columns["TenSanPham"] != null) dgvKhoHang.Columns["TenSanPham"].HeaderText = "Tên Sản Phẩm";
-            if (dgvKhoHang.Columns["TenDonVi"] != null) dgvKhoHang.Columns["TenDonVi"].HeaderText = "Đơn Vị";
+            if (dgvKhoHang.Columns["MaSanPham"] != null) dgvKhoHang.Columns["MaSanPham"].HeaderText = "Mã sản phẩm";
+            if (dgvKhoHang.Columns["TenSanPham"] != null) dgvKhoHang.Columns["TenSanPham"].HeaderText = "Tên sản phẩm";
+            if (dgvKhoHang.Columns["TenDonVi"] != null) dgvKhoHang.Columns["TenDonVi"].HeaderText = "Đơn vị";
             if (dgvKhoHang.Columns["TenLoai"] != null) dgvKhoHang.Columns["TenLoai"].HeaderText = "Loại";
-            if (dgvKhoHang.Columns["TenThuongHieu"] != null) dgvKhoHang.Columns["TenThuongHieu"].HeaderText = "Thương Hiệu";
-            if (dgvKhoHang.Columns["Hsd"] != null) dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn Sử Dụng";
-            if (dgvKhoHang.Columns["SoLuong"] != null) dgvKhoHang.Columns["SoLuong"].HeaderText = "Số Lượng Tồn";
-            if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng Thái";
-            if (dgvKhoHang.Columns["GiaNhap"] != null) dgvKhoHang.Columns["GiaNhap"].HeaderText = "Giá nhập";
+            if (dgvKhoHang.Columns["TenThuongHieu"] != null) dgvKhoHang.Columns["TenThuongHieu"].HeaderText = "Thương hiệu";
+            if (dgvKhoHang.Columns["SoLuong"] != null) dgvKhoHang.Columns["SoLuong"].HeaderText = "Số lượng";
+            if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng thái";
             if (dgvKhoHang.Columns["GiaBan"] != null) dgvKhoHang.Columns["GiaBan"].HeaderText = "Giá bán";
-
-            // Căn giữa nội dung các cột
+            if (dgvKhoHang.Columns["Hsd"] != null) dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn sử dụng";
+            if (dgvKhoHang.Columns["GiaNhap"] != null) dgvKhoHang.Columns["GiaNhap"].HeaderText = "Giá nhập";
             foreach (DataGridViewColumn column in dgvKhoHang.Columns)
             {
                 column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -103,9 +106,9 @@ namespace mini_supermarket.GUI.KhoHang
             }
 
             // Sắp xếp lại thứ tự cột
-            dgvKhoHang.Columns["TenThuongHieu"].DisplayIndex = 4;
-            dgvKhoHang.Columns["Hsd"].DisplayIndex = 5;
-            dgvKhoHang.Columns["SoLuong"].DisplayIndex = 6;
+            if (dgvKhoHang.Columns.Contains("TenThuongHieu")) dgvKhoHang.Columns["TenThuongHieu"].DisplayIndex = 4;
+            if (dgvKhoHang.Columns.Contains("Hsd")) dgvKhoHang.Columns["Hsd"].DisplayIndex = 5;
+            if (dgvKhoHang.Columns.Contains("SoLuong")) dgvKhoHang.Columns["SoLuong"].DisplayIndex = 6;
         }
 
         // Highlight cảnh báo hàng tồn kho thấp
@@ -113,9 +116,8 @@ namespace mini_supermarket.GUI.KhoHang
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvKhoHang.Rows.Count) return;
             if (dgvKhoHang.Rows[e.RowIndex].DataBoundItem == null) return;
-            DataRowView drv = (DataRowView)dgvKhoHang.Rows[e.RowIndex].DataBoundItem;
-            if (drv.Row["SoLuong"] == DBNull.Value) return;
-            int soLuong = Convert.ToInt32(drv.Row["SoLuong"]);
+            TonKhoDTO item = (TonKhoDTO)dgvKhoHang.Rows[e.RowIndex].DataBoundItem;
+            int soLuong = item.SoLuong ?? 0;
             if (soLuong == 0)
             {
                 dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(255, 220, 220);
@@ -132,32 +134,30 @@ namespace mini_supermarket.GUI.KhoHang
         {
             if (dtProducts == null) return;
 
-            DataView dv = dtProducts.DefaultView;
-            string filter = "1=1";
+            var filtered = dtProducts.AsEnumerable();
 
             string tuKhoa = txtTimKiem.Text.Trim();
             if (!string.IsNullOrEmpty(tuKhoa))
             {
-                filter += string.Format(" AND (TenSanPham LIKE '%{0}%' OR CONVERT(MaSP, 'System.String') LIKE '%{0}%')", tuKhoa);
+                filtered = filtered.Where(item => item.TenSanPham.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) || item.MaSanPham.ToString().Contains(tuKhoa));
             }
 
             if (cboLoaiSP.SelectedValue != null && (int)cboLoaiSP.SelectedValue != -1)
             {
-                filter += string.Format(" AND MaLoai = {0}", cboLoaiSP.SelectedValue);
+                filtered = filtered.Where(item => item.MaLoai == (int)cboLoaiSP.SelectedValue);
             }
 
             if (cboThuongHieu.SelectedValue != null && (int)cboThuongHieu.SelectedValue != -1)
             {
-                filter += string.Format(" AND MaThuongHieu = {0}", cboThuongHieu.SelectedValue);
+                filtered = filtered.Where(item => item.MaThuongHieu == (int)cboThuongHieu.SelectedValue);
             }
 
             if (cboTrangThai.SelectedValue != null && !string.IsNullOrEmpty(cboTrangThai.SelectedValue.ToString()))
             {
-                filter += string.Format(" AND TrangThai = '{0}'", cboTrangThai.SelectedValue.ToString());
+                filtered = filtered.Where(item => item.TrangThai == cboTrangThai.SelectedValue.ToString());
             }
 
-            dv.RowFilter = filter;
-            dgvKhoHang.DataSource = dv.ToTable();
+            dgvKhoHang.DataSource = filtered.ToList();
         }
 
         private void cboLoaiSP_SelectedIndexChanged(object sender, EventArgs e) { ApplyFilters(); }
@@ -183,12 +183,11 @@ namespace mini_supermarket.GUI.KhoHang
                 return;
             }
 
-            DataRowView drv = (DataRowView)dgvKhoHang.SelectedRows[0].DataBoundItem;
-            DataRow row = drv.Row;
+            TonKhoDTO item = (TonKhoDTO)dgvKhoHang.SelectedRows[0].DataBoundItem;
 
-            int maSanPham = Convert.ToInt32(row["MaSP"]);
-            string tenSanPham = row["TenSanPham"].ToString() ?? "";
-            int soLuong = Convert.ToInt32(row["SoLuong"]);
+            int maSanPham = item.MaSanPham;
+            string tenSanPham = item.TenSanPham;
+            int soLuong = item.SoLuong ?? 0;
 
             // TODO: Lấy MaNhanVien từ session/login thực tế
             // Hiện tại dùng giá trị mặc định 1
@@ -212,9 +211,9 @@ namespace mini_supermarket.GUI.KhoHang
                 return;
             }
 
-            DataTable dt = (DataTable)dgvKhoHang.DataSource;
+            var list = (IList<TonKhoDTO>)dgvKhoHang.DataSource;
 
-            if (dt == null || dt.Rows.Count == 0)
+            if (list == null || list.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu để xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -236,7 +235,7 @@ namespace mini_supermarket.GUI.KhoHang
                     using (ExcelPackage package = new ExcelPackage())
                     {
                         ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("TonKho");
-                        worksheet.Cells["A1"].LoadFromDataTable(dt, true);
+                        worksheet.Cells["A1"].LoadFromCollection(list, true);
                         worksheet.Cells.AutoFitColumns();
                         FileInfo excelFile = new FileInfo(saveFileDialog.FileName);
                         package.SaveAs(excelFile);
@@ -334,7 +333,7 @@ namespace mini_supermarket.GUI.KhoHang
         /// <summary>
         /// Hiển thị ToolTip với tên sản phẩm đầy đủ khi di chuột vào cột TenSanPham
         /// </summary>
-        private void dgvKhoHang_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        private void dgvKhoHang_CellMouseEnter(object? sender, DataGridViewCellEventArgs e)
         {
             try
             {
@@ -353,9 +352,9 @@ namespace mini_supermarket.GUI.KhoHang
 
                 if (tenSanPham.EndsWith("..."))
                 {
-                    if (dtProducts != null && e.RowIndex < dtProducts.Rows.Count)
+                    if (dtProducts != null && e.RowIndex < dtProducts.Count)
                     {
-                        string tenDayDu = dtProducts.Rows[e.RowIndex]["TenSanPham"]?.ToString() ?? "";
+                        string tenDayDu = dtProducts[e.RowIndex].TenSanPham;
                         if (!string.IsNullOrEmpty(tenDayDu) && tenDayDu != tenSanPham)
                         {
                             toolTipTenSP.SetToolTip(dgvKhoHang, $"📦 {tenDayDu}");
@@ -369,7 +368,7 @@ namespace mini_supermarket.GUI.KhoHang
             }
         }
 
-        private void dgvKhoHang_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        private void dgvKhoHang_CellMouseLeave(object? sender, DataGridViewCellEventArgs e)
         {
             toolTipTenSP.SetToolTip(dgvKhoHang, "");
         }
@@ -382,8 +381,8 @@ namespace mini_supermarket.GUI.KhoHang
                 return;
             }
 
-            DataRowView drv = (DataRowView)dgvKhoHang.SelectedRows[0].DataBoundItem;
-            int maSanPham = Convert.ToInt32(drv["MaSP"]);
+            TonKhoDTO item = (TonKhoDTO)dgvKhoHang.SelectedRows[0].DataBoundItem;
+            int maSanPham = item.MaSanPham;
 
             Form_LichSuKhoHang formLichSu = new Form_LichSuKhoHang(maSanPham);
             formLichSu.ShowDialog();

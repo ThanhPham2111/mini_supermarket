@@ -31,6 +31,11 @@ namespace mini_supermarket.GUI.HoaDon
                 return;
             }
             searchComboBox.SelectedIndex = 0;
+            // Populate trạng thái combo box
+            trangThaiComboBox.Items.Clear();
+            trangThaiComboBox.Items.Add("Tất cả");
+            trangThaiComboBox.Items.Add("Hoàn thành");
+            trangThaiComboBox.Items.Add("Đã hủy");
             trangThaiComboBox.SelectedIndex = 0; // Mặc định chọn "Tất cả"
             hoaDonDataGridView.AutoGenerateColumns = false;
             hoaDonDataGridView.DataSource = _bindingSource;
