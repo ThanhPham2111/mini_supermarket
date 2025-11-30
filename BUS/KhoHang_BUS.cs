@@ -6,12 +6,14 @@ using System.IO;
 using OfficeOpenXml;
 using System.Linq;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace mini_supermarket.BUS
 {
     public class KhoHangBUS
     {
         private KhoHangDAO khoHangDAO = new KhoHangDAO();
+        private LichSuThayDoiKho_BUS lichSuBUS = new LichSuThayDoiKho_BUS();
 
         // Hằng số định nghĩa trạng thái và ngưỡng cảnh báo
         private const int NGUONG_CANH_BAO = 10; // Ngưỡng cảnh báo hàng sắp hết
@@ -105,7 +107,7 @@ namespace mini_supermarket.BUS
             if (maSanPham <= 0)
                 throw new ArgumentException("Mã sản phẩm không hợp lệ");
 
-            return khoHangDAO.LayLichSuThayDoi(maSanPham);
+            return lichSuBUS.LayTheoSanPham(maSanPham);
         }
 
         // Lấy thông tin chi tiết sản phẩm
@@ -246,18 +248,6 @@ namespace mini_supermarket.BUS
             return khoHangDAO.LaySanPhamHetHang();
         }
 
-        // Lấy giá nhập mới nhất của sản phẩm từ ChiTietPhieuNhap
-        public decimal? GetGiaNhapMoiNhat(int maSanPham)
-        {
-            return khoHangDAO.GetGiaNhapMoiNhat(maSanPham);
-        }
-
-        // Lấy danh sách kho hàng kèm giá nhập và giá bán
-        public IList<KhoHangDTO> GetAllKhoHangWithPrice()
-        {
-            return khoHangDAO.GetAllKhoHangWithPrice();
-        }
-
         // Cập nhật kho và ghi log (wrapper method cho DAO)
         public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
         {
@@ -280,8 +270,9 @@ namespace mini_supermarket.BUS
 
         /// <summary>
         /// Nhập kho hàng loạt từ file Excel.
+        /// Trả về true nếu có ít nhất một cập nhật thành công, false nếu không.
         /// </summary>
-        public void NhapKhoTuExcel(string filePath, int maNhanVien)
+        public bool NhapKhoTuExcel(string filePath, int maNhanVien)
         {
             if (string.IsNullOrEmpty(filePath))
                 throw new ArgumentException("Đường dẫn file không hợp lệ.");
@@ -289,26 +280,69 @@ namespace mini_supermarket.BUS
             if (!File.Exists(filePath))
                 throw new FileNotFoundException("Không tìm thấy file.", filePath);
 
+            var errors = new List<string>();
+            var updates = new List<string>();
+            bool hasUpdates = false;
+
             using (var package = new ExcelPackage(new FileInfo(filePath)))
             {
                 var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                 if (worksheet == null)
                     throw new InvalidOperationException("File Excel không có worksheet nào.");
 
+                // Tìm vị trí cột theo header
+                int colMaSP = -1, colSoLuong = -1;
+                for (int col = 1; col <= worksheet.Dimension.End.Column; col++)
+                {
+                    var header = worksheet.Cells[1, col].Value?.ToString()?.Trim();
+                    if (header == "Mã SP") colMaSP = col;
+                    else if (header == "Số lượng") colSoLuong = col;
+                }
+
+                if (colMaSP == -1 || colSoLuong == -1)
+                {
+                    throw new InvalidOperationException("File Excel không có cột bắt buộc: 'Mã SP' hoặc 'Số lượng'.");
+                }
+
                 int rowCount = worksheet.Dimension.End.Row;
 
                 for (int row = 2; row <= rowCount; row++)
                 {
                     // Bỏ qua nếu không có mã sản phẩm
-                    if (worksheet.Cells[row, 1].Value == null || !int.TryParse(worksheet.Cells[row, 1].Value.ToString(), out int maSp))
+                    if (worksheet.Cells[row, colMaSP].Value == null || !int.TryParse(worksheet.Cells[row, colMaSP].Value.ToString(), out int maSp))
+                    {
+                        errors.Add($"Dòng {row}: Mã sản phẩm không hợp lệ.");
                         continue;
+                    }
 
                     // Lấy số lượng mới, nếu không có thì bỏ qua dòng này
-                    if (worksheet.Cells[row, 6].Value == null || !int.TryParse(worksheet.Cells[row, 6].Value.ToString(), out int soLuongMoi))
+                    if (worksheet.Cells[row, colSoLuong].Value == null || !int.TryParse(worksheet.Cells[row, colSoLuong].Value.ToString(), out int soLuongMoi))
+                    {
+                        errors.Add($"Dòng {row}: Số lượng không hợp lệ.");
                         continue;
+                    }
+
+                    if (soLuongMoi < 0)
+                    {
+                        errors.Add($"Dòng {row}: Số lượng không được âm.");
+                        continue;
+                    }
 
                     var khoHienTai = khoHangDAO.GetByMaSanPham(maSp);
-                    int soLuongCu = khoHienTai?.SoLuong ?? 0;
+                    if (khoHienTai == null)
+                    {
+                        errors.Add($"Dòng {row}: Sản phẩm với mã {maSp} không tồn tại trong kho.");
+                        continue;
+                    }
+
+                    int soLuongCu = khoHienTai.SoLuong ?? 0;
+                    if (soLuongMoi == soLuongCu)
+                    {
+                        // Không thay đổi, bỏ qua
+                        continue;
+                    }
+
+                    int chenhLech = soLuongMoi - soLuongCu;
 
                     // Tạo DTO để cập nhật
                     KhoHangDTO khoUpdate = new KhoHangDTO
@@ -324,18 +358,58 @@ namespace mini_supermarket.BUS
                         MaSanPham = maSp,
                         SoLuongCu = soLuongCu,
                         SoLuongMoi = soLuongMoi,
-                        ChenhLech = soLuongMoi - soLuongCu,
-                        LoaiThayDoi = khoHienTai == null ? "Khởi tạo" : "Điều chỉnh",
+                        ChenhLech = chenhLech,
+                        LoaiThayDoi = khoHienTai.SoLuong == null ? "Khởi tạo" : "Điều chỉnh",
                         LyDo = "Nhập từ file Excel",
-                        GhiChu = "Cập nhật hàng loạt từ Excel.",
+                        GhiChu = $"Cập nhật hàng loạt từ Excel. Số lượng cũ: {soLuongCu}, mới: {soLuongMoi}, thay đổi: {chenhLech}",
                         MaNhanVien = maNhanVien,
                         NgayThayDoi = DateTime.Now
                     };
 
-                    // Gọi phương thức upsert an toàn
-                    khoHangDAO.CapNhatKhoVaGhiLog(khoUpdate, lichSu);
+                    try
+                    {
+                        // Gọi phương thức upsert an toàn
+                        khoHangDAO.CapNhatKhoVaGhiLog(khoUpdate, lichSu);
+                        updates.Add($"Sản phẩm {maSp}: {(chenhLech > 0 ? "+" : "")}{chenhLech} (cũ: {soLuongCu}, mới: {soLuongMoi})");
+                        hasUpdates = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Dòng {row}: Lỗi cập nhật sản phẩm {maSp}: {ex.Message}");
+                    }
                 }
             }
+
+            // Hiển thị kết quả
+            string message = "";
+            if (errors.Any())
+            {
+                message += "Có lỗi trong quá trình nhập:\n" + string.Join("\n", errors) + "\n\n";
+            }
+            if (updates.Any())
+            {
+                message += "Cập nhật thành công:\n" + string.Join("\n", updates);
+            }
+            if (!errors.Any() && !updates.Any())
+            {
+                message = "Không có dữ liệu hợp lệ để cập nhật.";
+            }
+
+            MessageBox.Show(message, hasUpdates ? "Kết quả nhập Excel" : "Thông báo", MessageBoxButtons.OK, hasUpdates ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+            return hasUpdates;
+        }
+
+        // Lấy giá nhập mới nhất của sản phẩm từ ChiTietPhieuNhap
+        public decimal? GetGiaNhapMoiNhat(int maSanPham)
+        {
+            return khoHangDAO.GetGiaNhapMoiNhat(maSanPham);
+        }
+
+        // Lấy danh sách kho hàng kèm giá nhập và giá bán
+        public IList<KhoHangDTO> GetAllKhoHangWithPrice()
+        {
+            return khoHangDAO.GetAllKhoHangWithPrice();
         }
     }
 }

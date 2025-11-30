@@ -11,6 +11,7 @@ namespace mini_supermarket.BUS
     {
         private TrangChuDAO trangChuDAO = new TrangChuDAO();
         private KhoHangBUS khoHangBUS = new KhoHangBUS();
+        private KhoHangDAO khoHangDAO = new KhoHangDAO();
 
         public decimal GetDoanhThuHomNay()
         {

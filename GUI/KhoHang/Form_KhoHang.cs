@@ -34,6 +34,13 @@ namespace mini_supermarket.GUI.KhoHang
             // Đăng ký sự kiện ToolTip
             dgvKhoHang.CellMouseEnter += dgvKhoHang_CellMouseEnter;
             dgvKhoHang.CellMouseLeave += dgvKhoHang_CellMouseLeave;
+
+            // Cho phép sắp xếp cột và hàng
+            dgvKhoHang.AllowUserToOrderColumns = true;
+            foreach (DataGridViewColumn column in dgvKhoHang.Columns)
+            {
+                column.SortMode = DataGridViewColumnSortMode.Automatic;
+            }
         }
 
         private void LoadComboBoxes()
@@ -96,14 +103,30 @@ namespace mini_supermarket.GUI.KhoHang
             if (dgvKhoHang.Columns["TenThuongHieu"] != null) dgvKhoHang.Columns["TenThuongHieu"].HeaderText = "Thương hiệu";
             if (dgvKhoHang.Columns["SoLuong"] != null) dgvKhoHang.Columns["SoLuong"].HeaderText = "Số lượng";
             if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng thái";
-            if (dgvKhoHang.Columns["GiaBan"] != null) dgvKhoHang.Columns["GiaBan"].HeaderText = "Giá bán";
+            if (dgvKhoHang.Columns["GiaBan"] != null) 
+            {
+                dgvKhoHang.Columns["GiaBan"].HeaderText = "Giá bán";
+                dgvKhoHang.Columns["GiaBan"].DefaultCellStyle.Format = "N0";
+                dgvKhoHang.Columns["GiaBan"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
             if (dgvKhoHang.Columns["Hsd"] != null) dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn sử dụng";
-            if (dgvKhoHang.Columns["GiaNhap"] != null) dgvKhoHang.Columns["GiaNhap"].HeaderText = "Giá nhập";
+            if (dgvKhoHang.Columns["GiaNhap"] != null) 
+            {
+                dgvKhoHang.Columns["GiaNhap"].HeaderText = "Giá nhập";
+                dgvKhoHang.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
+                dgvKhoHang.Columns["GiaNhap"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
             foreach (DataGridViewColumn column in dgvKhoHang.Columns)
             {
                 column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
+
+            // Set lại alignment cho cột giá (căn giữa)
+            if (dgvKhoHang.Columns["GiaBan"] != null) 
+                dgvKhoHang.Columns["GiaBan"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            if (dgvKhoHang.Columns["GiaNhap"] != null) 
+                dgvKhoHang.Columns["GiaNhap"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             // Sắp xếp lại thứ tự cột
             if (dgvKhoHang.Columns.Contains("TenThuongHieu")) dgvKhoHang.Columns["TenThuongHieu"].DisplayIndex = 4;
@@ -202,7 +225,7 @@ namespace mini_supermarket.GUI.KhoHang
             }
         }
 
-        // Nút Xuất Excel
+        // Nút Xuất Excel (xuất danh sách hiện đang hiển thị)
         private void btnXuatExcel_Click(object sender, EventArgs e)
         {
             if (dgvKhoHang.DataSource == null)
@@ -240,6 +263,13 @@ namespace mini_supermarket.GUI.KhoHang
                         FileInfo excelFile = new FileInfo(saveFileDialog.FileName);
                         package.SaveAs(excelFile);
                         MessageBox.Show("Xuất file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Hỏi có muốn mở file không
+                        DialogResult result = MessageBox.Show("Bạn có muốn mở file Excel vừa xuất không?", "Mở file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (result == DialogResult.Yes)
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(excelFile.FullName) { UseShellExecute = true });
+                        }
                     }
                 }
                 catch (Exception)
@@ -257,33 +287,190 @@ namespace mini_supermarket.GUI.KhoHang
                 Title = "Chọn file Excel nhập kho"
             };
 
-            if (ofd.ShowDialog() != DialogResult.OK) return;
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            var errors = new List<string>();
+            var updates = new List<string>();
+            bool hasUpdates = false;
 
             try
             {
-                // TODO: Lấy MaNhanVien từ session/login thực tế
-                int maNhanVien = 1; 
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(new FileInfo(ofd.FileName)))
+                {
+                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                    if (worksheet == null)
+                    {
+                        MessageBox.Show("File Excel không có worksheet hợp lệ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
-                khoHangBUS.NhapKhoTuExcel(ofd.FileName, maNhanVien);
+                    // Tìm cột theo header
+                    int colMaSP = -1, colSoLuong = -1;
+                    for (int col = 1; col <= worksheet.Dimension.End.Column; col++)
+                    {
+                        var header = worksheet.Cells[1, col].Value?.ToString()?.Trim();
+                        if (header == "Mã sản phẩm") colMaSP = col;
+                        else if (header == "Số lượng") colSoLuong = col;
+                    }
 
-                MessageBox.Show("Nhập kho từ file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadDataGridView(); // Tải lại dữ liệu để hiển thị thay đổi
+                    if (colMaSP == -1 || colSoLuong == -1)
+                    {
+                        MessageBox.Show("File Excel thiếu cột 'Mã sản phẩm' hoặc 'Số lượng'.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    int rowCount = worksheet.Dimension.End.Row;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        // Đọc Mã SP
+                        string maSpText = worksheet.Cells[row, colMaSP].Value?.ToString()?.Trim() ?? "";
+                        // Đọc Số lượng
+                        string soLuongText = worksheet.Cells[row, colSoLuong].Value?.ToString()?.Trim() ?? "";
+
+                        // Nếu cả hai đều trống, bỏ qua dòng mà không báo lỗi
+                        if (string.IsNullOrEmpty(maSpText) && string.IsNullOrEmpty(soLuongText))
+                        {
+                            continue;
+                        }
+
+                        // Nếu mã SP trống nhưng số lượng có, báo lỗi
+                        if (string.IsNullOrEmpty(maSpText) && !string.IsNullOrEmpty(soLuongText))
+                        {
+                            errors.Add($"Dòng {row}: Mã sản phẩm trống nhưng có số lượng.");
+                            continue;
+                        }
+
+                        // Nếu mã SP có nhưng số lượng trống, bỏ qua
+                        if (!string.IsNullOrEmpty(maSpText) && string.IsNullOrEmpty(soLuongText))
+                        {
+                            continue;
+                        }
+
+                        // Validate Mã SP
+                        if (!int.TryParse(maSpText, out int maSp))
+                        {
+                            errors.Add($"Dòng {row}: Mã sản phẩm không phải là số nguyên ('{maSpText}').");
+                            continue;
+                        }
+
+                        // Validate Số lượng
+                        if (!int.TryParse(soLuongText, out int soLuongMoi))
+                        {
+                            errors.Add($"Dòng {row}: Số lượng không phải là số nguyên ('{soLuongText}').");
+                            continue;
+                        }
+                        if (soLuongMoi < 0)
+                        {
+                            errors.Add($"Dòng {row}: Số lượng không được âm ({soLuongMoi}).");
+                            continue;
+                        }
+                        if (soLuongMoi == 0)
+                        {
+                            errors.Add($"Dòng {row}: Số lượng phải lớn hơn 0 ({soLuongMoi}).");
+                            continue;
+                        }
+
+                        // Validation: Kiểm tra sản phẩm tồn tại
+                        var khoHienTai = khoHangBUS.GetByMaSanPham(maSp);
+                        if (khoHienTai == null)
+                        {
+                            errors.Add($"Dòng {row}: Sản phẩm mã {maSp} không tồn tại.");
+                            continue;
+                        }
+
+                        // Cập nhật kho (cập nhật số lượng trực tiếp từ file)
+                        try
+                        {
+                            // Tạo DTO cho kho hàng
+                            const int NGUONG_CANH_BAO = 10;
+                            const int NGUONG_TIEM_CAN = 5;
+                            string trangThaiMoi = soLuongMoi == 0 ? "Hết hàng" :
+                                                 soLuongMoi <= NGUONG_TIEM_CAN ? "Cảnh báo - Tiệm cận" :
+                                                 soLuongMoi <= NGUONG_CANH_BAO ? "Cảnh báo - Sắp hết hàng" :
+                                                 "Còn hàng";
+
+                            KhoHangDTO khoHangCapNhat = new KhoHangDTO
+                            {
+                                MaSanPham = maSp,
+                                SoLuong = soLuongMoi,
+                                TrangThai = trangThaiMoi
+                            };
+
+                            // Tạo DTO cho lịch sử
+                            LichSuThayDoiKhoDTO lichSu = new LichSuThayDoiKhoDTO
+                            {
+                                MaSanPham = maSp,
+                                SoLuongCu = khoHienTai.SoLuong ?? 0,
+                                SoLuongMoi = soLuongMoi,
+                                ChenhLech = soLuongMoi - (khoHienTai.SoLuong ?? 0),
+                                LoaiThayDoi = "Cập nhật từ Excel",
+                                LyDo = "Nhập từ file Excel mẫu",
+                                GhiChu = $"Cập nhật số lượng từ Excel: {soLuongMoi}",
+                                MaNhanVien = 1, // TODO: Lấy từ session
+                                NgayThayDoi = DateTime.Now
+                            };
+
+                            khoHangBUS.CapNhatKhoVaGhiLog(khoHangCapNhat, lichSu);
+                            updates.Add($"Sản phẩm {maSp}: cập nhật số lượng thành {soLuongMoi}");
+                            hasUpdates = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            errors.Add($"Dòng {row}: Lỗi cập nhật sản phẩm {maSp}: {ex.Message}");
+                        }
+                    }
+                }
+
+                // Hiển thị kết quả
+                string message = "";
+                if (errors.Any())
+                {
+                    message += "Có lỗi:\n" + string.Join("\n", errors) + "\n\n";
+                }
+                if (updates.Any())
+                {
+                    message += "Cập nhật thành công:\n" + string.Join("\n", updates);
+                }
+                if (!errors.Any() && !updates.Any())
+                {
+                    message = "Không có dữ liệu hợp lệ để cập nhật.";
+                }
+
+                MessageBox.Show(message, hasUpdates ? "Kết quả nhập Excel" : "Thông báo", MessageBoxButtons.OK, hasUpdates ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                if (hasUpdates)
+                {
+                    LoadDataGridView(); // Reload dữ liệu sau khi cập nhật
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi nhập liệu từ Excel. Vui lòng kiểm tra file và thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi nhập file Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnXuatFileMau_Click(object sender, EventArgs e)
         {
+            // Lấy danh sách tất cả sản phẩm từ BUS
+            var allProducts = khoHangBUS.LayDanhSachTonKho();
+
+            if (allProducts == null || allProducts.Count == 0)
+            {
+                MessageBox.Show("Không có sản phẩm nào trong kho để xuất mẫu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
                 FilterIndex = 1,
                 RestoreDirectory = true,
-                FileName = "MauNhapKhoHang.xlsx"
+                FileName = $"MauNhapKho_{DateTime.Now:yyyyMMdd}.xlsx"
             };
+
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
@@ -291,29 +478,32 @@ namespace mini_supermarket.GUI.KhoHang
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     using (ExcelPackage package = new ExcelPackage())
                     {
-                        var ws = package.Workbook.Worksheets.Add("MauKhoHang");
-                        // Header (đã bỏ cột Giá nhập và Giá bán)
-                        string[] headers = { "Mã SP", "Tên SP", "Loại", "Thương hiệu", "Đơn vị", "Số lượng" };
-                        for (int i = 0; i < headers.Length; i++)
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("MauNhapKho");
+                        
+                        // Header
+                        worksheet.Cells[1, 1].Value = "Mã sản phẩm";
+                        worksheet.Cells[1, 2].Value = "Tên sản phẩm";
+                        worksheet.Cells[1, 3].Value = "Số lượng"; // Để trống
+                        
+                        // Dữ liệu: Chỉ điền Mã và Tên, Số lượng để trống
+                        for (int i = 0; i < allProducts.Count; i++)
                         {
-                            ws.Cells[1, i + 1].Value = headers[i];
-                            ws.Cells[1, i + 1].Style.Font.Bold = true;
-                            ws.Cells[1, i + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                            ws.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightSkyBlue);
-                            ws.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[i + 2, 1].Value = allProducts[i].MaSanPham;
+                            worksheet.Cells[i + 2, 2].Value = allProducts[i].TenSanPham;
+                            // Cột 3 (Số lượng) để trống
                         }
-                        // Dòng mẫu
-                        ws.Cells[2, 1].Value = "1";
-                        ws.Cells[2, 2].Value = "Sữa tươi Vinamilk 1L";
-                        ws.Cells[2, 3].Value = "Đồ uống";
-                        ws.Cells[2, 4].Value = "Vinamilk";
-                        ws.Cells[2, 5].Value = "Hộp";
-                        ws.Cells[2, 6].Value = "100";
-                        ws.Cells[2, 1, 2, headers.Length].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        ws.Cells.AutoFitColumns();
+                        
+                        worksheet.Cells.AutoFitColumns();
                         FileInfo excelFile = new FileInfo(saveFileDialog.FileName);
                         package.SaveAs(excelFile);
-                        MessageBox.Show("Xuất file mẫu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Xuất file mẫu Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Hỏi có muốn mở file không
+                        DialogResult result = MessageBox.Show("Bạn có muốn mở file mẫu Excel vừa xuất không?", "Mở file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (result == DialogResult.Yes)
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(excelFile.FullName) { UseShellExecute = true });
+                        }
                     }
                 }
                 catch (Exception)
@@ -381,8 +571,9 @@ namespace mini_supermarket.GUI.KhoHang
 
             TonKhoDTO item = (TonKhoDTO)dgvKhoHang.SelectedRows[0].DataBoundItem;
             int maSanPham = item.MaSanPham;
+            string tenSanPham = item.TenSanPham;
 
-            Form_LichSuKhoHang formLichSu = new Form_LichSuKhoHang(maSanPham);
+            Form_LichSuKhoHang formLichSu = new Form_LichSuKhoHang(maSanPham, tenSanPham);
             formLichSu.ShowDialog();
         }
     }

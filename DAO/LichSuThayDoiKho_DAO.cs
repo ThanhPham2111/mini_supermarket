@@ -42,7 +42,12 @@ namespace mini_supermarket.DAO
             using var conn = DbConnectionFactory.CreateConnection();
             conn.Open();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = @"SELECT TOP(@Top) ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi\n                                FROM Tbl_LichSuThayDoiKho ls\n                                JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham\n                                JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien\n                                WHERE ls.MaSanPham = @MaSP\n                                ORDER BY ls.NgayThayDoi DESC";
+            cmd.CommandText = @"SELECT TOP(@Top) ls.MaLichSu, ls.MaSanPham, ISNULL(sp.TenSanPham, 'Không xác ??nh') AS TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi
+                                FROM Tbl_LichSuThayDoiKho ls
+                                LEFT JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham
+                                LEFT JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien
+                                WHERE ls.MaSanPham = @MaSP
+                                ORDER BY ls.NgayThayDoi DESC";
             cmd.Parameters.Add(new SqlParameter("@Top", top));
             cmd.Parameters.Add(new SqlParameter("@MaSP", maSanPham));
             using var reader = cmd.ExecuteReader();
@@ -74,7 +79,11 @@ namespace mini_supermarket.DAO
             using var conn = DbConnectionFactory.CreateConnection();
             conn.Open();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = @"SELECT TOP(@Top) ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi\n                                FROM Tbl_LichSuThayDoiKho ls\n                                JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham\n                                JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien\n                                ORDER BY ls.NgayThayDoi DESC";
+            cmd.CommandText = @"SELECT TOP(@Top) ls.MaLichSu, ls.MaSanPham, ISNULL(sp.TenSanPham, 'Không xác ??nh') AS TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi
+                                FROM Tbl_LichSuThayDoiKho ls
+                                LEFT JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham
+                                LEFT JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien
+                                ORDER BY ls.NgayThayDoi DESC";
             cmd.Parameters.Add(new SqlParameter("@Top", top));
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -105,7 +114,11 @@ namespace mini_supermarket.DAO
             using var conn = DbConnectionFactory.CreateConnection();
             conn.Open();
             using var cmd = conn.CreateCommand();
-            var sql = @"SELECT ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi\n                        FROM Tbl_LichSuThayDoiKho ls\n                        JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham\n                        JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien\n                        WHERE 1=1";
+            var sql = @"SELECT ls.MaLichSu, ls.MaSanPham, sp.TenSanPham, ls.SoLuongCu, ls.SoLuongMoi, ls.ChenhLech, ls.LoaiThayDoi, ls.LyDo, ls.GhiChu, ls.MaNhanVien, nv.TenNhanVien, ls.NgayThayDoi
+                        FROM Tbl_LichSuThayDoiKho ls
+                        LEFT JOIN Tbl_SanPham sp ON sp.MaSanPham = ls.MaSanPham
+                        LEFT JOIN Tbl_NhanVien nv ON nv.MaNhanVien = ls.MaNhanVien
+                        WHERE 1=1";
             if (from.HasValue)
             {
                 sql += " AND ls.NgayThayDoi >= @From";

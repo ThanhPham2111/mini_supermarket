@@ -132,6 +132,14 @@ namespace mini_supermarket.GUI.TrangChu
                     dgvSanPhamSapHetHan.Columns["HSD"].HeaderText = "Hạn Sử Dụng";
                     dgvSanPhamSapHetHan.Columns["HSD"].Width = 150;
                     dgvSanPhamSapHetHan.Columns["HSD"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                    dgvSanPhamSapHetHan.Columns["HSD"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                // Căn giữa tất cả cột
+                foreach (DataGridViewColumn column in dgvSanPhamSapHetHan.Columns)
+                {
+                    column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
 
                 foreach (DataGridViewRow row in dgvSanPhamSapHetHan.Rows)
@@ -176,6 +184,14 @@ namespace mini_supermarket.GUI.TrangChu
                     dgvTopKhachHang.Columns["TongSoLuong"].HeaderText = "Tổng Số Lượng";
                     dgvTopKhachHang.Columns["TongSoLuong"].Width = 150;
                     dgvTopKhachHang.Columns["TongSoLuong"].DefaultCellStyle.Format = "N0";
+                    dgvTopKhachHang.Columns["TongSoLuong"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                // Căn giữa tất cả cột
+                foreach (DataGridViewColumn column in dgvTopKhachHang.Columns)
+                {
+                    column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
             }
             catch (Exception ex)

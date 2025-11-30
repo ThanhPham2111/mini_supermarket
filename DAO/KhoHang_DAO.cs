@@ -22,7 +22,9 @@ namespace mini_supermarket.DAO
                     kh.TrangThai,
                     sp.MaLoai,
                     sp.MaThuongHieu,
-                    sp.Hsd
+                    sp.Hsd,
+                    sp.GiaBan,
+                    (SELECT TOP 1 ct.DonGiaNhap FROM Tbl_ChiTietPhieuNhap ct INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap WHERE ct.MaSanPham = kh.MaSanPham ORDER BY p.NgayNhap DESC) AS GiaNhap
                 FROM Tbl_KhoHang kh
                 JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham
                 LEFT JOIN Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
@@ -680,6 +682,75 @@ namespace mini_supermarket.DAO
                     }
                 }
             }
+        }
+
+        // Lấy giá nhập mới nhất của sản phẩm từ ChiTietPhieuNhap
+        public decimal? GetGiaNhapMoiNhat(int maSanPham)
+        {
+            const string query = @"
+                SELECT TOP 1 ct.DonGiaNhap 
+                FROM Tbl_ChiTietPhieuNhap ct
+                INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap
+                WHERE ct.MaSanPham = @MaSanPham 
+                ORDER BY p.NgayNhap DESC";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    return result == null || result == DBNull.Value ? (decimal?)null : Convert.ToDecimal(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetGiaNhapMoiNhat: {ex.Message}");
+                throw;
+            }
+        }
+
+        // Lấy danh sách kho hàng kèm giá nhập và giá bán
+        public IList<KhoHangDTO> GetAllKhoHangWithPrice()
+        {
+            const string query = @"
+                SELECT kh.MaSanPham, kh.SoLuong, kh.TrangThai, sp.GiaBan,
+                       (SELECT TOP 1 ct.DonGiaNhap FROM Tbl_ChiTietPhieuNhap ct INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap WHERE ct.MaSanPham = kh.MaSanPham ORDER BY p.NgayNhap DESC) AS GiaNhap
+                FROM Tbl_KhoHang kh
+                JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham";
+
+            var list = new List<KhoHangDTO>();
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var item = new KhoHangDTO
+                            {
+                                MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
+                                TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                                GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
+                                GiaNhap = reader.IsDBNull(reader.GetOrdinal("GiaNhap")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaNhap"))
+                            };
+                            list.Add(item);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetAllKhoHangWithPrice: {ex.Message}");
+                throw;
+            }
+            return list;
         }
     }
 }
