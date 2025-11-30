@@ -95,6 +95,32 @@ namespace mini_supermarket.BUS
             _sanPhamDao.UpdateSanPham(sanPham);
         }
 
+        public SanPhamDTO? GetSanPhamById(int maSanPham)
+        {
+            if (maSanPham <= 0)
+            {
+                throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(maSanPham));
+            }
+
+            return _sanPhamDao.GetSanPhamById(maSanPham);
+        }
+
+        public void UpdateGiaBan(int maSanPham, decimal giaBan)
+        {
+            if (maSanPham <= 0)
+            {
+                throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(maSanPham));
+            }
+
+            if (giaBan < 0)
+            {
+                throw new ArgumentException("Giá bán không được âm.", nameof(giaBan));
+            }
+
+            // Cập nhật trực tiếp GiaBan bằng SQL để đảm bảo cập nhật đúng
+            _sanPhamDao.UpdateGiaBan(maSanPham, giaBan);
+        }
+
         private static void ValidateSanPham(SanPhamDTO sanPham)
         {
             sanPham.TenSanPham = sanPham.TenSanPham?.Trim() ?? string.Empty;

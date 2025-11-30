@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,39 @@ namespace mini_supermarket.GUI
         private void Form_Login_Load(object sender, EventArgs e)
         {
             panel3.BackColor = Color.FromArgb(150, 0, 0, 0);
+            LoadBackgroundImage();
+        }
+
+        private void LoadBackgroundImage()
+        {
+            try
+            {
+                var imagePath = TryFindImagePath("Screenshot 2025-11-24 133431.png");
+                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                {
+                    panel2.BackgroundImage = Image.FromFile(imagePath);
+                }
+            }
+            catch
+            {
+                // Ignore image load errors - form will display without background
+            }
+        }
+
+        private static string? TryFindImagePath(string fileName)
+        {
+            var current = AppDomain.CurrentDomain.BaseDirectory;
+            for (int i = 0; i < 6 && current != null; i++)
+            {
+                var candidate = Path.Combine(current, "img", fileName);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+                var parent = Directory.GetParent(current);
+                current = parent?.FullName;
+            }
+            return null;
         }
 
         private void panel2_Paint(object sender, PaintEventArgs e)

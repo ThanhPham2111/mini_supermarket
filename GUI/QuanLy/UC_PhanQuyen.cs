@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using mini_supermarket.DAO;
+using mini_supermarket.BUS;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.QuanLy
 {
     public partial class UC_PhanQuyen : UserControl
     {
-        private PhanQuyen_DAO _dao;
+        private PhanQuyen_BUS _bus;
         private List<ChucNangDTO> _chucNangs;
         private List<LoaiQuyenDTO> _loaiQuyens;
         private int _currentRoleId = -1;
@@ -18,7 +18,7 @@ namespace mini_supermarket.GUI.QuanLy
         public UC_PhanQuyen()
         {
             InitializeComponent();
-            _dao = new PhanQuyen_DAO();
+            _bus = new PhanQuyen_BUS();
             LoadData();
         }
 
@@ -28,15 +28,15 @@ namespace mini_supermarket.GUI.QuanLy
             LoadRoles();
 
             // Load Metadata for Grid (Functions & Permission Types)
-            _chucNangs = (List<ChucNangDTO>)_dao.GetAllChucNang();
-            _loaiQuyens = (List<LoaiQuyenDTO>)_dao.GetAllLoaiQuyen();
+            _chucNangs = (List<ChucNangDTO>)_bus.GetAllChucNang();
+            _loaiQuyens = (List<LoaiQuyenDTO>)_bus.GetAllLoaiQuyen();
 
             InitGridStructure();
         }
 
         private void LoadRoles()
         {
-            var roles = _dao.GetAllRoles();
+            var roles = _bus.GetAllRoles();
             listBoxRoles.DataSource = roles;
             listBoxRoles.DisplayMember = "TenQuyen";
             listBoxRoles.ValueMember = "MaQuyen";
@@ -113,7 +113,7 @@ namespace mini_supermarket.GUI.QuanLy
             }
 
             // Fetch permissions
-            var perms = _dao.GetChiTietQuyen(roleId);
+            var perms = _bus.GetChiTietQuyen(roleId);
 
             // Map to Grid
             foreach (var p in perms)
@@ -155,7 +155,7 @@ namespace mini_supermarket.GUI.QuanLy
                         if (dgvPermissions.Columns.Contains(colName))
                         {
                             bool isChecked = Convert.ToBoolean(row.Cells[colName].Value);
-                            _dao.SavePhanQuyen(_currentRoleId, maChucNang, lq.MaLoaiQuyen, isChecked);
+                            _bus.SavePhanQuyen(_currentRoleId, maChucNang, lq.MaLoaiQuyen, isChecked);
                         }
                     }
                 }
@@ -176,7 +176,7 @@ namespace mini_supermarket.GUI.QuanLy
                     string roleName = dialog.TenVaiTro;
                     string moTa = dialog.MoTa;
 
-                    if (_dao.AddRole(roleName, moTa))
+                    if (_bus.AddRole(roleName, moTa))
                     {
                         MessageBox.Show("Thêm vai trò thành công!", "Thông báo", 
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -197,7 +197,7 @@ namespace mini_supermarket.GUI.QuanLy
             {
                 if (MessageBox.Show($"Bạn có chắc muốn xóa role '{role.TenQuyen}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                 {
-                    if (_dao.DeleteRole(role.MaQuyen))
+                    if (_bus.DeleteRole(role.MaQuyen))
                     {
                         LoadRoles();
                         _currentRoleId = -1;

@@ -39,9 +39,9 @@ namespace mini_supermarket.GUI.PhieuNhap
         private int maPhieuNhap;
 
         // Modern color scheme
-        private readonly Color primaryColor = Color.FromArgb(33, 150, 243);
-        private readonly Color successColor = Color.FromArgb(76, 175, 80);
-        private readonly Color backgroundColor = Color.FromArgb(250, 251, 252);
+        private readonly Color primaryColor = Color.FromArgb(0, 120, 215);      // Standard Blue
+        private readonly Color successColor = Color.FromArgb(16, 137, 62);      // Standard Green
+        private readonly Color backgroundColor = Color.WhiteSmoke;              // Light Gray
         private readonly Color cardColor = Color.White;
         private readonly Color borderColor = Color.FromArgb(224, 224, 224);
         private readonly Color textPrimaryColor = Color.FromArgb(33, 33, 33);
@@ -133,21 +133,17 @@ namespace mini_supermarket.GUI.PhieuNhap
             InitializeMainPanel();
             InitializeHeader();
             InitializeInfoSection();
-            InitializeProductSection();
-            InitializeTotalSection();
-            InitializeExportExcelButton();
-            InitializeCloseButton();
+            InitializeFooterSection(); // Replaces Total, Export, Close
+            InitializeProductSection(); // Fill remaining
         }
 
         private void InitializeMainPanel()
         {
             mainPanel = new Panel
             {
-                Location = new Point(0, 0),
-                Size = new Size(1100, 750),
-                BackColor = cardColor,
-                Padding = new Padding(0),
-                AutoScroll = true
+                Dock = DockStyle.Fill,
+                BackColor = backgroundColor,
+                Padding = new Padding(20)
             };
             this.Controls.Add(mainPanel);
         }
@@ -156,137 +152,109 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             headerPanel = new Panel
             {
-                Location = new Point(0, 0),
-                Size = new Size(1100, 80),
-                BackColor = cardColor
+                Dock = DockStyle.Top,
+                Height = 60,
+                BackColor = cardColor,
+                Padding = new Padding(15, 10, 15, 10)
             };
             mainPanel.Controls.Add(headerPanel);
 
-            // Icon and Title
-            Label lblIcon = new Label
-            {
-                Text = "📋",
-                Location = new Point(35, 20),
-                Size = new Size(40, 40),
-                Font = new Font("Segoe UI", 20),
-                BackColor = Color.Transparent
-            };
-            headerPanel.Controls.Add(lblIcon);
-
             Label lblTitle = new Label
             {
-                Text = "Chi tiết phiếu nhập",
-                Location = new Point(80, 20),
-                Size = new Size(450, 40),
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = textPrimaryColor,
-                BackColor = Color.Transparent,
-                AutoSize = false,
+                Text = "CHI TIẾT PHIẾU NHẬP",
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                ForeColor = primaryColor,
                 TextAlign = ContentAlignment.MiddleLeft
             };
             headerPanel.Controls.Add(lblTitle);
-
-            // Bottom border
-            Panel line = new Panel
-            {
-                Location = new Point(0, 79),
-                Size = new Size(1100, 1),
-                BackColor = borderColor
-            };
-            headerPanel.Controls.Add(line);
         }
 
         private void InitializeInfoSection()
         {
             infoSectionPanel = new Panel
             {
-                Location = new Point(35, 100),
-                Size = new Size(1030, 130),
-                BackColor = backgroundColor,
-                Padding = new Padding(20)
+                Dock = DockStyle.Top,
+                Height = 120,
+                BackColor = cardColor,
+                Padding = new Padding(20),
+                Margin = new Padding(0, 20, 0, 20)
             };
             mainPanel.Controls.Add(infoSectionPanel);
+            infoSectionPanel.BringToFront();
 
-            // Section title
-            Label lblSectionIcon = new Label
+            TableLayoutPanel tblInfo = new TableLayoutPanel
             {
-                Text = "ℹ️",
-                Location = new Point(0, 0),
-                Size = new Size(30, 30),
-                Font = new Font("Segoe UI", 14),
-                BackColor = Color.Transparent
+                Dock = DockStyle.Fill,
+                ColumnCount = 4,
+                RowCount = 2,
+                Padding = new Padding(0)
             };
-            infoSectionPanel.Controls.Add(lblSectionIcon);
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            
+            infoSectionPanel.Controls.Add(tblInfo);
 
-            Label lblSection = new Label
+            // Helper to add label/value pairs
+            void AddPair(string label, Label valueLabel, int row, int col)
             {
-                Text = "Thông tin phiếu nhập",
-                Location = new Point(35, 0),
-                Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
-                ForeColor = textPrimaryColor,
-                BackColor = Color.Transparent
-            };
-            infoSectionPanel.Controls.Add(lblSection);
+                Label lbl = new Label { Text = label, Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = textSecondaryColor };
+                valueLabel.Anchor = AnchorStyles.Left;
+                valueLabel.AutoSize = true;
+                valueLabel.Font = new Font("Segoe UI", 11);
+                
+                tblInfo.Controls.Add(lbl, col, row);
+                tblInfo.Controls.Add(valueLabel, col + 1, row);
+            }
 
-            int startY = 50;
-            int labelW = 150;
-            int col1X = 0;
-            int col2X = 500;
+            lblMaPhieuNhap = new Label();
+            lblNgayNhap = new Label();
+            lblNhaCungCap = new Label();
 
-            // Mã phiếu nhập
-            CreateStyledLabel("Mã phiếu nhập:", col1X, startY, labelW, infoSectionPanel);
-            lblMaPhieuNhap = CreateStyledValueLabel(col1X + labelW, startY, 200, infoSectionPanel);
-
-            // Ngày nhập
-            CreateStyledLabel("Ngày nhập:", col2X, startY, labelW, infoSectionPanel);
-            lblNgayNhap = CreateStyledValueLabel(col2X + labelW, startY, 330, infoSectionPanel);
-
-            // Nhà cung cấp - Tăng width của label để hiển thị đầy đủ
-            CreateStyledLabel("Nhà cung cấp:", col1X, startY + 40, labelW, infoSectionPanel);
-            lblNhaCungCap = CreateStyledValueLabel(col1X + labelW, startY + 40, 830, infoSectionPanel);
+            AddPair("Mã phiếu:", lblMaPhieuNhap, 0, 0);
+            AddPair("Ngày nhập:", lblNgayNhap, 0, 2);
+            AddPair("Nhà cung cấp:", lblNhaCungCap, 1, 0);
+            tblInfo.SetColumnSpan(lblNhaCungCap, 3);
         }
 
         private void InitializeProductSection()
         {
             productSectionPanel = new Panel
             {
-                Location = new Point(35, 250),
-                Size = new Size(1030, 395),
-                BackColor = backgroundColor,
-                Padding = new Padding(20)
+                Dock = DockStyle.Fill,
+                BackColor = cardColor,
+                Padding = new Padding(20),
+                Margin = new Padding(0, 20, 0, 0)
             };
             mainPanel.Controls.Add(productSectionPanel);
+            productSectionPanel.BringToFront();
 
-            // Section title
-            Label lblSectionIcon = new Label
-            {
-                Text = "📦",
-                Location = new Point(0, 0),
-                Size = new Size(30, 30),
-                Font = new Font("Segoe UI", 14),
-                BackColor = Color.Transparent
-            };
-            productSectionPanel.Controls.Add(lblSectionIcon);
-
-            Label lblSection = new Label
+            // Label tiêu đề
+            Label lblProductTitle = new Label
             {
                 Text = "Danh sách sản phẩm",
-                Location = new Point(35, 0),
-                Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                Dock = DockStyle.Top,
+                Height = 35,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 ForeColor = textPrimaryColor,
-                BackColor = Color.Transparent
+                TextAlign = ContentAlignment.MiddleLeft
             };
-            productSectionPanel.Controls.Add(lblSection);
 
-            // DataGridView
+            // Panel chứa DataGridView với padding top
+            Panel dgvContainer = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 40, 0, 0) // Tạo khoảng cách phía trên
+            };
+
             dgvProducts = new DataGridView
             {
-                Location = new Point(0, 45),
-                Size = new Size(990, 330),
+                Dock = DockStyle.Fill,
                 BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
+                BorderStyle = BorderStyle.FixedSingle,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
                 ReadOnly = true,
@@ -294,198 +262,190 @@ namespace mini_supermarket.GUI.PhieuNhap
                 MultiSelect = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 RowHeadersVisible = false,
-                Font = new Font("Segoe UI", 10)
+                Font = new Font("Segoe UI", 10),
+                GridColor = Color.FromArgb(220, 220, 220),
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
             };
 
-            // Columns
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "TenSanPham",
-                HeaderText = "Sản phẩm",
-                FillWeight = 35,
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Padding = new Padding(10, 5, 10, 5),
-                    Alignment = DataGridViewContentAlignment.MiddleLeft
-                }
-            });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "DonVi",
-                HeaderText = "Đơn vị",
-                FillWeight = 12,
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Alignment = DataGridViewContentAlignment.MiddleCenter
-                }
-            });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "SoLuong",
-                HeaderText = "Số lượng",
-                FillWeight = 13,
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Alignment = DataGridViewContentAlignment.MiddleCenter
-                }
-            });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "DonGia",
-                HeaderText = "Đơn giá nhập",
-                FillWeight = 20,
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Format = "N0",
-                    Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 10, 5)
-                }
-            });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "ThanhTien",
-                HeaderText = "Thành tiền",
-                FillWeight = 20,
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Format = "N0",
-                    Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 10, 5),
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                    ForeColor = primaryColor
-                }
-            });
-
-            // Style
-            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = primaryColor;
+            // Header Style - màu xanh đậm nổi bật
+            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(0, 120, 215);
             dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvProducts.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvProducts.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11, FontStyle.Bold);
             dgvProducts.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgvProducts.ColumnHeadersHeight = 40;
+            dgvProducts.ColumnHeadersDefaultCellStyle.Padding = new Padding(5);
+            dgvProducts.ColumnHeadersHeight = 45;
+            dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvProducts.EnableHeadersVisualStyles = false;
-            dgvProducts.RowTemplate.Height = 38;
-            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 248, 250);
+            
+            // Row Style
+            dgvProducts.RowTemplate.Height = 40;
+            dgvProducts.RowsDefaultCellStyle.BackColor = Color.White;
+            dgvProducts.RowsDefaultCellStyle.Padding = new Padding(5);
+            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
+            dgvProducts.DefaultCellStyle.SelectionBackColor = Color.FromArgb(207, 226, 255);
+            dgvProducts.DefaultCellStyle.SelectionForeColor = Color.Black;
 
-            productSectionPanel.Controls.Add(dgvProducts);
+            // Columns với header rõ ràng
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "TenSanPham",
+                HeaderText = "TÊN SẢN PHẨM", 
+                FillWeight = 40,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleLeft,
+                    Padding = new Padding(10, 0, 0, 0)
+                }
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "DonVi",
+                HeaderText = "ĐƠN VỊ", 
+                FillWeight = 12,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter 
+                }
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "SoLuong",
+                HeaderText = "SỐ LƯỢNG", 
+                FillWeight = 12,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                }
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "DonGia",
+                HeaderText = "ĐƠN GIÁ (VNĐ)", 
+                FillWeight = 18,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(0, 0, 10, 0)
+                }
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "ThanhTien",
+                HeaderText = "THÀNH TIỀN (VNĐ)", 
+                FillWeight = 18,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight, 
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold), 
+                    ForeColor = Color.FromArgb(220, 53, 69),
+                    Padding = new Padding(0, 0, 10, 0)
+                }
+            });
+
+            // Thêm dgvProducts vào container
+            dgvContainer.Controls.Add(dgvProducts);
+            
+            // Thêm container (Fill) trước
+            productSectionPanel.Controls.Add(dgvContainer);
+            
+            // Sau đó thêm label (Top) và BringToFront
+            productSectionPanel.Controls.Add(lblProductTitle);
+            lblProductTitle.BringToFront();
         }
 
-        private void InitializeTotalSection()
+        private void InitializeFooterSection()
         {
-            // Panel chứa tổng tiền - Thu nhỏ để chứa nút
-            Panel totalPanel = new Panel
+            Panel footerPanel = new Panel
             {
-                Location = new Point(35, 655),
-                Size = new Size(580, 50),
-                BackColor = Color.FromArgb(232, 245, 233),
-                Padding = new Padding(10)
+                Dock = DockStyle.Bottom,
+                Height = 80,
+                BackColor = cardColor,
+                Padding = new Padding(20, 10, 20, 10)
             };
-            mainPanel.Controls.Add(totalPanel);
+            mainPanel.Controls.Add(footerPanel);
+            footerPanel.BringToFront();
 
-            // Label "Tổng tiền:"
-            Label lblTongTienText = new Label
+            // Total Label
+            Label lblTotalText = new Label
             {
                 Text = "Tổng tiền:",
-                Location = new Point(250, 10),
-                Size = new Size(130, 30),
+                AutoSize = true,
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 ForeColor = textPrimaryColor,
                 TextAlign = ContentAlignment.MiddleRight,
-                BackColor = Color.Transparent
+                Dock = DockStyle.Left
             };
-            totalPanel.Controls.Add(lblTongTienText);
-
-            // Label hiển thị tổng tiền
+            
             lblTongTien = new Label
             {
                 Text = "0 đ",
-                Location = new Point(390, 10),
-                Size = new Size(180, 30),
+                AutoSize = true,
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 ForeColor = successColor,
-                TextAlign = ContentAlignment.MiddleRight,
-                BackColor = Color.Transparent
+                TextAlign = ContentAlignment.MiddleLeft,
+                Dock = DockStyle.Left,
+                Padding = new Padding(10, 0, 0, 0)
             };
-            totalPanel.Controls.Add(lblTongTien);
-        }
 
-        private void InitializeExportExcelButton()
-        {
+            Panel totalContainer = new Panel
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                Padding = new Padding(0, 15, 0, 0)
+            };
+            totalContainer.Controls.Add(lblTongTien);
+            totalContainer.Controls.Add(lblTotalText);
+            footerPanel.Controls.Add(totalContainer);
+
+            // Buttons
+            FlowLayoutPanel buttonPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                Width = 300,
+                FlowDirection = FlowDirection.RightToLeft,
+                Padding = new Padding(0, 10, 0, 0)
+            };
+            footerPanel.Controls.Add(buttonPanel);
+
+            btnClose = new Button
+            {
+                Text = "Đóng",
+                Size = new Size(120, 45),
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                BackColor = Color.FromArgb(241, 243, 245),
+                ForeColor = textPrimaryColor,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Margin = new Padding(5, 0, 0, 0)
+            };
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.Click += (s, e) => this.Close();
+
             btnExportExcel = new Button
             {
                 Text = "📊 Xuất Excel",
-                Location = new Point(625, 655),
-                Size = new Size(200, 50),
+                Size = new Size(150, 45),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 BackColor = Color.FromArgb(40, 167, 69),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
-                TextAlign = ContentAlignment.MiddleCenter
+                Margin = new Padding(5, 0, 0, 0)
             };
             btnExportExcel.FlatAppearance.BorderSize = 0;
             btnExportExcel.MouseEnter += (s, e) => btnExportExcel.BackColor = Color.FromArgb(33, 136, 56);
             btnExportExcel.MouseLeave += (s, e) => btnExportExcel.BackColor = Color.FromArgb(40, 167, 69);
             btnExportExcel.Click += BtnExportExcel_Click;
 
-            mainPanel.Controls.Add(btnExportExcel);
-            btnExportExcel.BringToFront();
-        }
-
-        private void InitializeCloseButton()
-        {
-            btnClose = new Button
-            {
-                Text = "Đóng",
-                Location = new Point(835, 655),
-                Size = new Size(230, 50),
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                BackColor = Color.FromArgb(158, 158, 158),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            btnClose.FlatAppearance.BorderSize = 0;
-            btnClose.MouseEnter += (s, e) => btnClose.BackColor = Color.FromArgb(130, 130, 130);
-            btnClose.MouseLeave += (s, e) => btnClose.BackColor = Color.FromArgb(158, 158, 158);
-            btnClose.Click += (s, e) => this.Close();
-
-            mainPanel.Controls.Add(btnClose);
-            btnClose.BringToFront();
-        }
-
-        private Label CreateStyledLabel(string text, int x, int y, int width, Panel parent)
-        {
-            Label label = new Label
-            {
-                Text = text,
-                Location = new Point(x, y),
-                Size = new Size(width, 35),
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                ForeColor = textSecondaryColor,
-                BackColor = Color.Transparent,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-            parent.Controls.Add(label);
-            return label;
-        }
-
-        private Label CreateStyledValueLabel(int x, int y, int width, Panel parent)
-        {
-            Label label = new Label
-            {
-                Text = "",
-                Location = new Point(x, y),
-                Size = new Size(width, 35),
-                Font = new Font("Segoe UI", 11),
-                ForeColor = textPrimaryColor,
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(10, 0, 10, 0)
-            };
-            parent.Controls.Add(label);
-            return label;
+            buttonPanel.Controls.Add(btnClose);
+            buttonPanel.Controls.Add(btnExportExcel);
         }
 
         private void BtnExportExcel_Click(object? sender, EventArgs e)

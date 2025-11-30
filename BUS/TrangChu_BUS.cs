@@ -10,7 +10,7 @@ namespace mini_supermarket.BUS
     public class TrangChuBUS
     {
         private TrangChuDAO trangChuDAO = new TrangChuDAO();
-        private KhoHangDAO khoHangDAO = new KhoHangDAO();
+        private KhoHangBUS khoHangBUS = new KhoHangBUS();
 
         public decimal GetDoanhThuHomNay()
         {
@@ -69,12 +69,12 @@ namespace mini_supermarket.BUS
 
         public IList<SanPhamKhoDTO> GetSanPhamSapHetHang()
         {
-            return khoHangDAO.LaySanPhamSapHetHang();
+            return khoHangBUS.LaySanPhamSapHetHang();
         }
 
         public IList<SanPhamKhoDTO> GetSanPhamHetHang()
         {
-            return khoHangDAO.LaySanPhamHetHang();
+            return khoHangBUS.LaySanPhamHetHang();
         }
 
         public IList<DoanhThuNgayDTO> GetDoanhThu7Ngay()

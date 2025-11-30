@@ -11,10 +11,18 @@ namespace mini_supermarket.GUI.PhieuNhap
 {
     public partial class Form_PhieuNhap : Form
     {
-        private Panel mainPanel;
+        // Layout controls
+        private Panel panelMain;
+        private Panel panelHeader;
+        private Panel panelFilters;
+        private GroupBox groupBoxGrid;
+        private TableLayoutPanel tblFilters;
+        private FlowLayoutPanel headerActions;
+
+        // Functional controls
         private DataGridView dgvPhieuNhap;
         private TextBox txtSearch;
-        private ComboBox cboTimePeriod, cboSupplier;
+        private ComboBox cboTimePeriod, cboSupplier, cboTrangThai;
         private Button btnAddImport, btnClear, btnImportExcel;
 
         public Form_PhieuNhap()
@@ -28,100 +36,207 @@ namespace mini_supermarket.GUI.PhieuNhap
             this.Text = "Chi tiết phiếu nhập";
             this.Size = new Size(1170, 750);
             this.FormBorderStyle = FormBorderStyle.None;
-            this.BackColor = Color.FromArgb(248, 249, 250);
+            this.BackColor = Color.WhiteSmoke; // Match FormKhoHang
 
-            InitializeMainPanel();
-            InitializeTitleSection();
-            InitializeSearchSection();
+            InitializeLayout();
+        }
+
+        private void InitializeLayout()
+        {
+            // 1. Main Panel
+            panelMain = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.WhiteSmoke,
+                Padding = new Padding(12)
+            };
+            this.Controls.Add(panelMain);
+
+            // Thứ tự thêm controls với Dock rất quan trọng:
+            // - Controls với Dock.Fill nên được thêm TRƯỚC
+            // - Controls với Dock.Top được thêm SAU (theo thứ tự ngược từ dưới lên)
+            
+            // 1. Grid Section (Fill) - Thêm trước để fill phần còn lại
+            InitializeGridSection();
+
+
+
+            // 3. Header Section (Top) - Thêm cuối cùng, sẽ nằm trên cùng
+            InitializeHeaderSection();
+                        // 2. Filter Section (Top) - Thêm sau, sẽ nằm phía trên Grid
             InitializeFilterSection();
-            InitializeDataGridView();
         }
 
-        private void InitializeMainPanel()
+        private void InitializeHeaderSection()
         {
-            mainPanel = new Panel
+            panelHeader = new Panel
             {
-                Location = new Point(0, 0),
-                Size = new Size(1170, 750),
+                Dock = DockStyle.Top,
+                Height = 64,
                 BackColor = Color.White,
-                Padding = new Padding(30)
+                Padding = new Padding(12, 10, 12, 10)
             };
-            this.Controls.Add(mainPanel);
-        }
+            panelMain.Controls.Add(panelHeader);
 
-      private void InitializeTitleSection()
-        {
-            // Title Panel - Tăng chiều cao để chứa 3 nút
-            Panel titlePanel = new Panel
+            // Actions Panel
+            headerActions = new FlowLayoutPanel
             {
-                Location = new Point(30, 20),
-                Size = new Size(1110, 155),
-                BackColor = Color.White
+                Dock = DockStyle.Right,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoSize = true,
+                Padding = new Padding(0),
+                Margin = new Padding(0)
             };
-            mainPanel.Controls.Add(titlePanel);
+            panelHeader.Controls.Add(headerActions);
 
-            // Title Label
-            Label titleLabel = new Label
-            {
-                Text = "Danh sách phiếu nhập",
-                Location = new Point(0, 25),
-                Size = new Size(500, 50),
-                Font = new Font("Segoe UI", 22, FontStyle.Bold),
-                ForeColor = Color.FromArgb(33, 37, 41),
-                AutoSize = false
-            };
-            titlePanel.Controls.Add(titleLabel);
-
-            // Button Panel
-            Panel buttonPanel = new Panel
-            {
-                Location = new Point(930, 10),
-                Size = new Size(180, 85),
-                BackColor = Color.White
-            };
-            titlePanel.Controls.Add(buttonPanel);
-
-            // Add Import Button
-            btnAddImport = CreateButton(
-                "➕ Thêm",
-                new Point(0, 0),
-                new Size(180, 40),
-                Color.FromArgb(25, 135, 84),
-                Color.FromArgb(20, 108, 67),
-                11
-            );
+            // Buttons
+            btnAddImport = CreateButton("➕ Thêm", Color.FromArgb(16, 137, 62)); // Green
             btnAddImport.Click += BtnAddImport_Click;
-            buttonPanel.Controls.Add(btnAddImport);
-
-            // Clear Button
-            btnClear = CreateButton(
-                "🔄 Làm mới",
-                new Point(0, 45),
-                new Size(180, 40),
-                Color.FromArgb(13, 202, 240),
-                Color.FromArgb(10, 162, 192),
-                11
-            );
+            
+            btnClear = CreateButton("🔄 Làm mới", Color.FromArgb(0, 120, 215)); // Blue
             btnClear.Click += BtnClear_Click;
-            buttonPanel.Controls.Add(btnClear);
 
-            // Import Excel Button
-            btnImportExcel = CreateButton(
-                "📥 Nhập Excel",
-                new Point(0, 90),
-                new Size(180, 40),
-                Color.FromArgb(255, 193, 7),
-                Color.FromArgb(255, 173, 0),
-                11
-            );
+            btnImportExcel = CreateButton("📥 Nhập Excel", Color.FromArgb(0, 120, 215)); // Blue
             btnImportExcel.Click += BtnImportExcel_Click;
-            buttonPanel.Controls.Add(btnImportExcel);
 
-            // Tăng height của buttonPanel để chứa thêm nút
-            buttonPanel.Size = new Size(180, 135);
+            headerActions.Controls.Add(btnAddImport);
+            headerActions.Controls.Add(btnClear);
+            headerActions.Controls.Add(btnImportExcel);
         }
 
-        private void BtnAddImport_Click(object sender, EventArgs e)
+        private void InitializeFilterSection()
+        {
+            panelFilters = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 100, // Adjusted height
+                BackColor = Color.White,
+                Padding = new Padding(10),
+                Margin = new Padding(0, 0, 0, 12) // Spacing below
+            };
+            panelMain.Controls.Add(panelFilters);
+
+            // Table Layout
+            tblFilters = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 6,
+                RowCount = 2,
+                Padding = new Padding(0)
+            };
+            
+            // Column Styles
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); // Label
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));   // Control
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); // Label
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));   // Control
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); // Label
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));   // Control
+
+            // Row Styles
+            tblFilters.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+            tblFilters.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+
+            panelFilters.Controls.Add(tblFilters);
+
+            // 1. Time Period
+            Label lblTime = new Label { Text = "Thời gian:", Anchor = AnchorStyles.Left, AutoSize = true };
+            cboTimePeriod = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
+            cboTimePeriod.Items.AddRange(new[] { "Tất cả", "Hôm nay", "Tuần này", "Tháng này" });
+            cboTimePeriod.SelectedIndex = 0;
+            cboTimePeriod.SelectedIndexChanged += (s, e) => ApplyFilters();
+
+            tblFilters.Controls.Add(lblTime, 0, 0);
+            tblFilters.Controls.Add(cboTimePeriod, 1, 0);
+
+            // 2. Supplier
+            Label lblSupplier = new Label { Text = "Nhà cung cấp:", Anchor = AnchorStyles.Left, AutoSize = true };
+            cboSupplier = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
+            // Items will be loaded later
+            cboSupplier.SelectedIndexChanged += (s, e) => ApplyFilters();
+
+            tblFilters.Controls.Add(lblSupplier, 2, 0);
+            tblFilters.Controls.Add(cboSupplier, 3, 0);
+
+            // 3. Trạng thái
+            Label lblTrangThai = new Label { Text = "Trạng thái:", Anchor = AnchorStyles.Left, AutoSize = true };
+            cboTrangThai = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
+            cboTrangThai.Items.AddRange(new[] { "Tất cả", "Nhập thành công", "Đang nhập", "Đã hủy" });
+            cboTrangThai.SelectedIndex = 0;
+            cboTrangThai.SelectedIndexChanged += (s, e) => ApplyFilters();
+
+            tblFilters.Controls.Add(lblTrangThai, 4, 0);
+            tblFilters.Controls.Add(cboTrangThai, 5, 0);
+
+            // 4. Search
+            Label lblSearch = new Label { Text = "Tìm kiếm:", Anchor = AnchorStyles.Left, AutoSize = true };
+            txtSearch = new TextBox { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 10), PlaceholderText = "Tìm kiếm theo mã phiếu..." };
+            txtSearch.TextChanged += (s, e) => 
+            {
+                if (string.IsNullOrWhiteSpace(txtSearch.Text)) ApplyFilters();
+                else PerformSearch();
+            };
+
+            tblFilters.Controls.Add(lblSearch, 0, 1);
+            tblFilters.Controls.Add(txtSearch, 1, 1);
+            tblFilters.SetColumnSpan(txtSearch, 5); // Span across remaining columns
+
+            LoadNhaCungCapFilter();
+        }
+
+        private void InitializeGridSection()
+        {
+            groupBoxGrid = new GroupBox
+            {
+                Dock = DockStyle.Fill,
+                Text = "Danh sách phiếu nhập",
+                Font = new Font("Segoe UI", 10),
+                BackColor = Color.White,
+                Padding = new Padding(8)
+            };
+            panelMain.Controls.Add(groupBoxGrid);
+
+            dgvPhieuNhap = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.None,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                ReadOnly = true,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                RowHeadersVisible = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                RowTemplate = { Height = 35 }
+            };
+
+            ConfigureDataGridViewStyle();
+            AddDataGridViewColumns();
+            AddDataGridViewEvents();
+
+            groupBoxGrid.Controls.Add(dgvPhieuNhap);
+        }
+
+        private Button CreateButton(string text, Color bgColor)
+        {
+            Button btn = new Button
+            {
+                Text = text,
+                Size = new Size(120, 35),
+                BackColor = bgColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Margin = new Padding(0, 0, 8, 0)
+            };
+            btn.FlatAppearance.BorderSize = 0;
+            return btn;
+        }
+
+
+        private void BtnAddImport_Click(object? sender, EventArgs e)
         {
             Form_ChiTietPhieuNhap formChiTiet = new Form_ChiTietPhieuNhap();
             DialogResult result = formChiTiet.ShowDialog();
@@ -133,12 +248,13 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
-        private void BtnClear_Click(object sender, EventArgs e)
+        private void BtnClear_Click(object? sender, EventArgs e)
         {
             txtSearch.Clear();
             cboTimePeriod.SelectedIndex = 0;
             cboSupplier.SelectedIndex = 0;
-            LoadData();
+            cboTrangThai.SelectedIndex = 0;
+            ApplyFilters();
         }
 
         private void BtnImportExcel_Click(object? sender, EventArgs e)
@@ -540,7 +656,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         $"PN{phieuNhap.MaPhieuNhap:D3}",
                         phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
                         tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0
+                        phieuNhap.TongTien ?? 0,
+                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
                     );
                 }
             }
@@ -595,7 +712,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         $"PN{phieuNhap.MaPhieuNhap:D3}",
                         phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
                         tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0
+                        phieuNhap.TongTien ?? 0,
+                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
                     );
                 }
             }
@@ -677,6 +795,16 @@ namespace mini_supermarket.GUI.PhieuNhap
                     }
                 }
                 
+                // Filter theo trạng thái
+                if (cboTrangThai.SelectedIndex > 0) // Skip "Tất cả"
+                {
+                    string selectedTrangThai = cboTrangThai.SelectedItem?.ToString() ?? "";
+                    // Map "Đã hủy" trong combobox với "Hủy" trong database
+                    string dbTrangThai = selectedTrangThai == "Đã hủy" ? "Hủy" : selectedTrangThai;
+                    phieuNhapList = phieuNhapList.Where(pn => 
+                        (pn.TrangThai ?? "Đang nhập") == dbTrangThai).ToList();
+                }
+                
                 // Hiển thị kết quả
                 foreach (var phieuNhap in phieuNhapList)
                 {
@@ -687,7 +815,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         $"PN{phieuNhap.MaPhieuNhap:D3}",
                         phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
                         tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0
+                        phieuNhap.TongTien ?? 0,
+                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
                     );
                 }
             }
@@ -698,172 +827,29 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
-        private Button CreateButton(string text, Point location, Size size, Color bgColor, Color hoverColor, float fontSize)
-        {
-            Button btn = new Button
-            {
-                Text = text,
-                Location = location,
-                Size = size,
-                BackColor = bgColor,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", fontSize, FontStyle.Bold),
-                Cursor = Cursors.Hand,
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            btn.FlatAppearance.BorderSize = 0;
-            btn.FlatAppearance.MouseOverBackColor = hoverColor;
-            
-            return btn;
-        }
-
-        private void InitializeSearchSection()
-        {
-            // Search Panel - Dời xuống để không chồng lên titlePanel
-            Panel searchPanel = new Panel
-            {
-                Location = new Point(30, 190),
-                Size = new Size(1110, 52),
-                BackColor = Color.White
-            };
-            mainPanel.Controls.Add(searchPanel);
-
-            // Search Icon
-            Label searchIcon = new Label
-            {
-                Text = "🔍",
-                Location = new Point(18, 14),
-                Size = new Size(30, 25),
-                Font = new Font("Segoe UI", 13),
-                ForeColor = Color.FromArgb(108, 117, 125)
-            };
-            searchPanel.Controls.Add(searchIcon);
-
-            // Search TextBox
-            txtSearch = new TextBox
-            {
-                Location = new Point(55, 14),
-                Size = new Size(1035, 28),
-                Font = new Font("Segoe UI", 11),
-                BorderStyle = BorderStyle.None,
-                PlaceholderText = "Tìm kiếm theo mã phiếu, nhà cung cấp...",
-                ForeColor = Color.FromArgb(73, 80, 87)
-            };
-            txtSearch.TextChanged += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(txtSearch.Text))
-                    LoadData();
-                else
-                    PerformSearch();
-            };
-            searchPanel.Controls.Add(txtSearch);
-
-            // Border for search panel
-            searchPanel.Paint += (s, e) =>
-            {
-                using (Pen pen = new Pen(Color.FromArgb(206, 212, 218), 2))
-                {
-                    Rectangle rect = new Rectangle(0, 0, searchPanel.Width - 1, searchPanel.Height - 1);
-                    e.Graphics.DrawRectangle(pen, rect);
-                }
-            };
-        }
-
-        private void InitializeFilterSection()
-        {
-            Panel filterPanel = new Panel
-            {
-                Location = new Point(30, 255),
-                Size = new Size(1110, 50),
-                BackColor = Color.White
-            };
-            mainPanel.Controls.Add(filterPanel);
-
-            // Time Period ComboBox
-            cboTimePeriod = CreateComboBox(
-                new Point(0, 10),
-                new Size(240, 32),
-                new[] { "📅 Thời gian", "Hôm nay", "Tuần này", "Tháng này", "Tất cả" }
-            );
-            cboTimePeriod.SelectedIndexChanged += (s, e) => ApplyFilters();
-            filterPanel.Controls.Add(cboTimePeriod);
-
-            // Supplier ComboBox
-            cboSupplier = CreateComboBox(
-                new Point(260, 10),
-                new Size(350, 32),
-                new[] { "🏢 Nhà cung cấp", "Tất cả" }
-            );
-            cboSupplier.SelectedIndexChanged += (s, e) => ApplyFilters();
-            filterPanel.Controls.Add(cboSupplier);
-            
-            // Load nhà cung cấp vào ComboBox
-            LoadNhaCungCapFilter();
-        }
-
-        private ComboBox CreateComboBox(Point location, Size size, string[] items)
-        {
-            ComboBox combo = new ComboBox
-            {
-                Location = location,
-                Size = size,
-                Font = new Font("Segoe UI", 10),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                FlatStyle = FlatStyle.Flat
-            };
-            combo.Items.AddRange(items);
-            combo.SelectedIndex = 0;
-            return combo;
-        }
-
-        private void InitializeDataGridView()
-        {
-            dgvPhieuNhap = new DataGridView
-            {
-                Location = new Point(30, 320),
-                Size = new Size(1110, 400),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
-                ColumnHeadersHeight = 52,
-                RowTemplate = { Height = 48 },
-                Font = new Font("Segoe UI", 10),
-                GridColor = Color.FromArgb(222, 226, 230),
-                EnableHeadersVisualStyles = false,
-                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
-                MultiSelect = false,
-                RowHeadersVisible = false
-            };
-
-            ConfigureDataGridViewStyle();
-            AddDataGridViewColumns();
-            AddDataGridViewEvents();
-
-            mainPanel.Controls.Add(dgvPhieuNhap);
-        }
-
         private void ConfigureDataGridViewStyle()
         {
             // Column Headers Style
+            dgvPhieuNhap.EnableHeadersVisualStyles = false;
+            dgvPhieuNhap.ColumnHeadersHeight = 45;
+            dgvPhieuNhap.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
             dgvPhieuNhap.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 243, 245);
             dgvPhieuNhap.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(52, 58, 64);
-            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Padding = new Padding(8);
+            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Padding = new Padding(5);
 
             // Row Style
             dgvPhieuNhap.RowsDefaultCellStyle.BackColor = Color.White;
-            dgvPhieuNhap.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
+            dgvPhieuNhap.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
             dgvPhieuNhap.DefaultCellStyle.SelectionBackColor = Color.FromArgb(207, 226, 255);
             dgvPhieuNhap.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
-            dgvPhieuNhap.DefaultCellStyle.Padding = new Padding(10, 6, 10, 6);
+            dgvPhieuNhap.DefaultCellStyle.Padding = new Padding(5);
             dgvPhieuNhap.DefaultCellStyle.ForeColor = Color.FromArgb(73, 80, 87);
             dgvPhieuNhap.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            
+            dgvPhieuNhap.RowTemplate.Height = 35;
         }
 
         private void AddDataGridViewColumns()
@@ -873,7 +859,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "MaPhieu",
                 HeaderText = "Mã phiếu",
-                Width = 140,
+                Width = 120,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
                     Font = new Font("Segoe UI", 10, FontStyle.Bold),
@@ -887,7 +873,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "NgayNhap",
                 HeaderText = "Ngày nhập",
-                Width = 170,
+                Width = 150,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
                     Alignment = DataGridViewContentAlignment.MiddleCenter
@@ -899,11 +885,11 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "NhaCungCap",
                 HeaderText = "Nhà cung cấp",
-                Width = 500,
+                Width = 400,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
                     Alignment = DataGridViewContentAlignment.MiddleLeft,
-                    Padding = new Padding(15, 6, 10, 6)
+                    Padding = new Padding(10, 0, 0, 0)
                 }
             });
 
@@ -912,38 +898,33 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "TongTien",
                 HeaderText = "Tổng tiền (VNĐ)",
-                Width = 200,
+                Width = 180,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
                     Font = new Font("Segoe UI", 10, FontStyle.Bold),
                     ForeColor = Color.FromArgb(220, 53, 69),
                     Format = "N0",
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 6, 20, 6)
+                    Padding = new Padding(0, 0, 10, 0)
+                }
+            });
+
+            // Trạng thái
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TrangThai",
+                HeaderText = "Trạng thái",
+                Width = 150,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    Alignment = DataGridViewContentAlignment.MiddleCenter
                 }
             });
         }
 
         private void AddDataGridViewEvents()
         {
-            // Hover effect
-            dgvPhieuNhap.CellMouseEnter += (s, e) =>
-            {
-                if (e.RowIndex >= 0)
-                {
-                    dgvPhieuNhap.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(233, 236, 239);
-                }
-            };
-
-            dgvPhieuNhap.CellMouseLeave += (s, e) =>
-            {
-                if (e.RowIndex >= 0)
-                {
-                    dgvPhieuNhap.Rows[e.RowIndex].DefaultCellStyle.BackColor = 
-                        e.RowIndex % 2 == 0 ? Color.White : Color.FromArgb(248, 249, 250);
-                }
-            };
-
             // Double click to view details
             dgvPhieuNhap.CellDoubleClick += (s, e) =>
             {
@@ -960,14 +941,172 @@ namespace mini_supermarket.GUI.PhieuNhap
                 }
             };
 
-            // Click event để thêm cursor pointer
-            dgvPhieuNhap.CellClick += (s, e) =>
+            // Right click context menu
+            dgvPhieuNhap.CellMouseClick += (s, e) =>
             {
-                if (e.RowIndex >= 0)
+                if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
                 {
-                    dgvPhieuNhap.Cursor = Cursors.Hand;
+                    dgvPhieuNhap.ClearSelection();
+                    dgvPhieuNhap.Rows[e.RowIndex].Selected = true;
+                    
+                    ContextMenuStrip menu = new ContextMenuStrip();
+                    
+                    // Lấy trạng thái của phiếu nhập
+                    string trangThai = dgvPhieuNhap.Rows[e.RowIndex].Cells["TrangThai"].Value?.ToString() ?? "";
+                    
+                    // Chỉ hiển thị "Xác nhận nhập kho" nếu trạng thái là "Đang nhập"
+                    if (trangThai == "Đang nhập")
+                    {
+                        ToolStripMenuItem xacNhanItem = new ToolStripMenuItem("✅ Xác nhận nhập kho");
+                        xacNhanItem.Click += (sender, args) => XacNhanNhapKho_Click(e.RowIndex);
+                        menu.Items.Add(xacNhanItem);
+                        menu.Items.Add(new ToolStripSeparator());
+                    }
+                    
+                    ToolStripMenuItem viewItem = new ToolStripMenuItem("👁️ Xem chi tiết");
+                    viewItem.Click += (sender, args) => ViewDetail_Click(e.RowIndex);
+                    menu.Items.Add(viewItem);
+                    
+                    // Cho phép hủy nếu trạng thái là "Đang nhập" hoặc "Nhập thành công"
+                    if (trangThai == "Đang nhập" || trangThai == "Nhập thành công")
+                    {
+                        menu.Items.Add(new ToolStripSeparator());
+                        ToolStripMenuItem huyItem = new ToolStripMenuItem("❌ Hủy phiếu nhập");
+                        huyItem.Click += (sender, args) => HuyPhieuNhap_Click(e.RowIndex);
+                        menu.Items.Add(huyItem);
+                    }
+                    
+                    menu.Show(dgvPhieuNhap, dgvPhieuNhap.PointToClient(Cursor.Position));
                 }
             };
+
+            // Cell formatting for status colors
+            dgvPhieuNhap.CellFormatting += (s, e) =>
+            {
+                if (e.ColumnIndex == dgvPhieuNhap.Columns["TrangThai"].Index && e.RowIndex >= 0)
+                {
+                    string trangThai = e.Value?.ToString() ?? "";
+                    
+                    if (trangThai == "Đang nhập")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(255, 243, 205); // Vàng nhạt
+                        e.CellStyle.ForeColor = Color.FromArgb(133, 100, 4);   // Vàng đậm
+                    }
+                    else if (trangThai == "Nhập thành công")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(209, 250, 229); // Xanh lá nhạt
+                        e.CellStyle.ForeColor = Color.FromArgb(21, 128, 61);   // Xanh lá đậm
+                    }
+                    else if (trangThai == "Hủy" || trangThai == "Đã hủy")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(248, 215, 218); // Đỏ nhạt
+                        e.CellStyle.ForeColor = Color.FromArgb(114, 28, 36);   // Đỏ đậm
+                    }
+                }
+            };
+        }
+
+        private void XacNhanNhapKho_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuNhapStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                int maPhieuNhap = int.Parse(maPhieuNhapStr.Replace("PN", ""));
+                
+                DialogResult result = MessageBox.Show(
+                    $"Xác nhận nhập kho cho phiếu {maPhieuNhapStr}?\n\n" +
+                    "Sau khi xác nhận, số lượng sản phẩm sẽ được cập nhật vào kho và không thể hoàn tác!",
+                    "Xác nhận nhập kho",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+                
+                if (result == DialogResult.Yes)
+                {
+                    var phieuNhapBUS = new PhieuNhap_BUS();
+                    phieuNhapBUS.XacNhanNhapKho(maPhieuNhap);
+                    
+                    MessageBox.Show(
+                        "Xác nhận nhập kho thành công!\nSố lượng sản phẩm đã được cập nhật vào kho.",
+                        "Thành công",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                    
+                    LoadData(); // Reload để cập nhật trạng thái
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Lỗi khi xác nhận nhập kho: {ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+        private void ViewDetail_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                
+                if (maPhieuStr.StartsWith("PN") && int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                {
+                    Form_XemChiTietPhieuNhap formChiTiet = new Form_XemChiTietPhieuNhap(maPhieuNhap);
+                    formChiTiet.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xem chi tiết: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void HuyPhieuNhap_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                string trangThai = dgvPhieuNhap.Rows[rowIndex].Cells["TrangThai"].Value?.ToString() ?? "";
+                
+                // Kiểm tra trạng thái
+                if (trangThai == "Hủy" || trangThai == "Đã hủy")
+                {
+                    MessageBox.Show(
+                        "Phiếu nhập này đã được hủy trước đó!",
+                        "Cảnh báo",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    return;
+                }
+                
+                if (maPhieuStr.StartsWith("PN") && 
+                    int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                {
+                    // Hiển thị dialog nhập lý do
+                    Dialog_HuyPhieuNhap dialog = new Dialog_HuyPhieuNhap(maPhieuStr);
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        var phieuNhapBUS = new PhieuNhap_BUS();
+                        phieuNhapBUS.HuyPhieuNhap(maPhieuNhap, dialog.LyDoHuy);
+                        
+                        MessageBox.Show("Hủy phiếu nhập thành công!", "Thành công",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        ApplyFilters(); // Reload với filter hiện tại
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi hủy phiếu nhập: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

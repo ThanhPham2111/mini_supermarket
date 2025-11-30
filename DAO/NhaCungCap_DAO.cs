@@ -10,7 +10,7 @@ namespace mini_supermarket.DAO
     public class NhaCungCap_DAO {
     public List<NhaCungCapDTO> GetNhaCungCap(string? trangThaiFilter = null)
     {
-        var list = new List<NhaCungCapDTO>();
+        var listNCC = new List<NhaCungCapDTO>();
 
         using var connection = DbConnectionFactory.CreateConnection();
         using var command = connection.CreateCommand();
@@ -38,10 +38,10 @@ namespace mini_supermarket.DAO
 
         while (reader.Read())
         {
-            list.Add(ReadNhaCungCap(reader));
+            listNCC.Add(ReadNhaCungCap(reader));
         }
 
-        return list;
+        return listNCC;
     }
 
     

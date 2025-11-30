@@ -106,6 +106,7 @@ CREATE TABLE Tbl_HoaDon (
     MaNhanVien INT NOT NULL,
     MaKhachHang INT NULL,
     TongTien DECIMAL(18, 2),
+    TrangThai NVARCHAR(50) DEFAULT N'Đã xuất',
     FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien),
     FOREIGN KEY (MaKhachHang) REFERENCES Tbl_KhachHang(MaKhachHang)
 );
@@ -150,6 +151,8 @@ CREATE TABLE Tbl_PhieuNhap (
     NgayNhap DATE DEFAULT GETDATE(),
     MaNhaCungCap INT NOT NULL,
     TongTien DECIMAL(18, 2),
+    TrangThai NVARCHAR(50) DEFAULT N'Đang nhập',
+    LyDoHuy NVARCHAR(MAX),
     FOREIGN KEY (MaNhaCungCap) REFERENCES Tbl_NhaCungCap(MaNhaCungCap)
 );
 
@@ -182,6 +185,7 @@ CREATE TABLE Tbl_KhoHang (
     MaSanPham INT PRIMARY KEY,
     SoLuong INT DEFAULT 0,
     TrangThai NVARCHAR(50),
+    
     FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham)
 );
 
@@ -228,4 +232,39 @@ CREATE TABLE Tbl_PhanQuyenChiTiet (
     FOREIGN KEY (MaChucNang) REFERENCES Tbl_ChucNang(MaChucNang),
     FOREIGN KEY (MaLoaiQuyen) REFERENCES Tbl_LoaiQuyen(MaLoaiQuyen)
 );
+
+-- 19. Bảng cấu hình lợi nhuận mặc định (chung cho toàn hệ thống)
+CREATE TABLE Tbl_CauHinhLoiNhuan (
+    MaCauHinh INT PRIMARY KEY IDENTITY(1,1),
+    PhanTramLoiNhuanMacDinh DECIMAL(5,2) DEFAULT 10.00, -- % lợi nhuận mặc định
+    NgayCapNhat DATETIME DEFAULT GETDATE(),
+    MaNhanVien INT, -- Người cập nhật
+    FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
+);
+
+-- 20. Bảng quy tắc lợi nhuận (hỗ trợ nhiều cấp độ)
+CREATE TABLE Tbl_QuyTacLoiNhuan (
+    MaQuyTac INT PRIMARY KEY IDENTITY(1,1),
+    LoaiQuyTac NVARCHAR(50) NOT NULL, -- 'Chung', 'TheoLoai', 'TheoThuongHieu', 'TheoDonVi', 'TheoSanPham'
+    MaLoai INT NULL, -- Nếu LoaiQuyTac = 'TheoLoai'
+    MaThuongHieu INT NULL, -- Nếu LoaiQuyTac = 'TheoThuongHieu'
+    MaDonVi INT NULL, -- Nếu LoaiQuyTac = 'TheoDonVi'
+    MaSanPham INT NULL, -- Nếu LoaiQuyTac = 'TheoSanPham'
+    PhanTramLoiNhuan DECIMAL(5,2) NOT NULL, -- % lợi nhuận
+    UuTien INT DEFAULT 0, -- Độ ưu tiên: SanPham(4) > DonVi(3) > ThuongHieu(2) > Loai(1) > Chung(0)
+    TrangThai NVARCHAR(50) DEFAULT N'Hoạt động',
+    NgayTao DATETIME DEFAULT GETDATE(),
+    NgayCapNhat DATETIME DEFAULT GETDATE(),
+    MaNhanVien INT,
+    FOREIGN KEY (MaLoai) REFERENCES Tbl_Loai(MaLoai),
+    FOREIGN KEY (MaThuongHieu) REFERENCES Tbl_ThuongHieu(MaThuongHieu),
+    FOREIGN KEY (MaDonVi) REFERENCES Tbl_DonVi(MaDonVi),
+    FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham),
+    FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
+);
+
+-- 21. Bảng Tbl_GiaSanPham đã được xóa vì:
+-- - Giá nhập lấy từ Tbl_ChiTietPhieuNhap
+-- - Giá bán lưu trong Tbl_SanPham.GiaBan
+-- - Tránh trùng lặp dữ liệu
 

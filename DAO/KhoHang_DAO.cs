@@ -22,20 +22,12 @@ namespace mini_supermarket.DAO
                     kh.TrangThai,
                     sp.MaLoai,
                     sp.MaThuongHieu,
-                    sp.GiaBan,
-                    sp.Hsd, 
-                    gn.GiaNhap
+                    sp.Hsd
                 FROM Tbl_KhoHang kh
                 JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham
                 LEFT JOIN Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
                 LEFT JOIN Tbl_Loai l ON sp.MaLoai = l.MaLoai
-                LEFT JOIN Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu
-                OUTER APPLY (
-                    SELECT TOP 1 ctpn.DonGiaNhap AS GiaNhap
-                    FROM Tbl_ChiTietPhieuNhap ctpn
-                    WHERE ctpn.MaSanPham = sp.MaSanPham
-                    ORDER BY ctpn.MaPhieuNhap DESC
-                ) AS gn;";
+                LEFT JOIN Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu;";
 
             var list = new List<TonKhoDTO>();
             try
@@ -225,7 +217,8 @@ namespace mini_supermarket.DAO
 
         public KhoHangDTO? GetByMaSanPham(int maSanPham)
         {
-            const string query = @"SELECT MaSanPham, SoLuong, TrangThai FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+            const string query = @"SELECT MaSanPham, SoLuong, TrangThai 
+                                   FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
 
             try
             {
@@ -259,7 +252,10 @@ namespace mini_supermarket.DAO
 
         public void UpdateKhoHang(KhoHangDTO khoHang)
         {
-            const string query = @"UPDATE Tbl_KhoHang SET SoLuong = @SoLuong, TrangThai = @TrangThai WHERE MaSanPham = @MaSanPham";
+            const string query = @"UPDATE Tbl_KhoHang 
+                                   SET SoLuong = @SoLuong, 
+                                       TrangThai = @TrangThai
+                                   WHERE MaSanPham = @MaSanPham";
 
             try
             {
@@ -282,7 +278,8 @@ namespace mini_supermarket.DAO
 
         public void InsertKhoHang(KhoHangDTO khoHang)
         {
-            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES (@MaSanPham, @SoLuong, @TrangThai)";
+            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) 
+                                   VALUES (@MaSanPham, @SoLuong, @TrangThai)";
 
             try
             {

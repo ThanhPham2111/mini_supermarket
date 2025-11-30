@@ -9,6 +9,8 @@ namespace mini_supermarket.DTO
         public DateTime? NgayNhap { get; set; }
         public int MaNhaCungCap { get; set; }
         public decimal? TongTien { get; set; }
+        public string? TrangThai { get; set; }
+        public string? LyDoHuy { get; set; }
         public ICollection<ChiTietPhieuNhapDTO> ChiTietPhieuNhaps { get; set; } = new List<ChiTietPhieuNhapDTO>();
 
         public PhieuNhapDTO()
@@ -19,12 +21,14 @@ namespace mini_supermarket.DTO
             int maPhieuNhap,
             DateTime? ngayNhap,
             int maNhaCungCap,
-            decimal? tongTien)
+            decimal? tongTien,
+            string? trangThai = null)
         {
             MaPhieuNhap = maPhieuNhap;
             NgayNhap = ngayNhap;
             MaNhaCungCap = maNhaCungCap;
             TongTien = tongTien;
+            TrangThai = trangThai;
         }
     }
 }
