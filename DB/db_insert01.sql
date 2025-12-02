@@ -154,13 +154,10 @@ INSERT INTO Tbl_CauHinhLoiNhuan (PhanTramLoiNhuanMacDinh, NgayCapNhat, MaNhanVie
 (15.00, GETDATE(), 1);
 
 -- 11. Tbl_QuyTacLoiNhuan (Một số quy tắc lợi nhuận)
+-- Chỉ hỗ trợ: Chung và TheoSanPham
 INSERT INTO Tbl_QuyTacLoiNhuan (LoaiQuyTac, MaLoai, MaThuongHieu, MaDonVi, MaSanPham, PhanTramLoiNhuan, UuTien, TrangThai, NgayTao, NgayCapNhat, MaNhanVien) VALUES 
 (N'Chung', NULL, NULL, NULL, NULL, 15.00, 0, N'Hoạt động', GETDATE(), GETDATE(), 1),
-(N'TheoLoai', 1, NULL, NULL, NULL, 20.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1), -- Đồ uống: 20%
-(N'TheoLoai', 2, NULL, NULL, NULL, 18.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1), -- Thực phẩm khô: 18%
-(N'TheoLoai', 4, NULL, NULL, NULL, 25.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1), -- Hóa mỹ phẩm: 25%
-(N'TheoThuongHieu', NULL, 1, NULL, NULL, 22.00, 2, N'Hoạt động', GETDATE(), GETDATE(), 1), -- Vinamilk: 22%
-(N'TheoSanPham', NULL, NULL, NULL, 1, 20.00, 4, N'Hoạt động', GETDATE(), GETDATE(), 1); -- Sữa Vinamilk: 20%
+(N'TheoSanPham', NULL, NULL, NULL, 1, 20.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1); -- Sữa Vinamilk: 20%
 
 -- 12. Tbl_KhoHang (30 sản phẩm - số lượng ban đầu)
 INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES 
@@ -270,23 +267,17 @@ UPDATE sp
 SET sp.GiaBan = CASE 
     WHEN ctpn.DonGiaNhap IS NOT NULL THEN
         -- Tính giá bán dựa trên quy tắc lợi nhuận
-        ctpn.DonGiaNhap * (1 + ISNULL((
+        ROUND(ctpn.DonGiaNhap * (1 + ISNULL((
             SELECT TOP 1 q.PhanTramLoiNhuan
             FROM Tbl_QuyTacLoiNhuan q
             WHERE q.TrangThai = N'Hoạt động'
             AND (
                 (q.LoaiQuyTac = N'TheoSanPham' AND q.MaSanPham = sp.MaSanPham)
-                OR (q.LoaiQuyTac = N'TheoDonVi' AND q.MaDonVi = sp.MaDonVi)
-                OR (q.LoaiQuyTac = N'TheoThuongHieu' AND q.MaThuongHieu = sp.MaThuongHieu)
-                OR (q.LoaiQuyTac = N'TheoLoai' AND q.MaLoai = sp.MaLoai)
                 OR (q.LoaiQuyTac = N'Chung')
             )
             ORDER BY 
                 CASE q.LoaiQuyTac
-                    WHEN N'TheoSanPham' THEN 4
-                    WHEN N'TheoDonVi' THEN 3
-                    WHEN N'TheoThuongHieu' THEN 2
-                    WHEN N'TheoLoai' THEN 1
+                    WHEN N'TheoSanPham' THEN 1
                     WHEN N'Chung' THEN 0
                     ELSE 0
                 END DESC

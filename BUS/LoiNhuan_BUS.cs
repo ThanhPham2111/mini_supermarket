@@ -52,10 +52,7 @@ namespace mini_supermarket.BUS
             // Set độ ưu tiên dựa trên loại quy tắc
             quyTac.UuTien = quyTac.LoaiQuyTac switch
             {
-                "TheoSanPham" => 4,
-                "TheoDonVi" => 3,
-                "TheoThuongHieu" => 2,
-                "TheoLoai" => 1,
+                "TheoSanPham" => 1,
                 "Chung" => 0,
                 _ => 0
             };
@@ -82,18 +79,6 @@ namespace mini_supermarket.BUS
             // Tùy thuộc vào loại quy tắc, cập nhật giá bán cho các sản phẩm tương ứng
             switch (quyTac.LoaiQuyTac)
             {
-                case "TheoLoai":
-                    if (quyTac.MaLoai.HasValue)
-                        CapNhatGiaBanTheoLoai(quyTac.MaLoai.Value);
-                    break;
-                case "TheoThuongHieu":
-                    if (quyTac.MaThuongHieu.HasValue)
-                        CapNhatGiaBanTheoThuongHieu(quyTac.MaThuongHieu.Value);
-                    break;
-                case "TheoDonVi":
-                    if (quyTac.MaDonVi.HasValue)
-                        CapNhatGiaBanTheoDonVi(quyTac.MaDonVi.Value);
-                    break;
                 case "TheoSanPham":
                     if (quyTac.MaSanPham.HasValue)
                     {
@@ -104,6 +89,7 @@ namespace mini_supermarket.BUS
                     break;
                 case "Chung":
                     // Cập nhật toàn bộ kho hàng (force update khi quy tắc thay đổi)
+                    // Lưu ý: Chỉ cập nhật sản phẩm chưa có quy tắc TheoSanPham
                     ApDungLoiNhuanChoToanBoKho(quyTac.MaNhanVien ?? 1, forceUpdate: true);
                     break;
             }
@@ -116,25 +102,21 @@ namespace mini_supermarket.BUS
         }
 
         // Lấy quy tắc áp dụng cho sản phẩm (theo thứ tự ưu tiên)
+        // Chỉ tìm TheoSanPham hoặc Chung
         public QuyTacLoiNhuanDTO? GetQuyTacApDungChoSanPham(int maSanPham)
         {
             var sanPham = _sanPhamBus.GetSanPhamById(maSanPham);
             if (sanPham == null)
                 return null;
 
-            return _quyTacDao.GetQuyTacApDungChoSanPham(
-                maSanPham, 
-                sanPham.MaLoai, 
-                sanPham.MaThuongHieu, 
-                sanPham.MaDonVi
-            );
+            return _quyTacDao.GetQuyTacApDungChoSanPham(maSanPham);
         }
 
         // Tính giá bán dựa trên giá nhập và quy tắc lợi nhuận
         public decimal TinhGiaBan(decimal giaNhap, int maSanPham, int maLoai, int maThuongHieu, int maDonVi)
         {
-            // Lấy quy tắc áp dụng
-            var quyTac = _quyTacDao.GetQuyTacApDungChoSanPham(maSanPham, maLoai, maThuongHieu, maDonVi);
+            // Lấy quy tắc áp dụng (chỉ tìm TheoSanPham hoặc Chung)
+            var quyTac = _quyTacDao.GetQuyTacApDungChoSanPham(maSanPham);
             
             decimal phanTramLoiNhuan;
             if (quyTac != null)
@@ -205,6 +187,14 @@ namespace mini_supermarket.BUS
                         {
                             // Lấy quy tắc áp dụng
                             var quyTac = GetQuyTacApDungChoSanPham(sanPham.MaSanPham);
+                            
+                            // QUAN TRỌNG: Nếu sản phẩm đã có quy tắc TheoSanPham, bỏ qua (không cập nhật)
+                            if (quyTac != null && quyTac.LoaiQuyTac == "TheoSanPham")
+                            {
+                                countSkipped++;
+                                continue;
+                            }
+                            
                             decimal phanTramApDung = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
 
                             // Tính giá bán mới (làm tròn đến 2 chữ số thập phân)
@@ -309,122 +299,6 @@ namespace mini_supermarket.BUS
         // Method GetAllGiaSanPham đã được xóa vì bảng Tbl_GiaSanPham không còn tồn tại
         // Giá nhập lấy từ ChiTietPhieuNhap, giá bán lấy từ SanPham
 
-        // Cập nhật giá bán cho tất cả sản phẩm theo loại
-        public void CapNhatGiaBanTheoLoai(int maLoai)
-        {
-            var sanPhamList = _sanPhamBus.GetAll().Where(s => s.MaLoai == maLoai).ToList();
-            var cauHinh = _cauHinhDao.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
-
-            foreach (var sp in sanPhamList)
-            {
-                // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
-                decimal? giaNhapMoiNhat = _khoHangBus.GetGiaNhapMoiNhat(sp.MaSanPham);
-                
-                if (giaNhapMoiNhat.HasValue && giaNhapMoiNhat.Value > 0)
-                {
-                    // Lấy giá nhập cũ (từ giá bán hiện tại)
-                    decimal? giaBanHienTai = sp.GiaBan;
-                    decimal? giaNhapCu = null;
-                    
-                    if (giaBanHienTai.HasValue && giaBanHienTai.Value > 0)
-                    {
-                        var quyTac = GetQuyTacApDungChoSanPham(sp.MaSanPham);
-                        decimal phanTram = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        giaNhapCu = giaBanHienTai.Value / (1 + phanTram / 100);
-                    }
-
-                    // Logic: Nếu giá nhập mới >= giá nhập cũ thì tính lại giá bán
-                    if (!giaNhapCu.HasValue || giaNhapMoiNhat.Value >= giaNhapCu.Value)
-                    {
-                        var quyTacApDung = GetQuyTacApDungChoSanPham(sp.MaSanPham);
-                        decimal phanTram = quyTacApDung?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        decimal giaBan = Math.Round(giaNhapMoiNhat.Value * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
-                        
-                        // Cập nhật giá bán trong Tbl_SanPham
-                        _sanPhamBus.UpdateGiaBan(sp.MaSanPham, giaBan);
-                    }
-                }
-            }
-        }
-
-        // Cập nhật giá bán cho tất cả sản phẩm theo thương hiệu
-        public void CapNhatGiaBanTheoThuongHieu(int maThuongHieu)
-        {
-            var sanPhamList = _sanPhamBus.GetAll().Where(s => s.MaThuongHieu == maThuongHieu).ToList();
-            var cauHinh = _cauHinhDao.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
-
-            foreach (var sp in sanPhamList)
-            {
-                // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
-                decimal? giaNhapMoiNhat = _khoHangBus.GetGiaNhapMoiNhat(sp.MaSanPham);
-                
-                if (giaNhapMoiNhat.HasValue && giaNhapMoiNhat.Value > 0)
-                {
-                    // Lấy giá nhập cũ (từ giá bán hiện tại)
-                    decimal? giaBanHienTai = sp.GiaBan;
-                    decimal? giaNhapCu = null;
-                    
-                    if (giaBanHienTai.HasValue && giaBanHienTai.Value > 0)
-                    {
-                        var quyTac = GetQuyTacApDungChoSanPham(sp.MaSanPham);
-                        decimal phanTram = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        giaNhapCu = giaBanHienTai.Value / (1 + phanTram / 100);
-                    }
-
-                    // Logic: Nếu giá nhập mới >= giá nhập cũ thì tính lại giá bán
-                    if (!giaNhapCu.HasValue || giaNhapMoiNhat.Value >= giaNhapCu.Value)
-                    {
-                        var quyTacApDung = GetQuyTacApDungChoSanPham(sp.MaSanPham);
-                        decimal phanTram = quyTacApDung?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        decimal giaBan = Math.Round(giaNhapMoiNhat.Value * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
-                        
-                        // Cập nhật giá bán trong Tbl_SanPham
-                        _sanPhamBus.UpdateGiaBan(sp.MaSanPham, giaBan);
-                    }
-                }
-            }
-        }
-
-        // Cập nhật giá bán cho tất cả sản phẩm theo đơn vị
-        public void CapNhatGiaBanTheoDonVi(int maDonVi)
-        {
-            var sanPhamList = _sanPhamBus.GetAll().Where(s => s.MaDonVi == maDonVi).ToList();
-            var cauHinh = _cauHinhDao.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
-
-            foreach (var sp in sanPhamList)
-            {
-                // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
-                decimal? giaNhapMoiNhat = _khoHangBus.GetGiaNhapMoiNhat(sp.MaSanPham);
-                
-                if (giaNhapMoiNhat.HasValue && giaNhapMoiNhat.Value > 0)
-                {
-                    // Lấy giá nhập cũ (từ giá bán hiện tại)
-                    decimal? giaBanHienTai = sp.GiaBan;
-                    decimal? giaNhapCu = null;
-                    
-                    if (giaBanHienTai.HasValue && giaBanHienTai.Value > 0)
-                    {
-                        var quyTac = GetQuyTacApDungChoSanPham(sp.MaSanPham);
-                        decimal phanTram = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        giaNhapCu = giaBanHienTai.Value / (1 + phanTram / 100);
-                    }
-
-                    // Logic: Nếu giá nhập mới >= giá nhập cũ thì tính lại giá bán
-                    if (!giaNhapCu.HasValue || giaNhapMoiNhat.Value >= giaNhapCu.Value)
-                    {
-                        var quyTacApDung = GetQuyTacApDungChoSanPham(sp.MaSanPham);
-                        decimal phanTram = quyTacApDung?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        decimal giaBan = Math.Round(giaNhapMoiNhat.Value * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
-                        
-                        // Cập nhật giá bán trong Tbl_SanPham
-                        _sanPhamBus.UpdateGiaBan(sp.MaSanPham, giaBan);
-                    }
-                }
-            }
-        }
 
         // Lấy tất cả kho hàng với giá (cho GUI sử dụng)
         public IList<KhoHangDTO> GetAllKhoHangWithPrice()
@@ -450,22 +324,15 @@ namespace mini_supermarket.BUS
             // Validate các trường tham chiếu dựa trên loại quy tắc
             switch (quyTac.LoaiQuyTac)
             {
-                case "TheoLoai":
-                    if (!quyTac.MaLoai.HasValue)
-                        throw new ArgumentException("Mã loại không được để trống khi chọn quy tắc theo loại.");
-                    break;
-                case "TheoThuongHieu":
-                    if (!quyTac.MaThuongHieu.HasValue)
-                        throw new ArgumentException("Mã thương hiệu không được để trống khi chọn quy tắc theo thương hiệu.");
-                    break;
-                case "TheoDonVi":
-                    if (!quyTac.MaDonVi.HasValue)
-                        throw new ArgumentException("Mã đơn vị không được để trống khi chọn quy tắc theo đơn vị.");
-                    break;
                 case "TheoSanPham":
                     if (!quyTac.MaSanPham.HasValue)
                         throw new ArgumentException("Mã sản phẩm không được để trống khi chọn quy tắc theo sản phẩm.");
                     break;
+                case "Chung":
+                    // Không cần validate gì cho quy tắc chung
+                    break;
+                default:
+                    throw new ArgumentException("Loại quy tắc không hợp lệ. Chỉ hỗ trợ 'TheoSanPham' hoặc 'Chung'.");
             }
         }
     }

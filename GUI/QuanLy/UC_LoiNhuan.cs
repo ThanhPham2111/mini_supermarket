@@ -12,16 +12,10 @@ namespace mini_supermarket.GUI.QuanLy
     {
         private LoiNhuan_BUS _loiNhuanBus;
         private SanPham_BUS _sanPhamBus;
-        private LoaiSanPham_BUS _loaiBus;
-        private ThuongHieu_BUS _thuongHieuBus;
-        private DonVi_BUS _donViBus;
 
         // Controls
         private TabControl tabControlLoiNhuan;
         private TabPage tabCauHinhChung;
-        private TabPage tabTheoLoai;
-        private TabPage tabTheoThuongHieu;
-        private TabPage tabTheoDonVi;
         private TabPage tabTheoSanPham;
         private TabPage tabXemTruoc;
 
@@ -31,9 +25,6 @@ namespace mini_supermarket.GUI.QuanLy
         private Label lblPhanTramMacDinh;
 
         // DataGridViews cho các tab
-        private DataGridView dgvTheoLoai;
-        private DataGridView dgvTheoThuongHieu;
-        private DataGridView dgvTheoDonVi;
         private DataGridView dgvTheoSanPham;
         private DataGridView dgvXemTruoc;
 
@@ -41,9 +32,6 @@ namespace mini_supermarket.GUI.QuanLy
         {
             _loiNhuanBus = new LoiNhuan_BUS();
             _sanPhamBus = new SanPham_BUS();
-            _loaiBus = new LoaiSanPham_BUS();
-            _thuongHieuBus = new ThuongHieu_BUS();
-            _donViBus = new DonVi_BUS();
             
             InitializeComponent();
             LoadData();
@@ -70,27 +58,12 @@ namespace mini_supermarket.GUI.QuanLy
             InitializeTabCauHinhChung();
             tabControlLoiNhuan.TabPages.Add(tabCauHinhChung);
 
-            // Tab 2: Theo Loại
-            tabTheoLoai = new TabPage { Text = "Theo Loại", Padding = new Padding(10) };
-            InitializeTabTheoLoai();
-            tabControlLoiNhuan.TabPages.Add(tabTheoLoai);
-
-            // Tab 3: Theo Thương hiệu
-            tabTheoThuongHieu = new TabPage { Text = "Theo Thương hiệu", Padding = new Padding(10) };
-            InitializeTabTheoThuongHieu();
-            tabControlLoiNhuan.TabPages.Add(tabTheoThuongHieu);
-
-            // Tab 4: Theo Đơn vị
-            tabTheoDonVi = new TabPage { Text = "Theo Đơn vị", Padding = new Padding(10) };
-            InitializeTabTheoDonVi();
-            tabControlLoiNhuan.TabPages.Add(tabTheoDonVi);
-
-            // Tab 5: Theo Sản phẩm
+            // Tab 2: Theo Sản phẩm
             tabTheoSanPham = new TabPage { Text = "Theo Sản phẩm", Padding = new Padding(10) };
             InitializeTabTheoSanPham();
             tabControlLoiNhuan.TabPages.Add(tabTheoSanPham);
 
-            // Tab 6: Xem trước
+            // Tab 3: Xem trước
             tabXemTruoc = new TabPage { Text = "Xem trước", Padding = new Padding(10) };
             InitializeTabXemTruoc();
             tabControlLoiNhuan.TabPages.Add(tabXemTruoc);
@@ -138,39 +111,6 @@ namespace mini_supermarket.GUI.QuanLy
             btnApDungToanBo.FlatAppearance.BorderSize = 0;
             btnApDungToanBo.Click += BtnApDungToanBo_Click;
             tabCauHinhChung.Controls.Add(btnApDungToanBo);
-        }
-
-        private void InitializeTabTheoLoai()
-        {
-            dgvTheoLoai = CreateDataGridView();
-            dgvTheoLoai.Columns.Add("MaLoai", "Mã loại");
-            dgvTheoLoai.Columns.Add("TenLoai", "Tên loại");
-            dgvTheoLoai.Columns.Add("PhanTramLoiNhuan", "% Lợi nhuận");
-            dgvTheoLoai.Columns["PhanTramLoiNhuan"].DefaultCellStyle.Format = "N2";
-            dgvTheoLoai.CellEndEdit += (s, e) => DgvTheoLoai_CellEndEdit(s, e);
-            tabTheoLoai.Controls.Add(dgvTheoLoai);
-        }
-
-        private void InitializeTabTheoThuongHieu()
-        {
-            dgvTheoThuongHieu = CreateDataGridView();
-            dgvTheoThuongHieu.Columns.Add("MaThuongHieu", "Mã thương hiệu");
-            dgvTheoThuongHieu.Columns.Add("TenThuongHieu", "Tên thương hiệu");
-            dgvTheoThuongHieu.Columns.Add("PhanTramLoiNhuan", "% Lợi nhuận");
-            dgvTheoThuongHieu.Columns["PhanTramLoiNhuan"].DefaultCellStyle.Format = "N2";
-            dgvTheoThuongHieu.CellEndEdit += (s, e) => DgvTheoThuongHieu_CellEndEdit(s, e);
-            tabTheoThuongHieu.Controls.Add(dgvTheoThuongHieu);
-        }
-
-        private void InitializeTabTheoDonVi()
-        {
-            dgvTheoDonVi = CreateDataGridView();
-            dgvTheoDonVi.Columns.Add("MaDonVi", "Mã đơn vị");
-            dgvTheoDonVi.Columns.Add("TenDonVi", "Tên đơn vị");
-            dgvTheoDonVi.Columns.Add("PhanTramLoiNhuan", "% Lợi nhuận");
-            dgvTheoDonVi.Columns["PhanTramLoiNhuan"].DefaultCellStyle.Format = "N2";
-            dgvTheoDonVi.CellEndEdit += (s, e) => DgvTheoDonVi_CellEndEdit(s, e);
-            tabTheoDonVi.Controls.Add(dgvTheoDonVi);
         }
 
         private void InitializeTabTheoSanPham()
@@ -225,9 +165,6 @@ namespace mini_supermarket.GUI.QuanLy
         private void LoadData()
         {
             LoadCauHinhChung();
-            LoadTabTheoLoai();
-            LoadTabTheoThuongHieu();
-            LoadTabTheoDonVi();
             LoadTabTheoSanPham();
             LoadTabXemTruoc();
         }
@@ -238,69 +175,6 @@ namespace mini_supermarket.GUI.QuanLy
             if (cauHinh != null)
             {
                 nudPhanTramMacDinh.Value = cauHinh.PhanTramLoiNhuanMacDinh;
-            }
-        }
-
-        private void LoadTabTheoLoai()
-        {
-            dgvTheoLoai.Rows.Clear();
-            var loaiList = _loaiBus.GetLoaiList();
-            var quyTacList = _loiNhuanBus.GetQuyTacLoiNhuan("TheoLoai");
-            
-            // Lấy % lợi nhuận mặc định từ database (không dùng control)
-            var cauHinh = _loiNhuanBus.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 15.00m;
-
-            foreach (var loai in loaiList)
-            {
-                var quyTac = quyTacList.FirstOrDefault(q => q.MaLoai == loai.MaLoai);
-                dgvTheoLoai.Rows.Add(
-                    loai.MaLoai,
-                    loai.TenLoai,
-                    quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh
-                );
-            }
-        }
-
-        private void LoadTabTheoThuongHieu()
-        {
-            dgvTheoThuongHieu.Rows.Clear();
-            var thuongHieuList = _thuongHieuBus.GetThuongHieuList();
-            var quyTacList = _loiNhuanBus.GetQuyTacLoiNhuan("TheoThuongHieu");
-            
-            // Lấy % lợi nhuận mặc định từ database (không dùng control)
-            var cauHinh = _loiNhuanBus.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 15.00m;
-
-            foreach (var th in thuongHieuList)
-            {
-                var quyTac = quyTacList.FirstOrDefault(q => q.MaThuongHieu == th.MaThuongHieu);
-                dgvTheoThuongHieu.Rows.Add(
-                    th.MaThuongHieu,
-                    th.TenThuongHieu,
-                    quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh
-                );
-            }
-        }
-
-        private void LoadTabTheoDonVi()
-        {
-            dgvTheoDonVi.Rows.Clear();
-            var donViList = _donViBus.GetDonViList();
-            var quyTacList = _loiNhuanBus.GetQuyTacLoiNhuan("TheoDonVi");
-            
-            // Lấy % lợi nhuận mặc định từ database (không dùng control)
-            var cauHinh = _loiNhuanBus.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 15.00m;
-
-            foreach (var dv in donViList)
-            {
-                var quyTac = quyTacList.FirstOrDefault(q => q.MaDonVi == dv.MaDonVi);
-                dgvTheoDonVi.Rows.Add(
-                    dv.MaDonVi,
-                    dv.TenDonVi,
-                    quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh
-                );
             }
         }
 
@@ -434,7 +308,8 @@ namespace mini_supermarket.GUI.QuanLy
                         _loiNhuanBus.UpdateCauHinh(nudPhanTramMacDinh.Value, 1); // TODO: Lấy từ session
 
                         MessageBox.Show("Áp dụng lợi nhuận cho toàn bộ kho thành công!\n\n" +
-                            "Giá bán đã được cập nhật cho tất cả sản phẩm có giá nhập.", 
+                            "Giá bán đã được cập nhật cho các sản phẩm chưa có cấu hình riêng.\n" +
+                            "Các sản phẩm đã có cấu hình riêng sẽ không bị thay đổi.", 
                             "Thành công",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -452,141 +327,6 @@ namespace mini_supermarket.GUI.QuanLy
             {
                 MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void DgvTheoLoai_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 2 && e.RowIndex >= 0) // Cột PhanTramLoiNhuan
-            {
-                try
-                {
-                    int maLoai = (int)dgvTheoLoai.Rows[e.RowIndex].Cells[0].Value;
-                    decimal phanTram = Convert.ToDecimal(dgvTheoLoai.Rows[e.RowIndex].Cells[2].Value);
-
-                    var quyTac = new QuyTacLoiNhuanDTO
-                    {
-                        LoaiQuyTac = "TheoLoai",
-                        MaLoai = maLoai,
-                        PhanTramLoiNhuan = phanTram,
-                        MaNhanVien = 1 // TODO: Lấy từ session
-                    };
-
-                    var existing = _loiNhuanBus.GetQuyTacLoiNhuan("TheoLoai")
-                        .FirstOrDefault(q => q.MaLoai == maLoai);
-
-                    if (existing != null)
-                    {
-                        quyTac.MaQuyTac = existing.MaQuyTac;
-                        _loiNhuanBus.UpdateQuyTac(quyTac);
-                    }
-                    else
-                    {
-                        _loiNhuanBus.AddQuyTac(quyTac);
-                    }
-
-                    // Cập nhật giá bán cho tất cả sản phẩm thuộc loại này
-                    _loiNhuanBus.CapNhatGiaBanTheoLoai(maLoai);
-
-                    LoadTabXemTruoc();
-                    LoadTabTheoSanPham(); // Reload để hiển thị giá mới
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LoadTabTheoLoai();
-                }
-            }
-        }
-
-        private void DgvTheoThuongHieu_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 2 && e.RowIndex >= 0)
-            {
-                try
-                {
-                    int maThuongHieu = (int)dgvTheoThuongHieu.Rows[e.RowIndex].Cells[0].Value;
-                    decimal phanTram = Convert.ToDecimal(dgvTheoThuongHieu.Rows[e.RowIndex].Cells[2].Value);
-
-                    var quyTac = new QuyTacLoiNhuanDTO
-                    {
-                        LoaiQuyTac = "TheoThuongHieu",
-                        MaThuongHieu = maThuongHieu,
-                        PhanTramLoiNhuan = phanTram,
-                        MaNhanVien = 1
-                    };
-
-                    var existing = _loiNhuanBus.GetQuyTacLoiNhuan("TheoThuongHieu")
-                        .FirstOrDefault(q => q.MaThuongHieu == maThuongHieu);
-
-                    if (existing != null)
-                    {
-                        quyTac.MaQuyTac = existing.MaQuyTac;
-                        _loiNhuanBus.UpdateQuyTac(quyTac);
-                    }
-                    else
-                    {
-                        _loiNhuanBus.AddQuyTac(quyTac);
-                    }
-
-                    // Cập nhật giá bán cho tất cả sản phẩm thuộc thương hiệu này
-                    _loiNhuanBus.CapNhatGiaBanTheoThuongHieu(maThuongHieu);
-
-                    LoadTabXemTruoc();
-                    LoadTabTheoSanPham(); // Reload để hiển thị giá mới
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LoadTabTheoThuongHieu();
-                }
-            }
-        }
-
-        private void DgvTheoDonVi_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 2 && e.RowIndex >= 0)
-            {
-                try
-                {
-                    int maDonVi = (int)dgvTheoDonVi.Rows[e.RowIndex].Cells[0].Value;
-                    decimal phanTram = Convert.ToDecimal(dgvTheoDonVi.Rows[e.RowIndex].Cells[2].Value);
-
-                    var quyTac = new QuyTacLoiNhuanDTO
-                    {
-                        LoaiQuyTac = "TheoDonVi",
-                        MaDonVi = maDonVi,
-                        PhanTramLoiNhuan = phanTram,
-                        MaNhanVien = 1
-                    };
-
-                    var existing = _loiNhuanBus.GetQuyTacLoiNhuan("TheoDonVi")
-                        .FirstOrDefault(q => q.MaDonVi == maDonVi);
-
-                    if (existing != null)
-                    {
-                        quyTac.MaQuyTac = existing.MaQuyTac;
-                        _loiNhuanBus.UpdateQuyTac(quyTac);
-                    }
-                    else
-                    {
-                        _loiNhuanBus.AddQuyTac(quyTac);
-                    }
-
-                    // Cập nhật giá bán cho tất cả sản phẩm thuộc đơn vị này
-                    _loiNhuanBus.CapNhatGiaBanTheoDonVi(maDonVi);
-
-                    LoadTabXemTruoc();
-                    LoadTabTheoSanPham(); // Reload để hiển thị giá mới
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LoadTabTheoDonVi();
-                }
             }
         }
 

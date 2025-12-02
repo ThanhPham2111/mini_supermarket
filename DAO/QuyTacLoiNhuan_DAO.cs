@@ -179,7 +179,7 @@ namespace mini_supermarket.DAO
             }
         }
 
-        public QuyTacLoiNhuanDTO? GetQuyTacApDungChoSanPham(int maSanPham, int maLoai, int maThuongHieu, int maDonVi)
+        public QuyTacLoiNhuanDTO? GetQuyTacApDungChoSanPham(int maSanPham)
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
@@ -189,17 +189,11 @@ namespace mini_supermarket.DAO
                                     WHERE q.TrangThai = N'Hoạt động'
                                     AND (
                                         (q.LoaiQuyTac = N'TheoSanPham' AND q.MaSanPham = @MaSanPham)
-                                        OR (q.LoaiQuyTac = N'TheoDonVi' AND q.MaDonVi = @MaDonVi)
-                                        OR (q.LoaiQuyTac = N'TheoThuongHieu' AND q.MaThuongHieu = @MaThuongHieu)
-                                        OR (q.LoaiQuyTac = N'TheoLoai' AND q.MaLoai = @MaLoai)
                                         OR (q.LoaiQuyTac = N'Chung')
                                     )
                                     ORDER BY q.UuTien DESC, q.NgayCapNhat DESC";
 
             command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
-            command.Parameters.Add(new SqlParameter("@MaDonVi", SqlDbType.Int) { Value = maDonVi });
-            command.Parameters.Add(new SqlParameter("@MaThuongHieu", SqlDbType.Int) { Value = maThuongHieu });
-            command.Parameters.Add(new SqlParameter("@MaLoai", SqlDbType.Int) { Value = maLoai });
 
             connection.Open();
             using var reader = command.ExecuteReader();
