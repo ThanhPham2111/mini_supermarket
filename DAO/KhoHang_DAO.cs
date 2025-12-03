@@ -603,6 +603,52 @@ namespace mini_supermarket.DAO
             return list;
         }
 
+        // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
+        public decimal? GetGiaNhapMoiNhat(int maSanPham)
+        {
+            System.Diagnostics.Debug.WriteLine($"[GetGiaNhapMoiNhat] START - MaSanPham={maSanPham}");
+            
+            const string query = @"
+                SELECT TOP 1 ctpn.DonGiaNhap
+                FROM Tbl_ChiTietPhieuNhap ctpn
+                INNER JOIN Tbl_PhieuNhap pn ON ctpn.MaPhieuNhap = pn.MaPhieuNhap
+                WHERE ctpn.MaSanPham = @MaSanPham
+                  AND pn.TrangThai = N'Nhập thành công'
+                ORDER BY pn.NgayNhap DESC, ctpn.MaChiTietPhieuNhap DESC";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    
+                    System.Diagnostics.Debug.WriteLine($"[GetGiaNhapMoiNhat] Query result: {result ?? "NULL"}");
+                    
+                    if (result != null && result != DBNull.Value)
+                    {
+                        decimal giaNhap = Convert.ToDecimal(result);
+                        System.Diagnostics.Debug.WriteLine($"[GetGiaNhapMoiNhat] SUCCESS - MaSanPham={maSanPham}, GiaNhap={giaNhap}");
+                        return giaNhap;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[GetGiaNhapMoiNhat] No price found for MaSanPham={maSanPham}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[GetGiaNhapMoiNhat] ERROR - MaSanPham={maSanPham}, Exception={ex.Message}");
+                Console.WriteLine($"[ERROR] GetGiaNhapMoiNhat: {ex.Message}");
+                throw;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Giảm số lượng kho và ghi log trong cùng một transaction.
         /// </summary>
@@ -681,34 +727,6 @@ namespace mini_supermarket.DAO
                         throw;
                     }
                 }
-            }
-        }
-
-        // Lấy giá nhập mới nhất của sản phẩm từ ChiTietPhieuNhap
-        public decimal? GetGiaNhapMoiNhat(int maSanPham)
-        {
-            const string query = @"
-                SELECT TOP 1 ct.DonGiaNhap 
-                FROM Tbl_ChiTietPhieuNhap ct
-                INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap
-                WHERE ct.MaSanPham = @MaSanPham 
-                ORDER BY p.NgayNhap DESC";
-
-            try
-            {
-                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
-                    connection.Open();
-                    var result = command.ExecuteScalar();
-                    return result == null || result == DBNull.Value ? (decimal?)null : Convert.ToDecimal(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ERROR] GetGiaNhapMoiNhat: {ex.Message}");
-                throw;
             }
         }
 

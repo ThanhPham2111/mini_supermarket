@@ -272,7 +272,8 @@ namespace mini_supermarket.GUI.QuanLy
                     giaBan = 0;
                 }
                 
-                string quyTacApDung = quyTac?.LoaiQuyTac ?? "Chung";
+                // Hiển thị quy tắc áp dụng: "Theo sản phẩm" hoặc "Mặc định"
+                string quyTacApDung = (quyTac != null && quyTac.LoaiQuyTac == "TheoSanPham") ? "Theo sản phẩm" : "Mặc định";
 
                 dgvXemTruoc.Rows.Add(
                     kh.MaSanPham,
@@ -292,35 +293,68 @@ namespace mini_supermarket.GUI.QuanLy
         {
             try
             {
+                // Xác nhận đơn giản
                 DialogResult result = MessageBox.Show(
-                    "Bạn có chắc chắn muốn áp dụng % lợi nhuận cho toàn bộ kho hàng?\n" +
-                    "Hành động này sẽ cập nhật giá bán cho tất cả sản phẩm.",
+                    "Bạn có chắc chắn muốn áp dụng % lợi nhuận mặc định cho toàn bộ kho hàng?\n\n" +
+                    "Hành động này sẽ cập nhật giá bán cho các sản phẩm dùng % mặc định.\n" +
+                    "Các sản phẩm có quy tắc riêng sẽ không bị ảnh hưởng.",
                     "Xác nhận",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question
                 );
 
-                if (result == DialogResult.Yes)
+                if (result != DialogResult.Yes)
+                    return;
+
+                try
                 {
-                    try
-                    {
-                        // UpdateCauHinh() đã tự động gọi ApDungLoiNhuanChoToanBoKho() với forceUpdate=true
-                        _loiNhuanBus.UpdateCauHinh(nudPhanTramMacDinh.Value, 1); // TODO: Lấy từ session
+                    // Lấy % mặc định hiện tại
+                    var cauHinhHienTai = _loiNhuanBus.GetCauHinh();
+                    decimal phanTramHienTai = cauHinhHienTai?.PhanTramLoiNhuanMacDinh ?? 15.00m;
+                    decimal phanTramMoi = nudPhanTramMacDinh.Value;
 
-                        MessageBox.Show("Áp dụng lợi nhuận cho toàn bộ kho thành công!\n\n" +
-                            "Giá bán đã được cập nhật cho các sản phẩm chưa có cấu hình riêng.\n" +
-                            "Các sản phẩm đã có cấu hình riêng sẽ không bị thay đổi.", 
-                            "Thành công",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Cập nhật cấu hình và lấy kết quả chi tiết
+                    _loiNhuanBus.UpdateCauHinh(nudPhanTramMacDinh.Value, 1, out var ketQuaChiTiet); // TODO: Lấy maNhanVien từ session
 
-                        // Reload lại tất cả dữ liệu
-                        LoadData();
-                    }
-                    catch (Exception ex)
+                    // Xây dựng thông báo chi tiết
+                    string message = $"Áp dụng % lợi nhuận mặc định thành công!\n\n" +
+                                   $"Thay đổi: {phanTramHienTai}% → {phanTramMoi}%\n\n" +
+                                   $"📊 Kết quả:\n" +
+                                   $"• Tổng số sản phẩm: {ketQuaChiTiet.TongSanPham}\n" +
+                                   $"• Sản phẩm được cập nhật với % mặc định: {ketQuaChiTiet.SanPhamDuocCapNhatVoiMacDinh}";
+
+                    if (ketQuaChiTiet.SanPhamCoQuyTacRieng > 0)
                     {
-                        MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
-                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        message += $"\n• Sản phẩm có quy tắc riêng (vẫn được cập nhật nhưng dùng quy tắc riêng): {ketQuaChiTiet.SanPhamCoQuyTacRieng}";
                     }
+
+                    int sanPhamKhongDuocCapNhat = ketQuaChiTiet.TongSanPham - ketQuaChiTiet.SanPhamDuocCapNhat - ketQuaChiTiet.SanPhamKhongCoGiaNhap;
+                    if (sanPhamKhongDuocCapNhat > 0)
+                    {
+                        message += $"\n• Sản phẩm không được cập nhật (không có giá nhập hoặc giá nhập không thay đổi): {sanPhamKhongDuocCapNhat}";
+                    }
+
+                    if (ketQuaChiTiet.SanPhamKhongCoGiaNhap > 0)
+                    {
+                        message += $"\n• Sản phẩm không có giá nhập: {ketQuaChiTiet.SanPhamKhongCoGiaNhap}";
+                    }
+
+                    if (ketQuaChiTiet.SanPhamCoQuyTacRieng > 0)
+                    {
+                        message += "\n\n💡 Lưu ý: Các sản phẩm có quy tắc lợi nhuận riêng (theo sản phẩm) vẫn được cập nhật giá bán, nhưng dùng % từ quy tắc riêng của chúng, không bị ảnh hưởng bởi % mặc định.";
+                    }
+
+                    MessageBox.Show(message,
+                        "Thành công",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // Reload lại tất cả dữ liệu
+                    LoadData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}\n\nChi tiết: {ex.StackTrace}",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)

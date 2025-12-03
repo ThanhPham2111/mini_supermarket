@@ -183,15 +183,15 @@ namespace mini_supermarket.DAO
         {
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
+            // Chỉ tìm quy tắc TheoSanPham, KHÔNG tìm "Chung" nữa
+            // Nếu không có quy tắc TheoSanPham, sẽ dùng % mặc định từ Tbl_CauHinhLoiNhuan
             command.CommandText = @"SELECT TOP 1 q.MaQuyTac, q.LoaiQuyTac, q.MaLoai, q.MaThuongHieu, q.MaDonVi, q.MaSanPham,
                                            q.PhanTramLoiNhuan, q.UuTien, q.TrangThai, q.NgayTao, q.NgayCapNhat, q.MaNhanVien
                                     FROM dbo.Tbl_QuyTacLoiNhuan q
                                     WHERE q.TrangThai = N'Hoạt động'
-                                    AND (
-                                        (q.LoaiQuyTac = N'TheoSanPham' AND q.MaSanPham = @MaSanPham)
-                                        OR (q.LoaiQuyTac = N'Chung')
-                                    )
-                                    ORDER BY q.UuTien DESC, q.NgayCapNhat DESC";
+                                    AND q.LoaiQuyTac = N'TheoSanPham'
+                                    AND q.MaSanPham = @MaSanPham
+                                    ORDER BY q.NgayCapNhat DESC";
 
             command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
 

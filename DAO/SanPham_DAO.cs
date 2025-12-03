@@ -231,6 +231,8 @@ namespace mini_supermarket.DAO
 
         public void UpdateGiaBan(int maSanPham, decimal giaBan)
         {
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] START - MaSanPham={maSanPham}, GiaBan={giaBan}");
+            
             using var connection = DbConnectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
             command.CommandText = @"UPDATE dbo.Tbl_SanPham
@@ -250,11 +252,17 @@ namespace mini_supermarket.DAO
             command.Parameters.Add(giaBanParameter);
 
             connection.Open();
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] Executing SQL: {command.CommandText}");
             int rows = command.ExecuteNonQuery();
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] Rows affected: {rows}");
+            
             if (rows == 0)
             {
+                System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] ERROR - No rows updated for MaSanPham={maSanPham}");
                 throw new InvalidOperationException($"Không tìm thấy sản phẩm với mã {maSanPham} để cập nhật giá bán.");
             }
+            
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] SUCCESS - Updated MaSanPham={maSanPham} to GiaBan={giaBan}");
         }
 
         public SanPhamDTO? GetSanPhamById(int maSanPham)

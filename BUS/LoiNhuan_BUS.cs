@@ -23,6 +23,12 @@ namespace mini_supermarket.BUS
         // Cập nhật cấu hình lợi nhuận mặc định
         public void UpdateCauHinh(decimal phanTramLoiNhuan, int maNhanVien)
         {
+            UpdateCauHinh(phanTramLoiNhuan, maNhanVien, out _);
+        }
+
+        // Overload trả về kết quả chi tiết
+        public KetQuaApDungLoiNhuan UpdateCauHinh(decimal phanTramLoiNhuan, int maNhanVien, out KetQuaApDungLoiNhuan ketQua)
+        {
             if (phanTramLoiNhuan < 0 || phanTramLoiNhuan > 100)
                 throw new ArgumentException("Phần trăm lợi nhuận phải từ 0 đến 100.");
 
@@ -32,6 +38,48 @@ namespace mini_supermarket.BUS
             // Tự động tính lại giá bán cho toàn bộ sản phẩm khi % lợi nhuận thay đổi
             // forceUpdate = true để luôn cập nhật giá bán dựa trên % lợi nhuận mới
             // GetCauHinh() sẽ lấy giá trị mới nhất từ database sau khi UpdateCauHinh()
+            return ApDungLoiNhuanChoToanBoKho(maNhanVien, forceUpdate: true, out ketQua);
+        }
+
+        // Cập nhật cấu hình lợi nhuận mặc định và tất cả quy tắc riêng theo tỷ lệ
+        // updateQuyTacRieng: true = cập nhật cả quy tắc riêng theo tỷ lệ, false = chỉ cập nhật % mặc định
+        public void UpdateCauHinhVaQuyTac(decimal phanTramLoiNhuanMoi, int maNhanVien, bool updateQuyTacRieng = false)
+        {
+            if (phanTramLoiNhuanMoi < 0 || phanTramLoiNhuanMoi > 100)
+                throw new ArgumentException("Phần trăm lợi nhuận phải từ 0 đến 100.");
+
+            // 1. Lấy % mặc định hiện tại
+            var cauHinhCu = _cauHinhDao.GetCauHinh();
+            decimal phanTramCu = cauHinhCu?.PhanTramLoiNhuanMacDinh ?? 15.00m;
+
+            // 2. Cập nhật % mặc định mới
+            _cauHinhDao.UpdateCauHinh(phanTramLoiNhuanMoi, maNhanVien);
+
+            // 3. Nếu cần, cập nhật TẤT CẢ quy tắc riêng theo tỷ lệ tương ứng
+            if (updateQuyTacRieng && phanTramCu > 0)
+            {
+                decimal tyLe = phanTramLoiNhuanMoi / phanTramCu;
+                
+                var tatCaQuyTac = _quyTacDao.GetQuyTacLoiNhuan();
+                foreach (var quyTac in tatCaQuyTac)
+                {
+                    // Chỉ cập nhật quy tắc TheoSanPham (không còn quy tắc "Chung" nữa)
+                    if (quyTac.LoaiQuyTac == "TheoSanPham")
+                    {
+                        decimal phanTramMoi = Math.Round(quyTac.PhanTramLoiNhuan * tyLe, 2, MidpointRounding.AwayFromZero);
+                        
+                        // Đảm bảo % mới không vượt quá giới hạn
+                        if (phanTramMoi > 100) phanTramMoi = 100;
+                        if (phanTramMoi < 0) phanTramMoi = 0;
+
+                        quyTac.PhanTramLoiNhuan = phanTramMoi;
+                        quyTac.MaNhanVien = maNhanVien;
+                        _quyTacDao.UpdateQuyTac(quyTac);
+                    }
+                }
+            }
+
+            // 4. Áp dụng cho toàn bộ kho
             ApDungLoiNhuanChoToanBoKho(maNhanVien, forceUpdate: true);
         }
 
@@ -49,13 +97,12 @@ namespace mini_supermarket.BUS
 
             ValidateQuyTac(quyTac);
 
-            // Set độ ưu tiên dựa trên loại quy tắc
-            quyTac.UuTien = quyTac.LoaiQuyTac switch
-            {
-                "TheoSanPham" => 1,
-                "Chung" => 0,
-                _ => 0
-            };
+            // Chỉ cho phép TheoSanPham, không còn "Chung" nữa
+            if (quyTac.LoaiQuyTac != "TheoSanPham")
+                throw new ArgumentException("Chỉ hỗ trợ quy tắc 'TheoSanPham'. % mặc định lấy từ cấu hình chung.");
+
+            // Set độ ưu tiên (không cần nữa nhưng giữ lại để tương thích)
+            quyTac.UuTien = 1;
 
             quyTac.TrangThai = "Hoạt động";
             quyTac.NgayTao = DateTime.Now;
@@ -76,7 +123,6 @@ namespace mini_supermarket.BUS
             _quyTacDao.UpdateQuyTac(quyTac);
             
             // Tự động tính lại giá bán cho các sản phẩm bị ảnh hưởng
-            // Tùy thuộc vào loại quy tắc, cập nhật giá bán cho các sản phẩm tương ứng
             switch (quyTac.LoaiQuyTac)
             {
                 case "TheoSanPham":
@@ -87,11 +133,8 @@ namespace mini_supermarket.BUS
                             CapNhatGiaBanKhiGiaNhapThayDoi(quyTac.MaSanPham.Value, giaNhap.Value);
                     }
                     break;
-                case "Chung":
-                    // Cập nhật toàn bộ kho hàng (force update khi quy tắc thay đổi)
-                    // Lưu ý: Chỉ cập nhật sản phẩm chưa có quy tắc TheoSanPham
-                    ApDungLoiNhuanChoToanBoKho(quyTac.MaNhanVien ?? 1, forceUpdate: true);
-                    break;
+                default:
+                    throw new ArgumentException($"Không hỗ trợ loại quy tắc: {quyTac.LoaiQuyTac}. Chỉ hỗ trợ 'TheoSanPham'.");
             }
         }
 
@@ -139,12 +182,29 @@ namespace mini_supermarket.BUS
         //              false = chỉ cập nhật khi giá nhập tăng (khi nhập hàng)
         public void ApDungLoiNhuanChoToanBoKho(int maNhanVien, bool forceUpdate = false)
         {
+            ApDungLoiNhuanChoToanBoKho(maNhanVien, forceUpdate, out _);
+        }
+
+        // Overload method trả về kết quả chi tiết
+        public KetQuaApDungLoiNhuan ApDungLoiNhuanChoToanBoKho(int maNhanVien, bool forceUpdate, out KetQuaApDungLoiNhuan ketQua)
+        {
+            ketQua = new KetQuaApDungLoiNhuan();
+            
+            System.Diagnostics.Debug.WriteLine($"========== [ApDungLoiNhuanChoToanBoKho] START ==========");
+            System.Diagnostics.Debug.WriteLine($"[ApDungLoiNhuanChoToanBoKho] forceUpdate={forceUpdate}, maNhanVien={maNhanVien}");
+            
             var allSanPham = _sanPhamBus.GetAll();
             var cauHinh = _cauHinhDao.GetCauHinh();
             decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
 
+            System.Diagnostics.Debug.WriteLine($"[ApDungLoiNhuanChoToanBoKho] Total products: {allSanPham.Count}, Default margin: {phanTramMacDinh}%");
+
+            ketQua.TongSanPham = allSanPham.Count;
             int countUpdated = 0;
             int countSkipped = 0;
+            int countNoImportPrice = 0;
+            int countFallbackUpdate = 0;
+            int countCoQuyTacRieng = 0;
 
             foreach (var sanPham in allSanPham)
             {
@@ -161,6 +221,7 @@ namespace mini_supermarket.BUS
                         {
                             // Khi % lợi nhuận thay đổi, luôn tính lại giá bán
                             shouldUpdate = true;
+                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Force update mode - will update");
                         }
                         else
                         {
@@ -181,6 +242,7 @@ namespace mini_supermarket.BUS
                             // Logic: Nếu giá nhập mới >= giá nhập cũ thì tính lại giá bán
                             // Nếu giá nhập mới < giá nhập cũ thì giữ nguyên giá bán
                             shouldUpdate = !giaNhapCu.HasValue || giaNhapMoiNhat.Value >= giaNhapCu.Value;
+                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Import price check - Old: {giaNhapCu}, New: {giaNhapMoiNhat}, ShouldUpdate: {shouldUpdate}");
                         }
 
                         if (shouldUpdate)
@@ -197,21 +259,36 @@ namespace mini_supermarket.BUS
                             
                             decimal phanTramApDung = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
 
+                            // Nếu có quyTac thì đó là quy tắc TheoSanPham (không còn "Chung" nữa)
+                            bool coQuyTacRieng = quyTac != null;
+
                             // Tính giá bán mới (làm tròn đến 2 chữ số thập phân)
                             decimal giaBanMoi = Math.Round(giaNhapMoiNhat.Value * (1 + phanTramApDung / 100), 2, MidpointRounding.AwayFromZero);
+
+                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Updating - ImportPrice: {giaNhapMoiNhat}, Margin: {phanTramApDung}%, OldPrice: {sanPham.GiaBan}, NewPrice: {giaBanMoi}");
 
                             // Cập nhật giá bán trong Tbl_SanPham
                             // QUAN TRỌNG: Phải dùng UpdateGiaBan để đảm bảo chỉ cập nhật giá bán
                             _sanPhamBus.UpdateGiaBan(sanPham.MaSanPham, giaBanMoi);
                             countUpdated++;
+
+                            // Phân loại: có quy tắc riêng hay dùng % mặc định
+                            if (coQuyTacRieng)
+                            {
+                                countCoQuyTacRieng++;
+                            }
                         }
                         else
                         {
+                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Skipped - Import price did not increase");
                             countSkipped++;
                         }
                     }
                     else if (forceUpdate && sanPham.GiaBan.HasValue && sanPham.GiaBan.Value > 0)
                     {
+                        countNoImportPrice++;
+                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] No import price - Using fallback calculation");
+                        
                         // Khi forceUpdate = true và không có giá nhập, nhưng có giá bán
                         // Tính lại giá bán dựa trên giá bán cũ và % lợi nhuận mới
                         // Giả sử giá nhập = giá bán cũ / (1 + % cũ)
@@ -234,24 +311,44 @@ namespace mini_supermarket.BUS
                         // Tính giá bán mới với % mới
                         decimal giaBanMoi = Math.Round(giaNhapUocTinh * (1 + phanTramMoi / 100), 2, MidpointRounding.AwayFromZero);
                         
+                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Fallback - OldPrice: {giaBanCu}, EstimatedImport: {giaNhapUocTinh}, OldMargin: {phanTramCuMacDinh}%, NewMargin: {phanTramMoi}%, NewPrice: {giaBanMoi}");
+                        
                         // Cập nhật giá bán
                         _sanPhamBus.UpdateGiaBan(sanPham.MaSanPham, giaBanMoi);
-                        countUpdated++;
+                        countFallbackUpdate++;
                     }
                     else
                     {
                         // Không có giá nhập và không có giá bán, bỏ qua
+                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Skipped - No import price and no selling price");
                         countSkipped++;
                     }
                 }
                 catch (Exception ex)
                 {
                     // Log lỗi nhưng tiếp tục với sản phẩm khác
-                    System.Diagnostics.Debug.WriteLine($"Lỗi khi cập nhật giá bán cho sản phẩm {sanPham.MaSanPham}: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] ERROR - {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Stack trace: {ex.StackTrace}");
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine($"ApDungLoiNhuanChoToanBoKho: Đã cập nhật {countUpdated} sản phẩm, bỏ qua {countSkipped} sản phẩm");
+            // Cập nhật kết quả
+            ketQua.SanPhamDuocCapNhat = countUpdated; // Tổng số sản phẩm được cập nhật
+            ketQua.SanPhamCoQuyTacRieng = countCoQuyTacRieng; // Số sản phẩm có quy tắc riêng (trong số được cập nhật)
+            ketQua.SanPhamDuocCapNhatVoiMacDinh = countUpdated - countCoQuyTacRieng; // Số sản phẩm được cập nhật với % mặc định
+            ketQua.SanPhamKhongCoGiaNhap = countNoImportPrice;
+            ketQua.SanPhamDuocCapNhatBangFallback = countFallbackUpdate;
+
+            System.Diagnostics.Debug.WriteLine($"========== [ApDungLoiNhuanChoToanBoKho] SUMMARY ==========");
+            System.Diagnostics.Debug.WriteLine($"Total products: {allSanPham.Count}");
+            System.Diagnostics.Debug.WriteLine($"Updated (with import price): {countUpdated}");
+            System.Diagnostics.Debug.WriteLine($"Updated (fallback, no import price): {countFallbackUpdate}");
+            System.Diagnostics.Debug.WriteLine($"Skipped: {countSkipped}");
+            System.Diagnostics.Debug.WriteLine($"Products without import price: {countNoImportPrice}");
+            System.Diagnostics.Debug.WriteLine($"Products with custom rules: {countCoQuyTacRieng}");
+            System.Diagnostics.Debug.WriteLine($"========== [ApDungLoiNhuanChoToanBoKho] END ==========");
+            
+            return ketQua;
         }
 
         // Cập nhật giá bán khi giá nhập thay đổi (với logic đặc biệt)
@@ -299,6 +396,16 @@ namespace mini_supermarket.BUS
         // Method GetAllGiaSanPham đã được xóa vì bảng Tbl_GiaSanPham không còn tồn tại
         // Giá nhập lấy từ ChiTietPhieuNhap, giá bán lấy từ SanPham
 
+        // Class để trả về kết quả áp dụng lợi nhuận cho toàn bộ kho
+        public class KetQuaApDungLoiNhuan
+        {
+            public int TongSanPham { get; set; }
+            public int SanPhamDuocCapNhat { get; set; } // Tổng số sản phẩm được cập nhật (bao gồm cả có và không có quy tắc riêng)
+            public int SanPhamDuocCapNhatVoiMacDinh { get; set; } // Sản phẩm được cập nhật với % mặc định (không có quy tắc riêng)
+            public int SanPhamCoQuyTacRieng { get; set; } // Sản phẩm có quy tắc riêng (không dùng % mặc định, nhưng vẫn được cập nhật)
+            public int SanPhamKhongCoGiaNhap { get; set; }
+            public int SanPhamDuocCapNhatBangFallback { get; set; }
+        }
 
         // Lấy tất cả kho hàng với giá (cho GUI sử dụng)
         public IList<KhoHangDTO> GetAllKhoHangWithPrice()
@@ -328,11 +435,8 @@ namespace mini_supermarket.BUS
                     if (!quyTac.MaSanPham.HasValue)
                         throw new ArgumentException("Mã sản phẩm không được để trống khi chọn quy tắc theo sản phẩm.");
                     break;
-                case "Chung":
-                    // Không cần validate gì cho quy tắc chung
-                    break;
                 default:
-                    throw new ArgumentException("Loại quy tắc không hợp lệ. Chỉ hỗ trợ 'TheoSanPham' hoặc 'Chung'.");
+                    throw new ArgumentException($"Không hỗ trợ loại quy tắc: {quyTac.LoaiQuyTac}. Chỉ hỗ trợ 'TheoSanPham'. % mặc định lấy từ cấu hình chung.");
             }
         }
     }

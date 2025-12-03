@@ -153,11 +153,11 @@ INSERT INTO Tbl_NhaCungCap (TenNhaCungCap, DiaChi, SoDienThoai, Email, TrangThai
 INSERT INTO Tbl_CauHinhLoiNhuan (PhanTramLoiNhuanMacDinh, NgayCapNhat, MaNhanVien) VALUES 
 (15.00, GETDATE(), 1);
 
--- 11. Tbl_QuyTacLoiNhuan (Một số quy tắc lợi nhuận)
--- Chỉ hỗ trợ: Chung và TheoSanPham
+<<<<<<< HEAD
+-- 11. Tbl_QuyTacLoiNhuan (Chỉ có quy tắc TheoSanPham, không còn "Chung" nữa)
+-- % mặc định lấy từ Tbl_CauHinhLoiNhuan, không cần quy tắc "Chung"
 INSERT INTO Tbl_QuyTacLoiNhuan (LoaiQuyTac, MaLoai, MaThuongHieu, MaDonVi, MaSanPham, PhanTramLoiNhuan, UuTien, TrangThai, NgayTao, NgayCapNhat, MaNhanVien) VALUES 
-(N'Chung', NULL, NULL, NULL, NULL, 15.00, 0, N'Hoạt động', GETDATE(), GETDATE(), 1),
-(N'TheoSanPham', NULL, NULL, NULL, 1, 20.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1); -- Sữa Vinamilk: 20%
+(N'TheoSanPham', NULL, NULL, NULL, 1, 20.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1); -- Sữa Vinamilk (SP 1): 20%
 
 -- 12. Tbl_KhoHang (30 sản phẩm - số lượng ban đầu)
 INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES 
@@ -266,21 +266,14 @@ INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, T
 UPDATE sp
 SET sp.GiaBan = CASE 
     WHEN ctpn.DonGiaNhap IS NOT NULL THEN
-        -- Tính giá bán dựa trên quy tắc lợi nhuận
+        -- Chỉ tìm quy tắc TheoSanPham, nếu không có thì dùng % mặc định từ CauHinh
         ROUND(ctpn.DonGiaNhap * (1 + ISNULL((
             SELECT TOP 1 q.PhanTramLoiNhuan
             FROM Tbl_QuyTacLoiNhuan q
             WHERE q.TrangThai = N'Hoạt động'
-            AND (
-                (q.LoaiQuyTac = N'TheoSanPham' AND q.MaSanPham = sp.MaSanPham)
-                OR (q.LoaiQuyTac = N'Chung')
-            )
-            ORDER BY 
-                CASE q.LoaiQuyTac
-                    WHEN N'TheoSanPham' THEN 1
-                    WHEN N'Chung' THEN 0
-                    ELSE 0
-                END DESC
+            AND q.LoaiQuyTac = N'TheoSanPham'
+            AND q.MaSanPham = sp.MaSanPham
+            ORDER BY q.NgayCapNhat DESC
         ), (SELECT TOP 1 PhanTramLoiNhuanMacDinh FROM Tbl_CauHinhLoiNhuan ORDER BY NgayCapNhat DESC)) / 100), 2)
     ELSE sp.GiaBan
 END

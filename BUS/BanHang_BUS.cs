@@ -12,17 +12,27 @@ namespace mini_supermarket.BUS
     /// </summary>
     public class BanHang_BUS
     {
+        // Giữ lại hằng số này để tương thích ngược, nhưng sẽ dùng GetGiaTriMotDiem() thay thế
+        [Obsolete("Sử dụng GetGiaTriMotDiem() thay vì GiaTriMotDiem để lấy giá trị động từ cấu hình")]
         public const decimal GiaTriMotDiem = 100m;
 
         private readonly KhoHangBUS khoHangBUS;
         private readonly HoaDon_BUS hoaDonBUS;
         private readonly KhachHang_BUS khachHangBUS;
+        private readonly QuyDoiDiem_BUS quyDoiDiemBUS;
 
         public BanHang_BUS()
         {
             khoHangBUS = new KhoHangBUS();
             hoaDonBUS = new HoaDon_BUS();
             khachHangBUS = new KhachHang_BUS();
+            quyDoiDiemBUS = new QuyDoiDiem_BUS();
+        }
+
+        // Lấy giá trị 1 điểm từ cấu hình động
+        private decimal GetGiaTriMotDiem()
+        {
+            return quyDoiDiemBUS.GetGiaTriMotDiem();
         }
 
         public bool TestConnection(out int soLoaiSanPham, out string? errorMessage)
@@ -147,10 +157,11 @@ namespace mini_supermarket.BUS
 
             if (maxAllowedAmount.HasValue)
             {
-                decimal requiredAmount = usePoints * GiaTriMotDiem;
+                decimal giaTriMotDiem = GetGiaTriMotDiem();
+                decimal requiredAmount = usePoints * giaTriMotDiem;
                 if (requiredAmount > maxAllowedAmount.Value)
                 {
-                    int maxPoints = (int)Math.Floor(maxAllowedAmount.Value / GiaTriMotDiem);
+                    int maxPoints = (int)Math.Floor(maxAllowedAmount.Value / giaTriMotDiem);
                     errorMessage = maxPoints > 0
                         ? $"Tối đa chỉ được dùng {maxPoints} điểm cho đơn hàng hiện tại."
                         : "Đơn hàng hiện tại không đủ để sử dụng điểm.";
@@ -178,6 +189,8 @@ namespace mini_supermarket.BUS
 
         public int TinhDiemTichLuy(IEnumerable<BanHangCartItemDTO> cartItems)
         {
+            // Tính điểm tích lũy theo số lượng sản phẩm: 1 sản phẩm = 1 điểm
+            // Ví dụ: 10 sản phẩm = 10 điểm
             return cartItems.Sum(item => item.SoLuong);
         }
 
@@ -186,7 +199,8 @@ namespace mini_supermarket.BUS
             if (diemSuDung <= 0)
                 return 0;
 
-            decimal giam = diemSuDung * GiaTriMotDiem;
+            decimal giaTriMotDiem = GetGiaTriMotDiem();
+            decimal giam = diemSuDung * giaTriMotDiem;
             if (giam > tongTien)
                 giam = tongTien;
 
@@ -229,7 +243,8 @@ namespace mini_supermarket.BUS
                 throw new InvalidOperationException("Điểm sử dụng vượt quá điểm hiện có.");
             }
 
-            int diemSuDungThucTe = (int)(giamTuDiem / GiaTriMotDiem);
+            decimal giaTriMotDiem = GetGiaTriMotDiem();
+            int diemSuDungThucTe = giaTriMotDiem > 0 ? (int)(giamTuDiem / giaTriMotDiem) : 0;
             int diemMoi = maKhachHang.HasValue ? (diemHienCo - diemSuDungThucTe) + diemTichLuy : 0;
 
             HoaDonDTO hoaDon = new HoaDonDTO

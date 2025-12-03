@@ -242,29 +242,42 @@ CREATE TABLE Tbl_CauHinhLoiNhuan (
     FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
 );
 
--- 20. Bảng quy tắc lợi nhuận (hỗ trợ nhiều cấp độ)
+-- 20. Bảng quy tắc lợi nhuận (chỉ hỗ trợ theo sản phẩm)
+-- % mặc định lấy từ Tbl_CauHinhLoiNhuan, không cần quy tắc "Chung"
 CREATE TABLE Tbl_QuyTacLoiNhuan (
     MaQuyTac INT PRIMARY KEY IDENTITY(1,1),
-    LoaiQuyTac NVARCHAR(50) NOT NULL, -- 'Chung', 'TheoLoai', 'TheoThuongHieu', 'TheoDonVi', 'TheoSanPham'
-    MaLoai INT NULL, -- Nếu LoaiQuyTac = 'TheoLoai'
-    MaThuongHieu INT NULL, -- Nếu LoaiQuyTac = 'TheoThuongHieu'
-    MaDonVi INT NULL, -- Nếu LoaiQuyTac = 'TheoDonVi'
-    MaSanPham INT NULL, -- Nếu LoaiQuyTac = 'TheoSanPham'
-    PhanTramLoiNhuan DECIMAL(5,2) NOT NULL, -- % lợi nhuận
-    UuTien INT DEFAULT 0, -- Độ ưu tiên: SanPham(4) > DonVi(3) > ThuongHieu(2) > Loai(1) > Chung(0)
+    LoaiQuyTac NVARCHAR(50) NOT NULL DEFAULT N'TheoSanPham', -- Chỉ hỗ trợ 'TheoSanPham'
+    MaSanPham INT NOT NULL, -- Sản phẩm cụ thể
+    PhanTramLoiNhuan DECIMAL(5,2) NOT NULL, -- % lợi nhuận cho sản phẩm này
+    UuTien INT DEFAULT 1, -- Luôn = 1 (không cần ưu tiên nữa)
     TrangThai NVARCHAR(50) DEFAULT N'Hoạt động',
     NgayTao DATETIME DEFAULT GETDATE(),
     NgayCapNhat DATETIME DEFAULT GETDATE(),
     MaNhanVien INT,
+    -- Các trường cũ giữ lại để tương thích, nhưng không dùng nữa
+    MaLoai INT NULL,
+    MaThuongHieu INT NULL,
+    MaDonVi INT NULL,
+    FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham),
+    FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien),
+    -- Giữ lại foreign key cũ để tương thích với dữ liệu cũ
     FOREIGN KEY (MaLoai) REFERENCES Tbl_Loai(MaLoai),
     FOREIGN KEY (MaThuongHieu) REFERENCES Tbl_ThuongHieu(MaThuongHieu),
-    FOREIGN KEY (MaDonVi) REFERENCES Tbl_DonVi(MaDonVi),
-    FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham),
-    FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
+    FOREIGN KEY (MaDonVi) REFERENCES Tbl_DonVi(MaDonVi)
 );
 
 -- 21. Bảng Tbl_GiaSanPham đã được xóa vì:
 -- - Giá nhập lấy từ Tbl_ChiTietPhieuNhap
 -- - Giá bán lưu trong Tbl_SanPham.GiaBan
 -- - Tránh trùng lặp dữ liệu
+
+-- 22. Bảng cấu hình quy đổi điểm khách hàng
+CREATE TABLE Tbl_CauHinhQuyDoiDiem (
+    MaCauHinh INT PRIMARY KEY IDENTITY(1,1),
+    SoDiem INT NOT NULL,                    -- Số điểm (ví dụ: 100)
+    SoTienTuongUng DECIMAL(18, 2) NOT NULL, -- Số tiền tương ứng (ví dụ: 100 đồng)
+    NgayCapNhat DATETIME DEFAULT GETDATE(),
+    MaNhanVien INT,                         -- Người cập nhật
+    FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
+);
 
