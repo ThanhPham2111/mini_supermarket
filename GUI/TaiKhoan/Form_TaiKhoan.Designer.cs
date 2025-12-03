@@ -14,6 +14,8 @@ namespace mini_supermarket.GUI.TaiKhoan
         private System.Windows.Forms.TextBox nhanVienTextBox;
         private System.Windows.Forms.Label quyenLabel;
         private System.Windows.Forms.TextBox quyenTextBox;
+        private System.Windows.Forms.Label trangThaiLabel;
+        private System.Windows.Forms.TextBox trangThaiTextBox;
         private System.Windows.Forms.Button themButton;
         private System.Windows.Forms.Button suaButton;
         private System.Windows.Forms.Button xoaButton;
@@ -52,6 +54,8 @@ namespace mini_supermarket.GUI.TaiKhoan
             themButton = new System.Windows.Forms.Button();
             quyenTextBox = new System.Windows.Forms.TextBox();
             quyenLabel = new System.Windows.Forms.Label();
+            trangThaiTextBox = new System.Windows.Forms.TextBox();
+            trangThaiLabel = new System.Windows.Forms.Label();
             nhanVienTextBox = new System.Windows.Forms.TextBox();
             nhanVienLabel = new System.Windows.Forms.Label();
             matKhauTextBox = new System.Windows.Forms.TextBox();
@@ -84,6 +88,8 @@ namespace mini_supermarket.GUI.TaiKhoan
             taiKhoanInfoGroupBox.Controls.Add(themButton);
             taiKhoanInfoGroupBox.Controls.Add(quyenTextBox);
             taiKhoanInfoGroupBox.Controls.Add(quyenLabel);
+            taiKhoanInfoGroupBox.Controls.Add(trangThaiTextBox);
+            taiKhoanInfoGroupBox.Controls.Add(trangThaiLabel);
             taiKhoanInfoGroupBox.Controls.Add(nhanVienTextBox);
             taiKhoanInfoGroupBox.Controls.Add(nhanVienLabel);
             taiKhoanInfoGroupBox.Controls.Add(matKhauTextBox);
@@ -179,6 +185,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             quyenTextBox.ReadOnly = true;
             quyenTextBox.Size = new System.Drawing.Size(250, 28);
             quyenTextBox.TabIndex = 14;
+            quyenTextBox.TabStop = false;
 
             // quyenLabel
             quyenLabel.AutoSize = true;
@@ -194,6 +201,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             nhanVienTextBox.ReadOnly = true;
             nhanVienTextBox.Size = new System.Drawing.Size(250, 28);
             nhanVienTextBox.TabIndex = 11;
+            nhanVienTextBox.TabStop = false;
 
             // nhanVienLabel
             nhanVienLabel.AutoSize = true;
@@ -238,6 +246,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             maTaiKhoanTextBox.ReadOnly = true;
             maTaiKhoanTextBox.Size = new System.Drawing.Size(250, 28);
             maTaiKhoanTextBox.TabIndex = 4;
+            maTaiKhoanTextBox.TabStop = false;
 
             // maTaiKhoanLabel
             maTaiKhoanLabel.AutoSize = true;
@@ -246,6 +255,22 @@ namespace mini_supermarket.GUI.TaiKhoan
             maTaiKhoanLabel.Size = new System.Drawing.Size(97, 19);
             maTaiKhoanLabel.TabIndex = 3;
             maTaiKhoanLabel.Text = "Mã tài khoản";
+
+            // trangThaiLabel
+            trangThaiLabel.AutoSize = true;
+            trangThaiLabel.Location = new System.Drawing.Point(450, 50);
+            trangThaiLabel.Name = "trangThaiLabel";
+            trangThaiLabel.Size = new System.Drawing.Size(70, 19);
+            trangThaiLabel.TabIndex = 22;
+            trangThaiLabel.Text = "Trạng thái";
+
+            // trangThaiTextBox
+            trangThaiTextBox.Location = new System.Drawing.Point(550, 46);
+            trangThaiTextBox.Name = "trangThaiTextBox";
+            trangThaiTextBox.ReadOnly = true;
+            trangThaiTextBox.Size = new System.Drawing.Size(250, 28);
+            trangThaiTextBox.TabIndex = 23;
+            trangThaiTextBox.TabStop = false;
 
             // danhSachGroupBox
             danhSachGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
