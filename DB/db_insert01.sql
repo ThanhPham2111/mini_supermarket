@@ -90,14 +90,14 @@ INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan
 
 -- 5. Tbl_NhanVien (8 nhân viên)
 INSERT INTO Tbl_NhanVien (TenNhanVien, GioiTinh, NgaySinh, SoDienThoai, VaiTro, TrangThai) VALUES 
-(N'Nguyễn Văn Quản Lý', N'Nam', '1990-01-01', '0901234567', N'Quản lý', N'Đang làm việc'),
-(N'Trần Thị Thu Ngân', N'Nữ', '1995-05-15', '0909876543', N'Thu ngân', N'Đang làm việc'),
-(N'Lê Văn Kho', N'Nam', '1992-09-20', '0912345678', N'Thủ kho', N'Đang làm việc'),
-(N'Phạm Thị Hoa', N'Nữ', '1996-03-10', '0923456789', N'Thu ngân', N'Đang làm việc'),
-(N'Hoàng Văn Nam', N'Nam', '1993-07-25', '0934567890', N'Thu ngân', N'Đang làm việc'),
-(N'Võ Thị Lan', N'Nữ', '1994-11-05', '0945678901', N'Thủ kho', N'Đang làm việc'),
-(N'Đỗ Văn Minh', N'Nam', '1991-02-14', '0956789012', N'Thu ngân', N'Đang làm việc'),
-(N'Bùi Thị Mai', N'Nữ', '1997-08-30', '0967890123', N'Thu ngân', N'Đang làm việc');
+(N'Nguyễn Văn Quản Lý', N'Nam', '1990-01-01', '0901234567', N'Quản lý', N'Đang làm'),
+(N'Trần Thị Thu Ngân', N'Nữ', '1995-05-15', '0909876543', N'Thu ngân', N'Đang làm'),
+(N'Lê Văn Kho', N'Nam', '1992-09-20', '0912345678', N'Thủ kho', N'Đang làm'),
+(N'Phạm Thị Hoa', N'Nữ', '1996-03-10', '0923456789', N'Thu ngân', N'Đang làm'),
+(N'Hoàng Văn Nam', N'Nam', '1993-07-25', '0934567890', N'Thu ngân', N'Đang làm'),
+(N'Võ Thị Lan', N'Nữ', '1994-11-05', '0945678901', N'Thủ kho', N'Đang làm'),
+(N'Đỗ Văn Minh', N'Nam', '1991-02-14', '0956789012', N'Thu ngân', N'Đang làm'),
+(N'Bùi Thị Mai', N'Nữ', '1997-08-30', '0967890123', N'Thu ngân', N'Đang làm');
 
 -- 6. Tbl_PhanQuyen
 INSERT INTO Tbl_PhanQuyen (TenQuyen, MoTa) VALUES 
