@@ -24,6 +24,10 @@ namespace mini_supermarket.BUS
         public const string TRANG_THAI_SAP_HET = "Cảnh báo - Sắp hết hàng";
         public const string TRANG_THAI_TIEM_CAN = "Cảnh báo - Tiệm cận";
 
+        // Hằng số trạng thái điều kiện bán
+        public const string TRANG_THAI_DIEU_KIEN_BAN = "Bán";
+        public const string TRANG_THAI_DIEU_KIEN_KHONG_BAN = "Không bán";
+
         // Lấy danh sách tồn kho
         public IList<TonKhoDTO> LayDanhSachTonKho()
         {
@@ -480,6 +484,42 @@ namespace mini_supermarket.BUS
                 FileInfo excelFile = new FileInfo(filePath);
                 package.SaveAs(excelFile);
             }
+        }
+
+        /// <summary>
+        /// Cập nhật trạng thái điều kiện bán của sản phẩm (Bán hoặc Không bán).
+        /// Phương thức này được sử dụng để ngừng bán một sản phẩm mà vẫn còn hàng.
+        /// </summary>
+        public bool CapNhatTrangThaiDieuKienBan(int maSanPham, string trangThaiDieuKien)
+        {
+            if (maSanPham <= 0)
+                throw new ArgumentException("Mã sản phẩm không hợp lệ");
+
+            if (string.IsNullOrWhiteSpace(trangThaiDieuKien))
+                throw new ArgumentException("Trạng thái điều kiện không được để trống");
+
+            if (trangThaiDieuKien != TRANG_THAI_DIEU_KIEN_BAN && trangThaiDieuKien != TRANG_THAI_DIEU_KIEN_KHONG_BAN)
+                throw new ArgumentException($"Trạng thái điều kiện chỉ được là '{TRANG_THAI_DIEU_KIEN_BAN}' hoặc '{TRANG_THAI_DIEU_KIEN_KHONG_BAN}'");
+
+            var khoHang = khoHangDAO.GetByMaSanPham(maSanPham);
+            if (khoHang == null)
+                throw new InvalidOperationException("Sản phẩm không tồn tại trong kho");
+
+            khoHang.TrangThaiDieuKien = trangThaiDieuKien;
+            khoHangDAO.UpdateKhoHang(khoHang);
+            return true;
+        }
+
+        /// <summary>
+        /// Lấy trạng thái điều kiện bán của sản phẩm.
+        /// </summary>
+        public string? GetTrangThaiDieuKienBan(int maSanPham)
+        {
+            if (maSanPham <= 0)
+                throw new ArgumentException("Mã sản phẩm không hợp lệ");
+
+            var khoHang = khoHangDAO.GetByMaSanPham(maSanPham);
+            return khoHang?.TrangThaiDieuKien;
         }
     }
 }

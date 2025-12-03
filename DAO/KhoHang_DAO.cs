@@ -157,7 +157,8 @@ namespace mini_supermarket.DAO
                 INNER JOIN Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham
                 LEFT JOIN Tbl_KhuyenMai km ON sp.MaSanPham = km.MaSanPham 
                     AND GETDATE() BETWEEN km.NgayBatDau AND km.NgayKetThuc
-                WHERE kh.SoLuong > 0 -- Chỉ cần kiểm tra số lượng trong kho > 0
+                WHERE kh.SoLuong > 0 
+                    AND ISNULL(kh.TrangThaiDieuKien, N'Bán') = N'Bán'
                 ORDER BY sp.TenSanPham;";
 
             var list = new List<SanPhamBanHangDTO>();
@@ -219,7 +220,7 @@ namespace mini_supermarket.DAO
 
         public KhoHangDTO? GetByMaSanPham(int maSanPham)
         {
-            const string query = @"SELECT MaSanPham, SoLuong, TrangThai 
+            const string query = @"SELECT MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien
                                    FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
 
             try
@@ -233,11 +234,12 @@ namespace mini_supermarket.DAO
                     {
                         if (reader.Read())
                         {
-                            return new KhoHangDTO
+                            return new KhoHangDTO()
                             {
                                 MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
                                 SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
-                                TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                                TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                                TrangThaiDieuKien = reader.IsDBNull(reader.GetOrdinal("TrangThaiDieuKien")) ? "Bán" : reader.GetString(reader.GetOrdinal("TrangThaiDieuKien"))
                             };
                         }
                     }
@@ -256,7 +258,8 @@ namespace mini_supermarket.DAO
         {
             const string query = @"UPDATE Tbl_KhoHang 
                                    SET SoLuong = @SoLuong, 
-                                       TrangThai = @TrangThai
+                                       TrangThai = @TrangThai,
+                                       TrangThaiDieuKien = @TrangThaiDieuKien
                                    WHERE MaSanPham = @MaSanPham";
 
             try
@@ -267,6 +270,7 @@ namespace mini_supermarket.DAO
                     command.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
                     command.Parameters.AddWithValue("@SoLuong", khoHang.SoLuong ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@TrangThaiDieuKien", khoHang.TrangThaiDieuKien ?? "Bán");
                     connection.Open();
                     command.ExecuteNonQuery();
                 }
@@ -280,8 +284,8 @@ namespace mini_supermarket.DAO
 
         public void InsertKhoHang(KhoHangDTO khoHang)
         {
-            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) 
-                                   VALUES (@MaSanPham, @SoLuong, @TrangThai)";
+            const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien) 
+                                   VALUES (@MaSanPham, @SoLuong, @TrangThai, @TrangThaiDieuKien)";
 
             try
             {
@@ -291,6 +295,7 @@ namespace mini_supermarket.DAO
                     command.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
                     command.Parameters.AddWithValue("@SoLuong", khoHang.SoLuong ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@TrangThaiDieuKien", khoHang.TrangThaiDieuKien ?? "Bán");
                     connection.Open();
                     command.ExecuteNonQuery();
                 }
@@ -305,18 +310,19 @@ namespace mini_supermarket.DAO
         public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
         {
             string queryUpdateKho = @"UPDATE Tbl_KhoHang 
-                                      SET SoLuong = @SoLuongMoi, 
-                                          TrangThai = @TrangThai
-                                      WHERE MaSanPham = @MaSanPham";
+                                  SET SoLuong = @SoLuongMoi, 
+                                      TrangThai = @TrangThai,
+                                      TrangThaiDieuKien = @TrangThaiDieuKien
+                                  WHERE MaSanPham = @MaSanPham";
 
-            string queryInsertKho = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai)
-                                      VALUES (@MaSanPham, @SoLuongMoi, @TrangThai)";
+            string queryInsertKho = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien)
+                                  VALUES (@MaSanPham, @SoLuongMoi, @TrangThai, @TrangThaiDieuKien)";
 
             string queryUpdateSanPham = @"UPDATE Tbl_SanPham SET TrangThai = @TrangThaiSanPham WHERE MaSanPham = @MaSanPham";
 
             string queryInsertLog = @"INSERT INTO Tbl_LichSuThayDoiKho 
-                                      (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi)
-                                      VALUES (@MaSanPham, @SoLuongCu, @SoLuongMoi, @ChenhLech, @LoaiThayDoi, @LyDo, @GhiChu, @MaNhanVien, @NgayThayDoi)";
+                                  (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi)
+                                  VALUES (@MaSanPham, @SoLuongCu, @SoLuongMoi, @ChenhLech, @LoaiThayDoi, @LyDo, @GhiChu, @MaNhanVien, @NgayThayDoi)";
 
             using (SqlConnection connection = DbConnectionFactory.CreateConnection())
             {
@@ -331,6 +337,7 @@ namespace mini_supermarket.DAO
                         {
                             cmdUpdate.Parameters.AddWithValue("@SoLuongMoi", khoHang.SoLuong ?? (object)DBNull.Value);
                             cmdUpdate.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                            cmdUpdate.Parameters.AddWithValue("@TrangThaiDieuKien", khoHang.TrangThaiDieuKien ?? "Bán");
                             cmdUpdate.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
                             rowsAffected = cmdUpdate.ExecuteNonQuery();
                         }
@@ -343,6 +350,7 @@ namespace mini_supermarket.DAO
                                 cmdInsertKho.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
                                 cmdInsertKho.Parameters.AddWithValue("@SoLuongMoi", khoHang.SoLuong ?? (object)DBNull.Value);
                                 cmdInsertKho.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
+                                cmdInsertKho.Parameters.AddWithValue("@TrangThaiDieuKien", khoHang.TrangThaiDieuKien ?? "Bán");
                                 cmdInsertKho.ExecuteNonQuery();
                             }
                         }
@@ -418,14 +426,14 @@ namespace mini_supermarket.DAO
                                 var item = new LichSuThayDoiKhoDTO
                                 {
                                     MaLichSu = reader.GetInt32(reader.GetOrdinal("MaLichSu")),
-                                    MaSanPham = maSanPham, // từ parameter
+                                    MaSanPham = maSanPham,
                                     SoLuongCu = reader.GetInt32(reader.GetOrdinal("SoLuongCu")),
                                     SoLuongMoi = reader.GetInt32(reader.GetOrdinal("SoLuongMoi")),
                                     ChenhLech = reader.GetInt32(reader.GetOrdinal("ChenhLech")),
                                     LoaiThayDoi = reader.GetString(reader.GetOrdinal("LoaiThayDoi")),
                                     LyDo = reader.IsDBNull(reader.GetOrdinal("LyDo")) ? null : reader.GetString(reader.GetOrdinal("LyDo")),
                                     GhiChu = reader.IsDBNull(reader.GetOrdinal("GhiChu")) ? null : reader.GetString(reader.GetOrdinal("GhiChu")),
-                                    MaNhanVien = 0, // không select, set default
+                                    MaNhanVien = 0,
                                     TenNhanVien = reader.GetString(reader.GetOrdinal("TenNhanVien")),
                                     NgayThayDoi = reader.GetDateTime(reader.GetOrdinal("NgayThayDoi"))
                                 };
@@ -734,7 +742,7 @@ namespace mini_supermarket.DAO
         public IList<KhoHangDTO> GetAllKhoHangWithPrice()
         {
             const string query = @"
-                SELECT kh.MaSanPham, kh.SoLuong, kh.TrangThai, sp.GiaBan,
+                SELECT kh.MaSanPham, kh.SoLuong, kh.TrangThai, kh.TrangThaiDieuKien, sp.GiaBan,
                        (SELECT TOP 1 ct.DonGiaNhap FROM Tbl_ChiTietPhieuNhap ct INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap WHERE ct.MaSanPham = kh.MaSanPham ORDER BY p.NgayNhap DESC) AS GiaNhap
                 FROM Tbl_KhoHang kh
                 JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham";
@@ -750,11 +758,12 @@ namespace mini_supermarket.DAO
                     {
                         while (reader.Read())
                         {
-                            var item = new KhoHangDTO
+                            var item = new KhoHangDTO()
                             {
                                 MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
                                 SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
                                 TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
+                                TrangThaiDieuKien = reader.IsDBNull(reader.GetOrdinal("TrangThaiDieuKien")) ? "Bán" : reader.GetString(reader.GetOrdinal("TrangThaiDieuKien")),
                                 GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
                                 GiaNhap = reader.IsDBNull(reader.GetOrdinal("GiaNhap")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaNhap"))
                             };

@@ -90,6 +90,13 @@ namespace mini_supermarket.GUI.KhoHang
 
             dgvKhoHang.DataSource = dtProducts;
             SetupColumnHeaders();
+            ThemCotTrangThaiBan();
+            
+            // Sắp xếp lại thứ tự cột
+            SapXepThuTuCot();
+            
+            // Refresh để đảm bảo cột button hiển thị đúng
+            dgvKhoHang.Refresh();
         }
 
         private void SetupColumnHeaders()
@@ -102,7 +109,7 @@ namespace mini_supermarket.GUI.KhoHang
             if (dgvKhoHang.Columns["TenLoai"] != null) dgvKhoHang.Columns["TenLoai"].HeaderText = "Loại";
             if (dgvKhoHang.Columns["TenThuongHieu"] != null) dgvKhoHang.Columns["TenThuongHieu"].HeaderText = "Thương hiệu";
             if (dgvKhoHang.Columns["SoLuong"] != null) dgvKhoHang.Columns["SoLuong"].HeaderText = "Số lượng";
-            if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng thái";
+            if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng thái kho";
             // Ẩn cột Giá bán
             if (dgvKhoHang.Columns["GiaBan"] != null) 
             {
@@ -119,11 +126,124 @@ namespace mini_supermarket.GUI.KhoHang
                 column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
+        }
 
-            // Sắp xếp lại thứ tự cột
-            if (dgvKhoHang.Columns.Contains("TenThuongHieu")) dgvKhoHang.Columns["TenThuongHieu"].DisplayIndex = 4;
-            if (dgvKhoHang.Columns.Contains("Hsd")) dgvKhoHang.Columns["Hsd"].DisplayIndex = 5;
-            if (dgvKhoHang.Columns.Contains("SoLuong")) dgvKhoHang.Columns["SoLuong"].DisplayIndex = 6;
+        private void ThemCotTrangThaiBan()
+        {
+            // Xóa cột cũ nếu có
+            if (dgvKhoHang.Columns.Contains("colTrangThaiBan"))
+            {
+                dgvKhoHang.Columns.Remove("colTrangThaiBan");
+            }
+
+            // Thêm cột button
+            DataGridViewButtonColumn btnColumn = new DataGridViewButtonColumn();
+            btnColumn.Name = "colTrangThaiBan";
+            btnColumn.HeaderText = "Trạng thái bán";
+            btnColumn.Width = 120;
+            btnColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            btnColumn.FlatStyle = FlatStyle.Flat;
+            
+            dgvKhoHang.Columns.Add(btnColumn);
+            
+            // Đặt vị trí cột ở ngoài cùng bên phải (cuối cùng)
+            btnColumn.DisplayIndex = dgvKhoHang.Columns.Count - 1;
+            
+            // Đảm bảo cột này luôn ở cuối
+            btnColumn.Frozen = false;
+
+            // Đăng ký sự kiện click
+            dgvKhoHang.CellClick -= dgvKhoHang_CellClick; // Xóa sự kiện cũ nếu có
+            dgvKhoHang.CellClick += dgvKhoHang_CellClick;
+            dgvKhoHang.CellFormatting -= dgvKhoHang_CellFormatting_TrangThaiBan; // Xóa sự kiện cũ nếu có
+            dgvKhoHang.CellFormatting += dgvKhoHang_CellFormatting_TrangThaiBan;
+        }
+
+        private void dgvKhoHang_CellFormatting_TrangThaiBan(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Format màu cho button trạng thái bán
+            if (dgvKhoHang.Columns[e.ColumnIndex].Name == "colTrangThaiBan" && e.RowIndex >= 0)
+            {
+                var item = dgvKhoHang.Rows[e.RowIndex].DataBoundItem as TonKhoDTO;
+                if (item != null)
+                {
+                    int maSanPham = item.MaSanPham;
+                    var trangThaiDieuKien = khoHangBUS.GetTrangThaiDieuKienBan(maSanPham);
+                    
+                    if (trangThaiDieuKien == KhoHangBUS.TRANG_THAI_DIEU_KIEN_BAN || string.IsNullOrEmpty(trangThaiDieuKien))
+                    {
+                        e.Value = "✓ Bán";
+                        dgvKhoHang.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.FromArgb(40, 167, 69);
+                        dgvKhoHang.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.White;
+                    }
+                    else
+                    {
+                        e.Value = "✗ Không bán";
+                        dgvKhoHang.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.FromArgb(220, 53, 69);
+                        dgvKhoHang.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.White;
+                    }
+                }
+            }
+        }
+
+        private void dgvKhoHang_CellClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            // Xử lý click vào button trạng thái bán
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && 
+                dgvKhoHang.Columns[e.ColumnIndex].Name == "colTrangThaiBan")
+            {
+                var item = dgvKhoHang.Rows[e.RowIndex].DataBoundItem as TonKhoDTO;
+                if (item != null)
+                {
+                    int maSanPham = item.MaSanPham;
+                    string tenSanPham = item.TenSanPham;
+                    var trangThaiHienTai = khoHangBUS.GetTrangThaiDieuKienBan(maSanPham);
+                    
+                    // Toggle trạng thái
+                    string trangThaiMoi;
+                    string action;
+                    if (trangThaiHienTai == KhoHangBUS.TRANG_THAI_DIEU_KIEN_KHONG_BAN)
+                    {
+                        trangThaiMoi = KhoHangBUS.TRANG_THAI_DIEU_KIEN_BAN;
+                        action = "mở lại bán";
+                    }
+                    else
+                    {
+                        trangThaiMoi = KhoHangBUS.TRANG_THAI_DIEU_KIEN_KHONG_BAN;
+                        action = "ngưng bán";
+                    }
+
+                    // Xác nhận
+                    DialogResult result = MessageBox.Show(
+                        $"Bạn có chắc muốn {action} sản phẩm:\n\n{tenSanPham}?",
+                        "Xác nhận",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
+                    );
+
+                    if (result == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            bool success = khoHangBUS.CapNhatTrangThaiDieuKienBan(maSanPham, trangThaiMoi);
+                            if (success)
+                            {
+                                // Refresh lại dòng hiện tại
+                                dgvKhoHang.InvalidateRow(e.RowIndex);
+                                
+                                string msg = trangThaiMoi == KhoHangBUS.TRANG_THAI_DIEU_KIEN_BAN
+                                    ? "Đã mở lại bán sản phẩm!"
+                                    : "Đã ngưng bán sản phẩm!";
+                                MessageBox.Show(msg, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
         }
 
         // Highlight cảnh báo hàng tồn kho thấp
@@ -133,6 +253,11 @@ namespace mini_supermarket.GUI.KhoHang
             if (dgvKhoHang.Rows[e.RowIndex].DataBoundItem == null) return;
             TonKhoDTO item = (TonKhoDTO)dgvKhoHang.Rows[e.RowIndex].DataBoundItem;
             int soLuong = item.SoLuong ?? 0;
+            
+            // Không tô màu cột button
+            if (dgvKhoHang.Columns[e.ColumnIndex].Name == "colTrangThaiBan")
+                return;
+                
             if (soLuong == 0)
             {
                 dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(255, 220, 220);
@@ -173,12 +298,29 @@ namespace mini_supermarket.GUI.KhoHang
             }
 
             dgvKhoHang.DataSource = filtered.ToList();
+            
+            // Sắp xếp lại thứ tự cột sau khi filter
+            SapXepThuTuCot();
         }
 
-        private void cboLoaiSP_SelectedIndexChanged(object sender, EventArgs e) { ApplyFilters(); }
-        private void cboThuongHieu_SelectedIndexChanged(object sender, EventArgs e) { ApplyFilters(); }
-        private void cboTrangThai_SelectedIndexChanged(object sender, EventArgs e) { ApplyFilters(); }
-        private void txtTimKiem_TextChanged(object sender, EventArgs e) { ApplyFilters(); }
+        private void SapXepThuTuCot()
+        {
+            // Sắp xếp lại thứ tự cột - đảm bảo "Trạng thái bán" luôn ở ngoài cùng bên phải sau "Số lượng" và "Trạng thái kho"
+            int displayIndex = 0;
+            if (dgvKhoHang.Columns.Contains("MaSanPham")) dgvKhoHang.Columns["MaSanPham"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("TenSanPham")) dgvKhoHang.Columns["TenSanPham"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("TenDonVi")) dgvKhoHang.Columns["TenDonVi"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("TenLoai")) dgvKhoHang.Columns["TenLoai"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("TenThuongHieu")) dgvKhoHang.Columns["TenThuongHieu"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("SoLuong")) dgvKhoHang.Columns["SoLuong"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("TrangThai")) dgvKhoHang.Columns["TrangThai"].DisplayIndex = displayIndex++;
+            if (dgvKhoHang.Columns.Contains("Hsd")) dgvKhoHang.Columns["Hsd"].DisplayIndex = displayIndex++;
+            // Cột "colTrangThaiBan" phải ở cuối cùng (ngoài cùng bên phải)
+            if (dgvKhoHang.Columns.Contains("colTrangThaiBan")) 
+            {
+                dgvKhoHang.Columns["colTrangThaiBan"].DisplayIndex = displayIndex;
+            }
+        }
 
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
@@ -402,6 +544,26 @@ namespace mini_supermarket.GUI.KhoHang
 
             Form_LichSuKhoHang formLichSu = new Form_LichSuKhoHang(maSanPham, tenSanPham);
             formLichSu.ShowDialog();
+        }
+
+        private void cboLoaiSP_SelectedIndexChanged(object sender, EventArgs e) 
+        { 
+            ApplyFilters(); 
+        }
+        
+        private void cboThuongHieu_SelectedIndexChanged(object sender, EventArgs e) 
+        { 
+            ApplyFilters(); 
+        }
+        
+        private void cboTrangThai_SelectedIndexChanged(object sender, EventArgs e) 
+        { 
+            ApplyFilters(); 
+        }
+        
+        private void txtTimKiem_TextChanged(object sender, EventArgs e) 
+        { 
+            ApplyFilters(); 
         }
     }
 }

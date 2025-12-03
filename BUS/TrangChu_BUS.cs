@@ -10,8 +10,6 @@ namespace mini_supermarket.BUS
     public class TrangChuBUS
     {
         private TrangChuDAO trangChuDAO = new TrangChuDAO();
-        private KhoHangBUS khoHangBUS = new KhoHangBUS();
-        private KhoHangDAO khoHangDAO = new KhoHangDAO();
 
         public decimal GetDoanhThuHomNay()
         {
@@ -33,49 +31,6 @@ namespace mini_supermarket.BUS
         public int GetSoLuongSanPhamHetHang()
         {
             return trangChuDAO.GetSoLuongSanPhamHetHang();
-        }
-
-        public int GetSoLuongSanPhamSapHetHang()
-        {
-            try
-            {
-                var list = khoHangDAO.LaySanPhamSapHetHang();
-                return list?.Count ?? 0;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        public int GetSoLuongSanPhamTiemCan()
-        {
-            try
-            {
-                var list = khoHangDAO.LaySanPhamSapHetHang();
-                int count = 0;
-                foreach (var item in list)
-                {
-                    int soLuong = item.SoLuong ?? 0;
-                    if (soLuong >= 1 && soLuong <= 5)
-                        count++;
-                }
-                return count;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        public IList<SanPhamKhoDTO> GetSanPhamSapHetHang()
-        {
-            return khoHangBUS.LaySanPhamSapHetHang();
-        }
-
-        public IList<SanPhamKhoDTO> GetSanPhamHetHang()
-        {
-            return khoHangBUS.LaySanPhamHetHang();
         }
 
         public IList<DoanhThuNgayDTO> GetDoanhThu7Ngay()
