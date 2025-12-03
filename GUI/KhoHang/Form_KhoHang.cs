@@ -103,30 +103,22 @@ namespace mini_supermarket.GUI.KhoHang
             if (dgvKhoHang.Columns["TenThuongHieu"] != null) dgvKhoHang.Columns["TenThuongHieu"].HeaderText = "Thương hiệu";
             if (dgvKhoHang.Columns["SoLuong"] != null) dgvKhoHang.Columns["SoLuong"].HeaderText = "Số lượng";
             if (dgvKhoHang.Columns["TrangThai"] != null) dgvKhoHang.Columns["TrangThai"].HeaderText = "Trạng thái";
+            // Ẩn cột Giá bán
             if (dgvKhoHang.Columns["GiaBan"] != null) 
             {
-                dgvKhoHang.Columns["GiaBan"].HeaderText = "Giá bán";
-                dgvKhoHang.Columns["GiaBan"].DefaultCellStyle.Format = "N0";
-                dgvKhoHang.Columns["GiaBan"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dgvKhoHang.Columns["GiaBan"].Visible = false;
             }
             if (dgvKhoHang.Columns["Hsd"] != null) dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn sử dụng";
+            // Ẩn cột Giá nhập
             if (dgvKhoHang.Columns["GiaNhap"] != null) 
             {
-                dgvKhoHang.Columns["GiaNhap"].HeaderText = "Giá nhập";
-                dgvKhoHang.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
-                dgvKhoHang.Columns["GiaNhap"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dgvKhoHang.Columns["GiaNhap"].Visible = false;
             }
             foreach (DataGridViewColumn column in dgvKhoHang.Columns)
             {
                 column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
-
-            // Set lại alignment cho cột giá (căn giữa)
-            if (dgvKhoHang.Columns["GiaBan"] != null) 
-                dgvKhoHang.Columns["GiaBan"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            if (dgvKhoHang.Columns["GiaNhap"] != null) 
-                dgvKhoHang.Columns["GiaNhap"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             // Sắp xếp lại thứ tự cột
             if (dgvKhoHang.Columns.Contains("TenThuongHieu")) dgvKhoHang.Columns["TenThuongHieu"].DisplayIndex = 4;
