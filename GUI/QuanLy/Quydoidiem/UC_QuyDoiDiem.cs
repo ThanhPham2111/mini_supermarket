@@ -33,18 +33,24 @@ namespace mini_supermarket.GUI.QuanLy
         {
             this.Dock = DockStyle.Fill;
             this.BackColor = Color.White;
-            this.Padding = new Padding(30);
+            this.Padding = new Padding(40, 40, 40, 40);
+            this.AutoScroll = true;
+
+            int startY = 40;
+            int spacing = 25; // Khoảng cách giữa các control
 
             // Title
             lblTitle = new Label
             {
                 Text = "Cấu hình quy đổi điểm khách hàng",
-                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                Font = new Font("Segoe UI", 18, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(30, 30),
+                Location = new Point(40, startY),
                 ForeColor = Color.FromArgb(33, 37, 41)
             };
             this.Controls.Add(lblTitle);
+
+            startY += lblTitle.Height + spacing + 10;
 
             // Mô tả
             lblMoTa = new Label
@@ -54,27 +60,29 @@ namespace mini_supermarket.GUI.QuanLy
                        "Lưu ý: Điểm tích lũy vẫn tính theo số lượng sản phẩm (1 sản phẩm = 1 điểm).",
                 Font = new Font("Segoe UI", 10),
                 AutoSize = true,
-                Location = new Point(30, 70),
+                Location = new Point(40, startY),
                 ForeColor = Color.FromArgb(108, 117, 125),
-                MaximumSize = new Size(700, 0)
+                MaximumSize = new Size(900, 0)
             };
             this.Controls.Add(lblMoTa);
+
+            startY += lblMoTa.Height + spacing + 20;
 
             // Label và NumericUpDown cho Số điểm
             lblSoDiem = new Label
             {
                 Text = "Số điểm:",
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(30, 120)
+                Location = new Point(40, startY)
             };
             this.Controls.Add(lblSoDiem);
 
             nudSoDiem = new NumericUpDown
             {
-                Location = new Point(150, 118),
-                Size = new Size(200, 30),
-                Font = new Font("Segoe UI", 11),
+                Location = new Point(230, startY - 2),
+                Size = new Size(280, 35),
+                Font = new Font("Segoe UI", 12),
                 Minimum = 1,
                 Maximum = 1000000,
                 Value = 100,
@@ -82,21 +90,23 @@ namespace mini_supermarket.GUI.QuanLy
             };
             this.Controls.Add(nudSoDiem);
 
+            startY += nudSoDiem.Height + spacing + 15;
+
             // Label và NumericUpDown cho Số tiền
             lblSoTien = new Label
             {
                 Text = "Số tiền tương ứng (đồng):",
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(30, 170)
+                Location = new Point(40, startY)
             };
             this.Controls.Add(lblSoTien);
 
             nudSoTien = new NumericUpDown
             {
-                Location = new Point(280, 168),
-                Size = new Size(200, 30),
-                Font = new Font("Segoe UI", 11),
+                Location = new Point(310, startY - 2),
+                Size = new Size(250, 35),
+                Font = new Font("Segoe UI", 12),
                 Minimum = 1,
                 Maximum = 1000000000,
                 Value = 100,
@@ -104,43 +114,51 @@ namespace mini_supermarket.GUI.QuanLy
             };
             this.Controls.Add(nudSoTien);
 
+            startY += nudSoTien.Height + spacing + 25;
+
             // Button Xác nhận
             btnXacNhan = new Button
             {
                 Text = "Xác nhận",
-                Size = new Size(150, 45),
-                Location = new Point(30, 230),
+                Size = new Size(180, 50),
+                Location = new Point(40, startY),
                 BackColor = Color.FromArgb(16, 137, 62),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnXacNhan.FlatAppearance.BorderSize = 0;
             btnXacNhan.Click += BtnXacNhan_Click;
             this.Controls.Add(btnXacNhan);
 
+            startY += btnXacNhan.Height + spacing + 30;
+
             // Label thông tin hiện tại
             lblThongTinHienTai = new Label
             {
                 Text = "",
-                Font = new Font("Segoe UI", 10),
+                Font = new Font("Segoe UI", 11),
                 AutoSize = true,
-                Location = new Point(30, 300),
+                Location = new Point(40, startY),
                 ForeColor = Color.FromArgb(33, 37, 41)
             };
             this.Controls.Add(lblThongTinHienTai);
+
+            startY += 30;
 
             // Label giá trị 1 điểm
             lblGiaTriMotDiem = new Label
             {
                 Text = "",
-                Font = new Font("Segoe UI", 10),
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(30, 330),
+                Location = new Point(40, startY),
                 ForeColor = Color.FromArgb(16, 137, 62)
             };
             this.Controls.Add(lblGiaTriMotDiem);
+
+            startY += 30;
 
             // Label ví dụ
             lblViDu = new Label
@@ -148,8 +166,9 @@ namespace mini_supermarket.GUI.QuanLy
                 Text = "",
                 Font = new Font("Segoe UI", 10, FontStyle.Italic),
                 AutoSize = true,
-                Location = new Point(30, 360),
-                ForeColor = Color.FromArgb(108, 117, 125)
+                Location = new Point(40, startY),
+                ForeColor = Color.FromArgb(108, 117, 125),
+                MaximumSize = new Size(900, 0)
             };
             this.Controls.Add(lblViDu);
 
