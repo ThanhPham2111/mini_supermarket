@@ -282,7 +282,7 @@
         NgayCapNhat DATETIME DEFAULT GETDATE(),
         MaNhanVien INT,                         -- Người cập nhật
         FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
-    );2222222222222222222222222222222222
+    );
 
     -- 23. Bảng liên kết Nhà cung cấp - Sản phẩm (nhiều-nhiều)
     CREATE TABLE Tbl_NhaCungCap_SanPham (
