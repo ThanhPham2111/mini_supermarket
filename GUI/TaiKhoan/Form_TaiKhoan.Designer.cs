@@ -173,10 +173,10 @@ namespace mini_supermarket.GUI.TaiKhoan
             themButton.Name = "themButton";
             themButton.Size = new System.Drawing.Size(120, 30);
             themButton.TabIndex = 15;
-            themButton.Text = "Thêm";
+            themButton.Text = "➕ Thêm";
             themButton.UseVisualStyleBackColor = true;
             themButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            themButton.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             themButton.ForeColor = System.Drawing.Color.White;
 
             // quyenTextBox

@@ -111,7 +111,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             // 
             // addLoaiButton
             // 
-            this.addLoaiButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.addLoaiButton.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             this.addLoaiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.addLoaiButton.ForeColor = System.Drawing.Color.White;
             this.addLoaiButton.Location = new System.Drawing.Point(8, 8);
@@ -119,7 +119,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.addLoaiButton.Name = "addLoaiButton";
             this.addLoaiButton.Size = new System.Drawing.Size(80, 30);
             this.addLoaiButton.TabIndex = 0;
-            this.addLoaiButton.Text = "Thêm";
+            this.addLoaiButton.Text = "➕ Thêm";
             this.addLoaiButton.UseVisualStyleBackColor = false;
             this.addLoaiButton.Click += new System.EventHandler(this.addLoaiButton_Click);
             // 

@@ -37,7 +37,6 @@ namespace mini_supermarket.GUI.Form_SanPham
             toolTip.SetToolTip(xemChiTietButton, "Xem chi tiết sản phẩm đã chọn");
             toolTip.SetToolTip(themButton, "Thêm sản phẩm mới");
             toolTip.SetToolTip(suaButton, "Sửa thông tin sản phẩm đã chọn");
-            toolTip.SetToolTip(xoaButton, "Xóa sản phẩm đã chọn");
             toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
             toolTip.SetToolTip(searchButton, "Tìm kiếm sản phẩm");
 
@@ -45,8 +44,6 @@ namespace mini_supermarket.GUI.Form_SanPham
             searchTextBox.TextChanged += (_, _) => ApplyFilters();
             themButton.Click += themButton_Click;
             suaButton.Click += suaButton_Click;
-
-            xoaButton.Click += xoaButton_Click;
             lamMoiButton.Click += lamMoiButton_Click;
             xemChiTietButton.Click += xemChiTietButton_Click;
 
@@ -55,9 +52,7 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             themButton.Enabled = true;
             suaButton.Enabled = false;
-            xoaButton.Enabled = false;
             xemChiTietButton.Enabled = false;
-            khoaButton.Enabled = false;
 
             LoadSanPhamData();
         }
@@ -149,10 +144,6 @@ namespace mini_supermarket.GUI.Form_SanPham
             bool hasSelection = sanPhamDataGridView.SelectedRows.Count > 0;
             xemChiTietButton.Enabled = hasSelection;
             suaButton.Enabled = hasSelection;
-            xoaButton.Enabled = hasSelection;
-            var sel = GetSelectedSanPham();
-            bool canKhoa = hasSelection && sel != null && string.Equals(sel.TrangThai?.Trim(), SanPham_BUS.StatusConHang, StringComparison.CurrentCultureIgnoreCase);
-            khoaButton.Enabled = canKhoa;
         }
 
         private void xemChiTietButton_Click(object? sender, EventArgs e)
@@ -302,67 +293,6 @@ namespace mini_supermarket.GUI.Form_SanPham
             return false;
         }
 
-        private void xoaButton_Click(object? sender, EventArgs e)
-        {
-            var selected = GetSelectedSanPham();
-            if (selected == null)
-            {
-                return;
-            }
-
-            var current = selected.TrangThai?.Trim();
-            if (string.Equals(current, SanPham_BUS.StatusHetHang, StringComparison.CurrentCultureIgnoreCase))
-            {
-                MessageBox.Show(this, "Sản phẩm đã ở trạng thái Hết hàng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (!string.Equals(current, SanPham_BUS.StatusConHang, StringComparison.CurrentCultureIgnoreCase))
-            {
-                MessageBox.Show(this, "Chỉ có thể khóa sản phẩm đang ở trạng thái Còn hàng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var updated = new SanPhamDTO
-            {
-                MaSanPham = selected.MaSanPham,
-                TenSanPham = selected.TenSanPham ?? string.Empty,
-                MaDonVi = selected.MaDonVi,
-                MaThuongHieu = selected.MaThuongHieu,
-                MaLoai = selected.MaLoai,
-                MoTa = selected.MoTa,
-                GiaBan = selected.GiaBan,
-                HinhAnh = selected.HinhAnh,
-                XuatXu = selected.XuatXu,
-                Hsd = selected.Hsd,
-                TrangThai = SanPham_BUS.StatusHetHang
-            };
-            DialogResult confirm = MessageBox.Show(this,
-               $"Bạn có chắc muốn khóa nhân viên '{selected.TenSanPham}'? Trạng thái sẽ được chuyển thành 'Hết hàng'.",
-               "Xác nhận?",
-               MessageBoxButtons.YesNo,
-               MessageBoxIcon.Question,
-               MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes)
-            {
-                return;
-            }
-
-            try
-            {
-
-                _sanPhamBus.UpdateSanPham(updated);
-                // Reset filters for clear visibility and select the updated row
-                if (statusFilterComboBox.SelectedIndex != 0) statusFilterComboBox.SelectedIndex = 0;
-                if (!string.IsNullOrEmpty(searchTextBox.Text)) searchTextBox.Clear();
-                LoadSanPhamData(updated.MaSanPham);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể khóa sản phẩm.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
     }
 }
 

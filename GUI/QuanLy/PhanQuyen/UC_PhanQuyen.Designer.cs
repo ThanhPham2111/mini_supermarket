@@ -172,13 +172,13 @@ namespace mini_supermarket.GUI.QuanLy
             // 
             this.btnAddRole.Dock = System.Windows.Forms.DockStyle.Left;
             this.btnAddRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddRole.BackColor = System.Drawing.Color.FromArgb(0, 120, 215); // Blue
+            this.btnAddRole.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             this.btnAddRole.ForeColor = System.Drawing.Color.White;
             this.btnAddRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnAddRole.Location = new System.Drawing.Point(0, 0);
             this.btnAddRole.Name = "btnAddRole";
             this.btnAddRole.Size = new System.Drawing.Size(100, 40);
-            this.btnAddRole.Text = "Thêm vai trò";
+            this.btnAddRole.Text = "➕ Thêm vai trò";
             this.btnAddRole.Click += new System.EventHandler(this.btnAddRole_Click);
 
             // 

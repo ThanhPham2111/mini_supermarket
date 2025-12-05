@@ -141,7 +141,7 @@ namespace mini_supermarket.GUI.KhuyenMai
 
             // Place action buttons under the "Làm mới" button
             int btnY = y + 60;
-            btnAdd = CreateButton("Thêm", new Point(40, btnY), new Size(100, 36), Color.FromArgb(25, 135, 84));
+            btnAdd = CreateButton("➕ Thêm", new Point(40, btnY), new Size(100, 36), Color.FromArgb(25, 135, 84));
             btnAdd.Click += BtnAdd_Click;
             inputPanel.Controls.Add(btnAdd);
 

@@ -186,7 +186,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             ((CustomButton)btnRefresh).BorderRadius = 6;
 
             btnAddProduct.Text = "➕ Thêm vào giỏ";
-            btnAddProduct.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddProduct.BackColor = Color.FromArgb(16, 137, 62);
             btnAddProduct.ForeColor = Color.White;
             btnAddProduct.FlatStyle = FlatStyle.Flat;
             btnAddProduct.Font = new Font("Roboto", 9F, FontStyle.Bold);

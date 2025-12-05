@@ -96,7 +96,7 @@ namespace mini_supermarket.GUI.HoaDon
             // 
             // xuatFileButton
             // 
-            xuatFileButton.BackColor = Color.FromArgb(33, 115, 70);
+            xuatFileButton.BackColor = Color.FromArgb(253, 126, 20);
             xuatFileButton.FlatStyle = FlatStyle.Flat;
             xuatFileButton.ForeColor = Color.White;
             xuatFileButton.Location = new Point(1040, 20);

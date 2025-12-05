@@ -74,11 +74,11 @@ namespace mini_supermarket.GUI.QuanLy
 
             // Button OK
             btnOK = new Button();
-            btnOK.Text = "Thêm";
+            btnOK.Text = "➕ Thêm";
             btnOK.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnOK.Size = new Size(120, 40);
             btnOK.Location = new Point(170, 195);
-            btnOK.BackColor = Color.FromArgb(0, 120, 215);
+            btnOK.BackColor = Color.FromArgb(16, 137, 62);
             btnOK.ForeColor = Color.White;
             btnOK.FlatStyle = FlatStyle.Flat;
             btnOK.FlatAppearance.BorderSize = 0;

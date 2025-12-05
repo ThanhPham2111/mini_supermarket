@@ -110,14 +110,14 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             // 
             // addButton
             // 
-            this.addButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.addButton.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             this.addButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.addButton.ForeColor = System.Drawing.Color.White;
             this.addButton.Location = new System.Drawing.Point(8, 8);
             this.addButton.Name = "addButton";
             this.addButton.Size = new System.Drawing.Size(80, 30);
             this.addButton.TabIndex = 0;
-            this.addButton.Text = "Thêm";
+            this.addButton.Text = "➕ Thêm";
             this.addButton.UseVisualStyleBackColor = false;
             this.addButton.Margin = new System.Windows.Forms.Padding(8);
             this.addButton.Click += new System.EventHandler(this.addButton_Click);

@@ -697,10 +697,10 @@ namespace mini_supermarket.GUI.PhieuNhap
 
             Button btnAddProduct = new Button
             {
-                Text = "+ Thêm sản phẩm",
+                Text = "➕ Thêm sản phẩm",
                 Dock = DockStyle.Right,
                 Size = new Size(150, 35),
-                BackColor = successColor,
+                BackColor = Color.FromArgb(16, 137, 62),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),

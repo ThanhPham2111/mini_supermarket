@@ -79,8 +79,8 @@ namespace mini_supermarket.GUI.KhachHang
             diemTichLuyColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             trangThaiColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 
-            // Excel green
-            var excelGreen = System.Drawing.Color.FromArgb(33, 115, 70);
+            // Excel orange
+            var excelOrange = System.Drawing.Color.FromArgb(253, 126, 20);
 
             // exportExcelButton
             exportExcelButton.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
@@ -91,7 +91,7 @@ namespace mini_supermarket.GUI.KhachHang
             exportExcelButton.Text = "Export Excel";
             exportExcelButton.UseVisualStyleBackColor = false;
             exportExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            exportExcelButton.BackColor = excelGreen;
+            exportExcelButton.BackColor = excelOrange;
             exportExcelButton.ForeColor = System.Drawing.Color.White;
 
             // importExcelButton
@@ -103,7 +103,7 @@ namespace mini_supermarket.GUI.KhachHang
             importExcelButton.Text = "Import Excel";
             importExcelButton.UseVisualStyleBackColor = false;
             importExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            importExcelButton.BackColor = excelGreen;
+            importExcelButton.BackColor = System.Drawing.Color.FromArgb(33, 115, 70);
             importExcelButton.ForeColor = System.Drawing.Color.White;
 
             khachHangInfoGroupBox.SuspendLayout();
@@ -210,10 +210,10 @@ namespace mini_supermarket.GUI.KhachHang
             themButton.Name = "themButton";
             themButton.Size = new System.Drawing.Size(120, 30);
             themButton.TabIndex = 13;
-            themButton.Text = "Thêm";
+            themButton.Text = "➕ Thêm";
             themButton.UseVisualStyleBackColor = true;
             themButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            themButton.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             themButton.ForeColor = System.Drawing.Color.White;
 
             // diemTichLuyTextBox
