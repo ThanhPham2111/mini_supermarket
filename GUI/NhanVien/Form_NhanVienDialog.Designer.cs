@@ -65,6 +65,28 @@ namespace mini_supermarket.GUI.NhanVien
             this.hoTenTextBox.Size = new System.Drawing.Size(200, 20);
             this.hoTenTextBox.TabIndex = 1;
             // 
+            // hoTenErrorIcon
+            // 
+            this.hoTenErrorIcon.AutoSize = true;
+            this.hoTenErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.hoTenErrorIcon.ForeColor = System.Drawing.Color.Red;
+            this.hoTenErrorIcon.Location = new System.Drawing.Point(308, 20);
+            this.hoTenErrorIcon.Name = "hoTenErrorIcon";
+            this.hoTenErrorIcon.Size = new System.Drawing.Size(13, 17);
+            this.hoTenErrorIcon.TabIndex = 18;
+            this.hoTenErrorIcon.Text = "✕";
+            this.hoTenErrorIcon.Visible = false;
+            // 
+            // hoTenErrorLabel
+            // 
+            this.hoTenErrorLabel.AutoSize = true;
+            this.hoTenErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
+            this.hoTenErrorLabel.ForeColor = System.Drawing.Color.Red;
+            this.hoTenErrorLabel.Location = new System.Drawing.Point(100, 38);
+            this.hoTenErrorLabel.Name = "hoTenErrorLabel";
+            this.hoTenErrorLabel.Size = new System.Drawing.Size(0, 10);
+            this.hoTenErrorLabel.TabIndex = 19;
+            // 
             // soDienThoaiLabel
             // 
             this.soDienThoaiLabel.AutoSize = true;
@@ -80,6 +102,28 @@ namespace mini_supermarket.GUI.NhanVien
             this.soDienThoaiTextBox.Name = "soDienThoaiTextBox";
             this.soDienThoaiTextBox.Size = new System.Drawing.Size(200, 20);
             this.soDienThoaiTextBox.TabIndex = 3;
+            // 
+            // soDienThoaiErrorIcon
+            // 
+            this.soDienThoaiErrorIcon.AutoSize = true;
+            this.soDienThoaiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.soDienThoaiErrorIcon.ForeColor = System.Drawing.Color.Red;
+            this.soDienThoaiErrorIcon.Location = new System.Drawing.Point(308, 50);
+            this.soDienThoaiErrorIcon.Name = "soDienThoaiErrorIcon";
+            this.soDienThoaiErrorIcon.Size = new System.Drawing.Size(13, 17);
+            this.soDienThoaiErrorIcon.TabIndex = 20;
+            this.soDienThoaiErrorIcon.Text = "✕";
+            this.soDienThoaiErrorIcon.Visible = false;
+            // 
+            // soDienThoaiErrorLabel
+            // 
+            this.soDienThoaiErrorLabel.AutoSize = true;
+            this.soDienThoaiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
+            this.soDienThoaiErrorLabel.ForeColor = System.Drawing.Color.Red;
+            this.soDienThoaiErrorLabel.Location = new System.Drawing.Point(100, 68);
+            this.soDienThoaiErrorLabel.Name = "soDienThoaiErrorLabel";
+            this.soDienThoaiErrorLabel.Size = new System.Drawing.Size(0, 10);
+            this.soDienThoaiErrorLabel.TabIndex = 21;
             // 
             // ngaySinhLabel
             // 
@@ -143,6 +187,28 @@ namespace mini_supermarket.GUI.NhanVien
             this.vaiTroComboBox.Size = new System.Drawing.Size(200, 21);
             this.vaiTroComboBox.TabIndex = 10;
             // 
+            // vaiTroErrorIcon
+            // 
+            this.vaiTroErrorIcon.AutoSize = true;
+            this.vaiTroErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.vaiTroErrorIcon.ForeColor = System.Drawing.Color.Red;
+            this.vaiTroErrorIcon.Location = new System.Drawing.Point(308, 160);
+            this.vaiTroErrorIcon.Name = "vaiTroErrorIcon";
+            this.vaiTroErrorIcon.Size = new System.Drawing.Size(13, 17);
+            this.vaiTroErrorIcon.TabIndex = 22;
+            this.vaiTroErrorIcon.Text = "✕";
+            this.vaiTroErrorIcon.Visible = false;
+            // 
+            // vaiTroErrorLabel
+            // 
+            this.vaiTroErrorLabel.AutoSize = true;
+            this.vaiTroErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
+            this.vaiTroErrorLabel.ForeColor = System.Drawing.Color.Red;
+            this.vaiTroErrorLabel.Location = new System.Drawing.Point(100, 179);
+            this.vaiTroErrorLabel.Name = "vaiTroErrorLabel";
+            this.vaiTroErrorLabel.Size = new System.Drawing.Size(0, 10);
+            this.vaiTroErrorLabel.TabIndex = 23;
+            // 
             // trangThaiLabel
             // 
             this.trangThaiLabel.AutoSize = true;
@@ -159,6 +225,28 @@ namespace mini_supermarket.GUI.NhanVien
             this.trangThaiComboBox.Name = "trangThaiComboBox";
             this.trangThaiComboBox.Size = new System.Drawing.Size(200, 21);
             this.trangThaiComboBox.TabIndex = 12;
+            // 
+            // trangThaiErrorIcon
+            // 
+            this.trangThaiErrorIcon.AutoSize = true;
+            this.trangThaiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.trangThaiErrorIcon.ForeColor = System.Drawing.Color.Red;
+            this.trangThaiErrorIcon.Location = new System.Drawing.Point(308, 190);
+            this.trangThaiErrorIcon.Name = "trangThaiErrorIcon";
+            this.trangThaiErrorIcon.Size = new System.Drawing.Size(13, 17);
+            this.trangThaiErrorIcon.TabIndex = 24;
+            this.trangThaiErrorIcon.Text = "✕";
+            this.trangThaiErrorIcon.Visible = false;
+            // 
+            // trangThaiErrorLabel
+            // 
+            this.trangThaiErrorLabel.AutoSize = true;
+            this.trangThaiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
+            this.trangThaiErrorLabel.ForeColor = System.Drawing.Color.Red;
+            this.trangThaiErrorLabel.Location = new System.Drawing.Point(100, 209);
+            this.trangThaiErrorLabel.Name = "trangThaiErrorLabel";
+            this.trangThaiErrorLabel.Size = new System.Drawing.Size(0, 10);
+            this.trangThaiErrorLabel.TabIndex = 25;
             // 
             // maNhanVienLabel
             // 
@@ -216,15 +304,23 @@ namespace mini_supermarket.GUI.NhanVien
             this.Controls.Add(this.okButton);
             this.Controls.Add(this.maNhanVienValueLabel);
             this.Controls.Add(this.maNhanVienLabel);
+            this.Controls.Add(this.trangThaiErrorIcon);
+            this.Controls.Add(this.trangThaiErrorLabel);
             this.Controls.Add(this.trangThaiComboBox);
             this.Controls.Add(this.trangThaiLabel);
+            this.Controls.Add(this.vaiTroErrorIcon);
+            this.Controls.Add(this.vaiTroErrorLabel);
             this.Controls.Add(this.vaiTroComboBox);
             this.Controls.Add(this.vaiTroLabel);
             this.Controls.Add(this.gioiTinhLabel);
             this.Controls.Add(this.ngaySinhDateTimePicker);
             this.Controls.Add(this.ngaySinhLabel);
+            this.Controls.Add(this.soDienThoaiErrorIcon);
+            this.Controls.Add(this.soDienThoaiErrorLabel);
             this.Controls.Add(this.soDienThoaiTextBox);
             this.Controls.Add(this.soDienThoaiLabel);
+            this.Controls.Add(this.hoTenErrorIcon);
+            this.Controls.Add(this.hoTenErrorLabel);
             this.Controls.Add(this.hoTenTextBox);
             this.Controls.Add(this.hoTenLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -244,8 +340,12 @@ namespace mini_supermarket.GUI.NhanVien
 
         private System.Windows.Forms.Label hoTenLabel;
         private System.Windows.Forms.TextBox hoTenTextBox;
+        private System.Windows.Forms.Label hoTenErrorIcon;
+        private System.Windows.Forms.Label hoTenErrorLabel;
         private System.Windows.Forms.Label soDienThoaiLabel;
         private System.Windows.Forms.TextBox soDienThoaiTextBox;
+        private System.Windows.Forms.Label soDienThoaiErrorIcon;
+        private System.Windows.Forms.Label soDienThoaiErrorLabel;
         private System.Windows.Forms.Label ngaySinhLabel;
         private System.Windows.Forms.DateTimePicker ngaySinhDateTimePicker;
         private System.Windows.Forms.Label gioiTinhLabel;
@@ -253,8 +353,12 @@ namespace mini_supermarket.GUI.NhanVien
         private System.Windows.Forms.RadioButton gioiTinhNuRadioButton;
         private System.Windows.Forms.Label vaiTroLabel;
         private System.Windows.Forms.ComboBox vaiTroComboBox;
+        private System.Windows.Forms.Label vaiTroErrorIcon;
+        private System.Windows.Forms.Label vaiTroErrorLabel;
         private System.Windows.Forms.Label trangThaiLabel;
         private System.Windows.Forms.ComboBox trangThaiComboBox;
+        private System.Windows.Forms.Label trangThaiErrorIcon;
+        private System.Windows.Forms.Label trangThaiErrorLabel;
         private System.Windows.Forms.Label maNhanVienLabel;
         private System.Windows.Forms.Label maNhanVienValueLabel;
         private System.Windows.Forms.Button okButton;

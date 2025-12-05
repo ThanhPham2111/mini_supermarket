@@ -51,6 +51,13 @@ namespace mini_supermarket.GUI.KhachHang
                 return;
             }
 
+            // Event handlers để clear error khi người dùng nhập/chọn
+            hoTenTextBox.TextChanged += (s, e) => { hoTenErrorLabel.Text = string.Empty; hoTenErrorIcon.Visible = false; };
+            soDienThoaiTextBox.TextChanged += (s, e) => { soDienThoaiErrorLabel.Text = string.Empty; soDienThoaiErrorIcon.Visible = false; };
+            diaChiTextBox.TextChanged += (s, e) => { diaChiErrorLabel.Text = string.Empty; diaChiErrorIcon.Visible = false; };
+            emailTextBox.TextChanged += (s, e) => { emailErrorLabel.Text = string.Empty; emailErrorIcon.Visible = false; };
+            trangThaiComboBox.SelectedIndexChanged += (s, e) => { trangThaiErrorLabel.Text = string.Empty; trangThaiErrorIcon.Visible = false; };
+
             // vaiTroComboBox.Items.Clear();
             // vaiTroComboBox.Items.AddRange(_roles.Cast<object>().ToArray());
 
@@ -109,56 +116,91 @@ namespace mini_supermarket.GUI.KhachHang
 
         }
 
+        private void ClearAllErrors()
+        {
+            hoTenErrorLabel.Text = string.Empty;
+            hoTenErrorIcon.Visible = false;
+            soDienThoaiErrorLabel.Text = string.Empty;
+            soDienThoaiErrorIcon.Visible = false;
+            diaChiErrorLabel.Text = string.Empty;
+            diaChiErrorIcon.Visible = false;
+            emailErrorLabel.Text = string.Empty;
+            emailErrorIcon.Visible = false;
+            trangThaiErrorLabel.Text = string.Empty;
+            trangThaiErrorIcon.Visible = false;
+        }
+
+        private void ShowError(Label errorLabel, Label errorIcon, string message)
+        {
+            errorLabel.Text = message;
+            errorLabel.ForeColor = System.Drawing.Color.Red;
+            errorLabel.Visible = true;
+            errorIcon.Visible = true;
+        }
+
         private void okButton_Click(object? sender, EventArgs e)
         {
+            ClearAllErrors();
+            bool hasError = false;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             string hoTen = hoTenTextBox.Text.Trim();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (string.IsNullOrWhiteSpace(hoTen))
             {
-                MessageBox.Show(this, "Vui lòng nhập họ tên.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                hoTenTextBox.SelectAll();
+                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Không được để trống");
                 hoTenTextBox.Focus();
-                return;
+                hasError = true;
             }
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            if (trangThaiComboBox.SelectedItem is not string trangThai || string.IsNullOrWhiteSpace(trangThai))
-            {
-                MessageBox.Show(this, "Vui lòng chọn trạng thái.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                trangThaiComboBox.SelectAll();
-                trangThaiComboBox.Focus();
-                return;
-            }
+            string soDienThoai = soDienThoaiTextBox.Text.Trim();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            if (string.IsNullOrWhiteSpace(soDienThoaiTextBox.Text))
+            if (string.IsNullOrWhiteSpace(soDienThoai))
             {
-                MessageBox.Show(this, "Vui lòng nhập số điện thoại.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                soDienThoaiTextBox.SelectAll();
-                soDienThoaiTextBox.Focus();
-                return;
+                ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Không được để trống");
+                if (!hasError) soDienThoaiTextBox.Focus();
+                hasError = true;
             }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            if (string.IsNullOrWhiteSpace(diaChiTextBox.Text))
+            else if (!Validation_Component.IsValidNumberPhone(soDienThoai))
             {
-                MessageBox.Show(this, "Vui lòng nhập địa chỉ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                diaChiTextBox.SelectAll();
-                diaChiTextBox.Focus();
-                return;
+                ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Số điện thoại không hợp lệ");
+                if (!hasError) soDienThoaiTextBox.Focus();
+                hasError = true;
             }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            if (string.IsNullOrWhiteSpace(emailTextBox.Text))
+            string diaChi = diaChiTextBox.Text.Trim();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            if (string.IsNullOrWhiteSpace(diaChi))
             {
-                MessageBox.Show(this, "Vui lòng nhập email.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                emailTextBox.SelectAll();
-                emailTextBox.Focus();
-                return;
+                ShowError(diaChiErrorLabel, diaChiErrorIcon, "Không được để trống");
+                if (!hasError) diaChiTextBox.Focus();
+                hasError = true;
+            }
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            string email = emailTextBox.Text.Trim();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            // Email không bắt buộc khi tạo, nhưng nếu có nhập thì phải hợp lệ
+            if (!string.IsNullOrWhiteSpace(email) && !Validation_Component.IsValidEmail(email))
+            {
+                ShowError(emailErrorLabel, emailErrorIcon, "Email không hợp lệ");
+                if (!hasError) emailTextBox.Focus();
+                hasError = true;
+            }
+
+            string? trangThai = null;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            if (trangThaiComboBox.SelectedItem is string tt && !string.IsNullOrWhiteSpace(tt))
+            {
+                trangThai = tt;
+            }
+            else
+            {
+                ShowError(trangThaiErrorLabel, trangThaiErrorIcon, "Vui lòng chọn trạng thái");
+                if (!hasError) trangThaiComboBox.Focus();
+                hasError = true;
             }
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
@@ -166,59 +208,26 @@ namespace mini_supermarket.GUI.KhachHang
             if (string.IsNullOrWhiteSpace(diemTichLuyTextBox.Text))
             {
                 MessageBox.Show(this, "Vui lòng nhập điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                diemTichLuyTextBox.SelectAll();
-                diemTichLuyTextBox.Focus();
-                return;
+                if (!hasError) diemTichLuyTextBox.Focus();
+                hasError = true;
+            }
+            else if (!Validation_Component.IsValidNumber(diemTichLuyTextBox.Text))
+            {
+                MessageBox.Show(this, "Nhập sai định dạng điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (!hasError) diemTichLuyTextBox.Focus();
+                hasError = true;
             }
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-            // Check định dạng số điện thoại
-            if (!Validation_Component.IsValidNumberPhone(soDienThoaiTextBox.Text))
-            {
-                MessageBox.Show(this, "Nhập sai định dạng số điện thoại.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                soDienThoaiTextBox.SelectAll();
-                soDienThoaiTextBox.Focus();
+            if (hasError)
                 return;
-            }
-
-            // Check định dạng Email
-            if (!Validation_Component.IsValidEmail(emailTextBox.Text))
-            {
-                MessageBox.Show(this, "Nhập sai định dạng email.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                emailTextBox.SelectAll();
-                emailTextBox.Focus();
-                return;
-            }
-
-            // Check định dạng điểm tích lũy
-            if (!Validation_Component.IsValidNumber(diemTichLuyTextBox.Text))
-            {
-                MessageBox.Show(this, "Nhập sai định dạng điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                diemTichLuyTextBox.SelectAll();
-                diemTichLuyTextBox.Focus();
-                return;
-            }
 
             _workingKhachHang.TenKhachHang = hoTen;
-
-            _workingKhachHang.SoDienThoai = string.IsNullOrWhiteSpace(soDienThoaiTextBox.Text)
-                ? null
-                : soDienThoaiTextBox.Text.Trim();
-            _workingKhachHang.TrangThai = trangThai;
-
-            // add
-            _workingKhachHang.DiaChi = string.IsNullOrWhiteSpace(diaChiTextBox.Text)
-            ? null
-            : diaChiTextBox.Text.Trim();
-
-            _workingKhachHang.Email = string.IsNullOrWhiteSpace(emailTextBox.Text)
-            ? null
-            : emailTextBox.Text.Trim();
-
-            _workingKhachHang.DiemTichLuy = string.IsNullOrWhiteSpace(diemTichLuyTextBox.Text)
-            ? 0
-            : int.Parse(diemTichLuyTextBox.Text);
-            // end
+            _workingKhachHang.SoDienThoai = soDienThoai;
+            _workingKhachHang.DiaChi = diaChi;
+            _workingKhachHang.Email = string.IsNullOrWhiteSpace(email) ? null : email;
+            _workingKhachHang.TrangThai = trangThai!;
+            _workingKhachHang.DiemTichLuy = string.IsNullOrWhiteSpace(diemTichLuyTextBox.Text) ? 0 : int.Parse(diemTichLuyTextBox.Text);
 
             DialogResult = DialogResult.OK;
             Close();
