@@ -742,7 +742,7 @@ namespace mini_supermarket.DAO
         public IList<KhoHangDTO> GetAllKhoHangWithPrice()
         {
             const string query = @"
-                SELECT kh.MaSanPham, kh.SoLuong, kh.TrangThai, kh.TrangThaiDieuKien, sp.GiaBan,
+                SELECT kh.MaSanPham, kh.SoLuong, kh.TrangThai, kh.TrangThaiDieuKien, sp.GiaBan, sp.TenSanPham,
                        (SELECT TOP 1 ct.DonGiaNhap FROM Tbl_ChiTietPhieuNhap ct INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap WHERE ct.MaSanPham = kh.MaSanPham ORDER BY p.NgayNhap DESC) AS GiaNhap
                 FROM Tbl_KhoHang kh
                 JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham";
@@ -761,6 +761,7 @@ namespace mini_supermarket.DAO
                             var item = new KhoHangDTO()
                             {
                                 MaSanPham = reader.GetInt32(reader.GetOrdinal("MaSanPham")),
+                                TenSanPham = reader.IsDBNull(reader.GetOrdinal("TenSanPham")) ? null : reader.GetString(reader.GetOrdinal("TenSanPham")),
                                 SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
                                 TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai")),
                                 TrangThaiDieuKien = reader.IsDBNull(reader.GetOrdinal("TrangThaiDieuKien")) ? "Bán" : reader.GetString(reader.GetOrdinal("TrangThaiDieuKien")),

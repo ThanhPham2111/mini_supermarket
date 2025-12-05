@@ -177,6 +177,7 @@ CREATE TABLE Tbl_KhuyenMai (
     NgayBatDau DATETIME,
     NgayKetThuc DATETIME,
     MoTa NVARCHAR(MAX),
+    DieuKien NVARCHAR(MAX) NULL,
     FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham)
 );
 
@@ -185,9 +186,11 @@ CREATE TABLE Tbl_KhoHang (
     MaSanPham INT PRIMARY KEY,
     SoLuong INT DEFAULT 0,
     TrangThai NVARCHAR(50),
-    
+    TrangThaiDieuKien NVARCHAR(50) NOT NULL DEFAULT N'Bán',
+
     FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham)
 );
+
 
 -- 18. Bảng Lịch sử thay đổi kho (Added from code)
 CREATE TABLE Tbl_LichSuThayDoiKho (

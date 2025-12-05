@@ -153,43 +153,43 @@ INSERT INTO Tbl_NhaCungCap (TenNhaCungCap, DiaChi, SoDienThoai, Email, TrangThai
 INSERT INTO Tbl_CauHinhLoiNhuan (PhanTramLoiNhuanMacDinh, NgayCapNhat, MaNhanVien) VALUES 
 (15.00, GETDATE(), 1);
 
-<<<<<<< HEAD
+
 -- 11. Tbl_QuyTacLoiNhuan (Chỉ có quy tắc TheoSanPham, không còn "Chung" nữa)
 -- % mặc định lấy từ Tbl_CauHinhLoiNhuan, không cần quy tắc "Chung"
 INSERT INTO Tbl_QuyTacLoiNhuan (LoaiQuyTac, MaLoai, MaThuongHieu, MaDonVi, MaSanPham, PhanTramLoiNhuan, UuTien, TrangThai, NgayTao, NgayCapNhat, MaNhanVien) VALUES 
 (N'TheoSanPham', NULL, NULL, NULL, 1, 20.00, 1, N'Hoạt động', GETDATE(), GETDATE(), 1); -- Sữa Vinamilk (SP 1): 20%
 
 -- 12. Tbl_KhoHang (30 sản phẩm - số lượng ban đầu)
-INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai) VALUES 
-(1, 100, N'Còn hàng'),
-(2, 200, N'Còn hàng'),
-(3, 150, N'Còn hàng'),
-(4, 80, N'Còn hàng'),
-(5, 300, N'Còn hàng'),
-(6, 120, N'Còn hàng'),
-(7, 500, N'Còn hàng'),
-(8, 450, N'Còn hàng'),
-(9, 200, N'Còn hàng'),
-(10, 100, N'Còn hàng'),
-(11, 80, N'Còn hàng'),
-(12, 60, N'Còn hàng'),
-(13, 150, N'Còn hàng'),
-(14, 200, N'Còn hàng'),
-(15, 180, N'Còn hàng'),
-(16, 50, N'Còn hàng'),
-(17, 60, N'Còn hàng'),
-(18, 70, N'Còn hàng'),
-(19, 40, N'Còn hàng'),
-(20, 90, N'Còn hàng'),
-(21, 50, N'Còn hàng'),
-(22, 100, N'Còn hàng'),
-(23, 80, N'Còn hàng'),
-(24, 30, N'Còn hàng'),
-(25, 25, N'Còn hàng'),
-(26, 40, N'Còn hàng'),
-(27, 60, N'Còn hàng'),
-(28, 50, N'Còn hàng'),
-(29, 20, N'Còn hàng');
+INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien) VALUES 
+(1, 100, N'Còn hàng', N'Bán'),
+(2, 200, N'Còn hàng', N'Bán'),
+(3, 150, N'Còn hàng', N'Bán'),
+(4, 80, N'Còn hàng', N'Bán'),
+(5, 300, N'Còn hàng', N'Bán'),
+(6, 120, N'Còn hàng', N'Bán'),
+(7, 500, N'Còn hàng', N'Bán'),
+(8, 450, N'Còn hàng', N'Bán'),
+(9, 200, N'Còn hàng', N'Bán'),
+(10, 100, N'Còn hàng', N'Bán'),
+(11, 80, N'Còn hàng', N'Bán'),
+(12, 60, N'Còn hàng', N'Bán'),
+(13, 150, N'Còn hàng', N'Bán'),
+(14, 200, N'Còn hàng', N'Bán'),
+(15, 180, N'Còn hàng', N'Bán'),
+(16, 50, N'Còn hàng', N'Bán'),
+(17, 60, N'Còn hàng', N'Bán'),
+(18, 70, N'Còn hàng', N'Bán'),
+(19, 40, N'Còn hàng', N'Bán'),
+(20, 90, N'Còn hàng', N'Bán'),
+(21, 50, N'Còn hàng', N'Bán'),
+(22, 100, N'Còn hàng', N'Bán'),
+(23, 80, N'Còn hàng', N'Bán'),
+(24, 30, N'Còn hàng', N'Bán'),
+(25, 25, N'Còn hàng', N'Bán'),
+(26, 40, N'Còn hàng', N'Bán'),
+(27, 60, N'Còn hàng', N'Bán'),
+(28, 50, N'Còn hàng', N'Bán'),
+(29, 20, N'Còn hàng', N'Bán');
 
 -- 13. Tbl_PhieuNhap (10 phiếu nhập - đã xác nhận thành công)
 -- Lưu ý: Giá nhập được lưu trong ChiTietPhieuNhap, giá bán sẽ được tính tự động
@@ -397,12 +397,12 @@ INSERT INTO Tbl_ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, GiaBan) VALUES
 (20, 2, 3, 10800), (20, 3, 2, 10800), (20, 5, 2, 5400), (20, 6, 2, 7200);
 
 -- 21. Tbl_KhuyenMai (5 chương trình khuyến mãi)
-INSERT INTO Tbl_KhuyenMai (MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa) VALUES 
-(2, N'Mua hè sảng khoái', 10.00, '2025-06-01', '2025-08-31', N'Giảm giá nước ngọt Coca Cola'),
-(3, N'Pepsi mùa hè', 10.00, '2025-06-01', '2025-08-31', N'Giảm giá nước ngọt Pepsi'),
-(7, N'Combo mì Hảo Hảo', 15.00, '2025-01-01', '2025-12-31', N'Giảm giá mì Hảo Hảo'),
-(16, N'Dầu gội Clear giảm giá', 20.00, '2025-01-01', '2025-03-31', N'Giảm giá dầu gội Clear'),
-(1, N'Sữa Vinamilk khuyến mãi', 5.00, '2025-01-01', '2025-06-30', N'Giảm giá sữa Vinamilk');
+INSERT INTO Tbl_KhuyenMai (MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa, DieuKien) VALUES 
+(2, N'Mua hè sảng khoái', 10.00, '2025-06-01', '2025-08-31', N'Giảm giá nước ngọt Coca Cola', N'Mua từ 5 lon trở lên'),
+(3, N'Pepsi mùa hè', 10.00, '2025-06-01', '2025-08-31', N'Giảm giá nước ngọt Pepsi', N'Mua từ 5 lon trở lên'),
+(7, N'Combo mì Hảo Hảo', 15.00, '2025-01-01', '2025-12-31', N'Giảm giá mì Hảo Hảo', N'Mua từ 10 gói trở lên'),
+(16, N'Dầu gội Clear giảm giá', 20.00, '2025-01-01', '2025-03-31', N'Giảm giá dầu gội Clear', N'Không có điều kiện'),
+(1, N'Sữa Vinamilk khuyến mãi', 5.00, '2025-01-01', '2025-06-30', N'Giảm giá sữa Vinamilk', N'Không có điều kiện');
 
 -- 22. Tbl_LichSuTichDiem (Lịch sử tích điểm của khách hàng)
 INSERT INTO Tbl_LichSuTichDiem (MaKhachHang, MaHoaDon, DiemCong, DiemSuDung, NgayCapNhat, MoTa) VALUES 

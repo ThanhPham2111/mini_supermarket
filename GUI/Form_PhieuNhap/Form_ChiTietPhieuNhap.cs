@@ -103,7 +103,8 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 var sanPhamBUS = new SanPham_BUS();
-                sanPhamCache = sanPhamBUS.GetAll();
+                // Chỉ lấy sản phẩm đang ở trạng thái "Còn hàng" để nhập thêm
+                sanPhamCache = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang);
             }
             catch (Exception ex)
             {

@@ -1,14 +1,14 @@
 -- =============================================
--- Script thêm c?t TrangThaiDieuKien vào Tbl_KhoHang
--- M?c ?ích: Qu?n lý tr?ng thái bán c?a s?n ph?m (Bán ho?c Không bán)
--- Ngày t?o: 2025
+-- Script thï¿½m c?t TrangThaiDieuKien vï¿½o Tbl_KhoHang
+-- M?c ?ï¿½ch: Qu?n lï¿½ tr?ng thï¿½i bï¿½n c?a s?n ph?m (Bï¿½n ho?c Khï¿½ng bï¿½n)
+-- Ngï¿½y t?o: 2025
 -- =============================================
 
--- S? d?ng database (s? d?ng ngo?c vuông ?? tránh l?i v?i d?u g?ch ngang)
+-- S? d?ng database (s? d?ng ngo?c vuï¿½ng ?? trï¿½nh l?i v?i d?u g?ch ngang)
 USE [mini_sp01];
 GO
 
--- Ki?m tra xem c?t ?ã t?n t?i ch?a
+-- Ki?m tra xem c?t ?ï¿½ t?n t?i ch?a
 IF NOT EXISTS (
     SELECT 1 
     FROM INFORMATION_SCHEMA.COLUMNS 
@@ -17,19 +17,19 @@ IF NOT EXISTS (
       AND TABLE_SCHEMA = 'dbo'
 )
 BEGIN
-    -- Thêm c?t v?i giá tr? m?c ??nh "Bán"
+    -- Thï¿½m c?t v?i giï¿½ tr? m?c ??nh "Bï¿½n"
     ALTER TABLE [dbo].[Tbl_KhoHang]
-    ADD [TrangThaiDieuKien] NVARCHAR(20) NOT NULL DEFAULT N'Bán';
+    ADD [TrangThaiDieuKien] NVARCHAR(20) NOT NULL DEFAULT N'BÃ¡n';
     
-    PRINT N'? ?ã thêm c?t TrangThaiDieuKien vào Tbl_KhoHang';
+    PRINT N'? ?ï¿½ thï¿½m c?t TrangThaiDieuKien vï¿½o Tbl_KhoHang';
 END
 ELSE
 BEGIN
-    PRINT N'? C?t TrangThaiDieuKien ?ã t?n t?i trong Tbl_KhoHang';
+    PRINT N'? C?t TrangThaiDieuKien ?ï¿½ t?n t?i trong Tbl_KhoHang';
 END
 GO
 
--- C?p nh?t các b?n ghi hi?n t?i n?u c?t t?n t?i nh?ng có giá tr? NULL
+-- C?p nh?t cï¿½c b?n ghi hi?n t?i n?u c?t t?n t?i nh?ng cï¿½ giï¿½ tr? NULL
 IF EXISTS (
     SELECT 1 
     FROM INFORMATION_SCHEMA.COLUMNS 
@@ -38,21 +38,21 @@ IF EXISTS (
       AND TABLE_SCHEMA = 'dbo'
 )
 BEGIN
-    -- Ki?m tra xem có b?n ghi nào NULL không
+    -- Ki?m tra xem cï¿½ b?n ghi nï¿½o NULL khï¿½ng
     IF EXISTS (SELECT 1 FROM [dbo].[Tbl_KhoHang] WHERE [TrangThaiDieuKien] IS NULL)
     BEGIN
         UPDATE [dbo].[Tbl_KhoHang]
-        SET [TrangThaiDieuKien] = N'Bán'
+        SET [TrangThaiDieuKien] = N'BÃ¡n'
         WHERE [TrangThaiDieuKien] IS NULL;
         
-        PRINT N'? ?ã c?p nh?t giá tr? m?c ??nh cho các b?n ghi hi?n t?i';
+        PRINT N'? ?ï¿½ c?p nh?t giï¿½ tr? m?c ??nh cho cï¿½c b?n ghi hi?n t?i';
     END
     ELSE
     BEGIN
-        PRINT N'? T?t c? b?n ghi ?ã có giá tr? TrangThaiDieuKien';
+        PRINT N'? T?t c? b?n ghi ?ï¿½ cï¿½ giï¿½ tr? TrangThaiDieuKien';
     END
 END
 GO
 
-PRINT N'? Hoàn t?t! C?t TrangThaiDieuKien ?ã ???c thêm và c?u hình.';
+PRINT N'? Hoï¿½n t?t! C?t TrangThaiDieuKien ?ï¿½ ???c thï¿½m vï¿½ c?u hï¿½nh.';
 GO

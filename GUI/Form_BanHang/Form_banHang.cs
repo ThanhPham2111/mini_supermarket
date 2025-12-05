@@ -123,7 +123,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                 Console.WriteLine("Đã clear rows");
 
                 // Load sản phẩm từ DataTable
-                LoadProductsFromList(allProductsData);
+                LoadProductsFromList(allProductsData, autoSelectFirst: true);
             }
             catch (Exception ex)
             {
@@ -489,7 +489,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                 if (string.IsNullOrEmpty(searchText))
                 {
                     // Nếu không có từ khóa, hiển thị tất cả
-                    LoadProductsFromList(allProductsData);
+                    LoadProductsFromList(allProductsData, autoSelectFirst: true);
                 }
                 else
                 {
@@ -503,7 +503,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                         return tenSanPham.Contains(searchLower) || maSanPham.Contains(searchText);
                     }).ToList();
 
-                    LoadProductsFromList(filtered);
+                    LoadProductsFromList(filtered, autoSelectFirst: true);
                 }
             }
             catch (Exception ex)
@@ -512,7 +512,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             }
         }
 
-        private void LoadProductsFromList(IList<SanPhamBanHangDTO> list)
+        private void LoadProductsFromList(IList<SanPhamBanHangDTO> list, bool autoSelectFirst = false)
         {
             try
             {
@@ -533,6 +533,22 @@ namespace mini_supermarket.GUI.Form_BanHang
                     dgvProducts.Rows.Add(tenSanPham, giaBanStr, soLuong, khuyenMaiStr);
 
                     dgvProducts.Rows[dgvProducts.Rows.Count - 1].Tag = item.MaSanPham;
+                }
+
+                // Tự chọn dòng đầu tiên để đảm bảo thông tin sản phẩm luôn hiển thị
+                if (autoSelectFirst)
+                {
+                    if (dgvProducts.Rows.Count > 0)
+                    {
+                        dgvProducts.ClearSelection();
+                        dgvProducts.Rows[0].Selected = true;
+                        // Chủ động load chi tiết đề phòng SelectionChanged không kích hoạt
+                        DgvProducts_SelectionChanged(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        ClearProductDetails();
+                    }
                 }
             }
             catch (Exception ex)
