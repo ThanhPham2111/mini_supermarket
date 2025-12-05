@@ -284,3 +284,13 @@
         FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
     );
 
+    -- 23. Bảng liên kết Nhà cung cấp - Sản phẩm (nhiều-nhiều)
+    CREATE TABLE Tbl_NhaCungCap_SanPham (
+        Id INT PRIMARY KEY IDENTITY(1,1),
+        MaNhaCungCap INT NOT NULL,
+        MaSanPham INT NOT NULL,
+        FOREIGN KEY (MaNhaCungCap) REFERENCES Tbl_NhaCungCap(MaNhaCungCap),
+        FOREIGN KEY (MaSanPham) REFERENCES Tbl_SanPham(MaSanPham),
+        CONSTRAINT UK_NhaCungCap_SanPham UNIQUE (MaNhaCungCap, MaSanPham)
+    );
+

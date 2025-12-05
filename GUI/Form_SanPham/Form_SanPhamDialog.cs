@@ -2,7 +2,9 @@ using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using mini_supermarket.BUS;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_SanPham
@@ -10,6 +12,7 @@ namespace mini_supermarket.GUI.Form_SanPham
     public partial class Form_SanPhamDialog : Form
     {
         private readonly SanPhamDTO _sanPham;
+        private readonly NhaCungCap_BUS _nhaCungCapBus = new();
 
         public Form_SanPhamDialog(SanPhamDTO sanPham)
         {
@@ -38,10 +41,40 @@ namespace mini_supermarket.GUI.Form_SanPham
                 ? _sanPham.Hsd.Value.ToString("dd/MM/yyyy", CultureInfo.CurrentCulture)
                 : string.Empty;
 
-            PopulateComboBox(trangThaiComboBox, _sanPham.TrangThai);
+            // Load nhà cung cấp thay vì trạng thái
+            LoadNhaCungCap();
             moTaTextBox.Text = _sanPham.MoTa ?? string.Empty;
 
             LoadProductImage();
+        }
+
+        private void LoadNhaCungCap()
+        {
+            try
+            {
+                int? maNhaCungCap = _nhaCungCapBus.GetMaNhaCungCapBySanPham(_sanPham.MaSanPham);
+                if (maNhaCungCap.HasValue && maNhaCungCap.Value > 0)
+                {
+                    var nhaCungCapList = _nhaCungCapBus.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
+                    var nhaCungCap = nhaCungCapList.FirstOrDefault(ncc => ncc.MaNhaCungCap == maNhaCungCap.Value);
+                    if (nhaCungCap != null)
+                    {
+                        PopulateComboBox(nhaCungCapComboBox, nhaCungCap.TenNhaCungCap);
+                    }
+                    else
+                    {
+                        PopulateComboBox(nhaCungCapComboBox, null);
+                    }
+                }
+                else
+                {
+                    PopulateComboBox(nhaCungCapComboBox, null);
+                }
+            }
+            catch
+            {
+                PopulateComboBox(nhaCungCapComboBox, null);
+            }
         }
 
         private static void PopulateComboBox(ComboBox comboBox, string? value)

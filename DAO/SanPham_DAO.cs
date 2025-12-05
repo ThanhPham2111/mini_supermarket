@@ -9,7 +9,7 @@ namespace mini_supermarket.DAO
 {
     public class SanPham_DAO
     {
-        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null)
+        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null, int? maNhaCungCap = null)
         {
             var sanPhamList = new List<SanPhamDTO>();
 
@@ -36,13 +36,29 @@ namespace mini_supermarket.DAO
                                    LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu
                                    LEFT JOIN dbo.Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham";
 
+            var whereConditions = new List<string>();
+
             if (!string.IsNullOrWhiteSpace(trangThaiFilter))
             {
-                command.CommandText += " WHERE sp.TrangThai = @TrangThai";
+                whereConditions.Add("sp.TrangThai = @TrangThai");
                 command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
                 {
                     Value = trangThaiFilter
                 });
+            }
+
+            if (maNhaCungCap.HasValue && maNhaCungCap.Value > 0)
+            {
+                whereConditions.Add("sp.MaSanPham IN (SELECT MaSanPham FROM Tbl_NhaCungCap_SanPham WHERE MaNhaCungCap = @MaNhaCungCap)");
+                command.Parameters.Add(new SqlParameter("@MaNhaCungCap", SqlDbType.Int)
+                {
+                    Value = maNhaCungCap.Value
+                });
+            }
+
+            if (whereConditions.Count > 0)
+            {
+                command.CommandText += " WHERE " + string.Join(" AND ", whereConditions);
             }
 
             command.CommandText += " ORDER BY sp.MaSanPham";

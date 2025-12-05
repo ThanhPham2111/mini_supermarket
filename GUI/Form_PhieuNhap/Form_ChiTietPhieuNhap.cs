@@ -62,9 +62,6 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         public Form_ChiTietPhieuNhap()
         {
-            // Load data BEFORE InitializeComponent() to ensure sanPhamCache is ready
-            LoadSanPhamDataToCache();
-            
             InitializeComponent();
         }
 
@@ -72,6 +69,8 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             base.OnLoad(e);
             LoadNhaCungCapData();
+            // Load sản phẩm sau khi đã load nhà cung cấp
+            LoadSanPhamData();
         }
 
         private void LoadNhaCungCapData()
@@ -92,6 +91,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 cboNhaCungCap.DisplayMember = "TenNhaCungCap";
                 cboNhaCungCap.ValueMember = "MaNhaCungCap";
                 cboNhaCungCap.SelectedIndex = 0;
+                cboNhaCungCap.SelectedIndexChanged += CboNhaCungCap_SelectedIndexChanged;
             }
             catch (Exception ex)
             {
@@ -99,13 +99,48 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
+        private void CboNhaCungCap_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            // Khi chọn nhà cung cấp, lọc lại danh sách sản phẩm
+            LoadSanPhamData();
+            // Cập nhật lại tất cả các combobox sản phẩm trong các dòng đã thêm
+            RefreshAllProductComboBoxes();
+        }
+
         private void LoadSanPhamData()
         {
             try
             {
                 var sanPhamBUS = new SanPham_BUS();
-                // Chỉ lấy sản phẩm đang ở trạng thái "Còn hàng" để nhập thêm
-                sanPhamCache = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang);
+                int? maNhaCungCap = null;
+
+                // Lấy mã nhà cung cấp đã chọn (chỉ khi combobox đã được khởi tạo và đã chọn một nhà cung cấp hợp lệ)
+                if (cboNhaCungCap != null && cboNhaCungCap.SelectedIndex > 0 && cboNhaCungCap.SelectedItem != null)
+                {
+                    try
+                    {
+                        var selectedNCC = cboNhaCungCap.SelectedItem;
+                        int selectedMaNCC = (int)selectedNCC.GetType().GetProperty("MaNhaCungCap")!.GetValue(selectedNCC)!;
+                        if (selectedMaNCC > 0)
+                        {
+                            maNhaCungCap = selectedMaNCC;
+                        }
+                    }
+                    catch
+                    {
+                        // Nếu không lấy được giá trị, để maNhaCungCap = null
+                    }
+                }
+
+                if (!maNhaCungCap.HasValue || maNhaCungCap.Value <= 0)
+                {
+                    // Nếu chưa chọn nhà cung cấp, để sanPhamCache rỗng
+                    sanPhamCache = new List<SanPhamDTO>();
+                    return;
+                }
+
+                // Chỉ lấy sản phẩm đang ở trạng thái "Còn hàng" và thuộc nhà cung cấp đã chọn
+                sanPhamCache = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang, maNhaCungCap);
             }
             catch (Exception ex)
             {
@@ -113,10 +148,25 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
-        private void LoadSanPhamDataToCache()
+        private void RefreshAllProductComboBoxes()
         {
-            LoadSanPhamData();
+            // Cập nhật lại tất cả các combobox sản phẩm trong các dòng đã thêm
+            foreach (Control control in productRowsContainerPanel.Controls)
+            {
+                if (control is Panel rowPanel)
+                {
+                    foreach (Control ctrl in rowPanel.Controls)
+                    {
+                        if (ctrl is ComboBox comboBox && comboBox.Name == "productComboBox")
+                        {
+                            LoadProductComboBox(comboBox);
+                            break;
+                        }
+                    }
+                }
+            }
         }
+
 
         private void LoadProductComboBox(ComboBox comboBox)
         {
@@ -165,6 +215,38 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         private void ShowProductSelectionPopupForNewRow()
         {
+            // Kiểm tra xem nhà cung cấp đã được chọn chưa
+            if (cboNhaCungCap == null || cboNhaCungCap.SelectedIndex <= 0 || cboNhaCungCap.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp trước khi thêm sản phẩm!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Lấy mã nhà cung cấp từ SelectedItem (vì dùng anonymous objects)
+            var selectedNCC = cboNhaCungCap.SelectedItem;
+            int maNhaCungCap = 0;
+            try
+            {
+                maNhaCungCap = (int)selectedNCC.GetType().GetProperty("MaNhaCungCap")!.GetValue(selectedNCC)!;
+            }
+            catch
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp trước khi thêm sản phẩm!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (maNhaCungCap <= 0)
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp trước khi thêm sản phẩm!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Đảm bảo sanPhamCache đã được cập nhật với sản phẩm của nhà cung cấp đã chọn
+            LoadSanPhamData();
+
             // Lấy danh sách ID sản phẩm đã thêm
             HashSet<int> addedProductIds = GetAddedProductIds();
 

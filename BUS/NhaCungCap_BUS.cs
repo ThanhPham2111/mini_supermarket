@@ -93,7 +93,42 @@ namespace mini_supermarket.BUS
                 throw new Exception("Trạng thái không hợp lệ");
         }
 
-       
-       
+        // Lưu liên kết nhà cung cấp - sản phẩm
+        public void LinkSanPhamToNhaCungCap(int maNhaCungCap, int maSanPham)
+        {
+            if (maNhaCungCap <= 0)
+                throw new ArgumentException("Mã nhà cung cấp không hợp lệ", nameof(maNhaCungCap));
+            if (maSanPham <= 0)
+                throw new ArgumentException("Mã sản phẩm không hợp lệ", nameof(maSanPham));
+
+            _dao.InsertNhaCungCapSanPham(maNhaCungCap, maSanPham);
+        }
+
+        // Lấy danh sách mã sản phẩm theo nhà cung cấp
+        public IList<int> GetSanPhamIdsByNhaCungCap(int maNhaCungCap)
+        {
+            if (maNhaCungCap <= 0)
+                return new List<int>();
+
+            return _dao.GetSanPhamIdsByNhaCungCap(maNhaCungCap);
+        }
+
+        // Lấy mã nhà cung cấp của sản phẩm (nhà cung cấp đầu tiên)
+        public int? GetMaNhaCungCapBySanPham(int maSanPham)
+        {
+            if (maSanPham <= 0)
+                return null;
+
+            return _dao.GetMaNhaCungCapBySanPham(maSanPham);
+        }
+
+        // Xóa tất cả liên kết nhà cung cấp của sản phẩm
+        public void DeleteNhaCungCapSanPhamBySanPham(int maSanPham)
+        {
+            if (maSanPham <= 0)
+                throw new ArgumentException("Mã sản phẩm không hợp lệ", nameof(maSanPham));
+
+            _dao.DeleteNhaCungCapSanPhamBySanPham(maSanPham);
+        }
     }
 }

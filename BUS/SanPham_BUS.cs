@@ -46,9 +46,9 @@ namespace mini_supermarket.BUS
             return _sanPhamDao.GetSanPham();
         }
 
-        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null)
+        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null, int? maNhaCungCap = null)
         {
-            return _sanPhamDao.GetSanPham(trangThaiFilter);
+            return _sanPhamDao.GetSanPham(trangThaiFilter, maNhaCungCap);
         }
 
         public IList<DonViDTO> GetDonViList(string? trangThai = TrangThaiConstants.HoatDong)
