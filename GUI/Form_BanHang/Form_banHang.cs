@@ -521,16 +521,19 @@ namespace mini_supermarket.GUI.Form_BanHang
 
                 foreach (var item in list)
                 {
+                    int maSanPham = item.MaSanPham;
                     string tenSanPham = item.TenSanPham ?? "";
                     decimal giaBan = item.GiaBan ?? 0m;
                     int soLuong = item.SoLuong ?? 0;
                     string khuyenMai = item.KhuyenMai ?? "";
                     decimal phanTramGiam = item.PhanTramGiam;
+                    DateTime? hsd = item.Hsd;
 
                     string giaBanStr = giaBan.ToString("N0") + " đ";
                     string khuyenMaiStr = string.IsNullOrEmpty(khuyenMai) ? "" : $"{khuyenMai} (-{phanTramGiam}%)";
+                    string hsdStr = hsd.HasValue ? hsd.Value.ToString("dd/MM/yyyy") : "N/A";
 
-                    dgvProducts.Rows.Add(tenSanPham, giaBanStr, soLuong, khuyenMaiStr);
+                    dgvProducts.Rows.Add(maSanPham, tenSanPham, giaBanStr, soLuong, hsdStr, khuyenMaiStr);
 
                     dgvProducts.Rows[dgvProducts.Rows.Count - 1].Tag = item.MaSanPham;
                 }

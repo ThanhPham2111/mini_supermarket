@@ -102,6 +102,18 @@ namespace mini_supermarket.BUS
             // Tự động xác định trạng thái dựa trên số lượng mới
             khoHang.TrangThai = XacDinhTrangThaiKho(khoHang.SoLuong ?? 0);
 
+            // Tự động chuyển trạng thái bán thành "Không bán" khi số lượng = 0
+            // Nếu số lượng > 0, giữ nguyên trạng thái điều kiện hiện tại (cho phép set "Không bán" thủ công)
+            if ((khoHang.SoLuong ?? 0) == 0)
+            {
+                khoHang.TrangThaiDieuKien = TRANG_THAI_DIEU_KIEN_KHONG_BAN;
+            }
+            // Nếu số lượng > 0 và chưa có trạng thái điều kiện, mặc định là "Bán"
+            else if (string.IsNullOrWhiteSpace(khoHang.TrangThaiDieuKien))
+            {
+                khoHang.TrangThaiDieuKien = TRANG_THAI_DIEU_KIEN_BAN;
+            }
+
             return khoHangDAO.CapNhatKhoVaGhiLog(khoHang, lichSu);
         }
 

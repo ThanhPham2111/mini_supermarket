@@ -8,5 +8,6 @@ namespace mini_supermarket.DTO
         public int? SoLuong { get; set; }
         public string KhuyenMai { get; set; } = string.Empty;
         public decimal PhanTramGiam { get; set; }
+        public DateTime? Hsd { get; set; }
     }
 }

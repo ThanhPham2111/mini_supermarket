@@ -173,13 +173,8 @@ namespace mini_supermarket.GUI.Form_SanPham
                 giaBan = parsedGiaBan;
             }
 
-            string? trangThai = trangThaiComboBox.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(trangThai))
-            {
-                MessageBox.Show(this, "Vui lòng chọn trạng thái.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                trangThaiComboBox.Focus();
-                return;
-            }
+            // Trạng thái luôn mặc định là "Còn hàng" và không cho phép thay đổi
+            string trangThai = SanPham_BUS.StatusConHang;
 
             DateTime? hsd = hsdDateTimePicker.Checked ? hsdDateTimePicker.Value.Date : null;
             string? xuatXu = string.IsNullOrWhiteSpace(xuatXuTextBox.Text) ? null : xuatXuTextBox.Text.Trim();

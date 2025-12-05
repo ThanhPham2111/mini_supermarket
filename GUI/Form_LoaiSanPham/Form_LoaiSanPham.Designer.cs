@@ -68,7 +68,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             this.tabLoai.Size = new System.Drawing.Size(1092, 670);
             this.tabLoai.TabIndex = 0;
             this.tabLoai.Text = "Loại";
-            this.tabLoai.UseVisualStyleBackColor = true;
+            this.tabLoai.UseVisualStyleBackColor = false;
+            this.tabLoai.BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
             // 
             // loaiDataGridView
             // 

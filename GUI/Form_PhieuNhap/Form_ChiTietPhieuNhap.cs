@@ -35,7 +35,8 @@ namespace mini_supermarket.GUI.PhieuNhap
         private Label lblTongTien = null!;
 
         // Product row dimensions
-        private const int COL1_WIDTH = 450;  // Sản phẩm
+        private const int COL0_WIDTH = 80;   // Mã SP
+        private const int COL1_WIDTH = 370;  // Sản phẩm
         private const int COL2_WIDTH = 100;  // Số lượng
         private const int COL3_WIDTH = 130;  // Đơn giá
         private const int COL4_WIDTH = 140;  // Thành tiền
@@ -148,7 +149,8 @@ namespace mini_supermarket.GUI.PhieuNhap
             
             foreach (Control ctrl in productRowsContainerPanel.Controls)
             {
-                if (ctrl is TextBox txt && txt.ReadOnly && ctrl.Location.X == 0 && txt.Tag != null)
+                // Tìm TextBox tên sản phẩm (có Tag chứa MaSanPham, ở vị trí COL0_WIDTH + 5)
+                if (ctrl is TextBox txt && txt.ReadOnly && ctrl.Location.X == COL0_WIDTH + 5 && txt.Tag != null)
                 {
                     int maSanPham = (int)txt.Tag;
                     if (maSanPham > 0)
@@ -741,6 +743,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             AddHeader("Đơn giá", COL3_WIDTH, DockStyle.Right);
             AddHeader("Số lượng", COL2_WIDTH, DockStyle.Right);
             AddHeader("Sản phẩm", COL1_WIDTH, DockStyle.Fill); // Fill the rest
+            AddHeader("Mã SP", COL0_WIDTH, DockStyle.Left);
 
             // Product Rows Container
             productRowsContainerPanel = new Panel
@@ -764,10 +767,24 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             int rowY = productRowCount * (ROW_HEIGHT + ROW_MARGIN);
 
+            // TextBox hiển thị mã sản phẩm
+            TextBox txtMaSanPham = new TextBox
+            {
+                Location = new Point(0, rowY),
+                Size = new Size(COL0_WIDTH - 5, ROW_HEIGHT),
+                Font = new Font("Segoe UI", 11),
+                BackColor = Color.White,
+                ForeColor = textPrimaryColor,
+                ReadOnly = true,
+                Text = maSanPham.ToString(),
+                TextAlign = HorizontalAlignment.Center
+            };
+            productRowsContainerPanel.Controls.Add(txtMaSanPham);
+
             // TextBox hiển thị sản phẩm đã chọn
             TextBox txtProduct = new TextBox
             {
-                Location = new Point(0, rowY),
+                Location = new Point(COL0_WIDTH + 5, rowY),
                 Size = new Size(COL1_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 BackColor = Color.White,
@@ -781,7 +798,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // NumericUpDown số lượng
             NumericUpDown nudQty = new NumericUpDown
             {
-                Location = new Point(COL1_WIDTH + 5, rowY),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + 5, rowY),
                 Size = new Size(COL2_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 Minimum = 1,
@@ -795,7 +812,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox đơn giá
             TextBox txtPrice = new TextBox
             {
-                Location = new Point(COL1_WIDTH + COL2_WIDTH, rowY),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH, rowY),
                 Size = new Size(COL3_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 BorderStyle = BorderStyle.FixedSingle,
@@ -809,7 +826,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox thành tiền (read-only/disabled)
             TextBox txtTotal = new TextBox
             {
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, rowY),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, rowY),
                 Size = new Size(COL4_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 BorderStyle = BorderStyle.FixedSingle,
@@ -826,7 +843,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnDelete = new Button
             {
                 Text = "✕",
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 5, rowY + 4),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 5, rowY + 4),
                 Size = new Size(30, 30),
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 BackColor = Color.FromArgb(255, 245, 245),
@@ -934,7 +951,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 if (ctrl is TextBox txt && 
                     txt.ReadOnly && 
                     txt.Enabled == false &&
-                    ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH &&
+                    ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH &&
                     !string.IsNullOrWhiteSpace(txt.Text))
                 {
                     // Parse the text, removing thousand separators
@@ -992,8 +1009,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                     {
                         if (ctrl is TextBox txt)
                         {
-                            // txtProduct có ReadOnly = true và Location.X = 0
-                            if (txt.ReadOnly && ctrl.Location.X == 0)
+                            // txtProduct có ReadOnly = true và Location.X = COL0_WIDTH + 5 (sau cột mã SP)
+                            if (txt.ReadOnly && ctrl.Location.X == COL0_WIDTH + 5 && txt.Tag != null)
                                 txtProduct = txt;
                             // txtPrice không có ReadOnly và Enabled = true
                             else if (!txt.ReadOnly && txt.Enabled)
@@ -1075,15 +1092,15 @@ namespace mini_supermarket.GUI.PhieuNhap
                         }
                         else if (ctrl is TextBox txt)
                         {
-                            // txtProduct: ReadOnly, Location.X = 0
-                            if (txt.ReadOnly && ctrl.Location.X == 0)
+                            // txtProduct: ReadOnly, Location.X = COL0_WIDTH + 5 (sau cột mã SP)
+                            if (txt.ReadOnly && ctrl.Location.X == COL0_WIDTH + 5 && txt.Tag != null)
                                 txtProduct = txt;
                             // txtPrice: không ReadOnly
                             else if (!txt.ReadOnly && txt.Enabled)
                                 txtPrice = txt;
                             // txtTotal: ReadOnly và Enabled = false, ở vị trí cột 4
                             else if (txt.ReadOnly && !txt.Enabled && 
-                                     ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH)
+                                     ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH)
                                 txtTotal = txt;
                         }
                     }

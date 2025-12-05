@@ -135,6 +135,7 @@
             khoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             khoaButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
             khoaButton.ForeColor = System.Drawing.Color.White;
+            khoaButton.Visible = false;
 
             // lamMoiButton
             lamMoiButton.Location = new System.Drawing.Point(560, 65);
@@ -270,7 +271,7 @@
             Controls.Add(searchLabel);
             Controls.Add(statusFilterComboBox);
             Controls.Add(lamMoiButton);
-            Controls.Add(khoaButton);
+            // Controls.Add(khoaButton); // Ẩn nút khóa
             Controls.Add(xoaButton);
             Controls.Add(suaButton);
             Controls.Add(themButton);

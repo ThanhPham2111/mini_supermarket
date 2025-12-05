@@ -150,6 +150,7 @@ namespace mini_supermarket.DAO
                     sp.MaSanPham,
                     sp.TenSanPham,
                     sp.GiaBan,
+                    sp.Hsd,
                     kh.SoLuong,
                     ISNULL(km.TenKhuyenMai, N'') AS KhuyenMai,
                     ISNULL(km.PhanTramGiamGia, 0) AS PhanTramGiam
@@ -180,7 +181,8 @@ namespace mini_supermarket.DAO
                                     GiaBan = reader.IsDBNull(reader.GetOrdinal("GiaBan")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("GiaBan")),
                                     SoLuong = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("SoLuong")),
                                     KhuyenMai = reader.GetString(reader.GetOrdinal("KhuyenMai")),
-                                    PhanTramGiam = reader.GetDecimal(reader.GetOrdinal("PhanTramGiam"))
+                                    PhanTramGiam = reader.GetDecimal(reader.GetOrdinal("PhanTramGiam")),
+                                    Hsd = reader.IsDBNull(reader.GetOrdinal("Hsd")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("Hsd"))
                                 };
                                 list.Add(item);
                             }
@@ -333,11 +335,24 @@ namespace mini_supermarket.DAO
                     {
                         int rowsAffected;
                         // 1. Cố gắng cập nhật số lượng kho
+                        // Tự động chuyển trạng thái bán thành "Không bán" khi số lượng = 0
+                        string trangThaiDieuKien = khoHang.TrangThaiDieuKien;
+                        if ((khoHang.SoLuong ?? 0) == 0)
+                        {
+                            // Bắt buộc "Không bán" khi số lượng = 0
+                            trangThaiDieuKien = "Không bán";
+                        }
+                        else if (string.IsNullOrWhiteSpace(trangThaiDieuKien))
+                        {
+                            // Mặc định "Bán" khi số lượng > 0 và chưa có trạng thái
+                            trangThaiDieuKien = "Bán";
+                        }
+
                         using (SqlCommand cmdUpdate = new SqlCommand(queryUpdateKho, connection, transaction))
                         {
                             cmdUpdate.Parameters.AddWithValue("@SoLuongMoi", khoHang.SoLuong ?? (object)DBNull.Value);
                             cmdUpdate.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
-                            cmdUpdate.Parameters.AddWithValue("@TrangThaiDieuKien", khoHang.TrangThaiDieuKien ?? "Bán");
+                            cmdUpdate.Parameters.AddWithValue("@TrangThaiDieuKien", trangThaiDieuKien);
                             cmdUpdate.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
                             rowsAffected = cmdUpdate.ExecuteNonQuery();
                         }
@@ -345,12 +360,19 @@ namespace mini_supermarket.DAO
                         // Nếu không có dòng nào được cập nhật (sản phẩm chưa có trong kho), thì thêm mới
                         if (rowsAffected == 0)
                         {
+                            // Xác định trạng thái điều kiện cho insert mới
+                            string trangThaiDieuKienInsert = trangThaiDieuKien;
+                            if (string.IsNullOrWhiteSpace(trangThaiDieuKienInsert))
+                            {
+                                trangThaiDieuKienInsert = (khoHang.SoLuong ?? 0) == 0 ? "Không bán" : "Bán";
+                            }
+
                             using (SqlCommand cmdInsertKho = new SqlCommand(queryInsertKho, connection, transaction))
                             {
                                 cmdInsertKho.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
                                 cmdInsertKho.Parameters.AddWithValue("@SoLuongMoi", khoHang.SoLuong ?? (object)DBNull.Value);
                                 cmdInsertKho.Parameters.AddWithValue("@TrangThai", khoHang.TrangThai ?? (object)DBNull.Value);
-                                cmdInsertKho.Parameters.AddWithValue("@TrangThaiDieuKien", khoHang.TrangThaiDieuKien ?? "Bán");
+                                cmdInsertKho.Parameters.AddWithValue("@TrangThaiDieuKien", trangThaiDieuKienInsert);
                                 cmdInsertKho.ExecuteNonQuery();
                             }
                         }
@@ -670,6 +692,7 @@ namespace mini_supermarket.DAO
                     try
                     {
                         // Bước 1: Giảm số lượng một cách an toàn
+                        // Tự động chuyển trạng thái bán thành "Không bán" khi số lượng = 0
                         const string updateQuery = @"
                             UPDATE Tbl_KhoHang
                             SET SoLuong = SoLuong - @SoLuongGiam,
@@ -678,6 +701,10 @@ namespace mini_supermarket.DAO
                                     WHEN (SoLuong - @SoLuongGiam) <= 5 THEN N'Cảnh báo - Tần cận'
                                     WHEN (SoLuong - @SoLuongGiam) <= 10 THEN N'Cảnh báo - Sắp hết hàng'
                                     ELSE N'Còn hàng'
+                                END,
+                                TrangThaiDieuKien = CASE 
+                                    WHEN (SoLuong - @SoLuongGiam) <= 0 THEN N'Không bán'
+                                    ELSE TrangThaiDieuKien
                                 END
                             WHERE MaSanPham = @MaSanPham AND SoLuong >= @SoLuongGiam";
 

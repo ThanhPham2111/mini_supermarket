@@ -111,21 +111,27 @@ namespace mini_supermarket.GUI.Form_BanHang
             dgvProducts.GridColor = Color.FromArgb(230, 230, 230);
             dgvProducts.SelectionChanged += DgvProducts_SelectionChanged;
 
+            productColumnMaSanPham = new DataGridViewTextBoxColumn();
             productColumnName = new DataGridViewTextBoxColumn();
             productColumnPrice = new DataGridViewTextBoxColumn();
             productColumnQuantity = new DataGridViewTextBoxColumn();
+            productColumnHsd = new DataGridViewTextBoxColumn();
             productColumnPromotion = new DataGridViewTextBoxColumn();
+            productColumnMaSanPham.HeaderText = "Mã SP";
+            productColumnMaSanPham.FillWeight = 8;
             productColumnName.HeaderText = "Tên sản phẩm";
-            productColumnName.FillWeight = 35;
+            productColumnName.FillWeight = 28;
             productColumnPrice.HeaderText = "Đơn giá";
-            productColumnPrice.FillWeight = 20;
+            productColumnPrice.FillWeight = 14;
             productColumnQuantity.HeaderText = "SL";
-            productColumnQuantity.FillWeight = 12;
+            productColumnQuantity.FillWeight = 8;
+            productColumnHsd.HeaderText = "HSD";
+            productColumnHsd.FillWeight = 14;
             productColumnPromotion.HeaderText = "Khuyến mãi";
-            productColumnPromotion.FillWeight = 33;
+            productColumnPromotion.FillWeight = 28;
             dgvProducts.Columns.AddRange(new DataGridViewColumn[]
             {
-                productColumnName, productColumnPrice, productColumnQuantity, productColumnPromotion
+                productColumnMaSanPham, productColumnName, productColumnPrice, productColumnQuantity, productColumnHsd, productColumnPromotion
             });
 
             // Bottom Layout
@@ -530,7 +536,7 @@ namespace mini_supermarket.GUI.Form_BanHang
         private Label lblProductTitle;
         private mini_supermarket.GUI.Style.SearchBoxControl searchBox;
         private DataGridView dgvProducts;
-        private DataGridViewTextBoxColumn productColumnName, productColumnPrice, productColumnQuantity, productColumnPromotion;
+        private DataGridViewTextBoxColumn productColumnMaSanPham, productColumnName, productColumnPrice, productColumnQuantity, productColumnHsd, productColumnPromotion;
         private TableLayoutPanel bottomLayout, productDetailLayout;
         private Panel productPreviewPanel;
         private FlowLayoutPanel productActionPanel;

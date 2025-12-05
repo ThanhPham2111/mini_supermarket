@@ -66,7 +66,7 @@
             this.groupBoxGrid.Size = new System.Drawing.Size(1180, 556);
             this.groupBoxGrid.TabIndex = 2;
             this.groupBoxGrid.TabStop = false;
-            this.groupBoxGrid.Text = "Danh sách t?n kho";
+            this.groupBoxGrid.Text = "Danh sách tồn kho";
             // 
             // dgvKhoHang
             // 

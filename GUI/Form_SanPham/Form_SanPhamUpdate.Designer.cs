@@ -211,6 +211,7 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             // trangThaiComboBox
             trangThaiComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            trangThaiComboBox.Enabled = false;
             trangThaiComboBox.Location = new System.Drawing.Point(150, 340);
             trangThaiComboBox.Name = "trangThaiComboBox";
             trangThaiComboBox.Size = new System.Drawing.Size(250, 25);
