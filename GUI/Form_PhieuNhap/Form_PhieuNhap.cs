@@ -967,6 +967,15 @@ namespace mini_supermarket.GUI.PhieuNhap
                     viewItem.Click += (sender, args) => ViewDetail_Click(e.RowIndex);
                     menu.Items.Add(viewItem);
                     
+                    // Nếu đã hủy, cho phép xem lý do hủy
+                    if (trangThai == "Hủy" || trangThai == "Đã hủy")
+                    {
+                        menu.Items.Add(new ToolStripSeparator());
+                        ToolStripMenuItem reasonItem = new ToolStripMenuItem("ℹ️ Lý do hủy");
+                        reasonItem.Click += (sender, args) => XemLyDoHuy_Click(e.RowIndex);
+                        menu.Items.Add(reasonItem);
+                    }
+                    
                     // Cho phép hủy nếu trạng thái là "Đang nhập" hoặc "Nhập thành công"
                     if (trangThai == "Đang nhập" || trangThai == "Nhập thành công")
                     {
@@ -1105,6 +1114,29 @@ namespace mini_supermarket.GUI.PhieuNhap
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khi hủy phiếu nhập: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void XemLyDoHuy_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                
+                if (maPhieuStr.StartsWith("PN") &&
+                    int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                {
+                    var phieuNhapBUS = new PhieuNhap_BUS();
+                    var phieu = phieuNhapBUS.GetPhieuNhapById(maPhieuNhap);
+                    string lyDo = phieu?.LyDoHuy ?? "Không có lý do hủy.";
+                    
+                    MessageBox.Show(lyDo, $"Lý do hủy {maPhieuStr}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xem lý do hủy: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
