@@ -98,7 +98,7 @@ namespace mini_supermarket.GUI.NhanVien
             // soDienThoaiLabel
             // 
             this.soDienThoaiLabel.AutoSize = true;
-            this.soDienThoaiLabel.Location = new System.Drawing.Point(12, 50);
+            this.soDienThoaiLabel.Location = new System.Drawing.Point(12, 50 + 10);
             this.soDienThoaiLabel.Name = "soDienThoaiLabel";
             this.soDienThoaiLabel.Size = new System.Drawing.Size(82, 13);
             this.soDienThoaiLabel.TabIndex = 2;
@@ -106,7 +106,7 @@ namespace mini_supermarket.GUI.NhanVien
             // 
             // soDienThoaiTextBox
             // 
-            this.soDienThoaiTextBox.Location = new System.Drawing.Point(100, 47);
+            this.soDienThoaiTextBox.Location = new System.Drawing.Point(100, 47 + 10);
             this.soDienThoaiTextBox.Name = "soDienThoaiTextBox";
             this.soDienThoaiTextBox.Size = new System.Drawing.Size(200, 20);
             this.soDienThoaiTextBox.TabIndex = 3;
@@ -116,7 +116,7 @@ namespace mini_supermarket.GUI.NhanVien
             this.soDienThoaiErrorIcon.AutoSize = true;
             this.soDienThoaiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.soDienThoaiErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.soDienThoaiErrorIcon.Location = new System.Drawing.Point(308, 50);
+            this.soDienThoaiErrorIcon.Location = new System.Drawing.Point(308, 50 + 10);
             this.soDienThoaiErrorIcon.Name = "soDienThoaiErrorIcon";
             this.soDienThoaiErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.soDienThoaiErrorIcon.TabIndex = 20;
@@ -128,7 +128,7 @@ namespace mini_supermarket.GUI.NhanVien
             this.soDienThoaiErrorLabel.AutoSize = true;
             this.soDienThoaiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.soDienThoaiErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.soDienThoaiErrorLabel.Location = new System.Drawing.Point(100, 68);
+            this.soDienThoaiErrorLabel.Location = new System.Drawing.Point(100, 68 + 10);
             this.soDienThoaiErrorLabel.Name = "soDienThoaiErrorLabel";
             this.soDienThoaiErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.soDienThoaiErrorLabel.TabIndex = 21;
@@ -136,7 +136,7 @@ namespace mini_supermarket.GUI.NhanVien
             // ngaySinhLabel
             // 
             this.ngaySinhLabel.AutoSize = true;
-            this.ngaySinhLabel.Location = new System.Drawing.Point(12, 80);
+            this.ngaySinhLabel.Location = new System.Drawing.Point(12, 80 + 20);
             this.ngaySinhLabel.Name = "ngaySinhLabel";
             this.ngaySinhLabel.Size = new System.Drawing.Size(62, 13);
             this.ngaySinhLabel.TabIndex = 4;
@@ -144,7 +144,7 @@ namespace mini_supermarket.GUI.NhanVien
             // 
             // ngaySinhDateTimePicker
             // 
-            this.ngaySinhDateTimePicker.Location = new System.Drawing.Point(100, 77);
+            this.ngaySinhDateTimePicker.Location = new System.Drawing.Point(100, 77 + 20);
             this.ngaySinhDateTimePicker.Name = "ngaySinhDateTimePicker";
             this.ngaySinhDateTimePicker.Size = new System.Drawing.Size(200, 20);
             this.ngaySinhDateTimePicker.TabIndex = 5;
@@ -152,7 +152,7 @@ namespace mini_supermarket.GUI.NhanVien
             // gioiTinhLabel
             // 
             this.gioiTinhLabel.AutoSize = true;
-            this.gioiTinhLabel.Location = new System.Drawing.Point(12, 110);
+            this.gioiTinhLabel.Location = new System.Drawing.Point(12, 120 + 20);
             this.gioiTinhLabel.Name = "gioiTinhLabel";
             this.gioiTinhLabel.Size = new System.Drawing.Size(62, 13);
             this.gioiTinhLabel.TabIndex = 6;
@@ -181,7 +181,7 @@ namespace mini_supermarket.GUI.NhanVien
             // vaiTroLabel
             // 
             this.vaiTroLabel.AutoSize = true;
-            this.vaiTroLabel.Location = new System.Drawing.Point(12, 160);
+            this.vaiTroLabel.Location = new System.Drawing.Point(12, 160 + 10);
             this.vaiTroLabel.Name = "vaiTroLabel";
             this.vaiTroLabel.Size = new System.Drawing.Size(50, 13);
             this.vaiTroLabel.TabIndex = 9;
@@ -190,7 +190,7 @@ namespace mini_supermarket.GUI.NhanVien
             // vaiTroComboBox
             // 
             this.vaiTroComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.vaiTroComboBox.Location = new System.Drawing.Point(100, 157);
+            this.vaiTroComboBox.Location = new System.Drawing.Point(100, 157 + 10);
             this.vaiTroComboBox.Name = "vaiTroComboBox";
             this.vaiTroComboBox.Size = new System.Drawing.Size(200, 21);
             this.vaiTroComboBox.TabIndex = 10;
@@ -200,7 +200,7 @@ namespace mini_supermarket.GUI.NhanVien
             this.vaiTroErrorIcon.AutoSize = true;
             this.vaiTroErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.vaiTroErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.vaiTroErrorIcon.Location = new System.Drawing.Point(308, 160);
+            this.vaiTroErrorIcon.Location = new System.Drawing.Point(308, 160 + 10);
             this.vaiTroErrorIcon.Name = "vaiTroErrorIcon";
             this.vaiTroErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.vaiTroErrorIcon.TabIndex = 22;
@@ -212,7 +212,7 @@ namespace mini_supermarket.GUI.NhanVien
             this.vaiTroErrorLabel.AutoSize = true;
             this.vaiTroErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.vaiTroErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.vaiTroErrorLabel.Location = new System.Drawing.Point(100, 179);
+            this.vaiTroErrorLabel.Location = new System.Drawing.Point(100, 179 + 10);
             this.vaiTroErrorLabel.Name = "vaiTroErrorLabel";
             this.vaiTroErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.vaiTroErrorLabel.TabIndex = 23;
@@ -220,7 +220,7 @@ namespace mini_supermarket.GUI.NhanVien
             // trangThaiLabel
             // 
             this.trangThaiLabel.AutoSize = true;
-            this.trangThaiLabel.Location = new System.Drawing.Point(12, 190);
+            this.trangThaiLabel.Location = new System.Drawing.Point(12, 190 + 20);
             this.trangThaiLabel.Name = "trangThaiLabel";
             this.trangThaiLabel.Size = new System.Drawing.Size(62, 13);
             this.trangThaiLabel.TabIndex = 11;
@@ -229,7 +229,7 @@ namespace mini_supermarket.GUI.NhanVien
             // trangThaiComboBox
             // 
             this.trangThaiComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.trangThaiComboBox.Location = new System.Drawing.Point(100, 187);
+            this.trangThaiComboBox.Location = new System.Drawing.Point(100, 187 + 20);
             this.trangThaiComboBox.Name = "trangThaiComboBox";
             this.trangThaiComboBox.Size = new System.Drawing.Size(200, 21);
             this.trangThaiComboBox.TabIndex = 12;
@@ -239,7 +239,7 @@ namespace mini_supermarket.GUI.NhanVien
             this.trangThaiErrorIcon.AutoSize = true;
             this.trangThaiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.trangThaiErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.trangThaiErrorIcon.Location = new System.Drawing.Point(308, 190);
+            this.trangThaiErrorIcon.Location = new System.Drawing.Point(308, 190 + 20);
             this.trangThaiErrorIcon.Name = "trangThaiErrorIcon";
             this.trangThaiErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.trangThaiErrorIcon.TabIndex = 24;
@@ -251,7 +251,7 @@ namespace mini_supermarket.GUI.NhanVien
             this.trangThaiErrorLabel.AutoSize = true;
             this.trangThaiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.trangThaiErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.trangThaiErrorLabel.Location = new System.Drawing.Point(100, 209);
+            this.trangThaiErrorLabel.Location = new System.Drawing.Point(100, 209 + 20);
             this.trangThaiErrorLabel.Name = "trangThaiErrorLabel";
             this.trangThaiErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.trangThaiErrorLabel.TabIndex = 25;
@@ -259,7 +259,7 @@ namespace mini_supermarket.GUI.NhanVien
             // maNhanVienLabel
             // 
             this.maNhanVienLabel.AutoSize = true;
-            this.maNhanVienLabel.Location = new System.Drawing.Point(12, 220);
+            this.maNhanVienLabel.Location = new System.Drawing.Point(12, 220 + 20);
             this.maNhanVienLabel.Name = "maNhanVienLabel";
             this.maNhanVienLabel.Size = new System.Drawing.Size(82, 13);
             this.maNhanVienLabel.TabIndex = 13;
@@ -268,7 +268,7 @@ namespace mini_supermarket.GUI.NhanVien
             // maNhanVienValueLabel
             // 
             this.maNhanVienValueLabel.AutoSize = true;
-            this.maNhanVienValueLabel.Location = new System.Drawing.Point(100, 220);
+            this.maNhanVienValueLabel.Location = new System.Drawing.Point(100, 220 + 20);
             this.maNhanVienValueLabel.Name = "maNhanVienValueLabel";
             this.maNhanVienValueLabel.Size = new System.Drawing.Size(50, 13);
             this.maNhanVienValueLabel.TabIndex = 14;
@@ -276,7 +276,7 @@ namespace mini_supermarket.GUI.NhanVien
             // 
             // okButton
             // 
-            this.okButton.Location = new System.Drawing.Point(144, 250);
+            this.okButton.Location = new System.Drawing.Point(144, 250 + 10);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
             this.okButton.TabIndex = 15;
@@ -285,7 +285,7 @@ namespace mini_supermarket.GUI.NhanVien
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(225, 250);
+            this.cancelButton.Location = new System.Drawing.Point(225, 250 + 10);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 16;
@@ -296,7 +296,7 @@ namespace mini_supermarket.GUI.NhanVien
             // 
             this.gioiTinhGroupBox.Controls.Add(this.gioiTinhNamRadioButton);
             this.gioiTinhGroupBox.Controls.Add(this.gioiTinhNuRadioButton);
-            this.gioiTinhGroupBox.Location = new System.Drawing.Point(100, 110);
+            this.gioiTinhGroupBox.Location = new System.Drawing.Point(100, 110 + 10);
             this.gioiTinhGroupBox.Name = "gioiTinhGroupBox";
             this.gioiTinhGroupBox.Size = new System.Drawing.Size(200, 40);
             this.gioiTinhGroupBox.TabIndex = 17;
@@ -306,7 +306,7 @@ namespace mini_supermarket.GUI.NhanVien
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(314, 290);
+            this.ClientSize = new System.Drawing.Size(340, 300);
             this.Controls.Add(this.gioiTinhGroupBox);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);

@@ -36,7 +36,7 @@ namespace mini_supermarket.GUI.HoaDon
             // Populate trạng thái combo box
             trangThaiComboBox.Items.Clear();
             trangThaiComboBox.Items.Add("Tất cả");
-            trangThaiComboBox.Items.Add("Hoàn thành");
+            trangThaiComboBox.Items.Add("Đã xuất");
             trangThaiComboBox.Items.Add("Đã hủy");
             trangThaiComboBox.SelectedIndex = 0; // Mặc định chọn "Tất cả"
             hoaDonDataGridView.AutoGenerateColumns = false;
