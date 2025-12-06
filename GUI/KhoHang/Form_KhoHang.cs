@@ -115,7 +115,12 @@ namespace mini_supermarket.GUI.KhoHang
             {
                 dgvKhoHang.Columns["GiaBan"].Visible = false;
             }
-            if (dgvKhoHang.Columns["Hsd"] != null) dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn sử dụng";
+            if (dgvKhoHang.Columns["Hsd"] != null) 
+            {
+                dgvKhoHang.Columns["Hsd"].HeaderText = "Hạn sử dụng";
+                dgvKhoHang.Columns["Hsd"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                dgvKhoHang.Columns["Hsd"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
             // Ẩn cột Giá nhập
             if (dgvKhoHang.Columns["GiaNhap"] != null) 
             {
@@ -211,6 +216,13 @@ namespace mini_supermarket.GUI.KhoHang
                     {
                         trangThaiMoi = KhoHangBUS.TRANG_THAI_DIEU_KIEN_KHONG_BAN;
                         action = "ngưng bán";
+                    }
+
+                    // Kiểm tra: Nếu số lượng bằng 0 và muốn chuyển sang "Bán", không cho phép
+                    if (item.SoLuong == 0 && trangThaiMoi == KhoHangBUS.TRANG_THAI_DIEU_KIEN_BAN)
+                    {
+                        MessageBox.Show("Không thể chuyển trạng thái sang 'Bán' vì sản phẩm đã hết hàng.", "Không cho phép", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
                     }
 
                     // Xác nhận

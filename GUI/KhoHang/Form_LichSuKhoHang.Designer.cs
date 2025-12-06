@@ -44,6 +44,7 @@
             this.dgvLichSu.Size = new System.Drawing.Size(760, 400);
             this.dgvLichSu.TabIndex = 0;
             this.dgvLichSu.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            this.dgvLichSu.RowHeadersVisible = false;
             // 
             // lblTenSanPham
             // 
