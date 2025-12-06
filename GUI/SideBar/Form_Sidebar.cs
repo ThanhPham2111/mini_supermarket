@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using mini_supermarket.GUI.Form_BanHang;
@@ -13,6 +15,8 @@ using mini_supermarket.GUI.KhoHang;
 using mini_supermarket.GUI.TaiKhoan;
 using mini_supermarket.GUI.TrangChu;
 using mini_supermarket.GUI.QuanLy;
+using mini_supermarket.Common;
+using mini_supermarket.BUS;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
 using FormLoaiSanPham = mini_supermarket.GUI.Form_LoaiSanPham.Form_LoaiSanPham;
 
@@ -22,13 +26,171 @@ namespace mini_supermarket.GUI.SideBar
     {
         private Button? _activeButton;
         private Form? _activeForm;
+        private PermissionService? _permissionService;
+        private Dictionary<Button, string> _buttonPathMapping = new(); // Mapping button -> DuongDan
 
         public Form_Sidebar()
         {
             InitializeComponent();
             InitializeLayout();
             InitializeAssets();
+            InitializePermissions();
+            
+            // Load event để đảm bảo permissions được load sau khi form đã sẵn sàng
+            Load += Form_Sidebar_Load;
+        }
+
+        private void Form_Sidebar_Load(object? sender, EventArgs e)
+        {
+            // Reload permissions khi form load (đảm bảo session đã được set)
+            if (_permissionService != null)
+            {
+                _permissionService.ReloadPermissions();
+            }
+            ApplyPermissions();
             ShowTrangChu();
+        }
+
+        private void InitializePermissions()
+        {
+            _permissionService = new PermissionService();
+            
+            // Mapping giữa button và DuongDan (tên form/chức năng)
+            // Lưu ý: DuongDan trong DB có prefix "Form_" (Form_TrangChu, Form_BanHang, etc.)
+            _buttonPathMapping = new Dictionary<Button, string>
+            {
+                { navTrangChuButton, "Form_TrangChu" },
+                { navBanHangButton, "Form_BanHang" },
+                { navHoaDonButton, "Form_HoaDon" },
+                { navPhieuNhapButton, "Form_PhieuNhap" },
+                { navSanPhamButton, "Form_SanPham" },
+                { navKhoHangButton, "Form_KhoHang" },
+                { navLoaiSanPhamButton, "Form_LoaiSanPham" },
+                { navKhuyenMaiButton, "Form_KhuyenMai" },
+                { navKhachHangButton, "Form_KhachHang" },
+                { navNhaCungCapButton, "Form_NhaCungCap" },
+                { navNhanVienButton, "Form_NhanVien" },
+                { navTaiKhoanButton, "Form_TaiKhoan" },
+                { navQuanLyButton, "Form_QuanLy" }
+            };
+        }
+
+        private void ApplyPermissions()
+        {
+            if (!SessionManager.IsLoggedIn || _permissionService == null)
+            {
+                // Nếu chưa đăng nhập, ẩn tất cả trừ Trang Chủ
+                foreach (var button in _buttonPathMapping.Keys)
+                {
+                    if (button != navTrangChuButton)
+                    {
+                        button.Visible = false;
+                    }
+                }
+                userNameLabel.Text = "Chưa đăng nhập";
+                return;
+            }
+
+            // Đảm bảo permissions được reload
+            _permissionService.ReloadPermissions();
+
+            // Hiển thị tên user
+            if (SessionManager.CurrentNhanVien != null)
+            {
+                userNameLabel.Text = SessionManager.CurrentNhanVien.TenNhanVien;
+            }
+            else if (SessionManager.CurrentUser != null)
+            {
+                userNameLabel.Text = SessionManager.CurrentUser.TenDangNhap;
+            }
+
+            // Admin có quyền tất cả
+            if (SessionManager.CurrentMaQuyen == 1)
+            {
+                foreach (var button in _buttonPathMapping.Keys)
+                {
+                    button.Visible = true;
+                }
+                return;
+            }
+
+            // Kiểm tra quyền cho từng button
+            try
+            {
+                var phanQuyenBus = new PhanQuyen_BUS();
+                var allChucNangs = phanQuyenBus.GetAllChucNang();
+
+                // Debug: Kiểm tra xem có chức năng nào không
+                if (allChucNangs == null || allChucNangs.Count == 0)
+                {
+                    MessageBox.Show("Không tìm thấy chức năng nào trong database. Vui lòng chạy script insert_xin.sql (phần 23-24)", 
+                        "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    // Ẩn tất cả trừ Trang Chủ
+                    foreach (var button in _buttonPathMapping.Keys)
+                    {
+                        if (button != navTrangChuButton)
+                        {
+                            button.Visible = false;
+                        }
+                    }
+                    return;
+                }
+
+                // Đếm số button được hiển thị (để debug)
+                int visibleCount = 0;
+
+                foreach (var kvp in _buttonPathMapping)
+                {
+                    var button = kvp.Key;
+                    var duongDan = kvp.Value;
+
+                    // Trang chủ luôn hiển thị
+                    if (button == navTrangChuButton)
+                    {
+                        button.Visible = true;
+                        visibleCount++;
+                        continue;
+                    }
+
+                    // Tìm chức năng tương ứng
+                    var chucNang = allChucNangs.FirstOrDefault(cn => 
+                        cn.DuongDan != null && cn.DuongDan.Equals(duongDan, StringComparison.OrdinalIgnoreCase));
+
+                    if (chucNang != null)
+                    {
+                        // Kiểm tra quyền xem
+                        bool hasViewPermission = _permissionService.HasViewPermission(chucNang.MaChucNang);
+                        button.Visible = hasViewPermission;
+                        if (hasViewPermission)
+                        {
+                            visibleCount++;
+                        }
+                    }
+                    else
+                    {
+                        // Nếu không tìm thấy trong DB, mặc định ẩn
+                        button.Visible = false;
+                    }
+                }
+
+                // Debug: Nếu chỉ có Trang Chủ được hiển thị, có thể là chưa có phân quyền
+                if (visibleCount == 1 && SessionManager.CurrentMaQuyen != 1)
+                {
+                    // Không hiển thị message box vì có thể user chưa được phân quyền
+                    // Chỉ log để debug
+                    System.Diagnostics.Debug.WriteLine($"User {SessionManager.CurrentMaQuyen} chỉ có quyền Trang Chủ. Có thể chưa được phân quyền trong Tbl_PhanQuyenChiTiet.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Nếu có lỗi, hiển thị tất cả (để tránh lock user)
+                MessageBox.Show($"Lỗi khi kiểm tra quyền: {ex.Message}\n\nStack trace: {ex.StackTrace}", 
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                foreach (var button in _buttonPathMapping.Keys)
+                {
+                    button.Visible = true;
+                }
+            }
         }
 
         private void InitializeLayout()
@@ -87,47 +249,87 @@ namespace mini_supermarket.GUI.SideBar
 
         private void navBanHangButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_BanHang", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowBanHang();
         }
 
         private void navNhanVienButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_NhanVien", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowNhanVien();
         }
 
         private void navSanPhamButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_SanPham", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowSanPham();
         }
         private void navLoaiSanPhamButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_LoaiSanPham", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowLoaiSanPham();
         }
 
         private void navKhachHangButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_KhachHang", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowKhachHang();
         }
         private void navNhaCungCapButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_NhaCungCap", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowNhaCungCap();
         }
 
         private void navHoaDonButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_HoaDon", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowHoaDon();
         }
 
         private void navPhieuNhapButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_PhieuNhap", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowPhieuNhap();
         }
         private void navTaiKhoanButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_TaiKhoan", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowTaiKhoan();
         }
         private void navKhuyenMaiButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_KhuyenMai", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowKhuyenMai();
         }
 
@@ -203,6 +405,10 @@ namespace mini_supermarket.GUI.SideBar
 
         private void navKhoHangButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_KhoHang", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowKhoHang();
         }
 
@@ -387,7 +593,32 @@ namespace mini_supermarket.GUI.SideBar
 
         private void navQuanLyButton_Click(object sender, EventArgs e)
         {
+            if (!CheckPermission("Form_QuanLy", PermissionService.LoaiQuyen_Xem))
+            {
+                return;
+            }
             ShowQuanLy();
+        }
+
+        private bool CheckPermission(string duongDan, int maLoaiQuyen)
+        {
+            if (_permissionService == null)
+            {
+                return false;
+            }
+
+            // Admin luôn có quyền
+            if (SessionManager.CurrentMaQuyen == 1)
+            {
+                return true;
+            }
+
+            bool hasPermission = _permissionService.HasPermissionByPath(duongDan, maLoaiQuyen);
+            if (!hasPermission)
+            {
+                MessageBox.Show("Bạn không có quyền truy cập chức năng này!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            return hasPermission;
         }
 
         private void ShowQuanLy()

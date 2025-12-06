@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using mini_supermarket.GUI.SideBar;
+using mini_supermarket.BUS;
+using mini_supermarket.Common;
 
 namespace mini_supermarket.GUI
 {
@@ -29,6 +31,10 @@ namespace mini_supermarket.GUI
         {
             panel3.BackColor = Color.FromArgb(150, 0, 0, 0);
             LoadBackgroundImage();
+            
+            // Cho phép đăng nhập bằng Enter
+            taiKhoan_txb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) matKhau_txb.Focus(); };
+            matKhau_txb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) Login_btn_Click(sender, e); };
         }
 
         private void LoadBackgroundImage()
@@ -73,12 +79,58 @@ namespace mini_supermarket.GUI
 
         private void Login_btn_Click(object sender, EventArgs e)
         {
-            this.Hide();
-            using (Form_Sidebar sidebarForm = new Form_Sidebar())
+            string tenDangNhap = taiKhoan_txb.Text.Trim();
+            string matKhau = matKhau_txb.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(tenDangNhap))
             {
-                sidebarForm.ShowDialog();
+                MessageBox.Show("Vui lòng nhập tên đăng nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                taiKhoan_txb.Focus();
+                return;
             }
-            this.Close();
+
+            if (string.IsNullOrWhiteSpace(matKhau))
+            {
+                MessageBox.Show("Vui lòng nhập mật khẩu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                matKhau_txb.Focus();
+                return;
+            }
+
+            try
+            {
+                var taiKhoanBus = new TaiKhoan_BUS();
+                var taiKhoan = taiKhoanBus.Authenticate(tenDangNhap, matKhau);
+
+                if (taiKhoan == null)
+                {
+                    MessageBox.Show("Tên đăng nhập hoặc mật khẩu không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    matKhau_txb.Clear();
+                    taiKhoan_txb.Focus();
+                    return;
+                }
+
+                // Lấy thông tin nhân viên
+                var nhanVienBus = new NhanVien_BUS();
+                var nhanVien = nhanVienBus.GetNhanVienByID(taiKhoan.MaNhanVien);
+
+                // Lưu session
+                SessionManager.SetCurrentUser(taiKhoan, nhanVien);
+
+                // Mở form sidebar
+                this.Hide();
+                using (Form_Sidebar sidebarForm = new Form_Sidebar())
+                {
+                    sidebarForm.ShowDialog();
+                }
+                
+                // Clear session khi đóng
+                SessionManager.ClearSession();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi đăng nhập: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void taiKhoan_lbl_Click(object sender, EventArgs e)

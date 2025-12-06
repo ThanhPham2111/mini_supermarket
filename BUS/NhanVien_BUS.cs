@@ -151,6 +151,15 @@ namespace mini_supermarket.BUS
         {
             return _nhanVienDao.GetNhanVienByID(maNV);
         }
+
+        public NhanVienDTO? GetNhanVienByID(int maNhanVien)
+        {
+            if (maNhanVien <= 0)
+            {
+                throw new ArgumentException("Mã nhân viên không hợp lệ.", nameof(maNhanVien));
+            }
+            return _nhanVienDao.GetNhanVienByID(maNhanVien);
+        }
     }
 }
 

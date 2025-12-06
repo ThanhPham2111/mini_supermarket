@@ -36,6 +36,21 @@ namespace mini_supermarket.BUS
             return _taiKhoanDao.GetAllPhanQuyen();
         }
 
+        public TaiKhoanDTO? Authenticate(string tenDangNhap, string matKhau)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap))
+            {
+                throw new ArgumentException("Tên đăng nhập không được để trống.", nameof(tenDangNhap));
+            }
+
+            if (string.IsNullOrWhiteSpace(matKhau))
+            {
+                throw new ArgumentException("Mật khẩu không được để trống.", nameof(matKhau));
+            }
+
+            return _taiKhoanDao.Authenticate(tenDangNhap.Trim(), matKhau.Trim());
+        }
+
         public int GetNextMaTaiKhoan()
         {
             int maxId = _taiKhoanDao.GetMaxMaTaiKhoan();
