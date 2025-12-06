@@ -58,11 +58,46 @@ namespace mini_supermarket.BUS
             return _dao.AddRole(tenQuyen, moTa);
         }
 
-        // Xóa Role
+        // Kiểm tra số lượng tài khoản đang sử dụng role
+        public int GetAccountCountByRole(int maQuyen)
+        {
+            if (maQuyen <= 0)
+                throw new ArgumentException("Mã quyền không hợp lệ.");
+
+            return _dao.GetAccountCountByRole(maQuyen);
+        }
+
+        // Lấy danh sách tài khoản đang sử dụng role
+        public IList<TaiKhoanDTO> GetAccountsByRole(int maQuyen)
+        {
+            if (maQuyen <= 0)
+                throw new ArgumentException("Mã quyền không hợp lệ.");
+
+            return _dao.GetAccountsByRole(maQuyen);
+        }
+
+        // Chuyển tất cả tài khoản từ role cũ sang role mới
+        public bool TransferAccountsToNewRole(int oldMaQuyen, int newMaQuyen)
+        {
+            if (oldMaQuyen <= 0)
+                throw new ArgumentException("Mã quyền cũ không hợp lệ.");
+            if (newMaQuyen <= 0)
+                throw new ArgumentException("Mã quyền mới không hợp lệ.");
+            if (oldMaQuyen == newMaQuyen)
+                throw new ArgumentException("Mã quyền cũ và mới không được giống nhau.");
+
+            return _dao.TransferAccountsToNewRole(oldMaQuyen, newMaQuyen);
+        }
+
+        // Xóa Role (sau khi đã chuyển tài khoản)
         public bool DeleteRole(int maQuyen)
         {
             if (maQuyen <= 0)
                 throw new ArgumentException("Mã quyền không hợp lệ.");
+
+            // Không cho xóa role Admin (MaQuyen = 1)
+            if (maQuyen == 1)
+                throw new InvalidOperationException("Không thể xóa role Admin.");
 
             return _dao.DeleteRole(maQuyen);
         }

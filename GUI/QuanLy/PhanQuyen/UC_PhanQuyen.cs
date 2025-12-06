@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
+using mini_supermarket.GUI.QuanLy.PhanQuyen;
 
 namespace mini_supermarket.GUI.QuanLy
 {
@@ -121,7 +122,7 @@ namespace mini_supermarket.GUI.QuanLy
                 // Find row by MaChucNang
                 foreach (DataGridViewRow row in dgvPermissions.Rows)
                 {
-                    if ((int)row.Tag == p.MaChucNang)
+                    if (row.Tag != null && row.Tag is int maChucNang && maChucNang == p.MaChucNang)
                     {
                         // Find column by MaLoaiQuyen
                         string colName = "col_" + p.MaLoaiQuyen;
@@ -146,7 +147,10 @@ namespace mini_supermarket.GUI.QuanLy
             {
                 foreach (DataGridViewRow row in dgvPermissions.Rows)
                 {
-                    int maChucNang = (int)row.Tag;
+                    if (row.Tag == null || !(row.Tag is int maChucNang))
+                    {
+                        continue; // Skip rows without valid Tag
+                    }
 
                     // Iterate dynamic columns
                     foreach (var lq in _loaiQuyens)
@@ -193,29 +197,134 @@ namespace mini_supermarket.GUI.QuanLy
 
         private void btnDeleteRole_Click(object sender, EventArgs e)
         {
-            if (listBoxRoles.SelectedItem is PhanQuyenDTO role)
+            if (listBoxRoles.SelectedItem is not PhanQuyenDTO role)
             {
-                if (MessageBox.Show($"Bạn có chắc muốn xóa role '{role.TenQuyen}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                return;
+            }
+
+            // Không cho xóa role Admin
+            if (role.MaQuyen == 1)
+            {
+                MessageBox.Show("Không thể xóa role Admin!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Kiểm tra xem có tài khoản nào đang sử dụng role này không
+            int accountCount = _bus.GetAccountCountByRole(role.MaQuyen);
+            
+            if (accountCount > 0)
+            {
+                // Có tài khoản đang sử dụng role
+                var accounts = _bus.GetAccountsByRole(role.MaQuyen);
+                string accountList = string.Join("\n", accounts.Select(a => $"- {a.TenDangNhap}"));
+                
+                var result = MessageBox.Show(
+                    $"Role '{role.TenQuyen}' đang được sử dụng bởi {accountCount} tài khoản:\n\n{accountList}\n\n" +
+                    "Bạn có muốn chuyển tất cả tài khoản sang role khác trước khi xóa không?",
+                    "Cảnh báo",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
                 {
-                    if (_bus.DeleteRole(role.MaQuyen))
+                    // Hiển thị dialog chọn role mới
+                    var allRoles = _bus.GetAllRoles().Where(r => r.MaQuyen != role.MaQuyen).ToList();
+                    if (allRoles == null || allRoles.Count == 0)
                     {
-                        LoadRoles();
-                        _currentRoleId = -1;
-                        // Clear grid
-                        foreach (DataGridViewRow row in dgvPermissions.Rows)
+                        MessageBox.Show("Không có role nào khác để chuyển. Vui lòng tạo role mới trước.", 
+                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    try
+                    {
+                        using var dialog = new RoleSelectionDialog(allRoles);
+                        if (dialog.ShowDialog(this) == DialogResult.OK && dialog.SelectedRole != null)
+                    {
+                        try
                         {
-                            for (int i = 0; i < dgvPermissions.Columns.Count; i++) // Start from 0 to include colSelectAll
+                            // Chuyển tất cả tài khoản sang role mới
+                            if (_bus.TransferAccountsToNewRole(role.MaQuyen, dialog.SelectedRole.MaQuyen))
                             {
-                                if (i != dgvPermissions.Columns["colChucNang"].Index) // Skip function name column
+                                // Sau đó xóa role
+                                if (_bus.DeleteRole(role.MaQuyen))
                                 {
-                                    row.Cells[i].Value = false;
+                                    MessageBox.Show(
+                                        $"Đã chuyển {accountCount} tài khoản sang role '{dialog.SelectedRole.TenQuyen}' và xóa role '{role.TenQuyen}' thành công.",
+                                        "Thành công",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
+                                    
+                                    LoadRoles();
+                                    _currentRoleId = -1;
+                                    // Clear grid
+                                    foreach (DataGridViewRow row in dgvPermissions.Rows)
+                                    {
+                                        for (int i = 0; i < dgvPermissions.Columns.Count; i++)
+                                        {
+                                            if (i != dgvPermissions.Columns["colChucNang"].Index)
+                                            {
+                                                row.Cells[i].Value = false;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Đã chuyển tài khoản nhưng không thể xóa role. Vui lòng thử lại.", 
+                                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show("Không thể chuyển tài khoản sang role mới.", 
+                                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }}
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Lỗi khi hiển thị dialog chọn role: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            else
+            {
+                // Không có tài khoản nào, xóa trực tiếp
+                if (MessageBox.Show($"Bạn có chắc muốn xóa role '{role.TenQuyen}'?", 
+                    "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    try
+                    {
+                        if (_bus.DeleteRole(role.MaQuyen))
+                        {
+                            MessageBox.Show("Xóa role thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadRoles();
+                            _currentRoleId = -1;
+                            // Clear grid
+                            foreach (DataGridViewRow row in dgvPermissions.Rows)
+                            {
+                                for (int i = 0; i < dgvPermissions.Columns.Count; i++)
+                                {
+                                    if (i != dgvPermissions.Columns["colChucNang"].Index)
+                                    {
+                                        row.Cells[i].Value = false;
+                                    }
                                 }
                             }
                         }
+                        else
+                        {
+                            MessageBox.Show("Lỗi khi xóa Role.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        MessageBox.Show("Lỗi khi xóa Role.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

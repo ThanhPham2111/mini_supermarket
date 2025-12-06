@@ -157,7 +157,76 @@ namespace mini_supermarket.DAO
             return command.ExecuteNonQuery() > 0;
         }
 
-        // Xóa Role
+        // Kiểm tra số lượng tài khoản đang sử dụng role
+        public int GetAccountCountByRole(int maQuyen)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM Tbl_TaiKhoan WHERE MaQuyen = @MaQuyen";
+            command.Parameters.AddWithValue("@MaQuyen", maQuyen);
+
+            connection.Open();
+            object? result = command.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
+        }
+
+        // Lấy danh sách tài khoản đang sử dụng role
+        public IList<TaiKhoanDTO> GetAccountsByRole(int maQuyen)
+        {
+            var list = new List<TaiKhoanDTO>();
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT MaTaiKhoan, TenDangNhap, MatKhau, MaNhanVien, MaQuyen, TrangThai
+                                    FROM Tbl_TaiKhoan
+                                    WHERE MaQuyen = @MaQuyen";
+            command.Parameters.AddWithValue("@MaQuyen", maQuyen);
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new TaiKhoanDTO
+                {
+                    MaTaiKhoan = reader.GetInt32(reader.GetOrdinal("MaTaiKhoan")),
+                    TenDangNhap = reader.GetString(reader.GetOrdinal("TenDangNhap")),
+                    MatKhau = reader.GetString(reader.GetOrdinal("MatKhau")),
+                    MaNhanVien = reader.GetInt32(reader.GetOrdinal("MaNhanVien")),
+                    MaQuyen = reader.GetInt32(reader.GetOrdinal("MaQuyen")),
+                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                });
+            }
+            return list;
+        }
+
+        // Chuyển tất cả tài khoản từ role cũ sang role mới
+        public bool TransferAccountsToNewRole(int oldMaQuyen, int newMaQuyen)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = @"UPDATE Tbl_TaiKhoan 
+                                       SET MaQuyen = @NewMaQuyen 
+                                       WHERE MaQuyen = @OldMaQuyen";
+                command.Parameters.AddWithValue("@OldMaQuyen", oldMaQuyen);
+                command.Parameters.AddWithValue("@NewMaQuyen", newMaQuyen);
+                command.ExecuteNonQuery();
+
+                transaction.Commit();
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        // Xóa Role (sau khi đã chuyển tài khoản)
         public bool DeleteRole(int maQuyen)
         {
             using var connection = DbConnectionFactory.CreateConnection();
