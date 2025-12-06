@@ -10,8 +10,10 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
     public partial class Form_LoaiSanPham : Form
     {
+        private const string FunctionPath = "Form_LoaiSanPham";
         private readonly LoaiSanPham_BUS _loaiBus = new();
         private readonly BindingSource _loaiBindingSource = new();
+        private readonly PermissionService _permissionService = new();
         private Form? _activeEmbeddedForm;
 
         public Form_LoaiSanPham()
@@ -24,7 +26,20 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            ApplyPermissions();
             ApplyLoaiFilters();
+        }
+
+        private void ApplyPermissions()
+        {
+            // Áp dụng quyền cho các button Loại
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            addLoaiButton.Enabled = canAdd;
+            editLoaiButton.Enabled = canEdit && loaiDataGridView.SelectedRows.Count > 0;
+            deleteLoaiButton.Enabled = canDelete && loaiDataGridView.SelectedRows.Count > 0;
         }
 
         private void InitializeLoaiStatusFilter()
@@ -75,13 +90,15 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
             if (mainTabControl.SelectedTab == tabThuongHieu)
             {
-                ShowEmbeddedFormInCurrentTab(new Form_ThuongHieu());
+                var thuongHieuForm = new Form_ThuongHieu();
+                ShowEmbeddedFormInCurrentTab(thuongHieuForm);
                 return;
             }
 
             if (mainTabControl.SelectedTab == tabDonVi)
             {
-                ShowEmbeddedFormInCurrentTab(new Form_DonVi());
+                var donViForm = new Form_DonVi();
+                ShowEmbeddedFormInCurrentTab(donViForm);
             }
         }
 
@@ -142,6 +159,17 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
             _loaiBindingSource.DataSource = loaiList;
             ResetLoaiSelection();
+            UpdateLoaiButtonsState();
+        }
+
+        private void UpdateLoaiButtonsState()
+        {
+            bool hasSelection = loaiDataGridView.SelectedRows.Count > 0;
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            editLoaiButton.Enabled = hasSelection && canEdit;
+            deleteLoaiButton.Enabled = hasSelection && canDelete;
         }
 
         private static string? GetSelectedStatus(ComboBox comboBox)
@@ -178,6 +206,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void addLoaiButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm loại sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new ThemLoaiDialog();
             if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedLoai == null)
             {
@@ -189,6 +223,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void editLoaiButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa loại sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
                 MessageBox.Show(this,
@@ -211,6 +251,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void deleteLoaiButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa loại sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
                 MessageBox.Show(this,
@@ -285,6 +331,13 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 {
                 }
             }
+
+            UpdateLoaiButtonsState();
+        }
+
+        private void loaiDataGridView_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateLoaiButtonsState();
         }
     }
 }

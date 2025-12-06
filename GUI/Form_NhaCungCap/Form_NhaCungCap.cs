@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 using OfficeOpenXml;
 using System.Data;
@@ -17,9 +18,11 @@ namespace mini_supermarket.GUI.NhaCungCap
     {
         // Hằng hiển thị
         private const string StatusAll = "Tất cả";
+        private const string FunctionPath = "Form_NhaCungCap";
 
         // Tầng nghiệp vụ
         private readonly NhaCungCap_BUS _bus = new();
+        private readonly PermissionService _permissionService = new();
 
         // Lưu trạng thái
         private List<string> _dsTrangThai = new();
@@ -44,10 +47,32 @@ namespace mini_supermarket.GUI.NhaCungCap
             suaButton.Click += SuaButton_Click;
             xoaButton.Click += XoaButton_Click;
             lamMoiButton.Click += (_, _) => LamMoi();
-            nhaCungCapDataGridView.SelectionChanged += (_, _) => HienThiThongTin();
+            nhaCungCapDataGridView.SelectionChanged += (_, _) => { HienThiThongTin(); UpdateButtonsState(); };
             exportExcelButton.Click += ExportExcelButton_Click;
             importExcelButton.Click += ImportExcelButton_Click;
 
+            ApplyPermissions();
+        }
+
+        private void ApplyPermissions()
+        {
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            themButton.Enabled = canAdd;
+            suaButton.Enabled = canEdit && nhaCungCapDataGridView.SelectedRows.Count > 0;
+            xoaButton.Enabled = canDelete && nhaCungCapDataGridView.SelectedRows.Count > 0;
+        }
+
+        private void UpdateButtonsState()
+        {
+            bool hasSelection = nhaCungCapDataGridView.SelectedRows.Count > 0;
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            suaButton.Enabled = hasSelection && canEdit;
+            xoaButton.Enabled = hasSelection && canDelete;
         }
       
 
@@ -101,6 +126,12 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         private void ThemButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm nhà cung cấp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new Form_NhaCungCapDialog(_dsTrangThai);
 
             if (dialog.ShowDialog() != DialogResult.OK)
@@ -119,6 +150,12 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         private void SuaButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa nhà cung cấp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var item = GetSelectedItem();
             if (item == null) return;
 
@@ -140,6 +177,12 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         private void XoaButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa nhà cung cấp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var item = GetSelectedItem();
             if (item == null) return;
 
@@ -180,6 +223,7 @@ namespace mini_supermarket.GUI.NhaCungCap
                 kq = _dsNhaCungCap.Where(x => x.TrangThai == trangThai).ToList();
 
             HienThiLenBang(kq);
+            UpdateButtonsState();
         }
 
         private void TimKiem()

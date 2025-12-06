@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 using ClosedXML.Excel;
 using System.Data;
@@ -14,9 +15,11 @@ namespace mini_supermarket.GUI.KhachHang
     public partial class Form_KhachHang : Form
     {
         private const string StatusAll = "Tất cả";
+        private const string FunctionPath = "Form_KhachHang";
 
         private readonly KhachHang_BUS _khachHangBus = new();
         private readonly BindingSource _bindingSource = new();
+        private readonly PermissionService _permissionService = new();
         // private readonly List<string> _roles;
         private readonly List<string> _statuses;
         private BindingList<KhachHangDTO> _currentKhachHang = new();
@@ -76,15 +79,34 @@ namespace mini_supermarket.GUI.KhachHang
             importExcelButton.Click += ImportExcelButton_Click;
             exportExcelButton.Click += ExportExcelButton_Click;
 
-            themButton.Enabled = true;
-            lamMoiButton.Enabled = true;
-            suaButton.Enabled = false;
-            xoaButton.Enabled = false;
+            ApplyPermissions();
 
             SetInputFieldsEnabled(false);
 
             // LoadKhachHangData();
             _bindingSource.DataSource = _currentKhachHang;
+        }
+
+        private void ApplyPermissions()
+        {
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            themButton.Enabled = canAdd;
+            lamMoiButton.Enabled = true;
+            suaButton.Enabled = canEdit && khachHangDataGridView.SelectedRows.Count > 0;
+            xoaButton.Enabled = canDelete && khachHangDataGridView.SelectedRows.Count > 0;
+        }
+
+        private void UpdateButtonsState()
+        {
+            bool hasSelection = khachHangDataGridView.SelectedRows.Count > 0;
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            suaButton.Enabled = hasSelection && canEdit;
+            xoaButton.Enabled = hasSelection && canDelete;
         }
 
         private void khachHangDataGridView_SelectionChanged(object? sender, EventArgs e)
@@ -110,9 +132,7 @@ namespace mini_supermarket.GUI.KhachHang
                 emailTextBox.Text = selectedKhachHang.Email ?? string.Empty;
                 diemTichLuyTextBox.Text = selectedKhachHang.DiemTichLuy.ToString() ?? "0";
 
-                suaButton.Enabled = true;
-                xoaButton.Enabled = true;
-
+                UpdateButtonsState();
                 SetInputFieldsEnabled(false);
             }
             else
@@ -128,8 +148,7 @@ namespace mini_supermarket.GUI.KhachHang
                 emailTextBox.Text = string.Empty;
                 diemTichLuyTextBox.Text = string.Empty; 
 
-                suaButton.Enabled = false;
-                xoaButton.Enabled = false;
+                UpdateButtonsState();
 
                 SetInputFieldsEnabled(false);
             }
@@ -137,6 +156,12 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void themButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new Form_KhachHangDialog(_statuses);
             if (dialog.ShowDialog(this) != DialogResult.OK)
             {
@@ -158,6 +183,12 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void suaButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedKhachHang = GetSelectedKhachHang();
             if (selectedKhachHang == null)
             {
@@ -189,6 +220,12 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void xoaButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedKhachHang = GetSelectedKhachHang();
             if (selectedKhachHang == null)
             {
@@ -371,6 +408,7 @@ namespace mini_supermarket.GUI.KhachHang
 
             _bindingSource.DataSource = filtered;
             khachHangDataGridView.ClearSelection();
+            UpdateButtonsState();
         }
         private void ExportExcelButton_Click(object? sender, EventArgs e)
         {

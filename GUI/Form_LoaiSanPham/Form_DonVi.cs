@@ -10,8 +10,10 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
     public partial class Form_DonVi : Form
     {
+        private const string FunctionPath = "Form_LoaiSanPham";
         private readonly DonVi_BUS _bus = new();
         private readonly BindingSource _binding = new();
+        private readonly PermissionService _permissionService = new();
 
         public Form_DonVi()
         {
@@ -23,7 +25,29 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            ApplyPermissions();
             ApplyFilters();
+        }
+
+        private void ApplyPermissions()
+        {
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            addButton.Enabled = canAdd;
+            editButton.Enabled = canEdit && donViDataGridView.SelectedRows.Count > 0;
+            deleteButton.Enabled = canDelete && donViDataGridView.SelectedRows.Count > 0;
+        }
+
+        private void UpdateButtonsState()
+        {
+            bool hasSelection = donViDataGridView.SelectedRows.Count > 0;
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            editButton.Enabled = hasSelection && canEdit;
+            deleteButton.Enabled = hasSelection && canDelete;
         }
 
         private void InitializeStatusFilter()
@@ -95,6 +119,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
             _binding.DataSource = list;
             ResetSelection();
+            UpdateButtonsState();
         }
 
         private string? GetSelectedStatus()
@@ -131,6 +156,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void addButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm đơn vị!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new ThemDonViDialog();
             if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedDonVi == null)
             {
@@ -142,6 +173,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void editButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa đơn vị!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (donViDataGridView.CurrentRow?.DataBoundItem is not DonViDTO selected)
             {
                 MessageBox.Show(this,
@@ -164,6 +201,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void deleteButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa đơn vị!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (donViDataGridView.CurrentRow?.DataBoundItem is not DonViDTO selected)
             {
                 MessageBox.Show(this,
@@ -237,6 +280,13 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 {
                 }
             }
+
+            UpdateButtonsState();
+        }
+
+        private void donViDataGridView_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateButtonsState();
         }
     }
 }

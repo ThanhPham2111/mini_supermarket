@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 using ClosedXML.Excel;
 using System.Data;
@@ -13,9 +14,11 @@ namespace mini_supermarket.GUI.NhanVien
     public partial class Form_NhanVien : Form
     {
         private const string StatusAll = "Tất cả";
+        private const string FunctionPath = "Form_NhanVien";
 
         private readonly NhanVien_BUS _nhanVienBus = new();
         private readonly BindingSource _bindingSource = new();
+        private readonly PermissionService _permissionService = new();
         private readonly List<string> _roles;
         private readonly List<string> _statuses;
         private IList<NhanVienDTO> _currentNhanVien = Array.Empty<NhanVienDTO>();
@@ -84,14 +87,33 @@ namespace mini_supermarket.GUI.NhanVien
             importExcelButton.Click += ImportExcelButton_Click;
             exportExcelButton.Click += ExportExcelButton_Click;
 
-            themButton.Enabled = true;
-            lamMoiButton.Enabled = true;
-            suaButton.Enabled = false;
-            xoaButton.Enabled = false;
+            ApplyPermissions();
 
             SetInputFieldsEnabled(false);
 
             LoadNhanVienData();
+        }
+
+        private void ApplyPermissions()
+        {
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            themButton.Enabled = canAdd;
+            lamMoiButton.Enabled = true;
+            suaButton.Enabled = canEdit && nhanVienDataGridView.SelectedRows.Count > 0;
+            xoaButton.Enabled = canDelete && nhanVienDataGridView.SelectedRows.Count > 0;
+        }
+
+        private void UpdateButtonsState()
+        {
+            bool hasSelection = nhanVienDataGridView.SelectedRows.Count > 0;
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            suaButton.Enabled = hasSelection && canEdit;
+            xoaButton.Enabled = hasSelection && canDelete;
         }
 
         private void nhanVienDataGridView_SelectionChanged(object? sender, EventArgs e)
@@ -114,9 +136,7 @@ namespace mini_supermarket.GUI.NhanVien
                 }
                 soDienThoaiTextBox.Text = selectedNhanVien.SoDienThoai ?? string.Empty;
 
-                suaButton.Enabled = true;
-                xoaButton.Enabled = true;
-
+                UpdateButtonsState();
                 SetInputFieldsEnabled(false);
             }
             else
@@ -129,8 +149,7 @@ namespace mini_supermarket.GUI.NhanVien
                 chucVuComboBox.SelectedIndex = -1;
                 soDienThoaiTextBox.Text = string.Empty;
 
-                suaButton.Enabled = false;
-                xoaButton.Enabled = false;
+                UpdateButtonsState();
 
                 SetInputFieldsEnabled(false);
             }
@@ -138,6 +157,12 @@ namespace mini_supermarket.GUI.NhanVien
 
         private void themButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new Form_NhanVienDialog(_roles, _statuses);
             if (dialog.ShowDialog(this) != DialogResult.OK)
             {
@@ -158,6 +183,12 @@ namespace mini_supermarket.GUI.NhanVien
 
         private void suaButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedNhanVien = GetSelectedNhanVien();
             if (selectedNhanVien == null)
             {
@@ -184,6 +215,12 @@ namespace mini_supermarket.GUI.NhanVien
 
         private void xoaButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedNhanVien = GetSelectedNhanVien();
             if (selectedNhanVien == null)
             {
@@ -357,6 +394,7 @@ namespace mini_supermarket.GUI.NhanVien
 
             _bindingSource.DataSource = filtered;
             nhanVienDataGridView.ClearSelection();
+            UpdateButtonsState();
         }
         private void ExportExcelButton_Click(object sender, EventArgs e)
         {
