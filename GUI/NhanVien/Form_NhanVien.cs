@@ -25,8 +25,18 @@ namespace mini_supermarket.GUI.NhanVien
             InitializeComponent();
             Load += Form_NhanVien_Load;
 
-            _roles = _nhanVienBus.GetDefaultRoles().ToList();
-            _statuses = _nhanVienBus.GetDefaultStatuses().ToList();
+            try
+            {
+                _roles = _nhanVienBus.GetDefaultRoles().ToList();
+                _statuses = _nhanVienBus.GetDefaultStatuses().ToList();
+            }
+            catch (Exception ex)
+            {
+                // Nếu có lỗi khi load roles/statuses, sử dụng giá trị mặc định
+                _roles = new List<string> { "Admin", "Quản lý", "Thu ngân", "Thủ kho" };
+                _statuses = new List<string> { NhanVien_BUS.StatusWorking, NhanVien_BUS.StatusInactive };
+                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void Form_NhanVien_Load(object? sender, EventArgs e)

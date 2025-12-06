@@ -30,8 +30,12 @@ namespace mini_supermarket.GUI.NhanVien
         {
             this.hoTenLabel = new System.Windows.Forms.Label();
             this.hoTenTextBox = new System.Windows.Forms.TextBox();
+            this.hoTenErrorIcon = new System.Windows.Forms.Label();
+            this.hoTenErrorLabel = new System.Windows.Forms.Label();
             this.soDienThoaiLabel = new System.Windows.Forms.Label();
             this.soDienThoaiTextBox = new System.Windows.Forms.TextBox();
+            this.soDienThoaiErrorIcon = new System.Windows.Forms.Label();
+            this.soDienThoaiErrorLabel = new System.Windows.Forms.Label();
             this.ngaySinhLabel = new System.Windows.Forms.Label();
             this.ngaySinhDateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.gioiTinhLabel = new System.Windows.Forms.Label();
@@ -39,8 +43,12 @@ namespace mini_supermarket.GUI.NhanVien
             this.gioiTinhNuRadioButton = new System.Windows.Forms.RadioButton();
             this.vaiTroLabel = new System.Windows.Forms.Label();
             this.vaiTroComboBox = new System.Windows.Forms.ComboBox();
+            this.vaiTroErrorIcon = new System.Windows.Forms.Label();
+            this.vaiTroErrorLabel = new System.Windows.Forms.Label();
             this.trangThaiLabel = new System.Windows.Forms.Label();
             this.trangThaiComboBox = new System.Windows.Forms.ComboBox();
+            this.trangThaiErrorIcon = new System.Windows.Forms.Label();
+            this.trangThaiErrorLabel = new System.Windows.Forms.Label();
             this.maNhanVienLabel = new System.Windows.Forms.Label();
             this.maNhanVienValueLabel = new System.Windows.Forms.Label();
             this.okButton = new System.Windows.Forms.Button();

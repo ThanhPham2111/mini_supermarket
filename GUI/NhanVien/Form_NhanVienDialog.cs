@@ -48,47 +48,97 @@ namespace mini_supermarket.GUI.NhanVien
                 return;
             }
 
-            // Event handlers để clear error khi người dùng nhập/chọn
-            hoTenTextBox.TextChanged += (s, e) => { hoTenErrorLabel.Text = string.Empty; hoTenErrorIcon.Visible = false; };
-            soDienThoaiTextBox.TextChanged += (s, e) => { soDienThoaiErrorLabel.Text = string.Empty; soDienThoaiErrorIcon.Visible = false; };
-            vaiTroComboBox.SelectedIndexChanged += (s, e) => { vaiTroErrorLabel.Text = string.Empty; vaiTroErrorIcon.Visible = false; };
-            trangThaiComboBox.SelectedIndexChanged += (s, e) => { trangThaiErrorLabel.Text = string.Empty; trangThaiErrorIcon.Visible = false; };
+            try
+            {
+                // Event handlers để clear error khi người dùng nhập/chọn
+                if (hoTenErrorLabel != null && hoTenErrorIcon != null)
+                {
+                    hoTenTextBox.TextChanged += (s, e) => { hoTenErrorLabel.Text = string.Empty; hoTenErrorIcon.Visible = false; };
+                }
+                if (soDienThoaiErrorLabel != null && soDienThoaiErrorIcon != null)
+                {
+                    soDienThoaiTextBox.TextChanged += (s, e) => { soDienThoaiErrorLabel.Text = string.Empty; soDienThoaiErrorIcon.Visible = false; };
+                }
+                if (vaiTroErrorLabel != null && vaiTroErrorIcon != null)
+                {
+                    vaiTroComboBox.SelectedIndexChanged += (s, e) => { vaiTroErrorLabel.Text = string.Empty; vaiTroErrorIcon.Visible = false; };
+                }
+                if (trangThaiErrorLabel != null && trangThaiErrorIcon != null)
+                {
+                    trangThaiComboBox.SelectedIndexChanged += (s, e) => { trangThaiErrorLabel.Text = string.Empty; trangThaiErrorIcon.Visible = false; };
+                }
 
-            vaiTroComboBox.Items.Clear();
-            vaiTroComboBox.Items.AddRange(_roles.Cast<object>().ToArray());
+                vaiTroComboBox.Items.Clear();
+                if (_roles != null && _roles.Count > 0)
+                {
+                    vaiTroComboBox.Items.AddRange(_roles.Cast<object>().ToArray());
+                }
 
-            trangThaiComboBox.Items.Clear();
-            trangThaiComboBox.Items.AddRange(_statuses.Cast<object>().ToArray());
+                trangThaiComboBox.Items.Clear();
+                if (_statuses != null && _statuses.Count > 0)
+                {
+                    trangThaiComboBox.Items.AddRange(_statuses.Cast<object>().ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, $"Lỗi khi khởi tạo form: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             gioiTinhNamRadioButton.Checked = false;
             gioiTinhNuRadioButton.Checked = false;
 
-            if (_isEdit)
+            try
             {
-                Text = "Sửa nhân viên";
-                maNhanVienValueLabel.Text = _workingNhanVien.MaNhanVien.ToString();
-            }
-            else
-            {
-                Text = "Thêm nhân viên";
-                // Lấy mã nhân viên cao nhất + 1
-                var bus = new NhanVien_BUS();
-                int nextId = bus.GetNextMaNhanVien();
+                if (_isEdit)
+                {
+                    Text = "Sửa nhân viên";
+                    maNhanVienValueLabel.Text = _workingNhanVien.MaNhanVien.ToString();
+                }
+                else
+                {
+                    Text = "Thêm nhân viên";
+                    // Lấy mã nhân viên cao nhất + 1
+                    var bus = new NhanVien_BUS();
+                    int nextId = bus.GetNextMaNhanVien();
 
-                maNhanVienValueLabel.Text = nextId.ToString();
-                _workingNhanVien.MaNhanVien = nextId;
-                _workingNhanVien.TrangThai = NhanVien_BUS.StatusWorking;
+                    maNhanVienValueLabel.Text = nextId.ToString();
+                    _workingNhanVien.MaNhanVien = nextId;
+                    _workingNhanVien.TrangThai = NhanVien_BUS.StatusWorking;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, $"Lỗi khi lấy mã nhân viên: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.Cancel;
+                Close();
+                return;
             }
 
             hoTenTextBox.Text = _workingNhanVien.TenNhanVien ?? string.Empty;
             soDienThoaiTextBox.Text = _workingNhanVien.SoDienThoai ?? string.Empty;
-            vaiTroComboBox.SelectedItem = !string.IsNullOrEmpty(_workingNhanVien.VaiTro) && _roles.Contains(_workingNhanVien.VaiTro)
-                ? _workingNhanVien.VaiTro
-                : null;
+            
+            if (!string.IsNullOrEmpty(_workingNhanVien.VaiTro) && _roles != null && _roles.Contains(_workingNhanVien.VaiTro))
+            {
+                vaiTroComboBox.SelectedItem = _workingNhanVien.VaiTro;
+            }
+            else
+            {
+                vaiTroComboBox.SelectedIndex = -1;
+            }
 
-            trangThaiComboBox.SelectedItem = !string.IsNullOrEmpty(_workingNhanVien.TrangThai) && _statuses.Contains(_workingNhanVien.TrangThai)
-                ? _workingNhanVien.TrangThai
-                : (_statuses.Contains(NhanVien_BUS.StatusWorking) ? NhanVien_BUS.StatusWorking : _statuses.FirstOrDefault());
+            if (!string.IsNullOrEmpty(_workingNhanVien.TrangThai) && _statuses != null && _statuses.Contains(_workingNhanVien.TrangThai))
+            {
+                trangThaiComboBox.SelectedItem = _workingNhanVien.TrangThai;
+            }
+            else if (_statuses != null && _statuses.Contains(NhanVien_BUS.StatusWorking))
+            {
+                trangThaiComboBox.SelectedItem = NhanVien_BUS.StatusWorking;
+            }
+            else if (_statuses != null && _statuses.Count > 0)
+            {
+                trangThaiComboBox.SelectedIndex = 0;
+            }
 
             if (_workingNhanVien.NgaySinh.HasValue)
             {
@@ -119,22 +169,28 @@ namespace mini_supermarket.GUI.NhanVien
 
         private void ClearAllErrors()
         {
-            hoTenErrorLabel.Text = string.Empty;
-            hoTenErrorIcon.Visible = false;
-            soDienThoaiErrorLabel.Text = string.Empty;
-            soDienThoaiErrorIcon.Visible = false;
-            vaiTroErrorLabel.Text = string.Empty;
-            vaiTroErrorIcon.Visible = false;
-            trangThaiErrorLabel.Text = string.Empty;
-            trangThaiErrorIcon.Visible = false;
+            if (hoTenErrorLabel != null) hoTenErrorLabel.Text = string.Empty;
+            if (hoTenErrorIcon != null) hoTenErrorIcon.Visible = false;
+            if (soDienThoaiErrorLabel != null) soDienThoaiErrorLabel.Text = string.Empty;
+            if (soDienThoaiErrorIcon != null) soDienThoaiErrorIcon.Visible = false;
+            if (vaiTroErrorLabel != null) vaiTroErrorLabel.Text = string.Empty;
+            if (vaiTroErrorIcon != null) vaiTroErrorIcon.Visible = false;
+            if (trangThaiErrorLabel != null) trangThaiErrorLabel.Text = string.Empty;
+            if (trangThaiErrorIcon != null) trangThaiErrorIcon.Visible = false;
         }
 
         private void ShowError(Label errorLabel, Label errorIcon, string message)
         {
-            errorLabel.Text = message;
-            errorLabel.ForeColor = System.Drawing.Color.Red;
-            errorLabel.Visible = true;
-            errorIcon.Visible = true;
+            if (errorLabel != null)
+            {
+                errorLabel.Text = message;
+                errorLabel.ForeColor = System.Drawing.Color.Red;
+                errorLabel.Visible = true;
+            }
+            if (errorIcon != null)
+            {
+                errorIcon.Visible = true;
+            }
         }
 
         private void okButton_Click(object? sender, EventArgs e)

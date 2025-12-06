@@ -30,9 +30,25 @@ namespace mini_supermarket.BUS
 
         public IReadOnlyList<string> GetDefaultRoles()
         {
-            // Load vai trò từ bảng Phân quyền (Tbl_PhanQuyen)
-            var quyenList = _taiKhoanDao.GetAllPhanQuyen();
-            return quyenList.Select(q => q.TenQuyen).ToList();
+            try
+            {
+                // Load vai trò từ bảng Phân quyền (Tbl_PhanQuyen)
+                var quyenList = _taiKhoanDao.GetAllPhanQuyen();
+                var roles = quyenList.Select(q => q.TenQuyen).Where(r => !string.IsNullOrWhiteSpace(r)).ToList();
+                
+                // Nếu không có dữ liệu, trả về danh sách mặc định
+                if (roles.Count == 0)
+                {
+                    return new List<string> { "Admin", "Quản lý", "Thu ngân", "Thủ kho" };
+                }
+                
+                return roles;
+            }
+            catch (Exception)
+            {
+                // Nếu có lỗi khi truy vấn database, trả về danh sách mặc định
+                return new List<string> { "Admin", "Quản lý", "Thu ngân", "Thủ kho" };
+            }
         }
 
         public IList<NhanVienDTO> GetAll()
