@@ -99,7 +99,7 @@ namespace mini_supermarket.GUI.KhachHang
             // soDienThoaiLabel
             // 
             this.soDienThoaiLabel.AutoSize = true;
-            this.soDienThoaiLabel.Location = new System.Drawing.Point(12, 50);
+            this.soDienThoaiLabel.Location = new System.Drawing.Point(12, 50 + 5);
             this.soDienThoaiLabel.Name = "soDienThoaiLabel";
             this.soDienThoaiLabel.Size = new System.Drawing.Size(82, 13);
             this.soDienThoaiLabel.TabIndex = 2;
@@ -108,7 +108,7 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             // soDienThoaiTextBox
             // 
-            this.soDienThoaiTextBox.Location = new System.Drawing.Point(100, 47);
+            this.soDienThoaiTextBox.Location = new System.Drawing.Point(100, 47 + 5);
             this.soDienThoaiTextBox.Name = "soDienThoaiTextBox";
             this.soDienThoaiTextBox.Size = new System.Drawing.Size(200, 20);
             this.soDienThoaiTextBox.TabIndex = 3;
@@ -119,7 +119,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.soDienThoaiErrorIcon.AutoSize = true;
             this.soDienThoaiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.soDienThoaiErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.soDienThoaiErrorIcon.Location = new System.Drawing.Point(308, 50);
+            this.soDienThoaiErrorIcon.Location = new System.Drawing.Point(308, 50 + 5);
             this.soDienThoaiErrorIcon.Name = "soDienThoaiErrorIcon";
             this.soDienThoaiErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.soDienThoaiErrorIcon.TabIndex = 18;
@@ -132,7 +132,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.soDienThoaiErrorLabel.AutoSize = true;
             this.soDienThoaiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.soDienThoaiErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.soDienThoaiErrorLabel.Location = new System.Drawing.Point(100, 68);
+            this.soDienThoaiErrorLabel.Location = new System.Drawing.Point(100, 68 + 5);
             this.soDienThoaiErrorLabel.Name = "soDienThoaiErrorLabel";
             this.soDienThoaiErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.soDienThoaiErrorLabel.TabIndex = 19;
@@ -140,7 +140,7 @@ namespace mini_supermarket.GUI.KhachHang
             // diaChiLabel
             // 
             this.diaChiLabel.AutoSize = true;
-            this.diaChiLabel.Location = new System.Drawing.Point(12, 80);
+            this.diaChiLabel.Location = new System.Drawing.Point(12, 80 + 10);
             this.diaChiLabel.Name = "diaChiLabel";
             this.diaChiLabel.Size = new System.Drawing.Size(62, 13);
             this.diaChiLabel.TabIndex = 4;
@@ -149,7 +149,7 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             // diaChiTextBox
             // 
-            this.diaChiTextBox.Location = new System.Drawing.Point(100, 77);
+            this.diaChiTextBox.Location = new System.Drawing.Point(100, 77 + 10);
             this.diaChiTextBox.Name = "diaChiTextBox";
             this.diaChiTextBox.Size = new System.Drawing.Size(200, 20);
             this.diaChiTextBox.TabIndex = 5;
@@ -160,7 +160,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.diaChiErrorIcon.AutoSize = true;
             this.diaChiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.diaChiErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.diaChiErrorIcon.Location = new System.Drawing.Point(308, 80);
+            this.diaChiErrorIcon.Location = new System.Drawing.Point(308, 80 + 10);
             this.diaChiErrorIcon.Name = "diaChiErrorIcon";
             this.diaChiErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.diaChiErrorIcon.TabIndex = 20;
@@ -173,7 +173,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.diaChiErrorLabel.AutoSize = true;
             this.diaChiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.diaChiErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.diaChiErrorLabel.Location = new System.Drawing.Point(100, 98);
+            this.diaChiErrorLabel.Location = new System.Drawing.Point(100, 98 + 10);
             this.diaChiErrorLabel.Name = "diaChiErrorLabel";
             this.diaChiErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.diaChiErrorLabel.TabIndex = 21;
@@ -181,7 +181,7 @@ namespace mini_supermarket.GUI.KhachHang
             // emailLabel
             // 
             this.emailLabel.AutoSize = true;
-            this.emailLabel.Location = new System.Drawing.Point(12, 110);
+            this.emailLabel.Location = new System.Drawing.Point(12, 110 + 15);
             this.emailLabel.Name = "emailLabel";
             this.emailLabel.Size = new System.Drawing.Size(62, 13);
             this.emailLabel.TabIndex = 6;
@@ -190,7 +190,7 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             // emailTextBox
             // 
-            this.emailTextBox.Location = new System.Drawing.Point(100, 107);
+            this.emailTextBox.Location = new System.Drawing.Point(100, 107 + 15);
             this.emailTextBox.Name = "emailTextBox";
             this.emailTextBox.Size = new System.Drawing.Size(200, 20);
             this.emailTextBox.TabIndex = 7;
@@ -201,7 +201,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.emailErrorIcon.AutoSize = true;
             this.emailErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.emailErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.emailErrorIcon.Location = new System.Drawing.Point(308, 110);
+            this.emailErrorIcon.Location = new System.Drawing.Point(308, 110 + 15);
             this.emailErrorIcon.Name = "emailErrorIcon";
             this.emailErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.emailErrorIcon.TabIndex = 22;
@@ -214,7 +214,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.emailErrorLabel.AutoSize = true;
             this.emailErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.emailErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.emailErrorLabel.Location = new System.Drawing.Point(100, 128);
+            this.emailErrorLabel.Location = new System.Drawing.Point(100, 128 + 15);
             this.emailErrorLabel.Name = "emailErrorLabel";
             this.emailErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.emailErrorLabel.TabIndex = 23;
@@ -222,7 +222,7 @@ namespace mini_supermarket.GUI.KhachHang
             // diemTichLuyLabel
             // 
             this.diemTichLuyLabel.AutoSize = true;
-            this.diemTichLuyLabel.Location = new System.Drawing.Point(12, 140);
+            this.diemTichLuyLabel.Location = new System.Drawing.Point(12, 140 + 20);
             this.diemTichLuyLabel.Name = "diemTichLuyLabel";
             this.diemTichLuyLabel.Size = new System.Drawing.Size(62, 13);
             this.diemTichLuyLabel.TabIndex = 8;
@@ -231,16 +231,39 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             // diemTichLuyTextBox
             // 
-            this.diemTichLuyTextBox.Location = new System.Drawing.Point(100, 137);
+            this.diemTichLuyTextBox.Location = new System.Drawing.Point(100, 137 + 20);
             this.diemTichLuyTextBox.Name = "diemTichLuyTextBox";
             this.diemTichLuyTextBox.Size = new System.Drawing.Size(200, 20);
             this.diemTichLuyTextBox.TabIndex = 9;
-
+            // 
+            // diemTichLuyErrorIcon
+            // 
+            this.diemTichLuyErrorIcon = new System.Windows.Forms.Label();
+            this.diemTichLuyErrorIcon.AutoSize = true;
+            this.diemTichLuyErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.diemTichLuyErrorIcon.ForeColor = System.Drawing.Color.Red;
+            this.diemTichLuyErrorIcon.Location = new System.Drawing.Point(308, 140 + 20);
+            this.diemTichLuyErrorIcon.Name = "diemTichLuyErrorIcon";
+            this.diemTichLuyErrorIcon.Size = new System.Drawing.Size(13, 17);
+            this.diemTichLuyErrorIcon.TabIndex = 24;
+            this.diemTichLuyErrorIcon.Text = "✕";
+            this.diemTichLuyErrorIcon.Visible = false;
+            // 
+            // diemTichLuyErrorLabel
+            // 
+            this.diemTichLuyErrorLabel = new System.Windows.Forms.Label();
+            this.diemTichLuyErrorLabel.AutoSize = true;
+            this.diemTichLuyErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
+            this.diemTichLuyErrorLabel.ForeColor = System.Drawing.Color.Red;
+            this.diemTichLuyErrorLabel.Location = new System.Drawing.Point(100, 158 + 20);
+            this.diemTichLuyErrorLabel.Name = "diemTichLuyErrorLabel";
+            this.diemTichLuyErrorLabel.Size = new System.Drawing.Size(0, 10);
+            this.diemTichLuyErrorLabel.TabIndex = 25;
             // 
             // trangThaiLabel
             // 
             this.trangThaiLabel.AutoSize = true;
-            this.trangThaiLabel.Location = new System.Drawing.Point(12, 170);
+            this.trangThaiLabel.Location = new System.Drawing.Point(12, 170 + 25);
             this.trangThaiLabel.Name = "trangThaiLabel";
             this.trangThaiLabel.Size = new System.Drawing.Size(62, 13);
             this.trangThaiLabel.TabIndex = 10;
@@ -250,7 +273,7 @@ namespace mini_supermarket.GUI.KhachHang
             // trangThaiComboBox
             // 
             this.trangThaiComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.trangThaiComboBox.Location = new System.Drawing.Point(100, 167);
+            this.trangThaiComboBox.Location = new System.Drawing.Point(100, 167 + 25);
             this.trangThaiComboBox.Name = "trangThaiComboBox";
             this.trangThaiComboBox.Size = new System.Drawing.Size(200, 21);
             this.trangThaiComboBox.TabIndex = 11;
@@ -261,7 +284,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.trangThaiErrorIcon.AutoSize = true;
             this.trangThaiErrorIcon.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.trangThaiErrorIcon.ForeColor = System.Drawing.Color.Red;
-            this.trangThaiErrorIcon.Location = new System.Drawing.Point(308, 170);
+            this.trangThaiErrorIcon.Location = new System.Drawing.Point(308, 170 + 25);
             this.trangThaiErrorIcon.Name = "trangThaiErrorIcon";
             this.trangThaiErrorIcon.Size = new System.Drawing.Size(13, 17);
             this.trangThaiErrorIcon.TabIndex = 24;
@@ -274,7 +297,7 @@ namespace mini_supermarket.GUI.KhachHang
             this.trangThaiErrorLabel.AutoSize = true;
             this.trangThaiErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F);
             this.trangThaiErrorLabel.ForeColor = System.Drawing.Color.Red;
-            this.trangThaiErrorLabel.Location = new System.Drawing.Point(100, 189);
+            this.trangThaiErrorLabel.Location = new System.Drawing.Point(100, 189 + 25);
             this.trangThaiErrorLabel.Name = "trangThaiErrorLabel";
             this.trangThaiErrorLabel.Size = new System.Drawing.Size(0, 10);
             this.trangThaiErrorLabel.TabIndex = 25;
@@ -282,7 +305,7 @@ namespace mini_supermarket.GUI.KhachHang
             // maKhachHangLabel
             // 
             this.maKhachHangLabel.AutoSize = true;
-            this.maKhachHangLabel.Location = new System.Drawing.Point(12, 200);
+            this.maKhachHangLabel.Location = new System.Drawing.Point(12, 200 + 25);
             this.maKhachHangLabel.Name = "maKhachHangLabel";
             this.maKhachHangLabel.Size = new System.Drawing.Size(89, 13);
             this.maKhachHangLabel.TabIndex = 12;
@@ -292,7 +315,7 @@ namespace mini_supermarket.GUI.KhachHang
             // maKhachHangValueLabel
             // 
             this.maKhachHangValueLabel.AutoSize = true;
-            this.maKhachHangValueLabel.Location = new System.Drawing.Point(100, 200);
+            this.maKhachHangValueLabel.Location = new System.Drawing.Point(100, 200 + 25);
             this.maKhachHangValueLabel.Name = "maKhachHangValueLabel";
             this.maKhachHangValueLabel.Size = new System.Drawing.Size(50, 13);
             this.maKhachHangValueLabel.TabIndex = 13;
@@ -301,7 +324,7 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             // okButton
             // 
-            this.okButton.Location = new System.Drawing.Point(144, 220);
+            this.okButton.Location = new System.Drawing.Point(144, 220 + 25);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
             this.okButton.TabIndex = 14;
@@ -311,7 +334,7 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(225, 220);
+            this.cancelButton.Location = new System.Drawing.Point(225, 220 + 25);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 15;
@@ -323,7 +346,7 @@ namespace mini_supermarket.GUI.KhachHang
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(314, 260);
+            this.ClientSize = new System.Drawing.Size(340, 280);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
             this.Controls.Add(this.maKhachHangValueLabel);
@@ -352,6 +375,8 @@ namespace mini_supermarket.GUI.KhachHang
             this.Controls.Add(this.emailLabel);
             this.Controls.Add(this.diemTichLuyTextBox);
             this.Controls.Add(this.diemTichLuyLabel);
+            this.Controls.Add(this.diemTichLuyErrorIcon);
+            this.Controls.Add(this.diemTichLuyErrorLabel);
             // end add
 
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -401,6 +426,8 @@ namespace mini_supermarket.GUI.KhachHang
         // diemTichLuy component
         private System.Windows.Forms.Label? diemTichLuyLabel;
         private System.Windows.Forms.TextBox? diemTichLuyTextBox;
+        private System.Windows.Forms.Label? diemTichLuyErrorIcon;
+        private System.Windows.Forms.Label? diemTichLuyErrorLabel;
         // end add component
         // add columns
         private System.Windows.Forms.DataGridViewTextBoxColumn? diaChiColumn;

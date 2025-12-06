@@ -56,6 +56,7 @@ namespace mini_supermarket.GUI.KhachHang
             soDienThoaiTextBox.TextChanged += (s, e) => { soDienThoaiErrorLabel.Text = string.Empty; soDienThoaiErrorIcon.Visible = false; };
             diaChiTextBox.TextChanged += (s, e) => { diaChiErrorLabel.Text = string.Empty; diaChiErrorIcon.Visible = false; };
             emailTextBox.TextChanged += (s, e) => { emailErrorLabel.Text = string.Empty; emailErrorIcon.Visible = false; };
+            diemTichLuyTextBox.TextChanged += (s, e) => { diemTichLuyErrorLabel.Text = string.Empty; diemTichLuyErrorIcon.Visible = false; };
             trangThaiComboBox.SelectedIndexChanged += (s, e) => { trangThaiErrorLabel.Text = string.Empty; trangThaiErrorIcon.Visible = false; };
 
             // vaiTroComboBox.Items.Clear();
@@ -126,6 +127,8 @@ namespace mini_supermarket.GUI.KhachHang
             diaChiErrorIcon.Visible = false;
             emailErrorLabel.Text = string.Empty;
             emailErrorIcon.Visible = false;
+            diemTichLuyErrorLabel.Text = string.Empty;
+            diemTichLuyErrorIcon.Visible = false;
             trangThaiErrorLabel.Text = string.Empty;
             trangThaiErrorIcon.Visible = false;
         }
@@ -207,13 +210,14 @@ namespace mini_supermarket.GUI.KhachHang
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (string.IsNullOrWhiteSpace(diemTichLuyTextBox.Text))
             {
-                MessageBox.Show(this, "Vui lòng nhập điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowError(diemTichLuyErrorLabel, diemTichLuyErrorIcon, "Không được để trống");
                 if (!hasError) diemTichLuyTextBox.Focus();
                 hasError = true;
             }
             else if (!Validation_Component.IsValidNumber(diemTichLuyTextBox.Text))
             {
-                MessageBox.Show(this, "Nhập sai định dạng điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowError(diemTichLuyErrorLabel, diemTichLuyErrorIcon, "Điểm tích lũy phải là số");
+                // MessageBox.Show(this, "Nhập sai định dạng điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 if (!hasError) diemTichLuyTextBox.Focus();
                 hasError = true;
             }
