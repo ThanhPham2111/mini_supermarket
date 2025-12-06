@@ -33,6 +33,14 @@ namespace mini_supermarket.Common
 
             int maQuyen = SessionManager.CurrentMaQuyen.Value;
             
+            // Admin KHÔNG BAO GIỜ load permissions từ database
+            // Admin luôn có toàn quyền, không cần kiểm tra database
+            if (maQuyen == 1)
+            {
+                _permissionCache = null; // Admin sẽ được xử lý riêng trong HasPermission
+                return;
+            }
+            
             try
             {
                 var chiTietQuyen = _phanQuyenBus.GetChiTietQuyen(maQuyen);
@@ -141,12 +149,16 @@ namespace mini_supermarket.Common
                 return false;
             }
 
-            // Admin luôn có quyền tất cả
-            if (SessionManager.IsLoggedIn && SessionManager.CurrentMaQuyen.HasValue && SessionManager.CurrentMaQuyen.Value == 1)
+            // Kiểm tra Admin TRƯỚC TIÊN - không cần query database
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentMaQuyen.HasValue)
             {
-                return true;
+                if (SessionManager.CurrentMaQuyen.Value == 1) // Admin
+                {
+                    return true;
+                }
             }
 
+            // Tìm MaChucNang từ DuongDan
             var chucNangs = _phanQuyenBus.GetAllChucNang();
             var chucNang = chucNangs.FirstOrDefault(cn => 
                 cn.DuongDan != null && cn.DuongDan.Equals(duongDan, System.StringComparison.OrdinalIgnoreCase));
@@ -203,7 +215,14 @@ namespace mini_supermarket.Common
         /// </summary>
         public void ReloadPermissions()
         {
-            LoadPermissions();
+            // Clear cache trước khi reload để đảm bảo dữ liệu mới nhất
+            _permissionCache = null;
+            
+            // Chỉ load nếu đã đăng nhập
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentMaQuyen.HasValue)
+            {
+                LoadPermissions();
+            }
         }
     }
 }

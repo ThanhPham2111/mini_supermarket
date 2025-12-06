@@ -10,7 +10,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
     public partial class Form_DonVi : Form
     {
-        private const string FunctionPath = "Form_LoaiSanPham";
+        private const string FunctionPath = "Form_DonVi";
         private readonly DonVi_BUS _bus = new();
         private readonly BindingSource _binding = new();
         private readonly PermissionService _permissionService = new();
@@ -25,7 +25,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            // Reload permissions để đảm bảo có dữ liệu mới nhất
             _permissionService.ReloadPermissions();
             ApplyPermissions();
             ApplyFilters();
@@ -33,26 +32,25 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void ApplyPermissions()
         {
-            // Đảm bảo permissions được load trước khi check
-            _permissionService.ReloadPermissions();
-            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
-            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
-            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+            FormPermissionHelper.ApplyCRUDPermissions(
+                _permissionService,
+                FunctionPath,
+                addButton: addButton,
+                editButton: editButton,
+                deleteButton: deleteButton
+            );
 
-            addButton.Enabled = canAdd;
-            editButton.Enabled = canEdit && donViDataGridView.SelectedRows.Count > 0;
-            deleteButton.Enabled = canDelete && donViDataGridView.SelectedRows.Count > 0;
+            UpdateButtonsState(); // BẮT BUỘC GỌI ĐỂ NÚT SỬA/XÓA SÁNG NGAY
         }
 
         private void UpdateButtonsState()
         {
-            bool hasSelection = donViDataGridView.SelectedRows.Count > 0;
-            // Đảm bảo permissions được load trước khi check
-            _permissionService.ReloadPermissions();
-            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool hasSelection = donViDataGridView.CurrentRow != null;
+
+            bool canEdit   = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
             bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
 
-            editButton.Enabled = hasSelection && canEdit;
+            editButton.Enabled   = hasSelection && canEdit;
             deleteButton.Enabled = hasSelection && canDelete;
         }
 
@@ -63,7 +61,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             {
                 statusFilterComboBox.Items.Add(option);
             }
-
             statusFilterComboBox.SelectedIndex = 0;
             statusFilterComboBox.SelectedIndexChanged += (_, _) => ApplyFilters();
         }
@@ -78,39 +75,13 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             donViDataGridView.RowHeadersVisible = false;
             donViDataGridView.Columns.Clear();
 
-            var maColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(DonViDTO.MaDonVi),
-                HeaderText = "Mã đơn vị",
-                Name = "MaDonViColumn",
-                Width = 140
-            };
+            donViDataGridView.Columns.AddRange(
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(DonViDTO.MaDonVi), HeaderText = "Mã đơn vị", Width = 140 },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(DonViDTO.TenDonVi), HeaderText = "Tên đơn vị", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(DonViDTO.MoTa), HeaderText = "Mô tả", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(DonViDTO.TrangThai), HeaderText = "Trạng thái", Width = 150 }
+            );
 
-            var tenColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(DonViDTO.TenDonVi),
-                HeaderText = "Tên đơn vị",
-                Name = "TenDonViColumn",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            };
-
-            var moTaColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(DonViDTO.MoTa),
-                HeaderText = "Mô tả",
-                Name = "MoTaColumn",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            };
-
-            var trangThaiColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(DonViDTO.TrangThai),
-                HeaderText = "Trạng thái",
-                Name = "TrangThaiColumn",
-                Width = 150
-            };
-
-            donViDataGridView.Columns.AddRange(maColumn, tenColumn, moTaColumn, trangThaiColumn);
             donViDataGridView.DataSource = _binding;
         }
 
@@ -124,34 +95,31 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 : _bus.Search(keyword, status);
 
             _binding.DataSource = list;
-            ResetSelection();
+
+            donViDataGridView.ClearSelection();
+
+            if (_binding.Count > 0)
+            {
+                _binding.Position = 0;
+                var firstRow = donViDataGridView.Rows[0];
+                firstRow.Selected = true;
+                donViDataGridView.CurrentCell = firstRow.Cells[0];
+            }
+
             UpdateButtonsState();
         }
 
         private string? GetSelectedStatus()
         {
-            if (statusFilterComboBox.SelectedItem is not string option)
-            {
-                return null;
-            }
-
+            if (statusFilterComboBox.SelectedItem is not string option) return null;
             return string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase)
-                ? null
-                : option;
+                ? null : option;
         }
 
         private void refreshButton_Click(object sender, EventArgs e)
         {
-            if (statusFilterComboBox.SelectedIndex != 0)
-            {
-                statusFilterComboBox.SelectedIndex = 0;
-            }
-
-            if (!string.IsNullOrWhiteSpace(searchTextBox.Text))
-            {
-                searchTextBox.Text = string.Empty;
-            }
-
+            statusFilterComboBox.SelectedIndex = 0;
+            searchTextBox.Clear();
             ApplyFilters();
         }
 
@@ -169,12 +137,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             }
 
             using var dialog = new ThemDonViDialog();
-            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedDonVi == null)
-            {
-                return;
-            }
-
-            ApplyFilters();
+            if (dialog.ShowDialog(this) == DialogResult.OK && dialog.CreatedDonVi != null)
+                ApplyFilters();
         }
 
         private void editButton_Click(object sender, EventArgs e)
@@ -187,22 +151,14 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
             if (donViDataGridView.CurrentRow?.DataBoundItem is not DonViDTO selected)
             {
-                MessageBox.Show(this,
-                    "Vui lòng chọn đơn vị để sửa.",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn đơn vị để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             var snapshot = new DonViDTO(selected.MaDonVi, selected.TenDonVi, selected.MoTa, selected.TrangThai);
             using var dialog = new SuaDonViDialog(snapshot);
-            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.UpdatedDonVi == null)
-            {
-                return;
-            }
-
-            ApplyFilters();
+            if (dialog.ShowDialog(this) == DialogResult.OK && dialog.UpdatedDonVi != null)
+                ApplyFilters();
         }
 
         private void deleteButton_Click(object sender, EventArgs e)
@@ -215,79 +171,33 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
             if (donViDataGridView.CurrentRow?.DataBoundItem is not DonViDTO selected)
             {
-                MessageBox.Show(this,
-                    "Vui lòng chọn đơn vị để cập nhật trạng thái.",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn đơn vị để khóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (string.Equals(selected.TrangThai, TrangThaiConstants.NgungHoatDong, StringComparison.CurrentCultureIgnoreCase))
             {
-                MessageBox.Show(this,
-                    $"Đơn vị \"{selected.TenDonVi}\" đã ở trạng thái \"{TrangThaiConstants.NgungHoatDong}\".",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show($"Đơn vị \"{selected.TenDonVi}\" đã bị khóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                this,
-                $"Bạn có chắc muốn chuyển đơn vị \"{selected.TenDonVi}\" (Mã {selected.MaDonVi}) sang trạng thái \"{TrangThaiConstants.NgungHoatDong}\"?",
-                "Xác nhận",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes)
-            {
+            if (MessageBox.Show(
+                    $"Bạn có chắc muốn khóa đơn vị \"{selected.TenDonVi}\" (Mã {selected.MaDonVi}) không?",
+                    "Xác nhận khóa",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
-            }
 
             try
             {
                 _bus.DeleteDonVi(selected.MaDonVi);
                 ApplyFilters();
+                MessageBox.Show("Khóa đơn vị thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this,
-                    $"Không thể cập nhật trạng thái đơn vị.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void ResetSelection()
-        {
-            try
-            {
-                if (_binding.Position != -1)
-                {
-                    _binding.Position = -1;
-                }
-            }
-            catch
-            {
-            }
-
-            donViDataGridView.ClearSelection();
-
-            if (donViDataGridView.CurrentCell != null)
-            {
-                try
-                {
-                    donViDataGridView.CurrentCell = null;
-                }
-                catch
-                {
-                }
-            }
-
-            UpdateButtonsState();
         }
 
         private void donViDataGridView_SelectionChanged(object sender, EventArgs e)
