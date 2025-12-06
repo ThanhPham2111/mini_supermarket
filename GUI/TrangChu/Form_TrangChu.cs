@@ -23,6 +23,7 @@ namespace mini_supermarket.GUI.TrangChu
             LoadDoanhThu7Ngay();
             LoadTop5BanChay();
             LoadSanPhamSapHetHan();
+            LoadSanPhamDaHetHan();
             LoadTopKhachHangMuaNhieu();
             panelMain_Resize(sender, e);
         }
@@ -163,6 +164,47 @@ namespace mini_supermarket.GUI.TrangChu
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi sản phẩm hết hạn: " + ex.Message);
+            }
+        }
+
+        private void LoadSanPhamDaHetHan()
+        {
+            try
+            {
+                var list = trangChuBUS.GetSanPhamDaHetHan();
+                dgvSanPhamDaHetHan.DataSource = list;
+
+                if (dgvSanPhamDaHetHan.Columns.Contains("TenSanPham"))
+                {
+                    dgvSanPhamDaHetHan.Columns["TenSanPham"].HeaderText = "Tên Sản Phẩm";
+                    dgvSanPhamDaHetHan.Columns["TenSanPham"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                }
+
+                if (dgvSanPhamDaHetHan.Columns.Contains("HSD"))
+                {
+                    dgvSanPhamDaHetHan.Columns["HSD"].HeaderText = "Hạn Sử Dụng";
+                    dgvSanPhamDaHetHan.Columns["HSD"].Width = 150;
+                    dgvSanPhamDaHetHan.Columns["HSD"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                    dgvSanPhamDaHetHan.Columns["HSD"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                // Căn giữa tất cả cột
+                foreach (DataGridViewColumn column in dgvSanPhamDaHetHan.Columns)
+                {
+                    column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                // Tô màu đỏ cho tất cả hàng vì đã hết hạn
+                foreach (DataGridViewRow row in dgvSanPhamDaHetHan.Rows)
+                {
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
+                    row.DefaultCellStyle.ForeColor = Color.FromArgb(139, 0, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi sản phẩm đã hết hạn: " + ex.Message);
             }
         }
 

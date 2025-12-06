@@ -39,9 +39,14 @@ namespace mini_supermarket.GUI.TrangChu
         private Chart chartTop5BanChay;
 
         private Panel panelDataGrid;
+        private Panel panelDataGridHetHan;
         private Panel panelDataGridHeader;
         private Label lblSapHetHanTitle;
         private DataGridView dgvSanPhamSapHetHan;
+
+        private Panel panelDataGridHetHanHeader;
+        private Label lblDaHetHanTitle;
+        private DataGridView dgvSanPhamDaHetHan;
 
         private Panel panelTopKhachHang;
         private Panel panelTopKhachHangHeader;
@@ -71,9 +76,13 @@ namespace mini_supermarket.GUI.TrangChu
             this.chartDoanhThu7Ngay = new Chart();
             this.chartTop5BanChay = new Chart();
             this.panelDataGrid = new Panel();
+            this.panelDataGridHetHan = new Panel();
             this.panelDataGridHeader = new Panel();
             this.lblSapHetHanTitle = new Label();
             this.dgvSanPhamSapHetHan = new DataGridView();
+            this.panelDataGridHetHanHeader = new Panel();
+            this.lblDaHetHanTitle = new Label();
+            this.dgvSanPhamDaHetHan = new DataGridView();
             this.panelTopKhachHang = new Panel();
             this.panelTopKhachHangHeader = new Panel();
             this.lblTopKhachHangTitle = new Label();
@@ -85,6 +94,7 @@ namespace mini_supermarket.GUI.TrangChu
             ((System.ComponentModel.ISupportInitialize)(this.chartDoanhThu7Ngay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartTop5BanChay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTopKhachHang)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSanPhamDaHetHan)).BeginInit();
 
             // 
             // panelMain (TableLayoutPanel cho responsive)
@@ -93,20 +103,22 @@ namespace mini_supermarket.GUI.TrangChu
             this.panelMain.BackColor = Color.WhiteSmoke;
             this.panelMain.Padding = new Padding(10);
             this.panelMain.AutoScroll = true;
-            this.panelMain.RowCount = 6;
+            this.panelMain.RowCount = 7;
             this.panelMain.ColumnCount = 1;
             this.panelMain.RowStyles.Clear();
             this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 48)); // Refresh bar
             this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); // KPI
             this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 320)); // Charts
-            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 250)); // DataGrid sản phẩm hết hạn cố định
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 250)); // DataGrid sản phẩm sắp hết hạn
+            this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 250)); // DataGrid sản phẩm đã hết hạn
             this.panelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 200)); // Top khách hàng
             this.panelMain.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // cảnh báo
             this.panelMain.Controls.Add(this.panelRefreshBar, 0, 0); // refresh bar lên đầu
             this.panelMain.Controls.Add(this.panelKPI, 0, 1);
             this.panelMain.Controls.Add(this.panelCharts, 0, 2);
             this.panelMain.Controls.Add(this.panelDataGrid, 0, 3);
-            this.panelMain.Controls.Add(this.panelTopKhachHang, 0, 4);
+            this.panelMain.Controls.Add(this.panelDataGridHetHan, 0, 4);
+            this.panelMain.Controls.Add(this.panelTopKhachHang, 0, 5);
             this.panelMain.Resize += new EventHandler(this.panelMain_Resize);
 
             // 
@@ -240,6 +252,53 @@ namespace mini_supermarket.GUI.TrangChu
             this.dgvSanPhamSapHetHan.ScrollBars = ScrollBars.Vertical;
 
             // 
+            // panelDataGridHetHan
+            // 
+            this.panelDataGridHetHan.Dock = DockStyle.Fill;
+            this.panelDataGridHetHan.Height = 250;
+            this.panelDataGridHetHan.BackColor = Color.White;
+            this.panelDataGridHetHan.Padding = new Padding(15);
+            this.panelDataGridHetHan.AutoScroll = true;
+            this.panelDataGridHetHan.Controls.Add(this.dgvSanPhamDaHetHan);
+            this.panelDataGridHetHan.Controls.Add(this.panelDataGridHetHanHeader);
+
+            // 
+            // panelDataGridHetHanHeader
+            // 
+            this.panelDataGridHetHanHeader.Dock = DockStyle.Top;
+            this.panelDataGridHetHanHeader.Height = 35;
+            this.panelDataGridHetHanHeader.BackColor = Color.White;
+            this.panelDataGridHetHanHeader.Padding = new Padding(0);
+            this.panelDataGridHetHanHeader.Controls.Add(this.lblDaHetHanTitle);
+
+            // 
+            // lblDaHetHanTitle
+            // 
+            this.lblDaHetHanTitle.Text = "Các Sản Phẩm Đã Hết Hạn";
+            this.lblDaHetHanTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            this.lblDaHetHanTitle.Dock = DockStyle.Left;
+            this.lblDaHetHanTitle.Width = 350;
+            this.lblDaHetHanTitle.ForeColor = Color.FromArgb(33, 37, 41);
+            this.lblDaHetHanTitle.TextAlign = ContentAlignment.MiddleLeft;
+
+            // 
+            // dgvSanPhamDaHetHan
+            // 
+            this.dgvSanPhamDaHetHan.Dock = DockStyle.Fill;
+            this.dgvSanPhamDaHetHan.BackgroundColor = Color.White;
+            this.dgvSanPhamDaHetHan.BorderStyle = BorderStyle.None;
+            this.dgvSanPhamDaHetHan.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvSanPhamDaHetHan.ReadOnly = true;
+            this.dgvSanPhamDaHetHan.RowHeadersVisible = false;
+            this.dgvSanPhamDaHetHan.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvSanPhamDaHetHan.AllowUserToAddRows = false;
+            this.dgvSanPhamDaHetHan.AllowUserToDeleteRows = false;
+            this.dgvSanPhamDaHetHan.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
+            this.dgvSanPhamDaHetHan.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            this.dgvSanPhamDaHetHan.GridColor = Color.LightGray;
+            this.dgvSanPhamDaHetHan.ScrollBars = ScrollBars.Vertical;
+
+            // 
             // panelTopKhachHang
             // 
             this.panelTopKhachHang.Dock = DockStyle.Fill;
@@ -300,6 +359,7 @@ namespace mini_supermarket.GUI.TrangChu
             ((System.ComponentModel.ISupportInitialize)(this.chartDoanhThu7Ngay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartTop5BanChay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTopKhachHang)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSanPhamDaHetHan)).EndInit();
             this.ResumeLayout(false);
         }
 

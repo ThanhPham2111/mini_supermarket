@@ -52,5 +52,10 @@ namespace mini_supermarket.BUS
         {
             return trangChuDAO.GetKhachHangMuaNhieuNhat();
         }
+
+        public IList<SanPhamHetHanDTO> GetSanPhamDaHetHan()
+        {
+            return trangChuDAO.GetSanPhamDaHetHan();
+        }
     }
 }

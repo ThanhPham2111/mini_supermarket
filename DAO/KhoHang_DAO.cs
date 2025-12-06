@@ -311,6 +311,12 @@ namespace mini_supermarket.DAO
 
         public bool CapNhatKhoVaGhiLog(KhoHangDTO khoHang, LichSuThayDoiKhoDTO lichSu)
         {
+            // Validation: Không cho phép đặt trạng thái bán thành "Bán" nếu số lượng bằng 0
+            if (khoHang.TrangThaiDieuKien == "Bán" && (khoHang.SoLuong ?? 0) == 0)
+            {
+                throw new InvalidOperationException("Không thể đặt trạng thái bán thành 'Bán' khi số lượng bằng 0.");
+            }
+
             string queryUpdateKho = @"UPDATE Tbl_KhoHang 
                                   SET SoLuong = @SoLuongMoi, 
                                       TrangThai = @TrangThai,

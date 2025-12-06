@@ -151,5 +151,29 @@ namespace mini_supermarket.DAO
                 throw;
             }
         }
+
+        public IList<SanPhamHetHanDTO> GetSanPhamDaHetHan()
+        {
+            const string sql = @"SELECT TenSanPham, HSD
+                                  FROM Tbl_SanPham
+                                  WHERE HSD < GETDATE()
+                                  ORDER BY HSD ASC";
+            var list = new List<SanPhamHetHanDTO>();
+            using var conn = DbConnectionFactory.CreateConnection();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 60; 
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var item = new SanPhamHetHanDTO
+                {
+                    TenSanPham = reader.GetString(reader.GetOrdinal("TenSanPham")),
+                    HSD = reader.IsDBNull(reader.GetOrdinal("HSD")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("HSD"))
+                };
+                list.Add(item);
+            }
+            return list;
+        }
     }
 }
