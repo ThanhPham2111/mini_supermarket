@@ -26,12 +26,16 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            // Reload permissions để đảm bảo có dữ liệu mới nhất
+            _permissionService.ReloadPermissions();
             ApplyPermissions();
             ApplyLoaiFilters();
         }
 
         private void ApplyPermissions()
         {
+            // Đảm bảo permissions được load trước khi check
+            _permissionService.ReloadPermissions();
             // Áp dụng quyền cho các button Loại
             bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
             bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
@@ -69,6 +73,16 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 selected.Controls.Add(form);
                 form.Show();
                 _activeEmbeddedForm = form;
+                
+                // Đảm bảo form được load đầy đủ trước khi apply permissions
+                if (form is Form_ThuongHieu thuongHieuForm)
+                {
+                    thuongHieuForm.Refresh();
+                }
+                else if (form is Form_DonVi donViForm)
+                {
+                    donViForm.Refresh();
+                }
             }
         }
 
@@ -92,6 +106,11 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             {
                 var thuongHieuForm = new Form_ThuongHieu();
                 ShowEmbeddedFormInCurrentTab(thuongHieuForm);
+                // Đảm bảo form được load và permissions được apply
+                thuongHieuForm.Load += (s, args) => 
+                {
+                    thuongHieuForm.PerformLayout();
+                };
                 return;
             }
 
@@ -99,6 +118,11 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             {
                 var donViForm = new Form_DonVi();
                 ShowEmbeddedFormInCurrentTab(donViForm);
+                // Đảm bảo form được load và permissions được apply
+                donViForm.Load += (s, args) => 
+                {
+                    donViForm.PerformLayout();
+                };
             }
         }
 
@@ -165,6 +189,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         private void UpdateLoaiButtonsState()
         {
             bool hasSelection = loaiDataGridView.SelectedRows.Count > 0;
+            // Đảm bảo permissions được load trước khi check
+            _permissionService.ReloadPermissions();
             bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
             bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
 

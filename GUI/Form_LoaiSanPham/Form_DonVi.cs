@@ -25,12 +25,16 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            // Reload permissions để đảm bảo có dữ liệu mới nhất
+            _permissionService.ReloadPermissions();
             ApplyPermissions();
             ApplyFilters();
         }
 
         private void ApplyPermissions()
         {
+            // Đảm bảo permissions được load trước khi check
+            _permissionService.ReloadPermissions();
             bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
             bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
             bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
@@ -43,6 +47,8 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         private void UpdateButtonsState()
         {
             bool hasSelection = donViDataGridView.SelectedRows.Count > 0;
+            // Đảm bảo permissions được load trước khi check
+            _permissionService.ReloadPermissions();
             bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
             bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
 

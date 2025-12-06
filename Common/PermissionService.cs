@@ -141,6 +141,12 @@ namespace mini_supermarket.Common
                 return false;
             }
 
+            // Admin luôn có quyền tất cả
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentMaQuyen.HasValue && SessionManager.CurrentMaQuyen.Value == 1)
+            {
+                return true;
+            }
+
             var chucNangs = _phanQuyenBus.GetAllChucNang();
             var chucNang = chucNangs.FirstOrDefault(cn => 
                 cn.DuongDan != null && cn.DuongDan.Equals(duongDan, System.StringComparison.OrdinalIgnoreCase));

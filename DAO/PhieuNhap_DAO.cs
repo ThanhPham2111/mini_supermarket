@@ -103,6 +103,13 @@ namespace mini_supermarket.DAO
             return phieuNhap;
         }
 
+
+
+
+
+
+
+
         public int InsertPhieuNhap(PhieuNhapDTO phieuNhap)
         {
             using var connection = DbConnectionFactory.CreateConnection();

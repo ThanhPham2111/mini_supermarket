@@ -25,7 +25,7 @@ INSERT INTO Tbl_ThuongHieu (TenThuongHieu, TrangThai) VALUES
 (N'Ajinomoto', N'Hoạt động'),
 (N'Maggi', N'Hoạt động'),
 (N'Knorr', N'Hoạt động'),
-(N"Wall's", N'Hoạt động');
+(N'Wall''s', N'Hoạt động');
 GO
 
 -- 2. Tbl_Loai (categories)
@@ -82,7 +82,7 @@ INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan
 (N'Coca-Cola 390ml', 1, 2, 2, N'Nước ngọt có gas 390ml', 12000, NULL, N'Việt Nam', '2026-03-31', N'Còn hàng'),
 (N'Pepsi 330ml', 2, 3, 2, N'Nước ngọt có gas 330ml', 11000, NULL, N'Việt Nam', '2026-03-31', N'Còn hàng'),
 (N'Nước suối LaVie 500ml', 1, 7, 2, N'Nước khoáng đóng chai 500ml', 7000, NULL, N'Việt Nam', '2027-12-31', N'Còn hàng'),
-(N'Milo 180ml', 1, 8, 1, N'Sữa lúa mạch Milo liền uống', 11000, NULL, N'Việt Nam', '2026-09-30', N'Còn hàng'),
+(N'Milo 180ml', 1, 7, 1, N'Sữa lúa mạch Milo liền uống', 11000, NULL, N'Việt Nam', '2026-09-30', N'Còn hàng'),
 (N'Yomost dâu 110ml', 9, 10, 1, N'Sữa chua uống Yomost 110ml', 8000, NULL, N'Việt Nam', '2026-02-28', N'Còn hàng'),
 (N'Sữa TH True Milk 1L', 1, 9, 1, N'Sữa tươi TH 1L', 36000, NULL, N'Việt Nam', '2026-08-31', N'Còn hàng'),
 (N'Nescafé 3in1 20 gói', 5, 7, 2, N'Cà phê hòa tan 3in1', 45000, NULL, N'Việt Nam', '2026-05-31', N'Còn hàng'),
@@ -95,33 +95,37 @@ INSERT INTO Tbl_SanPham (TenSanPham, MaDonVi, MaThuongHieu, MaLoai, MoTa, GiaBan
 (N'Lay''s vị muối 52g', 3, 11, 4, N'Khoai tây chiên', 15000, NULL, N'Thái Lan', '2026-02-28', N'Còn hàng'),
 (N'Bánh quy Oreo 154g', 5, 7, 4, N'Bánh quy kem', 36000, NULL, N'Việt Nam', '2026-09-30', N'Còn hàng'),
 (N'Snack Oishi tôm 65g', 3, 4, 4, N'Snack vị tôm', 12000, NULL, N'Việt Nam', '2026-05-31', N'Còn hàng'),
-(N'Chips Pringles 107g', 5, 8, 4, N'Khoai tây giá trị', 59000, NULL, N'Mỹ', '2026-01-31', N'Còn hàng'),
-(N'Bánh mì sandwich tươi 400g', 5, 16, 4, N'Bánh tươi hằng ngày', 22000, NULL, N'Việt Nam', '2025-12-31', N'Còn hàng'),
+(N'Chips Pringles 107g', 5, 7, 4, N'Khoai tây giá trị', 59000, NULL, N'Mỹ', '2026-01-31', N'Còn hàng'),
+(N'Bánh mì sandwich tươi 400g', 5, 5, 4, N'Bánh tươi hằng ngày', 22000, NULL, N'Việt Nam', '2025-12-31', N'Còn hàng'),
 (N'Bánh Pía Kinh Đô 300g', 5, 5, 4, N'Bánh Pía truyền thống', 45000, NULL, N'Việt Nam', '2026-10-31', N'Còn hàng'),
 -- 21-30: gia vị & đồ gia dụng
 (N'Nước mắm Chinsu 500ml', 1, 11, 5, N'Nước mắm nhãn hiệu Chinsu', 32000, NULL, N'Việt Nam', '2027-05-20', N'Còn hàng'),
 (N'Hạt nêm Ajinomoto 450g', 3, 12, 5, N'Hạt nêm đa dụng', 28000, NULL, N'Việt Nam', '2027-03-31', N'Còn hàng'),
 (N'Bột canh Knorr 200g', 3, 14, 5, N'Gia vị Knorr', 15000, NULL, N'Việt Nam', '2027-04-30', N'Còn hàng'),
-(N'Đường trắng 1kg', 6, 16, 5, N'Đường tinh luyện', 24000, NULL, N'Việt Nam', '2027-12-31', N'Còn hàng'),
+(N'Đường trắng 1kg', 6, 5, 5, N'Đường tinh luyện', 24000, NULL, N'Việt Nam', '2027-12-31', N'Còn hàng'),
 (N'Bột giặt OMO 3kg', 4, 6, 6, N'Bột giặt gia dụng', 129000, NULL, N'Việt Nam', '2028-01-01', N'Còn hàng'),
 (N'Nước rửa chén Sunlight 750ml', 1, 6, 6, N'Nước rửa chén hương chanh', 29000, NULL, N'Việt Nam', '2027-06-30', N'Còn hàng'),
-(N'Giấy vệ sinh 4 cuộn', 8, 16, 6, N'Giấy cuộn 2 lớp', 35000, NULL, N'Việt Nam', '2027-12-31', N'Còn hàng'),
+(N'Giấy vệ sinh 4 cuộn', 8, 6, 6, N'Giấy cuộn 2 lớp', 35000, NULL, N'Việt Nam', '2027-12-31', N'Còn hàng'),
 (N'Xà phòng Dove 90g', 5, 6, 7, N'Xà phòng dưỡng da', 22000, NULL, N'Việt Nam', '2027-08-31', N'Còn hàng'),
 (N'Dầu gội Clear 650ml', 1, 6, 7, N'Dầu gội sạch gàu', 119000, NULL, N'Việt Nam', '2027-02-01', N'Còn hàng'),
 (N'Sữa tắm Lifebuoy 500ml', 1, 6, 7, N'Sữa tắm diệt khuẩn', 47000, NULL, N'Việt Nam', '2027-03-01', N'Còn hàng'),
 -- 31-40: đồ đông lạnh & thực phẩm tươi
 (N'Kem Wall''s Vani 80ml', 1, 15, 8, N'Kem vị vani', 15000, NULL, N'Việt Nam', '2026-08-31', N'Còn hàng'),
 (N'Kem Wall''s Socola 80ml', 1, 15, 8, N'Kem vị socola', 15000, NULL, N'Việt Nam', '2026-08-31', N'Còn hàng'),
-(N'Chả cá viên đông lạnh 500g', 5, 16, 8, N'Chả cá viên đông lạnh', 46000, NULL, N'Việt Nam', '2026-09-30', N'Còn hàng'),
+(N'Chả cá viên đông lạnh 500g', 5, 5, 8, N'Chả cá viên đông lạnh', 46000, NULL, N'Việt Nam', '2026-09-30', N'Còn hàng'),
 (N'Thịt heo ba chỉ 1kg', 6, 1, 8, N'Thịt heo tươi ba chỉ', 130000, NULL, N'Việt Nam', NULL, N'Còn hàng'),
-(N'Cá basa fillet 500g', 6, 16, 8, N'Cá basa fillet đông lạnh', 85000, NULL, N'Việt Nam', '2026-12-31', N'Còn hàng'),
-(N'Rau cải xanh bó 300g', 8, 16, 8, N'Rau sạch', 12000, NULL, N'Việt Nam', '2025-12-31', N'Còn hàng'),
-(N'Gà ta nguyên con 1.2kg', 6, 16, 8, N'Gà tươi', 140000, NULL, N'Việt Nam', NULL, N'Còn hàng'),
-(N'Pate trứng 200g', 5, 16, 4, N'Pate ăn kèm bánh mì', 18000, NULL, N'Việt Nam', '2026-07-31', N'Còn hàng');
+(N'Cá basa fillet 500g', 6, 5, 8, N'Cá basa fillet đông lạnh', 85000, NULL, N'Việt Nam', '2026-12-31', N'Còn hàng'),
+(N'Rau cải xanh bó 300g', 8, 5, 8, N'Rau sạch', 12000, NULL, N'Việt Nam', '2025-12-31', N'Còn hàng'),
+(N'Gà ta nguyên con 1.2kg', 6, 5, 8, N'Gà tươi', 140000, NULL, N'Việt Nam', NULL, N'Còn hàng'),
+(N'Pate trứng 200g', 5, 5, 4, N'Pate ăn kèm bánh mì', 18000, NULL, N'Việt Nam', '2026-07-31', N'Còn hàng'),
+(N'Kem Wall''s Dâu 80ml', 1, 15, 8, N'Kem vị dâu', 15000, NULL, N'Việt Nam', '2026-08-31', N'Còn hàng'),
+(N'Kem Wall''s Sữa 80ml', 1, 15, 8, N'Kem vị sữa', 15000, NULL, N'Việt Nam', '2026-08-31', N'Còn hàng');
 GO
 
--- 6. Tbl_KhoHang: khởi tạo tồn kho cho 40 sản phẩm
-INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien) VALUES
+-- 6. Tbl_KhoHang: khởi tạo tồn kho cho các sản phẩm đã được insert
+INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien)
+SELECT MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien
+FROM (VALUES
 (1, 120, N'Còn hàng', N'Bán'),(2, 200, N'Còn hàng', N'Bán'),(3, 250, N'Còn hàng', N'Bán'),(4, 180, N'Còn hàng', N'Bán'),(5, 400, N'Còn hàng', N'Bán'),
 (6, 150, N'Còn hàng', N'Bán'),(7, 140, N'Còn hàng', N'Bán'),(8, 90, N'Còn hàng', N'Bán'),(9, 220, N'Còn hàng', N'Bán'),(10, 210, N'Còn hàng', N'Bán'),
 (11, 600, N'Còn hàng', N'Bán'),(12, 500, N'Còn hàng', N'Bán'),(13, 80, N'Còn hàng', N'Bán'),(14, 150, N'Còn hàng', N'Bán'),(15, 140, N'Còn hàng', N'Bán'),
@@ -129,7 +133,10 @@ INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien) VALUE
 (21, 300, N'Còn hàng', N'Bán'),(22, 260, N'Còn hàng', N'Bán'),(23, 220, N'Còn hàng', N'Bán'),(24, 120, N'Còn hàng', N'Bán'),(25, 80, N'Còn hàng', N'Bán'),
 (26, 100, N'Còn hàng', N'Bán'),(27, 70, N'Còn hàng', N'Bán'),(28, 65, N'Còn hàng', N'Bán'),(29, 50, N'Còn hàng', N'Bán'),(30, 45, N'Còn hàng', N'Bán'),
 (31, 200, N'Còn hàng', N'Bán'),(32, 200, N'Còn hàng', N'Bán'),(33, 150, N'Còn hàng', N'Bán'),(34, 60, N'Còn hàng', N'Bán'),(35, 90, N'Còn hàng', N'Bán'),
-(36, 70, N'Còn hàng', N'Bán'),(37, 110, N'Còn hàng', N'Bán'),(38, 55, N'Còn hàng', N'Bán'),(39, 85, N'Còn hàng', N'Bán'),(40, 140, N'Còn hàng', N'Bán');
+(36, 70, N'Còn hàng', N'Bán'),(37, 110, N'Còn hàng', N'Bán'),(38, 55, N'Còn hàng', N'Bán'),(39, 85, N'Còn hàng', N'Bán'),(40, 140, N'Còn hàng', N'Bán'),
+(41, 180, N'Còn hàng', N'Bán'),(42, 180, N'Còn hàng', N'Bán')
+) AS v(MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien)
+WHERE EXISTS (SELECT 1 FROM Tbl_SanPham WHERE Tbl_SanPham.MaSanPham = v.MaSanPham);
 GO
 
 -- 7. Tbl_PhieuNhap: one import voucher per product (40 phiếu nhập)
@@ -178,13 +185,17 @@ INSERT INTO Tbl_PhieuNhap (NgayNhap, MaNhaCungCap, TongTien, TrangThai, LyDoHuy)
 (DATEADD(day, -4, GETDATE()), 13, 420000, N'Nhập thành công', NULL),
 (DATEADD(day, -3, GETDATE()), 13, 360000, N'Nhập thành công', NULL),
 (DATEADD(day, -2, GETDATE()), 13, 200000, N'Nhập thành công', NULL),
-(DATEADD(day, -1, GETDATE()), 13, 180000, N'Nhập thành công', NULL);
+(DATEADD(day, -1, GETDATE()), 13, 180000, N'Nhập thành công', NULL),
+(DATEADD(day, 0, GETDATE()), 15, 2160000, N'Nhập thành công', NULL),
+(DATEADD(day, 0, GETDATE()), 15, 2160000, N'Nhập thành công', NULL);
 GO
 
 -- 8. Tbl_ChiTietPhieuNhap: one detail per product linking to corresponding phieu nhap
--- We assume MaPhieuNhap 1..40 correspond to above rows; MaSanPham 1..40
+-- We assume MaPhieuNhap 1..42 correspond to above rows; MaSanPham 1..42
 -- DonGiaNhap chosen lower than GiaBan; ThanhTien = SoLuong * DonGiaNhap
-INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, ThanhTien) VALUES
+INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, ThanhTien)
+SELECT v.MaSanPham, v.MaPhieuNhap, v.SoLuong, v.DonGiaNhap, v.ThanhTien
+FROM (VALUES
 (1, 1, 120, 30000, 120 * 30000),
 (2, 2, 200, 7200, 200 * 7200),
 (3, 3, 250, 9600, 250 * 9600),
@@ -196,7 +207,7 @@ INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, T
 (9, 9, 220, 38000, 220 * 38000),
 (10, 10, 210, 8000, 210 * 8000),
 (11, 11, 600, 3000, 600 * 3000),
-(12, 12, 500, 32000, 500 * 32000),
+(12, 12, 500, 5500, 500 * 5500),
 (13, 13, 80, 26000, 80 * 26000),
 (14, 14, 150, 14000, 150 * 14000),
 (15, 15, 140, 13500, 140 * 13500),
@@ -215,16 +226,21 @@ INSERT INTO Tbl_ChiTietPhieuNhap (MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, T
 (28, 28, 65, 13000, 65 * 13000),
 (29, 29, 50, 100000, 50 * 100000),
 (30, 30, 45, 140000, 45 * 140000),
-(31, 31, 200, 15000, 200 * 15000),
-(32, 32, 200, 15000, 200 * 15000),
-(33, 33, 150, 23000, 150 * 23000),
-(34, 34, 60, 120000, 60 * 120000),
-(35, 35, 90, 130000, 90 * 130000),
-(36, 36, 70, 110000, 70 * 110000),
-(37, 37, 110, 45000, 110 * 45000),
-(38, 38, 55, 22000, 55 * 22000),
-(39, 39, 85, 18000, 85 * 18000),
-(40, 40, 140, 18000, 140 * 18000);
+(31, 31, 200, 12000, 200 * 12000),
+(32, 32, 200, 12000, 200 * 12000),
+(33, 33, 150, 38000, 150 * 38000),
+(34, 34, 60, 110000, 60 * 110000),
+(35, 35, 90, 75000, 90 * 75000),
+(36, 36, 70, 10000, 70 * 10000),
+(37, 37, 110, 120000, 110 * 120000),
+(38, 38, 55, 120000, 55 * 120000),
+(39, 39, 85, 15000, 85 * 15000),
+(40, 40, 140, 15000, 140 * 15000),
+(41, 41, 180, 12000, 180 * 12000),
+(42, 42, 180, 12000, 180 * 12000)
+) AS v(MaSanPham, MaPhieuNhap, SoLuong, DonGiaNhap, ThanhTien)
+WHERE EXISTS (SELECT 1 FROM Tbl_SanPham WHERE Tbl_SanPham.MaSanPham = v.MaSanPham)
+  AND EXISTS (SELECT 1 FROM Tbl_PhieuNhap WHERE Tbl_PhieuNhap.MaPhieuNhap = v.MaPhieuNhap);
 GO
 
 -- 9. Tbl_CauHinhLoiNhuan (default profit %)
@@ -241,7 +257,10 @@ GO
 
 -- 11. Update GiaBan in Tbl_SanPham based on latest DonGiaNhap and QuyTacLoiNhuan/CauHinh
 UPDATE sp
-SET sp.GiaBan = ROUND(ctpn.DonGiaNhap * (1 + ISNULL(q.PhanTramLoiNhuan, (SELECT TOP 1 PhanTramLoiNhuanMacDinh FROM Tbl_CauHinhLoiNhuan ORDER BY NgayCapNhat DESC)) / 100), 0)
+SET sp.GiaBan = COALESCE(
+    ROUND(ctpn.DonGiaNhap * (1 + ISNULL(q.PhanTramLoiNhuan, (SELECT TOP 1 PhanTramLoiNhuanMacDinh FROM Tbl_CauHinhLoiNhuan ORDER BY NgayCapNhat DESC)) / 100), 0),
+    sp.GiaBan
+)
 FROM Tbl_SanPham sp
 OUTER APPLY (
     SELECT TOP 1 ctpn.DonGiaNhap
@@ -326,32 +345,44 @@ GO
 -- 17. Tbl_ChiTietHoaDon (details for invoices above)
 INSERT INTO Tbl_ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, GiaBan) VALUES
 -- Invoice 1
-(1, 1, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=1)), (1, 3, 2, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=3)),
+(1, 1, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=1), 34000)), 
+(1, 3, 2, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=3), 12000)),
 -- Invoice 2
-(2, 11, 2, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=11)), (2, 12, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=12)),
+(2, 11, 2, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=11), 9500)), 
+(2, 12, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=12), 7000)),
 -- Invoice 3
-(3, 16, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=16)), (3, 21, 3, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=21)),
+(3, 16, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=16), 36000)), 
+(3, 21, 3, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=21), 32000)),
 -- Invoice 4
-(4, 5, 4, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=5)),
+(4, 5, 4, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=5), 7000)),
 -- Invoice 5
-(5, 30, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=30)), (5, 16, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=16)),
+(5, 30, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=30), 47000)), 
+(5, 16, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=16), 36000)),
 -- Invoice 6
-(6, 9, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=9)), (6, 2, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=2)),
+(6, 9, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=9), 45000)), 
+(6, 2, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=2), 9000)),
 -- Invoice 7
-(7, 13, 2, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=13)), (7, 14, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=14)),
+(7, 13, 2, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=13), 28000)), 
+(7, 14, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=14), 22000)),
 -- Invoice 8
-(8, 21, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=21)), (8, 22, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=22)),
+(8, 21, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=21), 32000)), 
+(8, 22, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=22), 28000)),
 -- Invoice 9
-(9, 31, 2, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=31)), (9, 32, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=32)),
+(9, 31, 2, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=31), 15000)), 
+(9, 32, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=32), 15000)),
 -- Invoice 10
-(10, 25, 1, (SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=25));
+(10, 25, 1, ISNULL((SELECT GiaBan FROM Tbl_SanPham WHERE MaSanPham=25), 129000));
 GO
 
 -- 18. Tbl_KhuyenMai (several promotions)
-INSERT INTO Tbl_KhuyenMai (MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa, DieuKien) VALUES
+INSERT INTO Tbl_KhuyenMai (MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa, DieuKien)
+SELECT v.MaSanPham, v.TenKhuyenMai, v.PhanTramGiamGia, v.NgayBatDau, v.NgayKetThuc, v.MoTa, v.DieuKien
+FROM (VALUES
 (3, N'Mùa hè sảng khoái - Coca', 10.00, DATEFROMPARTS(YEAR(GETDATE()),6,1), DATEFROMPARTS(YEAR(GETDATE()),8,31), N'Giảm giá Coca 10%', N'Mua >= 2 lon'),
 (11, N'Combo mì Omachi', 15.00, DATEADD(month, -1, GETDATE()), DATEADD(month, 6, GETDATE()), N'Giảm giá mì Omachi khi mua sỉ', N'Mua >= 10 gói'),
-(16, N'Chăm sóc tóc - Clear', 20.00, DATEADD(month, -3, GETDATE()), DATEADD(month, 1, GETDATE()), N'Giảm Clear 20%', N'Không kèm điều kiện');
+(29, N'Chăm sóc tóc - Clear', 20.00, DATEADD(month, -3, GETDATE()), DATEADD(month, 1, GETDATE()), N'Giảm Clear 20%', N'Không kèm điều kiện')
+) AS v(MaSanPham, TenKhuyenMai, PhanTramGiamGia, NgayBatDau, NgayKetThuc, MoTa, DieuKien)
+WHERE EXISTS (SELECT 1 FROM Tbl_SanPham WHERE Tbl_SanPham.MaSanPham = v.MaSanPham);
 GO
 
 -- 19. Tbl_LichSuTichDiem (points history)
@@ -364,16 +395,25 @@ INSERT INTO Tbl_LichSuTichDiem (MaKhachHang, MaHoaDon, DiemCong, DiemSuDung, Nga
 GO
 
 -- 20. Tbl_LichSuThayDoiKho (stock change history) - a few sample events
-INSERT INTO Tbl_LichSuThayDoiKho (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi) VALUES
+INSERT INTO Tbl_LichSuThayDoiKho (MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi)
+SELECT v.MaSanPham, v.SoLuongCu, v.SoLuongMoi, v.ChenhLech, v.LoaiThayDoi, v.LyDo, v.GhiChu, v.MaNhanVien, v.NgayThayDoi
+FROM (VALUES
 (1, 0, 120, 120, N'Nhập hàng', N'Nhập đầu kỳ', N'Nhập từ Vinamilk', 5, DATEADD(day, -40, GETDATE())),
 (2, 0, 200, 200, N'Nhập hàng', N'Nhập đầu kỳ', N'Nhập từ Coca-Cola', 5, DATEADD(day, -39, GETDATE())),
-(1, 120, 118, -2, N'Bán hàng', N'Bán lẻ', N'2 sp bán ra', 2, DATEADD(day, -10, GETDATE()));
+(1, 120, 118, -2, N'Bán hàng', N'Bán lẻ', N'2 sp bán ra', 2, DATEADD(day, -10, GETDATE()))
+) AS v(MaSanPham, SoLuongCu, SoLuongMoi, ChenhLech, LoaiThayDoi, LyDo, GhiChu, MaNhanVien, NgayThayDoi)
+WHERE EXISTS (SELECT 1 FROM Tbl_SanPham WHERE Tbl_SanPham.MaSanPham = v.MaSanPham);
 GO
 
 -- 21. Tbl_NhaCungCap_SanPham (mapping suppliers to products)
-INSERT INTO Tbl_NhaCungCap_SanPham (MaNhaCungCap, MaSanPham) VALUES
+INSERT INTO Tbl_NhaCungCap_SanPham (MaNhaCungCap, MaSanPham)
+SELECT v.MaNhaCungCap, v.MaSanPham
+FROM (VALUES
 (1,1),(1,2),(9,8),(2,3),(3,4),(7,9),(8,6),(10,7),(4,11),(4,12),
-(5,13),(7,14),(11,15),(7,16),(6,17),(6,18),(11,21),(12,22),(14,23),(13,24),(15,31),(15,32),(15,33),(13,34),(13,35),(13,36),(13,37),(13,38),(13,39),(13,40);
+(5,13),(7,14),(11,15),(7,16),(6,17),(6,18),(11,21),(12,22),(14,23),(13,24),(15,31),(15,32),(15,33),(13,34),(13,35),(13,36),(13,37),(13,38),(13,39),(13,40)
+) AS v(MaNhaCungCap, MaSanPham)
+WHERE EXISTS (SELECT 1 FROM Tbl_SanPham WHERE Tbl_SanPham.MaSanPham = v.MaSanPham)
+  AND EXISTS (SELECT 1 FROM Tbl_NhaCungCap WHERE Tbl_NhaCungCap.MaNhaCungCap = v.MaNhaCungCap);
 GO
 
 -- 22. Tbl_CauHinhQuyDoiDiem (points to money conversion example)
