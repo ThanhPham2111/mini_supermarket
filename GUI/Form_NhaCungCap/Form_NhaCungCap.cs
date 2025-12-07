@@ -300,7 +300,6 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
         }
 
-        // ==================== IMPORT EXCEL - CHỈ THÊM MỚI, KHÔNG CẬP NHẬT DÒNG CŨ ====================
 private void ImportExcelButton_Click(object sender, EventArgs e)
 {
     using OpenFileDialog ofd = new OpenFileDialog
@@ -315,66 +314,90 @@ private void ImportExcelButton_Click(object sender, EventArgs e)
     {
         var fileInfo = new FileInfo(ofd.FileName);
         using var package = new ExcelPackage(fileInfo);
-        var ws = package.Workbook.Worksheets[0];
-        int rowCount = ws.Dimension?.Rows ?? 0;
-
-        if (rowCount < 2)
+        var ws = package.Workbook.Worksheets.FirstOrDefault();
+        if (ws?.Dimension == null)
         {
-            MessageBox.Show("File Excel không có dữ liệu!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show("File Excel không hợp lệ hoặc trống!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
-        // Lấy danh sách nhà cung cấp hiện có trong CSDL để kiểm tra trùng
-        var dsHienTai = _bus.GetNhaCungCap(); // Danh sách từ DB
-        var tenHienTai = new HashSet<string>(dsHienTai.Select(x => x.TenNhaCungCap.Trim()), StringComparer.OrdinalIgnoreCase);
-        var emailHienTai = new HashSet<string>(dsHienTai.Where(x => !string.IsNullOrEmpty(x.Email)).Select(x => x.Email.Trim()), StringComparer.OrdinalIgnoreCase);
+        int rowCount = ws.Dimension.Rows;
+        if (rowCount < 2)
+        {
+            MessageBox.Show("File Excel không có dữ liệu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
-        var importedList = new List<NhaCungCapDTO>();
+        // Lấy danh sách hiện có từ CSDL
+        var dsHienTai = _bus.GetNhaCungCap();
+        var tenTonTai = new HashSet<string>(
+            dsHienTai.Select(x => x.TenNhaCungCap?.Trim()).Where(t => !string.IsNullOrEmpty(t)),
+            StringComparer.OrdinalIgnoreCase);
+
         var danhSachMoi = new List<NhaCungCapDTO>();
+        var danhSachLoi = new List<string>();
 
         for (int row = 2; row <= rowCount; row++)
         {
-            string ten = ws.Cells[row, 2].GetValue<string>()?.Trim();
-            if (string.IsNullOrWhiteSpace(ten)) continue;
+            string ten = ws.Cells[row, 2].GetValue<string>()?.Trim() ?? "";
 
+            // === BẮT BUỘC: Phải có tên nhà cung cấp ===
+            if (string.IsNullOrWhiteSpace(ten))
+            {
+                danhSachLoi.Add($"Dòng {row}: Thiếu tên nhà cung cấp");
+                continue;
+            }
+
+            // Kiểm tra trùng tên (chỉ với tên hợp lệ)
+            if (tenTonTai.Contains(ten))
+            {
+                danhSachLoi.Add($"Dòng {row}: Tên '{ten}' đã tồn tại trong hệ thống");
+                continue;
+            }
+
+            // Nếu tới đây → dòng này hợp lệ → mới được thêm vào danh sách
+            string diaChi = ws.Cells[row, 3].GetValue<string>()?.Trim() ?? "";
+            string sdt = ws.Cells[row, 4].GetValue<string>()?.Trim() ?? "";
             string email = ws.Cells[row, 5].GetValue<string>()?.Trim() ?? "";
-
-            // Kiểm tra trùng: theo Tên công ty HOẶC Email (nếu có email)
-            bool daTonTai = tenHienTai.Contains(ten) || 
-                           (!string.IsNullOrEmpty(email) && emailHienTai.Contains(email));
-
-            if (daTonTai)
-                continue; // Bỏ qua dòng này vì đã tồn tại
+            string trangThai = (ws.Cells[row, 6].GetValue<string>()?.Trim() == "Khóa") ? "Khóa" : "Hoạt động";
 
             var ncc = new NhaCungCapDTO
             {
+                MaNhaCungCap = 0,
                 TenNhaCungCap = ten,
-                DiaChi = ws.Cells[row, 3].GetValue<string>()?.Trim() ?? "",
-                SoDienThoai = ws.Cells[row, 4].GetValue<string>()?.Trim() ?? "",
+                DiaChi = diaChi,
+                SoDienThoai = sdt,
                 Email = email,
-                TrangThai = (ws.Cells[row, 6].GetValue<string>()?.Trim() == "Hoạt động") ? "Hoạt động" : "Khóa"
+                TrangThai = trangThai
             };
 
-            importedList.Add(ncc);
-            danhSachMoi.Add(ncc); // Những cái sẽ được thêm mới
+            danhSachMoi.Add(ncc);
+            tenTonTai.Add(ten); // Chỉ thêm tên khi chắc chắn đã được chấp nhận
         }
 
-        if (importedList.Count == 0)
+        // === KẾT QUẢ SAU KHI KIỂM TRA ===
+        if (danhSachMoi.Count == 0)
         {
-            MessageBox.Show("Tất cả nhà cung cấp trong file đã tồn tại trong hệ thống!\nKhông có dữ liệu mới để nhập.", 
-                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(
+                "Không có nhà cung cấp nào được thêm vào!\n\n" +
+                (danhSachLoi.Count > 0
+                    ? "Lý do:\n" + string.Join("\n", danhSachLoi.Take(10)) + (danhSachLoi.Count > 10 ? $"\n... và {danhSachLoi.Count - 10} dòng khác." : "")
+                    : "Tất cả các dòng đều bị lỗi hoặc trùng tên."),
+                "Import thất bại", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        // Hiển thị xem trước (chỉ những dòng mới)
-        _dsNhaCungCap = importedList;
-        HienThiLenBang(importedList);
+        // Xem trước dữ liệu sẽ thêm
+        _dsNhaCungCap = danhSachMoi;
+        HienThiLenBang(danhSachMoi);
 
-        // Xác nhận nhập
-        if (MessageBox.Show(
-            $"Đã phát hiện {danhSachMoi.Count} nhà cung cấp mới (chưa tồn tại).\n\n" +
-            $"Bạn có muốn thêm vào cơ sở dữ liệu không?",
-            "Xác nhận nhập dữ liệu mới", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+        // Thông báo chính xác
+        string thongBao = $"Tìm thấy {danhSachMoi.Count} nhà cung cấp mới hợp lệ.\n";
+        if (danhSachLoi.Count > 0)
+            thongBao += $"Đã bỏ qua {danhSachLoi.Count} dòng do thiếu tên hoặc trùng.\n";
+
+        if (MessageBox.Show(thongBao + "\nBạn có muốn thêm vào hệ thống không?",
+            "Xác nhận nhập", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
         {
             int success = 0;
             foreach (var ncc in danhSachMoi)
@@ -386,22 +409,22 @@ private void ImportExcelButton_Click(object sender, EventArgs e)
                 }
                 catch (Exception ex)
                 {
-                    // Có thể ghi log nếu cần
-                    Console.WriteLine($"Lỗi khi thêm {ncc.TenNhaCungCap}: {ex.Message}");
+                    Console.WriteLine($"Lỗi thêm '{ncc.TenNhaCungCap}': {ex.Message}");
                 }
             }
 
-            LoadDanhSachNhaCungCap(); // Reload lại từ DB
+            LoadDanhSachNhaCungCap();
+
             MessageBox.Show(
-                $"Hoàn tất!\n" +
-                $"Đã thêm thành công {success} nhà cung cấp mới.\n" +
-                $"Bỏ qua {rowCount - 1 - danhSachMoi.Count} dòng đã tồn tại.",
-                "Nhập Excel thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                $"HOÀN TẤT NHẬP EXCEL!\n\n" +
+                $"Đã thêm thành công: {success} nhà cung cấp\n" +
+                $"Bỏ qua do lỗi/trùng: {danhSachLoi.Count} dòng",
+                "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
     catch (Exception ex)
     {
-        MessageBox.Show("Lỗi khi đọc file Excel:\n" + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show("Lỗi khi đọc file Excel:\n" + ex.Message, "Lỗi nghiêm trọng", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 }
     }
