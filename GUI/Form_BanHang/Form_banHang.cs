@@ -8,6 +8,8 @@ using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
+using mini_supermarket.Common;
+using mini_supermarket.Services;
 
 namespace mini_supermarket.GUI.Form_BanHang
 {
@@ -773,6 +775,19 @@ namespace mini_supermarket.GUI.Form_BanHang
                     diemHienCo,
                     diemSuDung);
 
+                // Thông báo cập nhật điểm khách hàng (nếu có)
+                if (selectedKhachHangId.HasValue && result.DiemTichLuy > 0)
+                {
+                    MessageBox.Show(
+                        $"Đã cập nhật điểm tích lũy cho khách hàng!\n\n" +
+                        $"Điểm tích lũy: +{result.DiemTichLuy} điểm\n" +
+                        $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")} điểm\n" +
+                        $"Điểm mới của khách hàng: {result.DiemMoi} điểm",
+                        "Cập nhật điểm thành công",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
                 // Tạo thông báo thành công
                 string message = $"Thanh toán thành công!\n\n" +
                     $"Mã hóa đơn: HD{result.MaHoaDon:D3}\n" +
@@ -783,24 +798,79 @@ namespace mini_supermarket.GUI.Form_BanHang
                     message += $"Giảm giá bằng điểm: -{result.GiamTuDiem:N0} đ\n";
                 }
                 
-                message += $"Tổng cần thanh toán: {result.TongTienThanhToan:N0} đ\n";
-                
-                if (selectedKhachHangId.HasValue)
-                {
-                    message += $"Điểm tích lũy: +{result.DiemTichLuy}\n" +
-                        $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")}\n" +
-                        $"Điểm mới của khách hàng: {result.DiemMoi}";
-                }
-                else
-                {
-                    message += "Khách hàng: Khách lẻ";
-                }
+                message += $"Tổng cần thanh toán: {result.TongTienThanhToan:N0} đ";
 
                 MessageBox.Show(
                     message,
                     "Thành công",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
+
+                // Hỏi có muốn in hóa đơn không
+                DialogResult printResult = MessageBox.Show(
+                    "Bạn có muốn in hóa đơn không?",
+                    "In hóa đơn",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (printResult == DialogResult.Yes)
+                {
+                    try
+                    {
+                        // Lấy thông tin hóa đơn đầy đủ (đã có NhanVien và KhachHang)
+                        HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
+                        var hoaDonList = hoaDonBUS.GetHoaDon();
+                        var hoaDon = hoaDonList.FirstOrDefault(h => h.MaHoaDon == result.MaHoaDon);
+
+                        if (hoaDon != null)
+                        {
+                            // Lấy chi tiết hóa đơn
+                            var chiTietHoaDon = hoaDonBUS.GetChiTietHoaDon(result.MaHoaDon.ToString());
+
+                            // Lấy tên nhân viên và khách hàng từ hoaDon (đã có sẵn)
+                            string tenNhanVien = !string.IsNullOrWhiteSpace(hoaDon.NhanVien) 
+                                ? hoaDon.NhanVien 
+                                : "N/A";
+                            string tenKhachHang = !string.IsNullOrWhiteSpace(hoaDon.KhachHang) 
+                                ? hoaDon.KhachHang 
+                                : "Khách lẻ";
+
+                            // Tạo và in PDF
+                            InvoicePdfService pdfService = new InvoicePdfService();
+                            pdfService.GenerateInvoicePdf(
+                                hoaDon,
+                                chiTietHoaDon,
+                                tenNhanVien,
+                                tenKhachHang,
+                                result.TongTienTruocDiem,
+                                result.GiamTuDiem,
+                                result.DiemTichLuy,
+                                result.DiemSuDung);
+
+                            MessageBox.Show(
+                                "Đã tạo hóa đơn PDF thành công!",
+                                "Thông báo",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show(
+                                "Không tìm thấy thông tin hóa đơn để in.",
+                                "Lỗi",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            $"Lỗi khi tạo hóa đơn PDF:\n\n{ex.Message}",
+                            "Lỗi",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                }
 
                 ResetFormAfterPayment();
             }
@@ -853,8 +923,12 @@ namespace mini_supermarket.GUI.Form_BanHang
 
         private int GetCurrentEmployeeId()
         {
-            // TODO: Lấy từ session/login, tạm thời dùng 1
-            // Có thể tạo một class SessionManager để lưu thông tin nhân viên đăng nhập
+            // Lấy từ session/login
+            if (SessionManager.CurrentMaNhanVien.HasValue)
+            {
+                return SessionManager.CurrentMaNhanVien.Value;
+            }
+            // Fallback nếu chưa đăng nhập
             return 1;
         }
 
