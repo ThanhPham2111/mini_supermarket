@@ -51,7 +51,19 @@ namespace mini_supermarket.GUI.KhoHang
                     if (dgvLichSu.Columns.Contains("MaNhanVien"))
                         dgvLichSu.Columns["TenNhanVien"].DisplayIndex = dgvLichSu.Columns["MaNhanVien"].DisplayIndex + 1;
                 }
-                if (dgvLichSu.Columns["NgayThayDoi"] != null) dgvLichSu.Columns["NgayThayDoi"].HeaderText = "Ngày Thay Đổi";
+                if (dgvLichSu.Columns["NgayThayDoi"] != null) 
+                {
+                    dgvLichSu.Columns["NgayThayDoi"].HeaderText = "Ngày Thay Đổi";
+                    dgvLichSu.Columns["NgayThayDoi"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                    dgvLichSu.Columns["NgayThayDoi"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                // Căn giữa tất cả cột
+                foreach (DataGridViewColumn column in dgvLichSu.Columns)
+                {
+                    column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
 
                 dgvLichSu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
