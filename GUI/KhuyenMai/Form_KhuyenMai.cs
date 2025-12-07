@@ -121,12 +121,14 @@ namespace mini_supermarket.GUI.KhuyenMai
 
             y += gap;
             inputPanel.Controls.Add(CreateLabel("Ngày bắt đầu:", new Point(lblX, y + 4), new Size(lblW, h)));
-            dtpBatDau = new DateTimePicker { Location = new Point(ctrlX, y), Size = new Size(200, h), Format = DateTimePickerFormat.Short }; 
+            dtpBatDau = new DateTimePicker { Location = new Point(ctrlX, y), Size = new Size(200, h), Format = DateTimePickerFormat.Short };
+            dtpBatDau.ValueChanged += DtpBatDau_ValueChanged;
             inputPanel.Controls.Add(dtpBatDau);
 
             y += gap;
             inputPanel.Controls.Add(CreateLabel("Ngày kết thúc:", new Point(lblX, y + 4), new Size(lblW, h)));
             dtpKetThuc = new DateTimePicker { Location = new Point(ctrlX, y), Size = new Size(200, h), Format = DateTimePickerFormat.Short };
+            dtpKetThuc.ValueChanged += DtpKetThuc_ValueChanged;
             inputPanel.Controls.Add(dtpKetThuc);
 
             y += gap;
@@ -370,6 +372,28 @@ namespace mini_supermarket.GUI.KhuyenMai
             dtpKetThuc!.Value = DateTime.Now;
             txtMoTa!.Clear();
             dgv!.Tag = null;
+        }
+
+        private void DtpBatDau_ValueChanged(object? sender, EventArgs e)
+        {
+            if (dtpBatDau == null || dtpKetThuc == null) return;
+            
+            if (dtpBatDau.Value > dtpKetThuc.Value)
+            {
+                MessageBox.Show("Ngày bắt đầu không được sau ngày kết thúc. Vui lòng chọn lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dtpBatDau.Value = dtpKetThuc.Value;
+            }
+        }
+
+        private void DtpKetThuc_ValueChanged(object? sender, EventArgs e)
+        {
+            if (dtpBatDau == null || dtpKetThuc == null) return;
+            
+            if (dtpKetThuc.Value < dtpBatDau.Value)
+            {
+                MessageBox.Show("Ngày kết thúc không được trước ngày bắt đầu. Vui lòng chọn lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dtpKetThuc.Value = dtpBatDau.Value;
+            }
         }
 
         private KhuyenMaiDTO MapInputsToDto(bool isUpdate)
