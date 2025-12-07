@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.Common;
 using mini_supermarket.DTO;
-using OfficeOpenXml;
 using System.Data;
 using System.IO;
 
@@ -248,38 +247,38 @@ namespace mini_supermarket.GUI.NhaCungCap
 
             return nhaCungCapDataGridView.SelectedRows[0].DataBoundItem as NhaCungCapDTO;
         }
-        // export excel và import excel
-      
 
+        // export excel và import excel
+        // export excel
     private void ExportExcelButton_Click(object sender, EventArgs e)
     {
-    SaveFileDialog sfd = new SaveFileDialog
-    {
-        Filter = "Excel Workbook|*.xlsx",
-        Title = "Lưu Excel"
-    };
+        SaveFileDialog sfd = new SaveFileDialog
+        {
+            Filter = "Excel Workbook|*.xlsx",
+            Title = "Lưu Excel"
+        };
 
-    if (sfd.ShowDialog() != DialogResult.OK)
-        return;
+        if (sfd.ShowDialog() != DialogResult.OK)
+            return;
 
-    var list = nhaCungCapDataGridView.DataSource as List<NhaCungCapDTO>;
-    if (list == null || list.Count == 0)
-    {
-        MessageBox.Show("Không có dữ liệu để xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        return;
+        var list = nhaCungCapDataGridView.DataSource as List<NhaCungCapDTO>;
+        if (list == null || list.Count == 0)
+        {
+            MessageBox.Show("Không có dữ liệu để xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        try
+        {
+            _bus.XuatNhaCungCapRaExcel(list, sfd.FileName);
+            MessageBox.Show("✅ Xuất Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi khi xuất Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
-
-    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-    using (ExcelPackage package = new ExcelPackage())
-    {
-        ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Nhà Cung Cấp");
-        worksheet.Cells["A1"].LoadFromCollection(list, true);
-        worksheet.Cells.AutoFitColumns();
-        package.SaveAs(sfd.FileName);
-    }
-
-    MessageBox.Show("✅ Xuất Excel thành công!");
-    }
+    // import excel
     private void ImportExcelButton_Click(object sender, EventArgs e)
     {
         OpenFileDialog ofd = new OpenFileDialog
@@ -291,37 +290,26 @@ namespace mini_supermarket.GUI.NhaCungCap
         if (ofd.ShowDialog() != DialogResult.OK)
             return;
 
-        var importedList = new List<NhaCungCapDTO>();
-
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        using (ExcelPackage package = new ExcelPackage(new FileInfo(ofd.FileName)))
+        try
         {
-            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-            int rowCount = worksheet.Dimension.Rows;
-            int colCount = worksheet.Dimension.Columns;
+            var importedList = _bus.NhapNhaCungCapTuExcel(ofd.FileName);
 
-            for (int row = 2; row <= rowCount; row++) // start from row 2 to skip header
+            if (importedList == null || importedList.Count == 0)
             {
-                if (colCount >= 5)
-                {
-                    var item = new NhaCungCapDTO
-                    {
-                        MaNhaCungCap = int.TryParse(worksheet.Cells[row, 1].Text, out var ma) ? ma : 0,
-                        TenNhaCungCap = worksheet.Cells[row, 2].Text ?? "",
-                        DiaChi = worksheet.Cells[row, 3].Text ?? "",
-                        SoDienThoai = worksheet.Cells[row, 4].Text ?? "",
-                        Email = worksheet.Cells[row, 5].Text ?? "",
-                        TrangThai = colCount > 5 ? worksheet.Cells[row, 6].Text ?? "" : ""
-                    };
-                    importedList.Add(item);
-                }
+                MessageBox.Show("File Excel không có dữ liệu hợp lệ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            // Hiển thị lên bảng
+            nhaCungCapDataGridView.DataSource = importedList;
+            _dsNhaCungCap = importedList;
+
+            MessageBox.Show($"✅ Nhập Excel thành công! Đã đọc được {importedList.Count} nhà cung cấp.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-
-        // hiển thị lên bảng
-        nhaCungCapDataGridView.DataSource = importedList;
-
-        MessageBox.Show("✅ Nhập Excel thành công!");
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi khi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
 

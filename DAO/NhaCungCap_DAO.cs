@@ -65,7 +65,7 @@ namespace mini_supermarket.DAO
     }
 
     // Lấy danh sách sản phẩm theo nhà cung cấp
-    public IList<int> GetSanPhamIdsByNhaCungCap(int maNhaCungCap)
+    public List<int> GetSanPhamIdsByNhaCungCap(int maNhaCungCap)
     {
         var sanPhamIds = new List<int>();
 
