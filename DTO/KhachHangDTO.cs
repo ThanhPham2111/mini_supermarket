@@ -2,14 +2,59 @@ namespace mini_supermarket.DTO
 {
     public class KhachHangDTO
     {
-        public int MaKhachHang { get; set; }
-        public string? TenKhachHang { get; set; }
-        public string? SoDienThoai { get; set; }
-        public string? DiaChi { get; set; }
-        public string? Email { get; set; }
-        public int? DiemTichLuy { get; set; }
-        public string? TrangThai { get; set; }
+        // Instance Fields
+        private int _maKhachHang;
+        private string? _tenKhachHang;
+        private string? _soDienThoai;
+        private string? _diaChi;
+        private string? _email;
+        private int? _diemTichLuy;
+        private string? _trangThai;
 
+        // Properties
+        public int MaKhachHang 
+        { 
+            get => _maKhachHang; 
+            set => _maKhachHang = value; 
+        }
+
+        public string? TenKhachHang 
+        { 
+            get => _tenKhachHang; 
+            set => _tenKhachHang = value; 
+        }
+
+        public string? SoDienThoai 
+        { 
+            get => _soDienThoai; 
+            set => _soDienThoai = value; 
+        }
+
+        public string? DiaChi 
+        { 
+            get => _diaChi; 
+            set => _diaChi = value; 
+        }
+
+        public string? Email 
+        { 
+            get => _email; 
+            set => _email = value; 
+        }
+
+        public int? DiemTichLuy 
+        { 
+            get => _diemTichLuy; 
+            set => _diemTichLuy = value; 
+        }
+
+        public string? TrangThai 
+        { 
+            get => _trangThai; 
+            set => _trangThai = value; 
+        }
+
+        // Constructors
         public KhachHangDTO()
         {
         }
@@ -23,13 +68,13 @@ namespace mini_supermarket.DTO
             int? diemTichLuy,
             string? trangThai)
         {
-            MaKhachHang = maKhachHang;
-            TenKhachHang = tenKhachHang;
-            SoDienThoai = soDienThoai;
-            DiaChi = diaChi;
-            Email = email;
-            DiemTichLuy = diemTichLuy;
-            TrangThai = trangThai;
+            _maKhachHang = maKhachHang;
+            _tenKhachHang = tenKhachHang;
+            _soDienThoai = soDienThoai;
+            _diaChi = diaChi;
+            _email = email;
+            _diemTichLuy = diemTichLuy;
+            _trangThai = trangThai;
         }
     }
 }

@@ -63,4 +63,9 @@ public class Validation_Component
         }
         return true;
     }
+
+    public static bool IsValidLength(string data, int maxLength)
+    {
+        return data.Length <= maxLength;
+    }
 }
