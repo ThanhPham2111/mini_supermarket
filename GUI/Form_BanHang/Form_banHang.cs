@@ -14,7 +14,7 @@ namespace mini_supermarket.GUI.Form_BanHang
     public partial class Form_banHang : Form
     {
         private BanHang_BUS? banHangBUS;
-        private IList<SanPhamBanHangDTO>? allProductsData; // Lưu danh sách sản phẩm gốc để filter
+        private IList<SanPhamDTO>? allProductsData; // Lưu danh sách sản phẩm gốc để filter
 
         public Form_banHang()
         {
@@ -512,7 +512,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             }
         }
 
-        private void LoadProductsFromList(IList<SanPhamBanHangDTO> list, bool autoSelectFirst = false)
+        private void LoadProductsFromList(IList<SanPhamDTO> list, bool autoSelectFirst = false)
         {
             try
             {
@@ -526,7 +526,7 @@ namespace mini_supermarket.GUI.Form_BanHang
                     decimal giaBan = item.GiaBan ?? 0m;
                     int soLuong = item.SoLuong ?? 0;
                     string khuyenMai = item.KhuyenMai ?? "";
-                    decimal phanTramGiam = item.PhanTramGiam;
+                    decimal phanTramGiam = item.PhanTramGiam ?? 0m;
                     DateTime? hsd = item.Hsd;
 
                     string giaBanStr = giaBan.ToString("N0") + " đ";
