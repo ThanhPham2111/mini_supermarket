@@ -47,6 +47,21 @@ namespace mini_supermarket.DAO
 
             return khachHangList;
         }
+
+        public DataTable getKhachHangWithSqlDataAdapter()
+        {
+            DataTable tb = new DataTable();
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+            SELECT MAKHACHHANG, TENKHACHHANG
+            FROM Tbl_KhachHang
+            WHERE TRANGTHAI = @trangThai";
+            command.Parameters.AddWithValue("@trangThai", "Active");
+            using var adapter = new SqlDataAdapter((SqlCommand)command);
+            adapter.Fill(tb);
+            return tb;
+        }
         
         public int GetMaxMaKhachHang()
         {
