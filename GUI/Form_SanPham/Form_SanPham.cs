@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.Form_SanPham
@@ -11,9 +12,11 @@ namespace mini_supermarket.GUI.Form_SanPham
     public partial class Form_SanPham : Form
     {
         private const string StatusAll = "Tất cả";
+        private const string FunctionPath = "Form_SanPham";
 
         private readonly SanPham_BUS _sanPhamBus = new();
         private readonly BindingSource _bindingSource = new();
+        private readonly PermissionService _permissionService = new();
         private IList<SanPhamDTO> _currentSanPham = Array.Empty<SanPhamDTO>();
 
         public Form_SanPham()
@@ -37,7 +40,6 @@ namespace mini_supermarket.GUI.Form_SanPham
             toolTip.SetToolTip(xemChiTietButton, "Xem chi tiết sản phẩm đã chọn");
             toolTip.SetToolTip(themButton, "Thêm sản phẩm mới");
             toolTip.SetToolTip(suaButton, "Sửa thông tin sản phẩm đã chọn");
-            toolTip.SetToolTip(xoaButton, "Xóa sản phẩm đã chọn");
             toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
             toolTip.SetToolTip(searchButton, "Tìm kiếm sản phẩm");
 
@@ -45,21 +47,28 @@ namespace mini_supermarket.GUI.Form_SanPham
             searchTextBox.TextChanged += (_, _) => ApplyFilters();
             themButton.Click += themButton_Click;
             suaButton.Click += suaButton_Click;
-
-            xoaButton.Click += xoaButton_Click;
             lamMoiButton.Click += lamMoiButton_Click;
             xemChiTietButton.Click += xemChiTietButton_Click;
 
             InitializeStatusFilter();
             statusFilterComboBox.SelectedIndexChanged += statusFilterComboBox_SelectedIndexChanged;
 
-            themButton.Enabled = true;
-            suaButton.Enabled = false;
-            xoaButton.Enabled = false;
-            xemChiTietButton.Enabled = false;
-            khoaButton.Enabled = false;
+            // Áp dụng quyền cho các button
+            ApplyPermissions();
 
             LoadSanPhamData();
+        }
+
+        private void ApplyPermissions()
+        {
+            // Kiểm tra quyền Thêm
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            themButton.Enabled = canAdd;
+
+            // Kiểm tra quyền Sửa (sẽ được cập nhật khi có selection)
+            // Kiểm tra quyền Xem (cho button xem chi tiết)
+            bool canView = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xem);
+            xemChiTietButton.Enabled = false; // Sẽ được cập nhật khi có selection
         }
 
         private void InitializeStatusFilter()
@@ -147,16 +156,25 @@ namespace mini_supermarket.GUI.Form_SanPham
         private void UpdateActionButtonsState()
         {
             bool hasSelection = sanPhamDataGridView.SelectedRows.Count > 0;
-            xemChiTietButton.Enabled = hasSelection;
-            suaButton.Enabled = hasSelection;
-            xoaButton.Enabled = hasSelection;
-            var sel = GetSelectedSanPham();
-            bool canKhoa = hasSelection && sel != null && string.Equals(sel.TrangThai?.Trim(), SanPham_BUS.StatusConHang, StringComparison.CurrentCultureIgnoreCase);
-            khoaButton.Enabled = canKhoa;
+            
+            // Kiểm tra quyền Xem
+            bool canView = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xem);
+            xemChiTietButton.Enabled = hasSelection && canView;
+            
+            // Kiểm tra quyền Sửa
+            bool canUpdate = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            suaButton.Enabled = hasSelection && canUpdate;
         }
 
         private void xemChiTietButton_Click(object? sender, EventArgs e)
         {
+            // Kiểm tra quyền Xem
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xem))
+            {
+                MessageBox.Show("Bạn không có quyền xem chi tiết sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedSanPham = GetSelectedSanPham();
             if (selectedSanPham == null)
             {
@@ -205,6 +223,13 @@ namespace mini_supermarket.GUI.Form_SanPham
 
         private void themButton_Click(object? sender, EventArgs e)
         {
+            // Kiểm tra quyền Thêm
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new Form_SanPhamCreateDialog();
             if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedSanPham == null)
             {
@@ -226,6 +251,13 @@ namespace mini_supermarket.GUI.Form_SanPham
 
         private void suaButton_Click(object? sender, EventArgs e)
         {
+            // Kiểm tra quyền Sửa
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selected = GetSelectedSanPham();
             if (selected == null)
             {
@@ -302,67 +334,6 @@ namespace mini_supermarket.GUI.Form_SanPham
             return false;
         }
 
-        private void xoaButton_Click(object? sender, EventArgs e)
-        {
-            var selected = GetSelectedSanPham();
-            if (selected == null)
-            {
-                return;
-            }
-
-            var current = selected.TrangThai?.Trim();
-            if (string.Equals(current, SanPham_BUS.StatusHetHang, StringComparison.CurrentCultureIgnoreCase))
-            {
-                MessageBox.Show(this, "Sản phẩm đã ở trạng thái Hết hàng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (!string.Equals(current, SanPham_BUS.StatusConHang, StringComparison.CurrentCultureIgnoreCase))
-            {
-                MessageBox.Show(this, "Chỉ có thể khóa sản phẩm đang ở trạng thái Còn hàng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var updated = new SanPhamDTO
-            {
-                MaSanPham = selected.MaSanPham,
-                TenSanPham = selected.TenSanPham ?? string.Empty,
-                MaDonVi = selected.MaDonVi,
-                MaThuongHieu = selected.MaThuongHieu,
-                MaLoai = selected.MaLoai,
-                MoTa = selected.MoTa,
-                GiaBan = selected.GiaBan,
-                HinhAnh = selected.HinhAnh,
-                XuatXu = selected.XuatXu,
-                Hsd = selected.Hsd,
-                TrangThai = SanPham_BUS.StatusHetHang
-            };
-            DialogResult confirm = MessageBox.Show(this,
-               $"Bạn có chắc muốn khóa nhân viên '{selected.TenSanPham}'? Trạng thái sẽ được chuyển thành 'Hết hàng'.",
-               "Xác nhận?",
-               MessageBoxButtons.YesNo,
-               MessageBoxIcon.Question,
-               MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes)
-            {
-                return;
-            }
-
-            try
-            {
-
-                _sanPhamBus.UpdateSanPham(updated);
-                // Reset filters for clear visibility and select the updated row
-                if (statusFilterComboBox.SelectedIndex != 0) statusFilterComboBox.SelectedIndex = 0;
-                if (!string.IsNullOrEmpty(searchTextBox.Text)) searchTextBox.Clear();
-                LoadSanPhamData(updated.MaSanPham);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể khóa sản phẩm.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
     }
 }
 

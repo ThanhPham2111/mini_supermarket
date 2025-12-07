@@ -10,8 +10,10 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 {
     public partial class Form_LoaiSanPham : Form
     {
+        private const string FunctionPath = "Form_LoaiSanPham";
         private readonly LoaiSanPham_BUS _loaiBus = new();
         private readonly BindingSource _loaiBindingSource = new();
+        private readonly PermissionService _permissionService = new();
         private Form? _activeEmbeddedForm;
 
         public Form_LoaiSanPham()
@@ -24,8 +26,27 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            _permissionService.ReloadPermissions();
+            ApplyPermissions();
             ApplyLoaiFilters();
         }
+
+       private void ApplyPermissions()
+{
+    _permissionService.ReloadPermissions();
+
+    // DÙNG HELPER MỚI – CHỈ 1 DÒNG LÀ XONG!
+    FormPermissionHelper.ApplyCRUDPermissions(
+        _permissionService,
+        FunctionPath,
+        addButton: addLoaiButton,
+        editButton: editLoaiButton,
+        deleteButton: deleteLoaiButton
+    );
+
+    // Sau khi bật nút theo quyền, thì UpdateLoaiButtonsState() sẽ tắt nếu chưa chọn dòng
+    UpdateLoaiButtonsState();
+}
 
         private void InitializeLoaiStatusFilter()
         {
@@ -34,7 +55,6 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             {
                 loaiStatusFilterComboBox.Items.Add(option);
             }
-
             loaiStatusFilterComboBox.SelectedIndex = 0;
             loaiStatusFilterComboBox.SelectedIndexChanged += (_, _) => ApplyLoaiFilters();
         }
@@ -48,10 +68,10 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
 
-            if (mainTabControl.SelectedTab is { } selected)
+            if (mainTabControl.SelectedTab is { } selectedTab)
             {
-                selected.Controls.Clear();
-                selected.Controls.Add(form);
+                selectedTab.Controls.Clear();
+                selectedTab.Controls.Add(form);
                 form.Show();
                 _activeEmbeddedForm = form;
             }
@@ -66,22 +86,24 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 tabLoai.Controls.Add(listHeaderLabel);
                 tabLoai.Controls.Add(buttonsFlowPanel);
                 tabLoai.Controls.Add(searchContainerPanel);
+
                 _activeEmbeddedForm?.Close();
                 _activeEmbeddedForm?.Dispose();
                 _activeEmbeddedForm = null;
+
                 ApplyLoaiFilters();
                 return;
             }
 
             if (mainTabControl.SelectedTab == tabThuongHieu)
             {
-                ShowEmbeddedFormInCurrentTab(new Form_ThuongHieu());
-                return;
+                var form = new Form_ThuongHieu();
+                ShowEmbeddedFormInCurrentTab(form);
             }
-
-            if (mainTabControl.SelectedTab == tabDonVi)
+            else if (mainTabControl.SelectedTab == tabDonVi)
             {
-                ShowEmbeddedFormInCurrentTab(new Form_DonVi());
+                var form = new Form_DonVi();
+                ShowEmbeddedFormInCurrentTab(form);
             }
         }
 
@@ -95,39 +117,37 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             loaiDataGridView.RowHeadersVisible = false;
             loaiDataGridView.Columns.Clear();
 
-            var maLoaiColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(LoaiDTO.MaLoai),
-                HeaderText = "Mã loại",
-                Name = "MaLoaiColumn",
-                Width = 120
-            };
+            loaiDataGridView.Columns.AddRange(
+                new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = nameof(LoaiDTO.MaLoai),
+                    HeaderText = "Mã loại",
+                    Name = "MaLoaiColumn",
+                    Width = 120
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = nameof(LoaiDTO.TenLoai),
+                    HeaderText = "Tên loại",
+                    Name = "TenLoaiColumn",
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = nameof(LoaiDTO.MoTa),
+                    HeaderText = "Mô tả",
+                    Name = "MoTaColumn",
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = nameof(LoaiDTO.TrangThai),
+                    HeaderText = "Trạng thái",
+                    Name = "TrangThaiColumn",
+                    Width = 150
+                }
+            );
 
-            var tenLoaiColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(LoaiDTO.TenLoai),
-                HeaderText = "Tên loại",
-                Name = "TenLoaiColumn",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            };
-
-            var moTaColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(LoaiDTO.MoTa),
-                HeaderText = "Mô tả",
-                Name = "MoTaColumn",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            };
-
-            var trangThaiColumn = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(LoaiDTO.TrangThai),
-                HeaderText = "Trạng thái",
-                Name = "TrangThaiColumn",
-                Width = 150
-            };
-
-            loaiDataGridView.Columns.AddRange(maLoaiColumn, tenLoaiColumn, moTaColumn, trangThaiColumn);
             loaiDataGridView.DataSource = _loaiBindingSource;
         }
 
@@ -136,38 +156,43 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             string keyword = searchTextBox.Text?.Trim() ?? string.Empty;
             string? statusFilter = GetSelectedStatus(loaiStatusFilterComboBox);
 
-            IList<LoaiDTO> loaiList = string.IsNullOrEmpty(keyword)
+            IList<LoaiDTO> list = string.IsNullOrEmpty(keyword)
                 ? _loaiBus.GetLoaiList(statusFilter)
                 : _loaiBus.SearchLoai(keyword, statusFilter);
 
-            _loaiBindingSource.DataSource = loaiList;
-            ResetLoaiSelection();
+            _loaiBindingSource.DataSource = list;
+
+            // Reset selection để tránh lỗi khi dữ liệu thay đổi
+            loaiDataGridView.ClearSelection();
+            UpdateLoaiButtonsState(); // Rất quan trọng!
         }
+
+       private void UpdateLoaiButtonsState()
+{
+    // SỬA TẠI ĐÂY: Dùng CurrentRow thay vì SelectedRows
+    // → Vì ClearSelection() làm SelectedRows = 0, nhưng CurrentRow vẫn còn!
+    bool hasSelection = loaiDataGridView.CurrentRow != null;
+
+    bool canEdit   = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+    bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+    editLoaiButton.Enabled   = canEdit   && hasSelection;
+    deleteLoaiButton.Enabled = canDelete && hasSelection;
+}
 
         private static string? GetSelectedStatus(ComboBox comboBox)
         {
-            if (comboBox.SelectedItem is not string option)
-            {
-                return null;
-            }
+            if (comboBox.SelectedItem is not string option) return null;
 
-            return string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.CurrentCultureIgnoreCase)
+            return string.Equals(option, TrangThaiConstants.ComboBoxOptions[0], StringComparison.OrdinalIgnoreCase)
                 ? null
                 : option;
         }
 
         private void refreshLoaiButton_Click(object sender, EventArgs e)
         {
-            if (loaiStatusFilterComboBox.SelectedIndex != 0)
-            {
-                loaiStatusFilterComboBox.SelectedIndex = 0;
-            }
-
-            if (!string.IsNullOrWhiteSpace(searchTextBox.Text))
-            {
-                searchTextBox.Text = string.Empty;
-            }
-
+            loaiStatusFilterComboBox.SelectedIndex = 0;
+            searchTextBox.Clear();
             ApplyLoaiFilters();
         }
 
@@ -178,113 +203,86 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
         private void addLoaiButton_Click(object sender, EventArgs e)
         {
-            using var dialog = new ThemLoaiDialog();
-            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.CreatedLoai == null)
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
             {
+                MessageBox.Show("Bạn không có quyền thêm loại sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            ApplyLoaiFilters();
+            using var dialog = new ThemLoaiDialog();
+            if (dialog.ShowDialog(this) == DialogResult.OK && dialog.CreatedLoai != null)
+            {
+                ApplyLoaiFilters();
+            }
         }
 
         private void editLoaiButton_Click(object sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa loại sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show(this,
-                    "Vui lòng chọn loại để sửa.",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn một loại sản phẩm để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var loaiSnapshot = new LoaiDTO(selected.MaLoai, selected.TenLoai, selected.MoTa, selected.TrangThai);
-            using var dialog = new SuaLoaiDialog(loaiSnapshot);
-            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.UpdatedLoai == null)
+            var snapshot = new LoaiDTO(selected.MaLoai, selected.TenLoai, selected.MoTa, selected.TrangThai);
+            using var dialog = new SuaLoaiDialog(snapshot);
+
+            if (dialog.ShowDialog(this) == DialogResult.OK && dialog.UpdatedLoai != null)
             {
-                return;
+                ApplyLoaiFilters();
             }
-
-            ApplyLoaiFilters();
         }
 
         private void deleteLoaiButton_Click(object sender, EventArgs e)
         {
-            if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
             {
-                MessageBox.Show(this,
-                    "Vui lòng chọn loại để cập nhật trạng thái.",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show("Bạn không có quyền khóa loại sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (string.Equals(selected.TrangThai, TrangThaiConstants.NgungHoatDong, StringComparison.CurrentCultureIgnoreCase))
+            if (loaiDataGridView.CurrentRow?.DataBoundItem is not LoaiDTO selected)
             {
-                MessageBox.Show(this,
-                    $"Loại \"{selected.TenLoai}\" đã ở trạng thái \"{TrangThaiConstants.NgungHoatDong}\".",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn một loại sản phẩm để khóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (string.Equals(selected.TrangThai, TrangThaiConstants.NgungHoatDong, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show($"Loại \"{selected.TenLoai}\" đã bị khóa rồi.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             var confirm = MessageBox.Show(
-                this,
-                $"Bạn có chắc muốn chuyển loại \"{selected.TenLoai}\" (Mã {selected.MaLoai}) sang trạng thái \"{TrangThaiConstants.NgungHoatDong}\"?",
-                "Xác nhận",
+                $"Bạn có chắc muốn khóa loại sản phẩm \"{selected.TenLoai}\" (Mã: {selected.MaLoai}) không?",
+                "Xác nhận khóa",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
 
-            if (confirm != DialogResult.Yes)
-            {
-                return;
-            }
+            if (confirm != DialogResult.Yes) return;
 
             try
             {
                 _loaiBus.DeleteLoai(selected.MaLoai);
                 ApplyLoaiFilters();
+                MessageBox.Show("Khóa loại sản phẩm thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    $"Không thể cập nhật trạng thái loại.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi khóa loại sản phẩm:\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ResetLoaiSelection()
+        private void loaiDataGridView_SelectionChanged(object sender, EventArgs e)
         {
-            try
-            {
-                if (_loaiBindingSource.Position != -1)
-                {
-                    _loaiBindingSource.Position = -1;
-                }
-            }
-            catch
-            {
-            }
-
-            loaiDataGridView.ClearSelection();
-
-            if (loaiDataGridView.CurrentCell != null)
-            {
-                try
-                {
-                    loaiDataGridView.CurrentCell = null;
-                }
-                catch
-                {
-                }
-            }
+            UpdateLoaiButtonsState();
         }
     }
 }

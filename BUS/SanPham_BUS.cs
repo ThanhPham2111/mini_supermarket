@@ -46,9 +46,9 @@ namespace mini_supermarket.BUS
             return _sanPhamDao.GetSanPham();
         }
 
-        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null)
+        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null, int? maNhaCungCap = null)
         {
-            return _sanPhamDao.GetSanPham(trangThaiFilter);
+            return _sanPhamDao.GetSanPham(trangThaiFilter, maNhaCungCap);
         }
 
         public IList<DonViDTO> GetDonViList(string? trangThai = TrangThaiConstants.HoatDong)
@@ -93,6 +93,32 @@ namespace mini_supermarket.BUS
 
             ValidateSanPham(sanPham);
             _sanPhamDao.UpdateSanPham(sanPham);
+        }
+
+        public SanPhamDTO? GetSanPhamById(int maSanPham)
+        {
+            if (maSanPham <= 0)
+            {
+                throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(maSanPham));
+            }
+
+            return _sanPhamDao.GetSanPhamById(maSanPham);
+        }
+
+        public void UpdateGiaBan(int maSanPham, decimal giaBan)
+        {
+            if (maSanPham <= 0)
+            {
+                throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(maSanPham));
+            }
+
+            if (giaBan < 0)
+            {
+                throw new ArgumentException("Giá bán không được âm.", nameof(giaBan));
+            }
+
+            // Cập nhật trực tiếp GiaBan bằng SQL để đảm bảo cập nhật đúng
+            _sanPhamDao.UpdateGiaBan(maSanPham, giaBan);
         }
 
         private static void ValidateSanPham(SanPhamDTO sanPham)

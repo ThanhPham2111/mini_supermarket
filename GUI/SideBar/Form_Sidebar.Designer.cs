@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.sidebarPanel = new System.Windows.Forms.Panel();
+            this.logoutButton = new System.Windows.Forms.Button();
+            this.navQuanLyButton = new System.Windows.Forms.Button();
             this.navTaiKhoanButton = new System.Windows.Forms.Button();
             this.navNhaCungCapButton = new System.Windows.Forms.Button();
             this.navNhanVienButton = new System.Windows.Forms.Button();
@@ -58,9 +60,11 @@
             // sidebarPanel
             // 
             this.sidebarPanel.BackColor = System.Drawing.Color.White;
+            this.sidebarPanel.Controls.Add(this.logoutButton);
+            this.sidebarPanel.Controls.Add(this.navQuanLyButton);
             this.sidebarPanel.Controls.Add(this.navTaiKhoanButton);
-            this.sidebarPanel.Controls.Add(this.navNhaCungCapButton);
             this.sidebarPanel.Controls.Add(this.navNhanVienButton);
+            this.sidebarPanel.Controls.Add(this.navNhaCungCapButton);
             this.sidebarPanel.Controls.Add(this.navKhachHangButton);
             this.sidebarPanel.Controls.Add(this.navKhuyenMaiButton);
             this.sidebarPanel.Controls.Add(this.navLoaiSanPhamButton);
@@ -78,6 +82,47 @@
             this.sidebarPanel.Padding = new System.Windows.Forms.Padding(0, 24, 0, 24);
             this.sidebarPanel.Size = new System.Drawing.Size(220, 900);
             this.sidebarPanel.TabIndex = 0;
+            // 
+            // logoutButton
+            // 
+            this.logoutButton.BackColor = System.Drawing.Color.White;
+            this.logoutButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.logoutButton.FlatAppearance.BorderSize = 0;
+            this.logoutButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.logoutButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.logoutButton.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.logoutButton.Location = new System.Drawing.Point(0, 826);
+            this.logoutButton.Margin = new System.Windows.Forms.Padding(0);
+            this.logoutButton.Name = "logoutButton";
+            this.logoutButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.logoutButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.logoutButton.Size = new System.Drawing.Size(220, 50);
+            this.logoutButton.TabIndex = 14;
+            this.logoutButton.Text = "Đăng Xuất";
+            this.logoutButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.logoutButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.logoutButton.UseVisualStyleBackColor = false;
+            this.logoutButton.Click += new System.EventHandler(this.logoutButton_Click);
+            // 
+            // navQuanLyButton
+            // 
+            this.navQuanLyButton.BackColor = System.Drawing.Color.White;
+            this.navQuanLyButton.Dock = System.Windows.Forms.DockStyle.Top;
+            this.navQuanLyButton.FlatAppearance.BorderSize = 0;
+            this.navQuanLyButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.navQuanLyButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.navQuanLyButton.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.navQuanLyButton.Location = new System.Drawing.Point(0, 774);
+            this.navQuanLyButton.Margin = new System.Windows.Forms.Padding(0);
+            this.navQuanLyButton.Name = "navQuanLyButton";
+            this.navQuanLyButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.navQuanLyButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.navQuanLyButton.Size = new System.Drawing.Size(220, 50);
+            this.navQuanLyButton.TabIndex = 13;
+            this.navQuanLyButton.Text = "Quản Lý";
+            this.navQuanLyButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.navQuanLyButton.UseVisualStyleBackColor = false;
+            this.navQuanLyButton.Click += new System.EventHandler(this.navQuanLyButton_Click);
             // 
             // navTaiKhoanButton
             // 
@@ -101,7 +146,7 @@
             // 
             // navNhaCungCapButton
             // 
-              this.navNhaCungCapButton.BackColor = System.Drawing.Color.White;
+            this.navNhaCungCapButton.BackColor = System.Drawing.Color.White;
             this.navNhaCungCapButton.Dock = System.Windows.Forms.DockStyle.Top;
             this.navNhaCungCapButton.FlatAppearance.BorderSize = 0;
             this.navNhaCungCapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -450,6 +495,7 @@
         private System.Windows.Forms.Panel headerPanel;
         private System.Windows.Forms.Label mainTitleLabel;
         private System.Windows.Forms.Panel contentHostPanel;
+        private System.Windows.Forms.Button navQuanLyButton;
         private System.Windows.Forms.Button navTaiKhoanButton;
         private System.Windows.Forms.Button navNhaCungCapButton;
         private System.Windows.Forms.Button navNhanVienButton;
@@ -462,6 +508,7 @@
         private System.Windows.Forms.Button navHoaDonButton;
         private System.Windows.Forms.Button navBanHangButton;
         private System.Windows.Forms.Button navTrangChuButton;
+        private System.Windows.Forms.Button logoutButton;
     }
 }
 

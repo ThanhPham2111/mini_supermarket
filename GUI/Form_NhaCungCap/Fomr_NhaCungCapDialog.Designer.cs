@@ -46,9 +46,19 @@ namespace mini_supermarket.GUI.NhaCungCap
         Location = new Point(xInput, y),
         Width = widthInput
     };
+    hoTenErrorIcon = new Label()
+    {
+        Text = "✕",
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold),
+        ForeColor = System.Drawing.Color.Red,
+        Location = new Point(xInput + widthInput + 5, y + 3),
+        AutoSize = true,
+        Visible = false
+    };
     hoTenErrorLabel = new Label()
     {
-        ForeColor = Color.Red,
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F),
+        ForeColor = System.Drawing.Color.Red,
         Location = new Point(xInput, y + 28),
         AutoSize = true
     };
@@ -66,9 +76,19 @@ namespace mini_supermarket.GUI.NhaCungCap
         Location = new Point(xInput, y),
         Width = widthInput
     };
+    soDienThoaiErrorIcon = new Label()
+    {
+        Text = "✕",
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold),
+        ForeColor = System.Drawing.Color.Red,
+        Location = new Point(xInput + widthInput + 5, y + 3),
+        AutoSize = true,
+        Visible = false
+    };
     soDienThoaiErrorLabel = new Label()
     {
-        ForeColor = Color.Red,
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F),
+        ForeColor = System.Drawing.Color.Red,
         Location = new Point(xInput, y + 28),
         AutoSize = true
     };
@@ -86,9 +106,19 @@ namespace mini_supermarket.GUI.NhaCungCap
         Location = new Point(xInput, y),
         Width = widthInput
     };
+    diaChiErrorIcon = new Label()
+    {
+        Text = "✕",
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold),
+        ForeColor = System.Drawing.Color.Red,
+        Location = new Point(xInput + widthInput + 5, y + 3),
+        AutoSize = true,
+        Visible = false
+    };
     diaChiErrorLabel = new Label()
     {
-        ForeColor = Color.Red,
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F),
+        ForeColor = System.Drawing.Color.Red,
         Location = new Point(xInput, y + 28),
         AutoSize = true
     };
@@ -106,9 +136,19 @@ namespace mini_supermarket.GUI.NhaCungCap
         Location = new Point(xInput, y),
         Width = widthInput
     };
+    emailErrorIcon = new Label()
+    {
+        Text = "✕",
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold),
+        ForeColor = System.Drawing.Color.Red,
+        Location = new Point(xInput + widthInput + 5, y + 3),
+        AutoSize = true,
+        Visible = false
+    };
     emailErrorLabel = new Label()
     {
-        ForeColor = Color.Red,
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F),
+        ForeColor = System.Drawing.Color.Red,
         Location = new Point(xInput, y + 28),
         AutoSize = true
     };
@@ -126,6 +166,22 @@ namespace mini_supermarket.GUI.NhaCungCap
         Location = new Point(xInput, y),
         Width = widthInput,
         DropDownStyle = ComboBoxStyle.DropDownList
+    };
+    trangThaiErrorIcon = new Label()
+    {
+        Text = "✕",
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold),
+        ForeColor = System.Drawing.Color.Red,
+        Location = new Point(xInput + widthInput + 5, y + 3),
+        AutoSize = true,
+        Visible = false
+    };
+    trangThaiErrorLabel = new Label()
+    {
+        Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F),
+        ForeColor = System.Drawing.Color.Red,
+        Location = new Point(xInput, y + 28),
+        AutoSize = true
     };
     y += 50;
 
@@ -165,11 +221,11 @@ namespace mini_supermarket.GUI.NhaCungCap
     // ==== ADD CONTROLS ====
     this.Controls.AddRange(new Control[]
     {
-        hoTenLabel, hoTenTextBox, hoTenErrorLabel,
-        soDienThoaiLabel, soDienThoaiTextBox, soDienThoaiErrorLabel,
-        diaChiLabel, diaChiTextBox, diaChiErrorLabel,
-        emailLabel, emailTextBox, emailErrorLabel,
-        trangThaiLabel, trangThaiComboBox,
+        hoTenLabel, hoTenTextBox, hoTenErrorIcon, hoTenErrorLabel,
+        soDienThoaiLabel, soDienThoaiTextBox, soDienThoaiErrorIcon, soDienThoaiErrorLabel,
+        diaChiLabel, diaChiTextBox, diaChiErrorIcon, diaChiErrorLabel,
+        emailLabel, emailTextBox, emailErrorIcon, emailErrorLabel,
+        trangThaiLabel, trangThaiComboBox, trangThaiErrorIcon, trangThaiErrorLabel,
         maNhaCungCapLabel, maNhaCungCapValueLabel,
         okButton, cancelButton
     });
@@ -182,22 +238,28 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         private System.Windows.Forms.Label hoTenLabel;
         private System.Windows.Forms.TextBox hoTenTextBox;
+        private System.Windows.Forms.Label hoTenErrorIcon;
         private System.Windows.Forms.Label hoTenErrorLabel;
 
         private System.Windows.Forms.Label soDienThoaiLabel;
         private System.Windows.Forms.TextBox soDienThoaiTextBox;
+        private System.Windows.Forms.Label soDienThoaiErrorIcon;
         private System.Windows.Forms.Label soDienThoaiErrorLabel;
 
         private System.Windows.Forms.Label diaChiLabel;
         private System.Windows.Forms.TextBox diaChiTextBox;
+        private System.Windows.Forms.Label diaChiErrorIcon;
         private System.Windows.Forms.Label diaChiErrorLabel;
 
         private System.Windows.Forms.Label emailLabel;
         private System.Windows.Forms.TextBox emailTextBox;
+        private System.Windows.Forms.Label emailErrorIcon;
         private System.Windows.Forms.Label emailErrorLabel;
 
         private System.Windows.Forms.Label trangThaiLabel;
         private System.Windows.Forms.ComboBox trangThaiComboBox;
+        private System.Windows.Forms.Label trangThaiErrorIcon;
+        private System.Windows.Forms.Label trangThaiErrorLabel;
 
         private System.Windows.Forms.Label maNhaCungCapLabel;
         private System.Windows.Forms.Label maNhaCungCapValueLabel;

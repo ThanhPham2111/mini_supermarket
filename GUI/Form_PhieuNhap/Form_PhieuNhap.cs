@@ -22,7 +22,7 @@ namespace mini_supermarket.GUI.PhieuNhap
         // Functional controls
         private DataGridView dgvPhieuNhap;
         private TextBox txtSearch;
-        private ComboBox cboTimePeriod, cboSupplier;
+        private ComboBox cboTimePeriod, cboSupplier, cboTrangThai;
         private Button btnAddImport, btnClear, btnImportExcel;
 
         public Form_PhieuNhap()
@@ -121,16 +121,18 @@ namespace mini_supermarket.GUI.PhieuNhap
             tblFilters = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 4,
+                ColumnCount = 6,
                 RowCount = 2,
                 Padding = new Padding(0)
             };
             
             // Column Styles
             tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); // Label
-            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));   // Control
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));   // Control
             tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); // Label
-            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));   // Control
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));   // Control
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); // Label
+            tblFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));   // Control
 
             // Row Styles
             tblFilters.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
@@ -157,18 +159,28 @@ namespace mini_supermarket.GUI.PhieuNhap
             tblFilters.Controls.Add(lblSupplier, 2, 0);
             tblFilters.Controls.Add(cboSupplier, 3, 0);
 
-            // 3. Search
+            // 3. Trạng thái
+            Label lblTrangThai = new Label { Text = "Trạng thái:", Anchor = AnchorStyles.Left, AutoSize = true };
+            cboTrangThai = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
+            cboTrangThai.Items.AddRange(new[] { "Tất cả", "Nhập thành công", "Đang nhập", "Đã hủy" });
+            cboTrangThai.SelectedIndex = 0;
+            cboTrangThai.SelectedIndexChanged += (s, e) => ApplyFilters();
+
+            tblFilters.Controls.Add(lblTrangThai, 4, 0);
+            tblFilters.Controls.Add(cboTrangThai, 5, 0);
+
+            // 4. Search
             Label lblSearch = new Label { Text = "Tìm kiếm:", Anchor = AnchorStyles.Left, AutoSize = true };
             txtSearch = new TextBox { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 10), PlaceholderText = "Tìm kiếm theo mã phiếu..." };
             txtSearch.TextChanged += (s, e) => 
             {
-                if (string.IsNullOrWhiteSpace(txtSearch.Text)) LoadData();
+                if (string.IsNullOrWhiteSpace(txtSearch.Text)) ApplyFilters();
                 else PerformSearch();
             };
 
             tblFilters.Controls.Add(lblSearch, 0, 1);
             tblFilters.Controls.Add(txtSearch, 1, 1);
-            tblFilters.SetColumnSpan(txtSearch, 3); // Span across remaining columns
+            tblFilters.SetColumnSpan(txtSearch, 5); // Span across remaining columns
 
             LoadNhaCungCapFilter();
         }
@@ -241,7 +253,8 @@ namespace mini_supermarket.GUI.PhieuNhap
             txtSearch.Clear();
             cboTimePeriod.SelectedIndex = 0;
             cboSupplier.SelectedIndex = 0;
-            LoadData();
+            cboTrangThai.SelectedIndex = 0;
+            ApplyFilters();
         }
 
         private void BtnImportExcel_Click(object? sender, EventArgs e)
@@ -643,7 +656,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         $"PN{phieuNhap.MaPhieuNhap:D3}",
                         phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
                         tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0
+                        phieuNhap.TongTien ?? 0,
+                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
                     );
                 }
             }
@@ -698,7 +712,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         $"PN{phieuNhap.MaPhieuNhap:D3}",
                         phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
                         tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0
+                        phieuNhap.TongTien ?? 0,
+                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
                     );
                 }
             }
@@ -714,7 +729,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 var nhaCungCapBUS = new NhaCungCap_BUS();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
+                var nhaCungCapList = nhaCungCapBUS.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
                 
                 cboSupplier.Items.Clear();
                 cboSupplier.Items.Add("🏢 Nhà cung cấp");
@@ -780,6 +795,16 @@ namespace mini_supermarket.GUI.PhieuNhap
                     }
                 }
                 
+                // Filter theo trạng thái
+                if (cboTrangThai.SelectedIndex > 0) // Skip "Tất cả"
+                {
+                    string selectedTrangThai = cboTrangThai.SelectedItem?.ToString() ?? "";
+                    // Map "Đã hủy" trong combobox với "Hủy" trong database
+                    string dbTrangThai = selectedTrangThai == "Đã hủy" ? "Hủy" : selectedTrangThai;
+                    phieuNhapList = phieuNhapList.Where(pn => 
+                        (pn.TrangThai ?? "Đang nhập") == dbTrangThai).ToList();
+                }
+                
                 // Hiển thị kết quả
                 foreach (var phieuNhap in phieuNhapList)
                 {
@@ -790,7 +815,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         $"PN{phieuNhap.MaPhieuNhap:D3}",
                         phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
                         tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0
+                        phieuNhap.TongTien ?? 0,
+                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
                     );
                 }
             }
@@ -882,6 +908,19 @@ namespace mini_supermarket.GUI.PhieuNhap
                     Padding = new Padding(0, 0, 10, 0)
                 }
             });
+
+            // Trạng thái
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TrangThai",
+                HeaderText = "Trạng thái",
+                Width = 150,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    Alignment = DataGridViewContentAlignment.MiddleCenter
+                }
+            });
         }
 
         private void AddDataGridViewEvents()
@@ -901,6 +940,205 @@ namespace mini_supermarket.GUI.PhieuNhap
                     }
                 }
             };
+
+            // Right click context menu
+            dgvPhieuNhap.CellMouseClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+                {
+                    dgvPhieuNhap.ClearSelection();
+                    dgvPhieuNhap.Rows[e.RowIndex].Selected = true;
+                    
+                    ContextMenuStrip menu = new ContextMenuStrip();
+                    
+                    // Lấy trạng thái của phiếu nhập
+                    string trangThai = dgvPhieuNhap.Rows[e.RowIndex].Cells["TrangThai"].Value?.ToString() ?? "";
+                    
+                    // Chỉ hiển thị "Xác nhận nhập kho" nếu trạng thái là "Đang nhập"
+                    if (trangThai == "Đang nhập")
+                    {
+                        ToolStripMenuItem xacNhanItem = new ToolStripMenuItem("✅ Xác nhận nhập kho");
+                        xacNhanItem.Click += (sender, args) => XacNhanNhapKho_Click(e.RowIndex);
+                        menu.Items.Add(xacNhanItem);
+                        menu.Items.Add(new ToolStripSeparator());
+                    }
+                    
+                    ToolStripMenuItem viewItem = new ToolStripMenuItem("👁️ Xem chi tiết");
+                    viewItem.Click += (sender, args) => ViewDetail_Click(e.RowIndex);
+                    menu.Items.Add(viewItem);
+                    
+                    // Nếu đã hủy, cho phép xem lý do hủy
+                    if (trangThai == "Hủy" || trangThai == "Đã hủy")
+                    {
+                        menu.Items.Add(new ToolStripSeparator());
+                        ToolStripMenuItem reasonItem = new ToolStripMenuItem("ℹ️ Lý do hủy");
+                        reasonItem.Click += (sender, args) => XemLyDoHuy_Click(e.RowIndex);
+                        menu.Items.Add(reasonItem);
+                    }
+                    
+                    // Cho phép hủy nếu trạng thái là "Đang nhập" hoặc "Nhập thành công"
+                    if (trangThai == "Đang nhập" || trangThai == "Nhập thành công")
+                    {
+                        menu.Items.Add(new ToolStripSeparator());
+                        ToolStripMenuItem huyItem = new ToolStripMenuItem("❌ Hủy phiếu nhập");
+                        huyItem.Click += (sender, args) => HuyPhieuNhap_Click(e.RowIndex);
+                        menu.Items.Add(huyItem);
+                    }
+                    
+                    menu.Show(dgvPhieuNhap, dgvPhieuNhap.PointToClient(Cursor.Position));
+                }
+            };
+
+            // Cell formatting for status colors
+            dgvPhieuNhap.CellFormatting += (s, e) =>
+            {
+                if (e.ColumnIndex == dgvPhieuNhap.Columns["TrangThai"].Index && e.RowIndex >= 0)
+                {
+                    string trangThai = e.Value?.ToString() ?? "";
+                    
+                    if (trangThai == "Đang nhập")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(255, 243, 205); // Vàng nhạt
+                        e.CellStyle.ForeColor = Color.FromArgb(133, 100, 4);   // Vàng đậm
+                    }
+                    else if (trangThai == "Nhập thành công")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(209, 250, 229); // Xanh lá nhạt
+                        e.CellStyle.ForeColor = Color.FromArgb(21, 128, 61);   // Xanh lá đậm
+                    }
+                    else if (trangThai == "Hủy" || trangThai == "Đã hủy")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(248, 215, 218); // Đỏ nhạt
+                        e.CellStyle.ForeColor = Color.FromArgb(114, 28, 36);   // Đỏ đậm
+                    }
+                }
+            };
+        }
+
+        private void XacNhanNhapKho_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuNhapStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                int maPhieuNhap = int.Parse(maPhieuNhapStr.Replace("PN", ""));
+                
+                DialogResult result = MessageBox.Show(
+                    $"Xác nhận nhập kho cho phiếu {maPhieuNhapStr}?\n\n" +
+                    "Sau khi xác nhận, số lượng sản phẩm sẽ được cập nhật vào kho và không thể hoàn tác!",
+                    "Xác nhận nhập kho",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+                
+                if (result == DialogResult.Yes)
+                {
+                    var phieuNhapBUS = new PhieuNhap_BUS();
+                    phieuNhapBUS.XacNhanNhapKho(maPhieuNhap);
+                    
+                    MessageBox.Show(
+                        "Xác nhận nhập kho thành công!\nSố lượng sản phẩm đã được cập nhật vào kho.",
+                        "Thành công",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                    
+                    LoadData(); // Reload để cập nhật trạng thái
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Lỗi khi xác nhận nhập kho: {ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+        private void ViewDetail_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                
+                if (maPhieuStr.StartsWith("PN") && int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                {
+                    Form_XemChiTietPhieuNhap formChiTiet = new Form_XemChiTietPhieuNhap(maPhieuNhap);
+                    formChiTiet.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xem chi tiết: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void HuyPhieuNhap_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                string trangThai = dgvPhieuNhap.Rows[rowIndex].Cells["TrangThai"].Value?.ToString() ?? "";
+                
+                // Kiểm tra trạng thái
+                if (trangThai == "Hủy" || trangThai == "Đã hủy")
+                {
+                    MessageBox.Show(
+                        "Phiếu nhập này đã được hủy trước đó!",
+                        "Cảnh báo",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    return;
+                }
+                
+                if (maPhieuStr.StartsWith("PN") && 
+                    int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                {
+                    // Hiển thị dialog nhập lý do
+                    Dialog_HuyPhieuNhap dialog = new Dialog_HuyPhieuNhap(maPhieuStr);
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        var phieuNhapBUS = new PhieuNhap_BUS();
+                        phieuNhapBUS.HuyPhieuNhap(maPhieuNhap, dialog.LyDoHuy);
+                        
+                        MessageBox.Show("Hủy phiếu nhập thành công!", "Thành công",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        ApplyFilters(); // Reload với filter hiện tại
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi hủy phiếu nhập: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void XemLyDoHuy_Click(int rowIndex)
+        {
+            try
+            {
+                string maPhieuStr = dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieu"].Value?.ToString() ?? "";
+                
+                if (maPhieuStr.StartsWith("PN") &&
+                    int.TryParse(maPhieuStr.Substring(2), out int maPhieuNhap))
+                {
+                    var phieuNhapBUS = new PhieuNhap_BUS();
+                    var phieu = phieuNhapBUS.GetPhieuNhapById(maPhieuNhap);
+                    string lyDo = phieu?.LyDoHuy ?? "Không có lý do hủy.";
+                    
+                    MessageBox.Show(lyDo, $"Lý do hủy {maPhieuStr}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xem lý do hủy: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

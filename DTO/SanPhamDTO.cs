@@ -19,6 +19,8 @@ namespace mini_supermarket.DTO
         public string? TenLoai { get; set; }
         public string? TenThuongHieu { get; set; }
         public int? SoLuong { get; set; }  // Số lượng tồn kho
+        public decimal? PhanTramGiam { get; set; } // Phần trăm giảm giá
+        public string? KhuyenMai { get; set; } // Tên khuyến mãi
 
         public SanPhamDTO()
         {
@@ -38,7 +40,9 @@ namespace mini_supermarket.DTO
             DateTime? hsd,
             string? trangThai,
             string? tenLoai,
-            string? tenThuongHieu)
+            string? tenThuongHieu,
+            decimal? phanTramGiam,
+            string? khuyenMai)
         {
             MaSanPham = maSanPham;
             TenSanPham = tenSanPham;
@@ -54,6 +58,8 @@ namespace mini_supermarket.DTO
             TrangThai = trangThai;
             TenLoai = tenLoai;
             TenThuongHieu = tenThuongHieu;
+            PhanTramGiam = phanTramGiam;
+            KhuyenMai = khuyenMai;
         }
     }
 }

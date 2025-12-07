@@ -13,9 +13,11 @@ namespace mini_supermarket.GUI.Form_SanPham
     public partial class Form_SanPhamCreateDialog : Form
     {
         private readonly SanPham_BUS _sanPhamBus = new();
+        private readonly NhaCungCap_BUS _nhaCungCapBus = new();
         private IList<DonViDTO> _donViList = Array.Empty<DonViDTO>();
         private IList<LoaiDTO> _loaiList = Array.Empty<LoaiDTO>();
         private IList<ThuongHieuDTO> _thuongHieuList = Array.Empty<ThuongHieuDTO>();
+        private IList<NhaCungCapDTO> _nhaCungCapList = Array.Empty<NhaCungCapDTO>();
         private string? _selectedImagePath;
 
         public SanPhamDTO? CreatedSanPham { get; private set; }
@@ -41,6 +43,7 @@ namespace mini_supermarket.GUI.Form_SanPham
                 _donViList = _sanPhamBus.GetDonViList();
                 _loaiList = _sanPhamBus.GetLoaiList();
                 _thuongHieuList = _sanPhamBus.GetThuongHieuList();
+                _nhaCungCapList = _nhaCungCapBus.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
             }
             catch (Exception ex)
             {
@@ -53,11 +56,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             BindComboBox(donViComboBox, _donViList, nameof(DonViDTO.TenDonVi), nameof(DonViDTO.MaDonVi));
             BindComboBox(loaiComboBox, _loaiList, nameof(LoaiDTO.TenLoai), nameof(LoaiDTO.MaLoai));
             BindComboBox(thuongHieuComboBox, _thuongHieuList, nameof(ThuongHieuDTO.TenThuongHieu), nameof(ThuongHieuDTO.MaThuongHieu));
-
-            trangThaiComboBox.Items.Clear();
-            trangThaiComboBox.Items.Add(SanPham_BUS.StatusConHang);
-            trangThaiComboBox.Items.Add(SanPham_BUS.StatusHetHang);
-            trangThaiComboBox.SelectedIndex = 0;
+            BindComboBox(nhaCungCapComboBox, _nhaCungCapList, nameof(NhaCungCapDTO.TenNhaCungCap), nameof(NhaCungCapDTO.MaNhaCungCap));
 
             hsdDateTimePicker.Format = DateTimePickerFormat.Custom;
             hsdDateTimePicker.CustomFormat = "dd/MM/yyyy";
@@ -173,13 +172,8 @@ namespace mini_supermarket.GUI.Form_SanPham
                 giaBan = parsedGiaBan;
             }
 
-            string? trangThai = trangThaiComboBox.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(trangThai))
-            {
-                MessageBox.Show(this, "Vui lòng chọn trạng thái.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                trangThaiComboBox.Focus();
-                return;
-            }
+            // Trạng thái luôn mặc định là "Còn hàng"
+            string trangThai = SanPham_BUS.StatusConHang;
 
             DateTime? hsd = hsdDateTimePicker.Checked ? hsdDateTimePicker.Value.Date : null;
             string? xuatXu = string.IsNullOrWhiteSpace(xuatXuTextBox.Text) ? null : xuatXuTextBox.Text.Trim();
@@ -217,6 +211,20 @@ namespace mini_supermarket.GUI.Form_SanPham
                 if (copiedImage?.Relative != null)
                 {
                     CreatedSanPham.HinhAnh = copiedImage.Value.Relative;
+                }
+
+                // Lưu liên kết nhà cung cấp - sản phẩm nếu đã chọn nhà cung cấp
+                if (nhaCungCapComboBox.SelectedValue is int maNhaCungCap && maNhaCungCap > 0)
+                {
+                    try
+                    {
+                        _nhaCungCapBus.LinkSanPhamToNhaCungCap(maNhaCungCap, created.MaSanPham);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log lỗi nhưng không chặn việc tạo sản phẩm
+                        MessageBox.Show(this, $"Đã tạo sản phẩm nhưng không thể liên kết với nhà cung cấp.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
 
                 DialogResult = DialogResult.OK;

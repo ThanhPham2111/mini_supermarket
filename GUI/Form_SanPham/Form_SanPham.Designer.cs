@@ -97,10 +97,10 @@
             themButton.Name = "themButton";
             themButton.Size = new System.Drawing.Size(110, 35);
             themButton.TabIndex = 3;
-            themButton.Text = "Thêm";
+            themButton.Text = "➕ Thêm";
             themButton.UseVisualStyleBackColor = true;
             themButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            themButton.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             themButton.ForeColor = System.Drawing.Color.White;
 
             // suaButton
@@ -115,32 +115,24 @@
             suaButton.ForeColor = System.Drawing.Color.White;
 
             // xoaButton
-            xoaButton.Location = new System.Drawing.Point(430, 65);
-            xoaButton.Name = "xoaButton";
-            xoaButton.Size = new System.Drawing.Size(110, 35);
-            xoaButton.TabIndex = 5;
-            xoaButton.Text = "Khóa";
-            xoaButton.UseVisualStyleBackColor = true;
-            xoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            xoaButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77);
-            xoaButton.ForeColor = System.Drawing.Color.White;
+            // xoaButton.Location = new System.Drawing.Point(430, 65);
+            // xoaButton.Name = "xoaButton";
+            // xoaButton.Size = new System.Drawing.Size(110, 35);
+            // xoaButton.TabIndex = 5;
+            // xoaButton.Text = "Khóa";
+            // xoaButton.UseVisualStyleBackColor = true;
+            // xoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            // xoaButton.BackColor = System.Drawing.Color.FromArgb(255, 77, 77);
+            // xoaButton.ForeColor = System.Drawing.Color.White;
+            //  xoaButton.Visible = false;
 
             // khoaButton
-            khoaButton.Location = new System.Drawing.Point(560, 65);
-            khoaButton.Name = "khoaButton";
-            khoaButton.Size = new System.Drawing.Size(110, 35);
-            khoaButton.TabIndex = 6;
-            khoaButton.Text = "Khóa";
-            khoaButton.UseVisualStyleBackColor = true;
-            khoaButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            khoaButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
-            khoaButton.ForeColor = System.Drawing.Color.White;
-
+          
             // lamMoiButton
-            lamMoiButton.Location = new System.Drawing.Point(560, 65);
+            lamMoiButton.Location = new System.Drawing.Point(430, 65);
             lamMoiButton.Name = "lamMoiButton";
             lamMoiButton.Size = new System.Drawing.Size(110, 35);
-            lamMoiButton.TabIndex = 6;
+            lamMoiButton.TabIndex = 5;
             lamMoiButton.Text = "Làm mới";
             lamMoiButton.UseVisualStyleBackColor = true;
             lamMoiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -270,8 +262,8 @@
             Controls.Add(searchLabel);
             Controls.Add(statusFilterComboBox);
             Controls.Add(lamMoiButton);
-            Controls.Add(khoaButton);
-            Controls.Add(xoaButton);
+            // Controls.Add(khoaButton); // Ẩn nút khóa
+            // Controls.Add(xoaButton);
             Controls.Add(suaButton);
             Controls.Add(themButton);
             Controls.Add(xemChiTietButton);

@@ -68,6 +68,12 @@ namespace mini_supermarket.GUI.TaiKhoan
 
             searchTextBox.TextChanged += searchTextBox_TextChanged;
 
+            // Xử lý con trỏ chuột cho tất cả các field ReadOnly để đồng nhất
+            SetReadOnlyFieldCursor(maTaiKhoanTextBox);
+            SetReadOnlyFieldCursor(nhanVienTextBox);
+            SetReadOnlyFieldCursor(quyenTextBox);
+            SetReadOnlyFieldCursor(trangThaiTextBox);
+
             themButton.Enabled = true;
             lamMoiButton.Enabled = true;
             suaButton.Enabled = false;
@@ -98,6 +104,7 @@ namespace mini_supermarket.GUI.TaiKhoan
                 maTaiKhoanTextBox.Text = selectedTaiKhoan.MaTaiKhoan.ToString();
                 tenDangNhapTextBox.Text = selectedTaiKhoan.TenDangNhap ?? string.Empty;
                 matKhauTextBox.Text = selectedTaiKhoan.MatKhau ?? string.Empty;
+                trangThaiTextBox.Text = selectedTaiKhoan.TrangThai ?? string.Empty;
                 
                 if (_nhanVienMap.TryGetValue(selectedTaiKhoan.MaNhanVien, out var tenNhanVien))
                 {
@@ -127,6 +134,7 @@ namespace mini_supermarket.GUI.TaiKhoan
                 maTaiKhoanTextBox.Text = string.Empty;
                 tenDangNhapTextBox.Text = string.Empty;
                 matKhauTextBox.Text = string.Empty;
+                trangThaiTextBox.Text = string.Empty;
                 nhanVienTextBox.Text = string.Empty;
                 quyenTextBox.Text = string.Empty;
 
@@ -281,11 +289,22 @@ namespace mini_supermarket.GUI.TaiKhoan
 
         private void SetInputFieldsEnabled(bool enabled)
         {
-            maTaiKhoanTextBox.Enabled = enabled;
+            // Các field ReadOnly luôn giữ Enabled = false để đồng nhất hành vi
+            maTaiKhoanTextBox.Enabled = false;
+            nhanVienTextBox.Enabled = false;
+            quyenTextBox.Enabled = false;
+            trangThaiTextBox.Enabled = false;
+            
+            // Chỉ các field có thể chỉnh sửa mới thay đổi Enabled
             tenDangNhapTextBox.Enabled = enabled;
             matKhauTextBox.Enabled = enabled;
-            nhanVienTextBox.Enabled = enabled;
-            quyenTextBox.Enabled = enabled;
+        }
+
+        private void SetReadOnlyFieldCursor(TextBox textBox)
+        {
+            textBox.MouseEnter += (s, e) => { Cursor = Cursors.Default; };
+            textBox.MouseMove += (s, e) => { Cursor = Cursors.Default; };
+            textBox.GotFocus += (s, e) => { textBox.Parent.Focus(); }; // Chuyển focus ra khỏi field
         }
 
         private void statusFilterComboBox_SelectedIndexChanged(object? sender, EventArgs e)

@@ -4,19 +4,25 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
+using ClosedXML.Excel;
+using System.Data;
+using System.ComponentModel;
 
 namespace mini_supermarket.GUI.KhachHang
 {
     public partial class Form_KhachHang : Form
     {
         private const string StatusAll = "Tất cả";
+        private const string FunctionPath = "Form_KhachHang";
 
         private readonly KhachHang_BUS _khachHangBus = new();
         private readonly BindingSource _bindingSource = new();
+        private readonly PermissionService _permissionService = new();
         // private readonly List<string> _roles;
         private readonly List<string> _statuses;
-        private IList<KhachHangDTO> _currentKhachHang = Array.Empty<KhachHangDTO>();
+        private BindingList<KhachHangDTO> _currentKhachHang = new();
 
         public Form_KhachHang()
         {
@@ -25,7 +31,7 @@ namespace mini_supermarket.GUI.KhachHang
 
             // _roles = _khachHangBus.GetDefaultRoles().ToList();
             _statuses = _khachHangBus.GetDefaultStatuses().ToList();
-
+            LoadKhachHangData();
         }
 
         private void Form_KhachHang_Load(object? sender, EventArgs e)
@@ -70,14 +76,37 @@ namespace mini_supermarket.GUI.KhachHang
 
             searchTextBox.TextChanged += searchTextBox_TextChanged;
 
-            themButton.Enabled = true;
-            lamMoiButton.Enabled = true;
-            suaButton.Enabled = false;
-            xoaButton.Enabled = false;
+            importExcelButton.Click += ImportExcelButton_Click;
+            exportExcelButton.Click += ExportExcelButton_Click;
+
+            ApplyPermissions();
 
             SetInputFieldsEnabled(false);
 
-            LoadKhachHangData();
+            // LoadKhachHangData();
+            _bindingSource.DataSource = _currentKhachHang;
+        }
+
+        private void ApplyPermissions()
+        {
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            themButton.Enabled = canAdd;
+            lamMoiButton.Enabled = true;
+            suaButton.Enabled = canEdit && khachHangDataGridView.SelectedRows.Count > 0;
+            xoaButton.Enabled = canDelete && khachHangDataGridView.SelectedRows.Count > 0;
+        }
+
+        private void UpdateButtonsState()
+        {
+            bool hasSelection = khachHangDataGridView.SelectedRows.Count > 0;
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            suaButton.Enabled = hasSelection && canEdit;
+            xoaButton.Enabled = hasSelection && canDelete;
         }
 
         private void khachHangDataGridView_SelectionChanged(object? sender, EventArgs e)
@@ -103,9 +132,7 @@ namespace mini_supermarket.GUI.KhachHang
                 emailTextBox.Text = selectedKhachHang.Email ?? string.Empty;
                 diemTichLuyTextBox.Text = selectedKhachHang.DiemTichLuy.ToString() ?? "0";
 
-                suaButton.Enabled = true;
-                xoaButton.Enabled = true;
-
+                UpdateButtonsState();
                 SetInputFieldsEnabled(false);
             }
             else
@@ -121,8 +148,7 @@ namespace mini_supermarket.GUI.KhachHang
                 emailTextBox.Text = string.Empty;
                 diemTichLuyTextBox.Text = string.Empty; 
 
-                suaButton.Enabled = false;
-                xoaButton.Enabled = false;
+                UpdateButtonsState();
 
                 SetInputFieldsEnabled(false);
             }
@@ -130,6 +156,12 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void themButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using var dialog = new Form_KhachHangDialog(_statuses);
             if (dialog.ShowDialog(this) != DialogResult.OK)
             {
@@ -139,7 +171,8 @@ namespace mini_supermarket.GUI.KhachHang
             try
             {
                 var createdKhachHang = _khachHangBus.AddKhachHang(dialog.KhachHang);
-                LoadKhachHangData();
+                // Thêm khách hàng mới vào BindingList để tự động cập nhật DataGridView
+                _currentKhachHang.Add(createdKhachHang);
                 SelectKhachHangRow(createdKhachHang.MaKhachHang);
             }
             catch (Exception ex)
@@ -150,6 +183,12 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void suaButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedKhachHang = GetSelectedKhachHang();
             if (selectedKhachHang == null)
             {
@@ -165,7 +204,12 @@ namespace mini_supermarket.GUI.KhachHang
             try
             {
                 _khachHangBus.UpdateKhachHang(dialog.KhachHang);
-                LoadKhachHangData();
+                // Cập nhật khách hàng trong BindingList để tự động cập nhật DataGridView
+                var index = _currentKhachHang.ToList().FindIndex(kh => kh.MaKhachHang == dialog.KhachHang.MaKhachHang);
+                if (index >= 0)
+                {
+                    _currentKhachHang[index] = dialog.KhachHang;
+                }
                 SelectKhachHangRow(dialog.KhachHang.MaKhachHang);
             }
             catch (Exception ex)
@@ -176,6 +220,12 @@ namespace mini_supermarket.GUI.KhachHang
 
         private void xoaButton_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var selectedKhachHang = GetSelectedKhachHang();
             if (selectedKhachHang == null)
             {
@@ -198,7 +248,12 @@ namespace mini_supermarket.GUI.KhachHang
             {
                 selectedKhachHang.TrangThai = KhachHang_BUS.StatusInactive; // Set TrangThai to "Khóa"
                 _khachHangBus.UpdateKhachHang(selectedKhachHang);
-                LoadKhachHangData();
+                // Cập nhật trạng thái trong BindingList để tự động cập nhật DataGridView
+                var index = _currentKhachHang.ToList().FindIndex(kh => kh.MaKhachHang == selectedKhachHang.MaKhachHang);
+                if (index >= 0)
+                {
+                    _currentKhachHang[index].TrangThai = KhachHang_BUS.StatusInactive;
+                }
             }
             catch (Exception ex)
             {
@@ -286,7 +341,7 @@ namespace mini_supermarket.GUI.KhachHang
         {
             try
             {
-                _currentKhachHang = _khachHangBus.GetKhachHang();
+                _currentKhachHang = new BindingList<KhachHangDTO>(_khachHangBus.GetKhachHang());
                 ApplyStatusFilter();
             }
             catch (Exception ex)
@@ -353,6 +408,135 @@ namespace mini_supermarket.GUI.KhachHang
 
             _bindingSource.DataSource = filtered;
             khachHangDataGridView.ClearSelection();
+            UpdateButtonsState();
+        }
+        private void ExportExcelButton_Click(object? sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Lưu Excel"
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+
+            DataTable dt = new DataTable();
+
+            // Lấy header
+            foreach (DataGridViewColumn col in khachHangDataGridView.Columns)
+                dt.Columns.Add(col.HeaderText);
+
+            // Lấy dữ liệu
+            foreach (DataGridViewRow row in khachHangDataGridView.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                var data = new object[row.Cells.Count];
+                for (int i = 0; i < row.Cells.Count; i++)
+                {
+                    data[i] = row.Cells[i].Value;
+                }
+                dt.Rows.Add(data);
+            }
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt, "Khách Hàng");
+                wb.SaveAs(sfd.FileName);
+            }
+
+            MessageBox.Show("✅ Xuất Excel thành công!");
+        }
+
+        private void ImportExcelButton_Click(object? sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Chọn file Excel"
+            };
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            DataTable dt = new DataTable();
+            List<KhachHangDTO> khachHangList = new List<KhachHangDTO>();
+
+            using (XLWorkbook wb = new XLWorkbook(ofd.FileName))
+            {
+                var ws = wb.Worksheet(1);
+                var rows = ws.RowsUsed().Skip(1); // Skip header row
+                foreach(var row in rows)
+                {
+                    try
+                    {
+                        var maKhachHangStr = row.Cell(1).Value.ToString().Trim();
+                        var hoTenStr = row.Cell(2).Value.ToString().Trim();
+                        var soDienThoaiStr = row.Cell(3).Value.ToString().Trim();
+                        var diaChiStr = row.Cell(4).Value.ToString().Trim();
+                        var emailStr = row.Cell(5).Value.ToString().Trim();
+                        var diemTichLuyStr = row.Cell(6).Value.ToString().Trim();
+                        var trangThaiStr = row.Cell(7).Value.ToString().Trim();
+                        if (string.IsNullOrEmpty(maKhachHangStr) || maKhachHangStr == "0")
+                        {
+                            continue;
+                        }
+                        if (!int.TryParse(maKhachHangStr, out int maKhachHang) || maKhachHang <= 0)
+                        {
+                            Console.WriteLine($"Không thể parse MaKhachHang hoặc <= 0: '{maKhachHangStr}'");
+                            continue;
+                        }
+                        // Kiểm tra xem MaKhachHang đã tồn tại chưa
+                        if (_currentKhachHang.Any(h => h.MaKhachHang == maKhachHang))
+                        {
+                            Console.WriteLine($"MaKhachHang {maKhachHang} đã tồn tại, bỏ qua");
+                            continue;
+                        }
+                        // Kiểm tra xem MaKhachHang có bị trùng trong file không
+                        if (khachHangList.Any(h => h.MaKhachHang == maKhachHang))
+                        {
+                            Console.WriteLine($"MaKhachHang {maKhachHang} bị trùng trong file, bỏ qua");
+                            continue;
+                        }
+                        var kh_tmp = new KhachHangDTO
+                        {
+                            MaKhachHang = maKhachHang,
+                            TenKhachHang = hoTenStr,
+                            SoDienThoai = soDienThoaiStr,
+                            DiaChi = diaChiStr,
+                            Email = emailStr,
+                            DiemTichLuy = int.TryParse(diemTichLuyStr, out int diem) ? diem : 0,
+                            TrangThai = trangThaiStr
+                        };
+                        khachHangList.Add(kh_tmp);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Lỗi khi xử lý dòng: {ex.Message}");
+                        continue;
+                    }
+                }
+            }
+
+            // Thêm các khách hàng mới vào database và BindingList
+            int successCount = 0;
+            foreach (var kh in khachHangList)
+            {
+                try
+                {
+                    var createdKh = _khachHangBus.AddKhachHang(kh);
+                    // Thêm vào BindingList để tự động cập nhật DataGridView
+                    _currentKhachHang.Add(createdKh);
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi thêm khách hàng {kh.MaKhachHang}: {ex.Message}");
+                }
+            }
+
+            MessageBox.Show($"✅ Nhập Excel thành công! Đã thêm {successCount} khách hàng mới.");
         }
     }
 }

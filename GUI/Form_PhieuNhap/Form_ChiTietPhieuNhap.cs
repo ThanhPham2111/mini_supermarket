@@ -35,7 +35,8 @@ namespace mini_supermarket.GUI.PhieuNhap
         private Label lblTongTien = null!;
 
         // Product row dimensions
-        private const int COL1_WIDTH = 450;  // Sản phẩm
+        private const int COL0_WIDTH = 80;   // Mã SP
+        private const int COL1_WIDTH = 370;  // Sản phẩm
         private const int COL2_WIDTH = 100;  // Số lượng
         private const int COL3_WIDTH = 130;  // Đơn giá
         private const int COL4_WIDTH = 140;  // Thành tiền
@@ -61,9 +62,6 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         public Form_ChiTietPhieuNhap()
         {
-            // Load data BEFORE InitializeComponent() to ensure sanPhamCache is ready
-            LoadSanPhamDataToCache();
-            
             InitializeComponent();
         }
 
@@ -71,6 +69,8 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             base.OnLoad(e);
             LoadNhaCungCapData();
+            // Load sản phẩm sau khi đã load nhà cung cấp
+            LoadSanPhamData();
         }
 
         private void LoadNhaCungCapData()
@@ -78,7 +78,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 var nhaCungCapBUS = new NhaCungCap_BUS();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
+                var nhaCungCapList = nhaCungCapBUS.GetNhaCungCap(NhaCungCap_BUS.StatusActive);
 
                 cboNhaCungCap.Items.Clear();
                 cboNhaCungCap.Items.Add(new { MaNhaCungCap = 0, TenNhaCungCap = "-- Chọn nhà cung cấp --" });
@@ -91,6 +91,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 cboNhaCungCap.DisplayMember = "TenNhaCungCap";
                 cboNhaCungCap.ValueMember = "MaNhaCungCap";
                 cboNhaCungCap.SelectedIndex = 0;
+                cboNhaCungCap.SelectedIndexChanged += CboNhaCungCap_SelectedIndexChanged;
             }
             catch (Exception ex)
             {
@@ -98,12 +99,48 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
+        private void CboNhaCungCap_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            // Khi chọn nhà cung cấp, lọc lại danh sách sản phẩm
+            LoadSanPhamData();
+            // Cập nhật lại tất cả các combobox sản phẩm trong các dòng đã thêm
+            RefreshAllProductComboBoxes();
+        }
+
         private void LoadSanPhamData()
         {
             try
             {
                 var sanPhamBUS = new SanPham_BUS();
-                sanPhamCache = sanPhamBUS.GetAll();
+                int? maNhaCungCap = null;
+
+                // Lấy mã nhà cung cấp đã chọn (chỉ khi combobox đã được khởi tạo và đã chọn một nhà cung cấp hợp lệ)
+                if (cboNhaCungCap != null && cboNhaCungCap.SelectedIndex > 0 && cboNhaCungCap.SelectedItem != null)
+                {
+                    try
+                    {
+                        var selectedNCC = cboNhaCungCap.SelectedItem;
+                        int selectedMaNCC = (int)selectedNCC.GetType().GetProperty("MaNhaCungCap")!.GetValue(selectedNCC)!;
+                        if (selectedMaNCC > 0)
+                        {
+                            maNhaCungCap = selectedMaNCC;
+                        }
+                    }
+                    catch
+                    {
+                        // Nếu không lấy được giá trị, để maNhaCungCap = null
+                    }
+                }
+
+                if (!maNhaCungCap.HasValue || maNhaCungCap.Value <= 0)
+                {
+                    // Nếu chưa chọn nhà cung cấp, để sanPhamCache rỗng
+                    sanPhamCache = new List<SanPhamDTO>();
+                    return;
+                }
+
+                // Chỉ lấy sản phẩm đang ở trạng thái "Còn hàng" và thuộc nhà cung cấp đã chọn
+                sanPhamCache = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang, maNhaCungCap);
             }
             catch (Exception ex)
             {
@@ -111,10 +148,25 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
-        private void LoadSanPhamDataToCache()
+        private void RefreshAllProductComboBoxes()
         {
-            LoadSanPhamData();
+            // Cập nhật lại tất cả các combobox sản phẩm trong các dòng đã thêm
+            foreach (Control control in productRowsContainerPanel.Controls)
+            {
+                if (control is Panel rowPanel)
+                {
+                    foreach (Control ctrl in rowPanel.Controls)
+                    {
+                        if (ctrl is ComboBox comboBox && comboBox.Name == "productComboBox")
+                        {
+                            LoadProductComboBox(comboBox);
+                            break;
+                        }
+                    }
+                }
+            }
         }
+
 
         private void LoadProductComboBox(ComboBox comboBox)
         {
@@ -147,7 +199,8 @@ namespace mini_supermarket.GUI.PhieuNhap
             
             foreach (Control ctrl in productRowsContainerPanel.Controls)
             {
-                if (ctrl is TextBox txt && txt.ReadOnly && ctrl.Location.X == 0 && txt.Tag != null)
+                // Tìm TextBox tên sản phẩm (có Tag chứa MaSanPham, ở vị trí COL0_WIDTH + 5)
+                if (ctrl is TextBox txt && txt.ReadOnly && ctrl.Location.X == COL0_WIDTH + 5 && txt.Tag != null)
                 {
                     int maSanPham = (int)txt.Tag;
                     if (maSanPham > 0)
@@ -162,6 +215,38 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         private void ShowProductSelectionPopupForNewRow()
         {
+            // Kiểm tra xem nhà cung cấp đã được chọn chưa
+            if (cboNhaCungCap == null || cboNhaCungCap.SelectedIndex <= 0 || cboNhaCungCap.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp trước khi thêm sản phẩm!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Lấy mã nhà cung cấp từ SelectedItem (vì dùng anonymous objects)
+            var selectedNCC = cboNhaCungCap.SelectedItem;
+            int maNhaCungCap = 0;
+            try
+            {
+                maNhaCungCap = (int)selectedNCC.GetType().GetProperty("MaNhaCungCap")!.GetValue(selectedNCC)!;
+            }
+            catch
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp trước khi thêm sản phẩm!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (maNhaCungCap <= 0)
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp trước khi thêm sản phẩm!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Đảm bảo sanPhamCache đã được cập nhật với sản phẩm của nhà cung cấp đã chọn
+            LoadSanPhamData();
+
             // Lấy danh sách ID sản phẩm đã thêm
             HashSet<int> addedProductIds = GetAddedProductIds();
 
@@ -286,14 +371,6 @@ namespace mini_supermarket.GUI.PhieuNhap
                 HeaderText = "Đơn vị",
                 Width = 100,
                 DataPropertyName = "TenDonVi"
-            });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "SoLuong",
-                HeaderText = "Số lượng",
-                Width = 100,
-                DataPropertyName = "SoLuong",
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
             // Load dữ liệu sản phẩm, lọc bỏ các sản phẩm đã thêm
@@ -711,10 +788,10 @@ namespace mini_supermarket.GUI.PhieuNhap
 
             Button btnAddProduct = new Button
             {
-                Text = "+ Thêm sản phẩm",
+                Text = "➕ Thêm sản phẩm",
                 Dock = DockStyle.Right,
                 Size = new Size(150, 35),
-                BackColor = successColor,
+                BackColor = Color.FromArgb(16, 137, 62),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
@@ -757,6 +834,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             AddHeader("Đơn giá", COL3_WIDTH, DockStyle.Right);
             AddHeader("Số lượng", COL2_WIDTH, DockStyle.Right);
             AddHeader("Sản phẩm", COL1_WIDTH, DockStyle.Fill); // Fill the rest
+            AddHeader("Mã SP", COL0_WIDTH, DockStyle.Left);
 
             // Product Rows Container
             productRowsContainerPanel = new Panel
@@ -780,10 +858,24 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             int rowY = productRowCount * (ROW_HEIGHT + ROW_MARGIN);
 
+            // TextBox hiển thị mã sản phẩm
+            TextBox txtMaSanPham = new TextBox
+            {
+                Location = new Point(0, rowY),
+                Size = new Size(COL0_WIDTH - 5, ROW_HEIGHT),
+                Font = new Font("Segoe UI", 11),
+                BackColor = Color.White,
+                ForeColor = textPrimaryColor,
+                ReadOnly = true,
+                Text = maSanPham.ToString(),
+                TextAlign = HorizontalAlignment.Center
+            };
+            productRowsContainerPanel.Controls.Add(txtMaSanPham);
+
             // TextBox hiển thị sản phẩm đã chọn
             TextBox txtProduct = new TextBox
             {
-                Location = new Point(0, rowY),
+                Location = new Point(COL0_WIDTH + 5, rowY),
                 Size = new Size(COL1_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 BackColor = Color.White,
@@ -797,7 +889,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // NumericUpDown số lượng
             NumericUpDown nudQty = new NumericUpDown
             {
-                Location = new Point(COL1_WIDTH + 5, rowY),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + 5, rowY),
                 Size = new Size(COL2_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 Minimum = 1,
@@ -811,7 +903,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox đơn giá
             TextBox txtPrice = new TextBox
             {
-                Location = new Point(COL1_WIDTH + COL2_WIDTH, rowY),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH, rowY),
                 Size = new Size(COL3_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11),
                 BorderStyle = BorderStyle.FixedSingle,
@@ -825,7 +917,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox thành tiền (read-only/disabled)
             TextBox txtTotal = new TextBox
             {
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, rowY),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, rowY),
                 Size = new Size(COL4_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 BorderStyle = BorderStyle.FixedSingle,
@@ -842,7 +934,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnDelete = new Button
             {
                 Text = "✕",
-                Location = new Point(COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 5, rowY + 4),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 5, rowY + 4),
                 Size = new Size(30, 30),
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 BackColor = Color.FromArgb(255, 245, 245),
@@ -950,7 +1042,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 if (ctrl is TextBox txt && 
                     txt.ReadOnly && 
                     txt.Enabled == false &&
-                    ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH &&
+                    ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH &&
                     !string.IsNullOrWhiteSpace(txt.Text))
                 {
                     // Parse the text, removing thousand separators
@@ -1008,8 +1100,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                     {
                         if (ctrl is TextBox txt)
                         {
-                            // txtProduct có ReadOnly = true và Location.X = 0
-                            if (txt.ReadOnly && ctrl.Location.X == 0)
+                            // txtProduct có ReadOnly = true và Location.X = COL0_WIDTH + 5 (sau cột mã SP)
+                            if (txt.ReadOnly && ctrl.Location.X == COL0_WIDTH + 5 && txt.Tag != null)
                                 txtProduct = txt;
                             // txtPrice không có ReadOnly và Enabled = true
                             else if (!txt.ReadOnly && txt.Enabled)
@@ -1091,15 +1183,15 @@ namespace mini_supermarket.GUI.PhieuNhap
                         }
                         else if (ctrl is TextBox txt)
                         {
-                            // txtProduct: ReadOnly, Location.X = 0
-                            if (txt.ReadOnly && ctrl.Location.X == 0)
+                            // txtProduct: ReadOnly, Location.X = COL0_WIDTH + 5 (sau cột mã SP)
+                            if (txt.ReadOnly && ctrl.Location.X == COL0_WIDTH + 5 && txt.Tag != null)
                                 txtProduct = txt;
                             // txtPrice: không ReadOnly
                             else if (!txt.ReadOnly && txt.Enabled)
                                 txtPrice = txt;
                             // txtTotal: ReadOnly và Enabled = false, ở vị trí cột 4
                             else if (txt.ReadOnly && !txt.Enabled && 
-                                     ctrl.Location.X == COL1_WIDTH + COL2_WIDTH + COL3_WIDTH)
+                                     ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH)
                                 txtTotal = txt;
                         }
                     }

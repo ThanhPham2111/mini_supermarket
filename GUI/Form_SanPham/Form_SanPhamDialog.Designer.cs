@@ -22,8 +22,8 @@
         private System.Windows.Forms.TextBox xuatXuTextBox;
         private System.Windows.Forms.Label hsdLabel;
         private System.Windows.Forms.TextBox hsdTextBox;
-        private System.Windows.Forms.Label trangThaiLabel;
-        private System.Windows.Forms.ComboBox trangThaiComboBox;
+            private System.Windows.Forms.Label nhaCungCapLabel;
+            private System.Windows.Forms.ComboBox nhaCungCapComboBox;
         private System.Windows.Forms.Label moTaLabel;
         private System.Windows.Forms.TextBox moTaTextBox;
         private System.Windows.Forms.PictureBox productPictureBox;
@@ -47,8 +47,8 @@
             contentPanel = new System.Windows.Forms.Panel();
             moTaTextBox = new System.Windows.Forms.TextBox();
             moTaLabel = new System.Windows.Forms.Label();
-            trangThaiComboBox = new System.Windows.Forms.ComboBox();
-            trangThaiLabel = new System.Windows.Forms.Label();
+                nhaCungCapComboBox = new System.Windows.Forms.ComboBox();
+                nhaCungCapLabel = new System.Windows.Forms.Label();
             hsdTextBox = new System.Windows.Forms.TextBox();
             hsdLabel = new System.Windows.Forms.Label();
             xuatXuTextBox = new System.Windows.Forms.TextBox();
@@ -107,8 +107,8 @@
             contentPanel.Controls.Add(hinhAnhLabel);
             contentPanel.Controls.Add(moTaTextBox);
             contentPanel.Controls.Add(moTaLabel);
-            contentPanel.Controls.Add(trangThaiComboBox);
-            contentPanel.Controls.Add(trangThaiLabel);
+                contentPanel.Controls.Add(nhaCungCapComboBox);
+                contentPanel.Controls.Add(nhaCungCapLabel);
             contentPanel.Controls.Add(hsdTextBox);
             contentPanel.Controls.Add(hsdLabel);
             contentPanel.Controls.Add(xuatXuTextBox);
@@ -256,22 +256,22 @@
             hsdTextBox.Size = new System.Drawing.Size(250, 25);
             hsdTextBox.TabIndex = 15;
 
-            // trangThaiLabel
-            trangThaiLabel.AutoSize = true;
-            trangThaiLabel.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            trangThaiLabel.Location = new System.Drawing.Point(20, 340);
-            trangThaiLabel.Name = "trangThaiLabel";
-            trangThaiLabel.Size = new System.Drawing.Size(75, 20);
-            trangThaiLabel.TabIndex = 18;
-            trangThaiLabel.Text = "Trạng thái";
+                // nhaCungCapLabel
+                nhaCungCapLabel.AutoSize = true;
+                nhaCungCapLabel.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+                nhaCungCapLabel.Location = new System.Drawing.Point(20, 340);
+                nhaCungCapLabel.Name = "nhaCungCapLabel";
+                nhaCungCapLabel.Size = new System.Drawing.Size(100, 20);
+                nhaCungCapLabel.TabIndex = 18;
+                nhaCungCapLabel.Text = "Nhà cung cấp";
 
-            // trangThaiComboBox
-            trangThaiComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            trangThaiComboBox.Enabled = false;
-            trangThaiComboBox.Location = new System.Drawing.Point(150, 338);
-            trangThaiComboBox.Name = "trangThaiComboBox";
-            trangThaiComboBox.Size = new System.Drawing.Size(250, 25);
-            trangThaiComboBox.TabIndex = 17;
+                // nhaCungCapComboBox
+                nhaCungCapComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+                nhaCungCapComboBox.Enabled = false;
+                nhaCungCapComboBox.Location = new System.Drawing.Point(150, 338);
+                nhaCungCapComboBox.Name = "nhaCungCapComboBox";
+                nhaCungCapComboBox.Size = new System.Drawing.Size(250, 25);
+                nhaCungCapComboBox.TabIndex = 17;
 
             // moTaLabel
             moTaLabel.AutoSize = true;

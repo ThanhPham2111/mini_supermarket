@@ -14,6 +14,8 @@ namespace mini_supermarket.GUI.TaiKhoan
         private System.Windows.Forms.TextBox nhanVienTextBox;
         private System.Windows.Forms.Label quyenLabel;
         private System.Windows.Forms.TextBox quyenTextBox;
+        private System.Windows.Forms.Label trangThaiLabel;
+        private System.Windows.Forms.TextBox trangThaiTextBox;
         private System.Windows.Forms.Button themButton;
         private System.Windows.Forms.Button suaButton;
         private System.Windows.Forms.Button xoaButton;
@@ -52,6 +54,8 @@ namespace mini_supermarket.GUI.TaiKhoan
             themButton = new System.Windows.Forms.Button();
             quyenTextBox = new System.Windows.Forms.TextBox();
             quyenLabel = new System.Windows.Forms.Label();
+            trangThaiTextBox = new System.Windows.Forms.TextBox();
+            trangThaiLabel = new System.Windows.Forms.Label();
             nhanVienTextBox = new System.Windows.Forms.TextBox();
             nhanVienLabel = new System.Windows.Forms.Label();
             matKhauTextBox = new System.Windows.Forms.TextBox();
@@ -84,6 +88,8 @@ namespace mini_supermarket.GUI.TaiKhoan
             taiKhoanInfoGroupBox.Controls.Add(themButton);
             taiKhoanInfoGroupBox.Controls.Add(quyenTextBox);
             taiKhoanInfoGroupBox.Controls.Add(quyenLabel);
+            taiKhoanInfoGroupBox.Controls.Add(trangThaiTextBox);
+            taiKhoanInfoGroupBox.Controls.Add(trangThaiLabel);
             taiKhoanInfoGroupBox.Controls.Add(nhanVienTextBox);
             taiKhoanInfoGroupBox.Controls.Add(nhanVienLabel);
             taiKhoanInfoGroupBox.Controls.Add(matKhauTextBox);
@@ -93,9 +99,9 @@ namespace mini_supermarket.GUI.TaiKhoan
             taiKhoanInfoGroupBox.Controls.Add(maTaiKhoanTextBox);
             taiKhoanInfoGroupBox.Controls.Add(maTaiKhoanLabel);
             taiKhoanInfoGroupBox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
-            taiKhoanInfoGroupBox.Location = new System.Drawing.Point(20, 50);
+            taiKhoanInfoGroupBox.Location = new System.Drawing.Point(20, 20);
             taiKhoanInfoGroupBox.Name = "taiKhoanInfoGroupBox";
-            taiKhoanInfoGroupBox.Size = new System.Drawing.Size(1140, 280);
+            taiKhoanInfoGroupBox.Size = new System.Drawing.Size(1140, 240);
             taiKhoanInfoGroupBox.TabIndex = 0;
             taiKhoanInfoGroupBox.TabStop = false;
             taiKhoanInfoGroupBox.Text = "Thông tin tài khoản";
@@ -105,21 +111,21 @@ namespace mini_supermarket.GUI.TaiKhoan
             statusFilterComboBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             statusFilterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             statusFilterComboBox.FormattingEnabled = true;
-            statusFilterComboBox.Location = new System.Drawing.Point(980, 240);
+            statusFilterComboBox.Location = new System.Drawing.Point(980, 210);
             statusFilterComboBox.Name = "statusFilterComboBox";
             statusFilterComboBox.Size = new System.Drawing.Size(150, 28);
             statusFilterComboBox.TabIndex = 21;
 
             // searchTextBox
             searchTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            searchTextBox.Location = new System.Drawing.Point(150, 240);
+            searchTextBox.Location = new System.Drawing.Point(150, 210);
             searchTextBox.Name = "searchTextBox";
             searchTextBox.PlaceholderText = "Tìm kiếm theo mã, tên đăng nhập hoặc tên nhân viên";
             searchTextBox.Size = new System.Drawing.Size(824, 28);
             searchTextBox.TabIndex = 20;
 
             // searchButton
-            searchButton.Location = new System.Drawing.Point(20, 240);
+            searchButton.Location = new System.Drawing.Point(20, 210);
             searchButton.Name = "searchButton";
             searchButton.Size = new System.Drawing.Size(120, 30);
             searchButton.TabIndex = 19;
@@ -130,7 +136,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             searchButton.ForeColor = System.Drawing.Color.White;
 
             // lamMoiButton
-            lamMoiButton.Location = new System.Drawing.Point(860, 190);
+            lamMoiButton.Location = new System.Drawing.Point(860, 170);
             lamMoiButton.Name = "lamMoiButton";
             lamMoiButton.Size = new System.Drawing.Size(120, 30);
             lamMoiButton.TabIndex = 18;
@@ -141,7 +147,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             lamMoiButton.ForeColor = System.Drawing.Color.White;
 
             // xoaButton
-            xoaButton.Location = new System.Drawing.Point(720, 190);
+            xoaButton.Location = new System.Drawing.Point(720, 170);
             xoaButton.Name = "xoaButton";
             xoaButton.Size = new System.Drawing.Size(120, 30);
             xoaButton.TabIndex = 17;
@@ -152,7 +158,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             xoaButton.ForeColor = System.Drawing.Color.White;
 
             // suaButton
-            suaButton.Location = new System.Drawing.Point(580, 190);
+            suaButton.Location = new System.Drawing.Point(580, 170);
             suaButton.Name = "suaButton";
             suaButton.Size = new System.Drawing.Size(120, 30);
             suaButton.TabIndex = 16;
@@ -163,48 +169,50 @@ namespace mini_supermarket.GUI.TaiKhoan
             suaButton.ForeColor = System.Drawing.Color.White;
 
             // themButton
-            themButton.Location = new System.Drawing.Point(440, 190);
+            themButton.Location = new System.Drawing.Point(440, 170);
             themButton.Name = "themButton";
             themButton.Size = new System.Drawing.Size(120, 30);
             themButton.TabIndex = 15;
-            themButton.Text = "Thêm";
+            themButton.Text = "➕ Thêm";
             themButton.UseVisualStyleBackColor = true;
             themButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            themButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            themButton.BackColor = System.Drawing.Color.FromArgb(16, 137, 62);
             themButton.ForeColor = System.Drawing.Color.White;
 
             // quyenTextBox
-            quyenTextBox.Location = new System.Drawing.Point(550, 140);
+            quyenTextBox.Location = new System.Drawing.Point(550, 126);
             quyenTextBox.Name = "quyenTextBox";
             quyenTextBox.ReadOnly = true;
             quyenTextBox.Size = new System.Drawing.Size(250, 28);
             quyenTextBox.TabIndex = 14;
+            quyenTextBox.TabStop = false;
 
             // quyenLabel
             quyenLabel.AutoSize = true;
-            quyenLabel.Location = new System.Drawing.Point(480, 144);
+            quyenLabel.Location = new System.Drawing.Point(480, 130);
             quyenLabel.Name = "quyenLabel";
             quyenLabel.Size = new System.Drawing.Size(48, 19);
             quyenLabel.TabIndex = 12;
             quyenLabel.Text = "Quyền";
 
             // nhanVienTextBox
-            nhanVienTextBox.Location = new System.Drawing.Point(150, 140);
+            nhanVienTextBox.Location = new System.Drawing.Point(150, 126);
             nhanVienTextBox.Name = "nhanVienTextBox";
             nhanVienTextBox.ReadOnly = true;
             nhanVienTextBox.Size = new System.Drawing.Size(250, 28);
             nhanVienTextBox.TabIndex = 11;
+            nhanVienTextBox.TabStop = false;
 
             // nhanVienLabel
             nhanVienLabel.AutoSize = true;
-            nhanVienLabel.Location = new System.Drawing.Point(20, 144);
+            nhanVienLabel.Location = new System.Drawing.Point(20, 130);
             nhanVienLabel.Name = "nhanVienLabel";
             nhanVienLabel.Size = new System.Drawing.Size(82, 19);
             nhanVienLabel.TabIndex = 9;
             nhanVienLabel.Text = "Nhân viên";
 
             // matKhauTextBox
-            matKhauTextBox.Location = new System.Drawing.Point(550, 100);
+            matKhauTextBox.Location = new System.Drawing.Point(550, 86);
             matKhauTextBox.Name = "matKhauTextBox";
             // matKhauTextBox.PasswordChar = '*';
             matKhauTextBox.Size = new System.Drawing.Size(250, 28);
@@ -212,48 +220,65 @@ namespace mini_supermarket.GUI.TaiKhoan
 
             // matKhauLabel
             matKhauLabel.AutoSize = true;
-            matKhauLabel.Location = new System.Drawing.Point(460, 104);
+            matKhauLabel.Location = new System.Drawing.Point(460, 90);
             matKhauLabel.Name = "matKhauLabel";
             matKhauLabel.Size = new System.Drawing.Size(73, 19);
             matKhauLabel.TabIndex = 7;
             matKhauLabel.Text = "Mật khẩu";
 
             // tenDangNhapTextBox
-            tenDangNhapTextBox.Location = new System.Drawing.Point(150, 100);
+            tenDangNhapTextBox.Location = new System.Drawing.Point(150, 86);
             tenDangNhapTextBox.Name = "tenDangNhapTextBox";
             tenDangNhapTextBox.Size = new System.Drawing.Size(250, 28);
             tenDangNhapTextBox.TabIndex = 6;
 
             // tenDangNhapLabel
             tenDangNhapLabel.AutoSize = true;
-            tenDangNhapLabel.Location = new System.Drawing.Point(20, 104);
+            tenDangNhapLabel.Location = new System.Drawing.Point(20, 90);
             tenDangNhapLabel.Name = "tenDangNhapLabel";
             tenDangNhapLabel.Size = new System.Drawing.Size(102, 19);
             tenDangNhapLabel.TabIndex = 5;
             tenDangNhapLabel.Text = "Tên đăng nhập";
 
             // maTaiKhoanTextBox
-            maTaiKhoanTextBox.Location = new System.Drawing.Point(150, 60);
+            maTaiKhoanTextBox.Location = new System.Drawing.Point(150, 46);
             maTaiKhoanTextBox.Name = "maTaiKhoanTextBox";
             maTaiKhoanTextBox.ReadOnly = true;
             maTaiKhoanTextBox.Size = new System.Drawing.Size(250, 28);
             maTaiKhoanTextBox.TabIndex = 4;
+            maTaiKhoanTextBox.TabStop = false;
 
             // maTaiKhoanLabel
             maTaiKhoanLabel.AutoSize = true;
-            maTaiKhoanLabel.Location = new System.Drawing.Point(20, 64);
+            maTaiKhoanLabel.Location = new System.Drawing.Point(20, 50);
             maTaiKhoanLabel.Name = "maTaiKhoanLabel";
             maTaiKhoanLabel.Size = new System.Drawing.Size(97, 19);
             maTaiKhoanLabel.TabIndex = 3;
             maTaiKhoanLabel.Text = "Mã tài khoản";
 
+            // trangThaiLabel
+            trangThaiLabel.AutoSize = true;
+            trangThaiLabel.Location = new System.Drawing.Point(450, 50);
+            trangThaiLabel.Name = "trangThaiLabel";
+            trangThaiLabel.Size = new System.Drawing.Size(70, 19);
+            trangThaiLabel.TabIndex = 22;
+            trangThaiLabel.Text = "Trạng thái";
+
+            // trangThaiTextBox
+            trangThaiTextBox.Location = new System.Drawing.Point(550, 46);
+            trangThaiTextBox.Name = "trangThaiTextBox";
+            trangThaiTextBox.ReadOnly = true;
+            trangThaiTextBox.Size = new System.Drawing.Size(250, 28);
+            trangThaiTextBox.TabIndex = 23;
+            trangThaiTextBox.TabStop = false;
+
             // danhSachGroupBox
             danhSachGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             danhSachGroupBox.Controls.Add(taiKhoanDataGridView);
             danhSachGroupBox.Font = new System.Drawing.Font("Segoe UI", 10F);
-            danhSachGroupBox.Location = new System.Drawing.Point(20, 340);
+            danhSachGroupBox.Location = new System.Drawing.Point(20, 270);
             danhSachGroupBox.Name = "danhSachGroupBox";
-            danhSachGroupBox.Size = new System.Drawing.Size(1140, 400);
+            danhSachGroupBox.Size = new System.Drawing.Size(1140, 470);
             danhSachGroupBox.TabIndex = 1;
             danhSachGroupBox.TabStop = false;
             danhSachGroupBox.Text = "Danh sách tài khoản";
@@ -280,9 +305,9 @@ namespace mini_supermarket.GUI.TaiKhoan
             taiKhoanDataGridView.Name = "taiKhoanDataGridView";
             taiKhoanDataGridView.ReadOnly = true;
             taiKhoanDataGridView.RowHeadersVisible = false;
-            taiKhoanDataGridView.RowTemplate.Height = 30;
+            taiKhoanDataGridView.RowTemplate.Height = 28;
             taiKhoanDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            taiKhoanDataGridView.Size = new System.Drawing.Size(1134, 378);
+            taiKhoanDataGridView.Size = new System.Drawing.Size(1134, 448);
             taiKhoanDataGridView.TabIndex = 0;
             taiKhoanDataGridView.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
 

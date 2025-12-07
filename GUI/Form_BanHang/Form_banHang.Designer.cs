@@ -33,39 +33,8 @@ namespace mini_supermarket.GUI.Form_BanHang
             BackColor = Color.FromArgb(245, 245, 245);
             DoubleBuffered = true;
 
-            // ===== Header =====
-            headerPanel = new Panel();
-            lblRole = new Label();
-            lblGreeting = new Label();
-            PictureBox logo = new PictureBox();
-
-            headerPanel.BackColor = Color.FromArgb(34, 139, 34);
-            headerPanel.Dock = DockStyle.Top;
-            headerPanel.Height = 50;
-            headerPanel.Padding = new Padding(15, 5, 15, 5);
-
-            // logo.Image = Properties.Resources.BachHoaXanhLogo; // Bỏ comment và đảm bảo file logo tồn tại
-            logo.Size = new Size(120, 40);
-            logo.SizeMode = PictureBoxSizeMode.StretchImage;
-            logo.Location = new Point(15, 5);
-
-            lblGreeting.Font = new Font("Roboto", 12F, FontStyle.Regular);
-            lblGreeting.ForeColor = Color.White;
-            lblGreeting.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            lblGreeting.Text = "Xin chào,";
-            lblGreeting.AutoSize = true;
-            lblGreeting.Location = new Point(1200, 10);
-
-            lblRole.Font = new Font("Roboto", 10F);
-            lblRole.ForeColor = Color.White;
-            lblRole.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            lblRole.AutoSize = true;
-            lblRole.Location = new Point(1200, 30);
-            lblRole.Text = "(Nhân viên bán hàng)";
-
-            headerPanel.Controls.Add(logo);
-            headerPanel.Controls.Add(lblRole);
-            headerPanel.Controls.Add(lblGreeting);
+            // ===== Header ===== (Removed - panel màu xanh lá đã được bỏ)
+            // headerPanel đã được loại bỏ để đẩy giao diện lên cao hơn
 
             // ===== Main Layout =====
             mainLayout = new TableLayoutPanel();
@@ -142,21 +111,27 @@ namespace mini_supermarket.GUI.Form_BanHang
             dgvProducts.GridColor = Color.FromArgb(230, 230, 230);
             dgvProducts.SelectionChanged += DgvProducts_SelectionChanged;
 
+            productColumnMaSanPham = new DataGridViewTextBoxColumn();
             productColumnName = new DataGridViewTextBoxColumn();
             productColumnPrice = new DataGridViewTextBoxColumn();
             productColumnQuantity = new DataGridViewTextBoxColumn();
+            productColumnHsd = new DataGridViewTextBoxColumn();
             productColumnPromotion = new DataGridViewTextBoxColumn();
+            productColumnMaSanPham.HeaderText = "Mã SP";
+            productColumnMaSanPham.FillWeight = 8;
             productColumnName.HeaderText = "Tên sản phẩm";
-            productColumnName.FillWeight = 35;
+            productColumnName.FillWeight = 28;
             productColumnPrice.HeaderText = "Đơn giá";
-            productColumnPrice.FillWeight = 20;
+            productColumnPrice.FillWeight = 14;
             productColumnQuantity.HeaderText = "SL";
-            productColumnQuantity.FillWeight = 12;
+            productColumnQuantity.FillWeight = 8;
+            productColumnHsd.HeaderText = "HSD";
+            productColumnHsd.FillWeight = 14;
             productColumnPromotion.HeaderText = "Khuyến mãi";
-            productColumnPromotion.FillWeight = 33;
+            productColumnPromotion.FillWeight = 28;
             dgvProducts.Columns.AddRange(new DataGridViewColumn[]
             {
-                productColumnName, productColumnPrice, productColumnQuantity, productColumnPromotion
+                productColumnMaSanPham, productColumnName, productColumnPrice, productColumnQuantity, productColumnHsd, productColumnPromotion
             });
 
             // Bottom Layout
@@ -211,7 +186,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             ((CustomButton)btnRefresh).BorderRadius = 6;
 
             btnAddProduct.Text = "➕ Thêm vào giỏ";
-            btnAddProduct.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddProduct.BackColor = Color.FromArgb(16, 137, 62);
             btnAddProduct.ForeColor = Color.White;
             btnAddProduct.FlatStyle = FlatStyle.Flat;
             btnAddProduct.Font = new Font("Roboto", 9F, FontStyle.Bold);
@@ -531,7 +506,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             mainLayout.Controls.Add(rightPanel, 1, 0);
 
             Controls.Add(mainLayout);
-            Controls.Add(headerPanel);
+            // headerPanel đã được loại bỏ
 
             // Thêm tooltip
             ToolTip toolTip = new ToolTip();
@@ -552,15 +527,16 @@ namespace mini_supermarket.GUI.Form_BanHang
         }
 
         // ===== FIELDS =====
-        private Panel headerPanel;
-        private Label lblRole, lblGreeting;
+        // Header panel đã được loại bỏ
+        // private Panel headerPanel;
+        // private Label lblRole, lblGreeting;
         private TableLayoutPanel mainLayout;
         private Panel leftPanel, rightPanel;
         private Panel searchPanel, productHeaderPanel;
         private Label lblProductTitle;
         private mini_supermarket.GUI.Style.SearchBoxControl searchBox;
         private DataGridView dgvProducts;
-        private DataGridViewTextBoxColumn productColumnName, productColumnPrice, productColumnQuantity, productColumnPromotion;
+        private DataGridViewTextBoxColumn productColumnMaSanPham, productColumnName, productColumnPrice, productColumnQuantity, productColumnHsd, productColumnPromotion;
         private TableLayoutPanel bottomLayout, productDetailLayout;
         private Panel productPreviewPanel;
         private FlowLayoutPanel productActionPanel;

@@ -10,7 +10,7 @@ namespace mini_supermarket.DAO
     public class NhaCungCap_DAO {
     public List<NhaCungCapDTO> GetNhaCungCap(string? trangThaiFilter = null)
     {
-        var list = new List<NhaCungCapDTO>();
+        var listNCC = new List<NhaCungCapDTO>();
 
         using var connection = DbConnectionFactory.CreateConnection();
         using var command = connection.CreateCommand();
@@ -35,13 +35,93 @@ namespace mini_supermarket.DAO
 
         connection.Open();
         using var reader = command.ExecuteReader();
-
+    // ánh xạ dữ liệu
         while (reader.Read())
         {
-            list.Add(ReadNhaCungCap(reader));
+            listNCC.Add(ReadNhaCungCap(reader));
         }
 
-        return list;
+        return listNCC;
+    }
+
+    // Lưu liên kết nhà cung cấp - sản phẩm
+    public void InsertNhaCungCapSanPham(int maNhaCungCap, int maSanPham)
+    {
+        using var connection = DbConnectionFactory.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            IF NOT EXISTS (SELECT 1 FROM Tbl_NhaCungCap_SanPham 
+                          WHERE MaNhaCungCap = @MaNhaCungCap AND MaSanPham = @MaSanPham)
+            BEGIN
+                INSERT INTO Tbl_NhaCungCap_SanPham (MaNhaCungCap, MaSanPham)
+                VALUES (@MaNhaCungCap, @MaSanPham)
+            END";
+
+        command.Parameters.Add(new SqlParameter("@MaNhaCungCap", SqlDbType.Int) { Value = maNhaCungCap });
+        command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
+
+        connection.Open();
+        command.ExecuteNonQuery();
+    }
+
+    // Lấy danh sách sản phẩm theo nhà cung cấp
+    public List<int> GetSanPhamIdsByNhaCungCap(int maNhaCungCap)
+    {
+        var sanPhamIds = new List<int>();
+
+        using var connection = DbConnectionFactory.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT MaSanPham
+            FROM Tbl_NhaCungCap_SanPham
+            WHERE MaNhaCungCap = @MaNhaCungCap";
+
+        command.Parameters.Add(new SqlParameter("@MaNhaCungCap", SqlDbType.Int) { Value = maNhaCungCap });
+
+        connection.Open();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            sanPhamIds.Add(reader.GetInt32(0));
+        }
+
+        return sanPhamIds;
+    }
+
+    // Lấy nhà cung cấp đầu tiên của sản phẩm (hoặc null nếu không có)
+    public int? GetMaNhaCungCapBySanPham(int maSanPham)
+    {
+        using var connection = DbConnectionFactory.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT TOP 1 MaNhaCungCap
+            FROM Tbl_NhaCungCap_SanPham
+            WHERE MaSanPham = @MaSanPham";
+
+        command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
+
+        connection.Open();
+        object? result = command.ExecuteScalar();
+        
+        if (result == null || result == DBNull.Value)
+            return null;
+
+        return Convert.ToInt32(result);
+    }
+
+    // Xóa tất cả liên kết nhà cung cấp của sản phẩm
+    public void DeleteNhaCungCapSanPhamBySanPham(int maSanPham)
+    {
+        using var connection = DbConnectionFactory.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            DELETE FROM Tbl_NhaCungCap_SanPham
+            WHERE MaSanPham = @MaSanPham";
+
+        command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
+
+        connection.Open();
+        command.ExecuteNonQuery();
     }
 
     // Lấy mã nhà cung cấp lớn nhất trong DB

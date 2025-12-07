@@ -5,12 +5,15 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.Common;
 using mini_supermarket.DTO;
 
 namespace mini_supermarket.GUI.KhuyenMai
 {
     public partial class Form_KhuyenMai : Form
     {
+        private const string FunctionPath = "Form_KhuyenMai";
+        private readonly PermissionService _permissionService = new();
     private Panel? mainPanel;
     private DataGridView? dgv;
     private ComboBox? cboFilterProduct;
@@ -33,6 +36,18 @@ namespace mini_supermarket.GUI.KhuyenMai
         {
             InitializeComponent();
             LoadData();
+            ApplyPermissions();
+        }
+
+        private void ApplyPermissions()
+        {
+            bool canAdd = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them);
+            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
+            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
+
+            if (btnAdd != null) btnAdd.Enabled = canAdd;
+            if (btnUpdate != null) btnUpdate.Enabled = canEdit;
+            if (btnDelete != null) btnDelete.Enabled = canDelete;
         }
         private readonly SanPham_BUS _sanPhamBus = new();
         private List<SanPhamDTO>? _productList;
@@ -143,7 +158,7 @@ namespace mini_supermarket.GUI.KhuyenMai
 
             // Place action buttons under the "Làm mới" button
             int btnY = y + 60;
-            btnAdd = CreateButton("Thêm", new Point(40, btnY), new Size(100, 36), Color.FromArgb(25, 135, 84));
+            btnAdd = CreateButton("➕ Thêm", new Point(40, btnY), new Size(100, 36), Color.FromArgb(25, 135, 84));
             btnAdd.Click += BtnAdd_Click;
             inputPanel.Controls.Add(btnAdd);
 
@@ -315,6 +330,12 @@ namespace mini_supermarket.GUI.KhuyenMai
 
     private void BtnAdd_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm khuyến mãi!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 var kh = MapInputsToDto(isUpdate: false);
@@ -330,6 +351,12 @@ namespace mini_supermarket.GUI.KhuyenMai
 
         private void BtnUpdate_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa khuyến mãi!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 if (dgv!.Tag == null) { MessageBox.Show("Chọn khuyến mãi để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
@@ -346,6 +373,12 @@ namespace mini_supermarket.GUI.KhuyenMai
 
         private void BtnDelete_Click(object? sender, EventArgs e)
         {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền xóa/khóa khuyến mãi!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 if (dgv!.Tag == null) { MessageBox.Show("Chọn khuyến mãi để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }

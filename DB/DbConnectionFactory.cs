@@ -8,7 +8,7 @@ namespace mini_supermarket.DB
     // TODO: Move to configuration if needed.
     // private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=mini_sp;Integrated Security=True;Encrypt=False";
 
-        private const string ConnectionString = "Data Source=DESKTOP-CNHTUEA;Initial Catalog=mini_sp01;Integrated Security=True;Encrypt=False";
+        private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=mini_sp01;Integrated Security=True;Encrypt=False";
 
         internal static SqlConnection CreateConnection()
         {
@@ -16,3 +16,4 @@ namespace mini_supermarket.DB
         }
     }
 }       
+    

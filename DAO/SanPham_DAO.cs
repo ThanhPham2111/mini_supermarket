@@ -9,7 +9,7 @@ namespace mini_supermarket.DAO
 {
     public class SanPham_DAO
     {
-        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null)
+        public IList<SanPhamDTO> GetSanPham(string? trangThaiFilter = null, int? maNhaCungCap = null)
         {
             var sanPhamList = new List<SanPhamDTO>();
 
@@ -36,13 +36,29 @@ namespace mini_supermarket.DAO
                                    LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu
                                    LEFT JOIN dbo.Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham";
 
+            var whereConditions = new List<string>();
+
             if (!string.IsNullOrWhiteSpace(trangThaiFilter))
             {
-                command.CommandText += " WHERE sp.TrangThai = @TrangThai";
+                whereConditions.Add("sp.TrangThai = @TrangThai");
                 command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
                 {
                     Value = trangThaiFilter
                 });
+            }
+
+            if (maNhaCungCap.HasValue && maNhaCungCap.Value > 0)
+            {
+                whereConditions.Add("sp.MaSanPham IN (SELECT MaSanPham FROM Tbl_NhaCungCap_SanPham WHERE MaNhaCungCap = @MaNhaCungCap)");
+                command.Parameters.Add(new SqlParameter("@MaNhaCungCap", SqlDbType.Int)
+                {
+                    Value = maNhaCungCap.Value
+                });
+            }
+
+            if (whereConditions.Count > 0)
+            {
+                command.CommandText += " WHERE " + string.Join(" AND ", whereConditions);
             }
 
             command.CommandText += " ORDER BY sp.MaSanPham";
@@ -227,6 +243,117 @@ namespace mini_supermarket.DAO
             {
                 throw new InvalidOperationException("Khong tim thay san pham de cap nhat.");
             }
+        }
+
+        public void UpdateGiaBan(int maSanPham, decimal giaBan)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] START - MaSanPham={maSanPham}, GiaBan={giaBan}");
+            
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE dbo.Tbl_SanPham
+                                     SET GiaBan = @GiaBan
+                                     WHERE MaSanPham = @MaSanPham";
+
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int)
+            {
+                Value = maSanPham
+            });
+            var giaBanParameter = new SqlParameter("@GiaBan", SqlDbType.Decimal)
+            {
+                Precision = 18,
+                Scale = 2,
+                Value = giaBan
+            };
+            command.Parameters.Add(giaBanParameter);
+
+            connection.Open();
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] Executing SQL: {command.CommandText}");
+            int rows = command.ExecuteNonQuery();
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] Rows affected: {rows}");
+            
+            if (rows == 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] ERROR - No rows updated for MaSanPham={maSanPham}");
+                throw new InvalidOperationException($"Không tìm thấy sản phẩm với mã {maSanPham} để cập nhật giá bán.");
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"[UpdateGiaBan] SUCCESS - Updated MaSanPham={maSanPham} to GiaBan={giaBan}");
+        }
+
+        public SanPhamDTO? GetSanPhamById(int maSanPham)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT sp.MaSanPham,
+                                          sp.TenSanPham,
+                                          sp.MaDonVi,
+                                          dv.TenDonVi,
+                                          sp.MaThuongHieu,
+                                          sp.MaLoai,
+                                          sp.MoTa,
+                                          sp.GiaBan,
+                                          sp.HinhAnh,
+                                          sp.XuatXu,
+                                          sp.Hsd,
+                                          sp.TrangThai,
+                                          l.TenLoai,
+                                          th.TenThuongHieu,
+                                          ISNULL(kh.SoLuong, 0) AS SoLuong
+                                   FROM dbo.Tbl_SanPham sp
+                                   LEFT JOIN dbo.Tbl_DonVi dv ON sp.MaDonVi = dv.MaDonVi
+                                   LEFT JOIN dbo.Tbl_Loai l ON sp.MaLoai = l.MaLoai
+                                   LEFT JOIN dbo.Tbl_ThuongHieu th ON sp.MaThuongHieu = th.MaThuongHieu
+                                   LEFT JOIN dbo.Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham
+                                   WHERE sp.MaSanPham = @MaSanPham";
+
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int)
+            {
+                Value = maSanPham
+            });
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            
+            if (reader.Read())
+            {
+                int maSanPhamIndex = reader.GetOrdinal("MaSanPham");
+                int tenSanPhamIndex = reader.GetOrdinal("TenSanPham");
+                int maDonViIndex = reader.GetOrdinal("MaDonVi");
+                int tenDonViIndex = reader.GetOrdinal("TenDonVi");
+                int maThuongHieuIndex = reader.GetOrdinal("MaThuongHieu");
+                int maLoaiIndex = reader.GetOrdinal("MaLoai");
+                int moTaIndex = reader.GetOrdinal("MoTa");
+                int giaBanIndex = reader.GetOrdinal("GiaBan");
+                int hinhAnhIndex = reader.GetOrdinal("HinhAnh");
+                int xuatXuIndex = reader.GetOrdinal("XuatXu");
+                int hsdIndex = reader.GetOrdinal("Hsd");
+                int trangThaiIndex = reader.GetOrdinal("TrangThai");
+                int tenLoaiIndex = reader.GetOrdinal("TenLoai");
+                int tenThuongHieuIndex = reader.GetOrdinal("TenThuongHieu");
+                int soLuongIndex = reader.GetOrdinal("SoLuong");
+
+                return new SanPhamDTO
+                {
+                    MaSanPham = reader.GetInt32(maSanPhamIndex),
+                    TenSanPham = reader.IsDBNull(tenSanPhamIndex) ? string.Empty : reader.GetString(tenSanPhamIndex),
+                    MaDonVi = reader.IsDBNull(maDonViIndex) ? 0 : reader.GetInt32(maDonViIndex),
+                    TenDonVi = reader.IsDBNull(tenDonViIndex) ? null : reader.GetString(tenDonViIndex),
+                    MaThuongHieu = reader.IsDBNull(maThuongHieuIndex) ? 0 : reader.GetInt32(maThuongHieuIndex),
+                    MaLoai = reader.IsDBNull(maLoaiIndex) ? 0 : reader.GetInt32(maLoaiIndex),
+                    MoTa = reader.IsDBNull(moTaIndex) ? null : reader.GetString(moTaIndex),
+                    GiaBan = reader.IsDBNull(giaBanIndex) ? null : reader.GetDecimal(giaBanIndex),
+                    HinhAnh = reader.IsDBNull(hinhAnhIndex) ? null : reader.GetString(hinhAnhIndex),
+                    XuatXu = reader.IsDBNull(xuatXuIndex) ? null : reader.GetString(xuatXuIndex),
+                    Hsd = reader.IsDBNull(hsdIndex) ? null : reader.GetDateTime(hsdIndex),
+                    TrangThai = reader.IsDBNull(trangThaiIndex) ? null : reader.GetString(trangThaiIndex),
+                    TenLoai = reader.IsDBNull(tenLoaiIndex) ? null : reader.GetString(tenLoaiIndex),
+                    TenThuongHieu = reader.IsDBNull(tenThuongHieuIndex) ? null : reader.GetString(tenThuongHieuIndex),
+                    SoLuong = reader.IsDBNull(soLuongIndex) ? 0 : reader.GetInt32(soLuongIndex)
+                };
+            }
+
+            return null;
         }
 
         public IList<string> GetDistinctTrangThai()

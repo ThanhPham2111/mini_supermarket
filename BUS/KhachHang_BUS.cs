@@ -117,5 +117,20 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Trạng thái không hợp lệ.", nameof(khachHang.TrangThai));
             }
         }
+
+        public void UpdateDiemTichLuy(int maKhachHang, int diemMoi)
+        {
+            if (maKhachHang <= 0)
+            {
+                throw new ArgumentException("Mã khách hàng không hợp lệ.", nameof(maKhachHang));
+            }
+
+            if (diemMoi < 0)
+            {
+                throw new ArgumentException("Điểm tích lũy không được âm.", nameof(diemMoi));
+            }
+
+            _khachHangDao.UpdateDiemTichLuy(maKhachHang, diemMoi);
+        }
     }
 }

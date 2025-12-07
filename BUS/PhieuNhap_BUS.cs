@@ -8,7 +8,7 @@ namespace mini_supermarket.BUS
     public class PhieuNhap_BUS
     {
         private readonly PhieuNhap_DAO _phieuNhapDao = new PhieuNhap_DAO();
-        private readonly KhoHangDAO _khoHangDao = new KhoHangDAO();
+        private readonly KhoHangBUS _khoHangBus = new KhoHangBUS();
 
         /*  public int GetNextMaPhieuNhap()
          {
@@ -38,48 +38,15 @@ namespace mini_supermarket.BUS
 
             try
             {
-                // 1. Thêm phiếu nhập vào database
+                // Đặt trạng thái mặc định là "Đang nhập"
+                phieuNhap.TrangThai = "Đang nhập";
+                
+                // Thêm phiếu nhập vào database
                 int newId = _phieuNhapDao.InsertPhieuNhap(phieuNhap);
                 phieuNhap.MaPhieuNhap = newId;
                 
-                // 2. Cập nhật số lượng trong kho hàng cho từng chi tiết phiếu nhập
-                if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
-                {
-                    foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
-                    {
-                        // Kiểm tra sản phẩm đã có trong kho hàng chưa
-                        bool exists = _khoHangDao.ExistsByMaSanPham(chiTiet.MaSanPham);
-                        
-                        if (exists)
-                        {
-                            // Đã có trong kho -> Lấy thông tin hiện tại và cộng thêm số lượng
-                            var khoHangHienTai = _khoHangDao.GetByMaSanPham(chiTiet.MaSanPham);
-                            if (khoHangHienTai != null)
-                            {
-                                int soLuongMoi = (khoHangHienTai.SoLuong ?? 0) + chiTiet.SoLuong;
-                                
-                                KhoHangDTO khoHangUpdate = new KhoHangDTO
-                                {
-                                    MaSanPham = chiTiet.MaSanPham,
-                                    SoLuong = soLuongMoi,
-                                    TrangThai = soLuongMoi > 0 ? "Còn hàng" : "Hết hàng"
-                                };
-                                _khoHangDao.UpdateKhoHang(khoHangUpdate);
-                            }
-                        }
-                        else
-                        {
-                            // Chưa có trong kho -> Thêm mới
-                            KhoHangDTO khoHangNew = new KhoHangDTO
-                            {
-                                MaSanPham = chiTiet.MaSanPham,
-                                SoLuong = chiTiet.SoLuong,
-                                TrangThai = chiTiet.SoLuong > 0 ? "Còn hàng" : "Hết hàng"
-                            };
-                            _khoHangDao.InsertKhoHang(khoHangNew);
-                        }
-                    }
-                }
+                // QUAN TRỌNG: KHÔNG cập nhật kho ở đây
+                // Chỉ cập nhật kho khi gọi XacNhanNhapKho()
                 
                 return phieuNhap;
             }
@@ -98,12 +65,112 @@ namespace mini_supermarket.BUS
             _phieuNhapDao.UpdatePhieuNhap(phieuNhap);
         }
 
+        public void XacNhanNhapKho(int maPhieuNhap)
+        {
+            if (maPhieuNhap <= 0)
+                throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
+
+            try
+            {
+                // 1. Lấy thông tin phiếu nhập
+                var phieuNhap = _phieuNhapDao.GetPhieuNhapById(maPhieuNhap);
+                
+                if (phieuNhap == null)
+                    throw new InvalidOperationException("Không tìm thấy phiếu nhập.");
+                
+                // Kiểm tra trạng thái hiện tại
+                if (phieuNhap.TrangThai == "Nhập thành công")
+                    throw new InvalidOperationException("Phiếu nhập đã được xác nhận trước đó.");
+                
+                // 2. Cập nhật trạng thái phiếu nhập
+                _phieuNhapDao.UpdateTrangThaiPhieuNhap(maPhieuNhap, "Nhập thành công");
+                
+                // 3. Cập nhật số lượng vào kho hàng và giá bán vào Tbl_SanPham
+                var loiNhuanBus = new LoiNhuan_BUS();
+                
+                if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
+                {
+                    foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
+                    {
+                        // Sử dụng KhoHang_BUS.TangSoLuongKho để đảm bảo logic nghiệp vụ
+                        bool success = _khoHangBus.TangSoLuongKho(
+                            chiTiet.MaSanPham,
+                            chiTiet.SoLuong,
+                            1, // TODO: Lấy từ session đăng nhập
+                            string.Format("Nhập hàng từ phiếu nhập PN{0:D3}", maPhieuNhap),
+                            string.Format("Xác nhận nhập kho - Phiếu nhập PN{0:D3}", maPhieuNhap)
+                        );
+                        
+                        if (!success)
+                        {
+                            throw new InvalidOperationException($"Không thể cập nhật kho cho sản phẩm {chiTiet.MaSanPham}");
+                        }
+                        
+                        // 4. QUAN TRỌNG: Cập nhật giá bán vào Tbl_SanPham với logic giá nhập mới
+                        // Giá nhập mới = DonGiaNhap từ chi tiết phiếu nhập
+                        loiNhuanBus.CapNhatGiaBanKhiGiaNhapThayDoi(chiTiet.MaSanPham, chiTiet.DonGiaNhap);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi xác nhận nhập kho: {ex.Message}", ex);
+            }
+        }
+
         public void DeletePhieuNhap(int maPhieuNhap)
         {
             if (maPhieuNhap <= 0)
                 throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
 
             _phieuNhapDao.DeletePhieuNhap(maPhieuNhap);
+        }
+
+        public void HuyPhieuNhap(int maPhieuNhap, string lyDoHuy)
+        {
+            if (maPhieuNhap <= 0)
+                throw new ArgumentException("Mã phiếu nhập không hợp lệ.", nameof(maPhieuNhap));
+
+            if (string.IsNullOrWhiteSpace(lyDoHuy))
+                throw new ArgumentException("Lý do hủy không được để trống.", nameof(lyDoHuy));
+
+            try
+            {
+                // 1. Lấy thông tin phiếu nhập
+                var phieuNhap = _phieuNhapDao.GetPhieuNhapById(maPhieuNhap);
+                
+                if (phieuNhap == null)
+                    throw new InvalidOperationException("Không tìm thấy phiếu nhập.");
+
+                // 2. Nếu phiếu nhập đã được xác nhận (Nhập thành công), cần trừ lại số lượng trong kho
+                if (phieuNhap.TrangThai == "Nhập thành công")
+                {
+                    if (phieuNhap.ChiTietPhieuNhaps != null && phieuNhap.ChiTietPhieuNhaps.Count > 0)
+                    {
+                        foreach (var chiTiet in phieuNhap.ChiTietPhieuNhaps)
+                        {
+                            // Sử dụng KhoHang_BUS.GiamSoLuongKho để đảm bảo logic nghiệp vụ
+                            bool success = _khoHangBus.GiamSoLuongKho(
+                                chiTiet.MaSanPham,
+                                chiTiet.SoLuong,
+                                1 // TODO: Lấy từ session đăng nhập
+                            );
+                            
+                            if (!success)
+                            {
+                                throw new InvalidOperationException($"Không thể giảm kho cho sản phẩm {chiTiet.MaSanPham}");
+                            }
+                        }
+                    }
+                }
+
+                // 3. Cập nhật trạng thái phiếu nhập thành "Hủy"
+                _phieuNhapDao.HuyPhieuNhap(maPhieuNhap, lyDoHuy);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi hủy phiếu nhập: {ex.Message}", ex);
+            }
         }
 
         // public IList<PhieuNhapDTO> SearchPhieuNhap(string keyword)

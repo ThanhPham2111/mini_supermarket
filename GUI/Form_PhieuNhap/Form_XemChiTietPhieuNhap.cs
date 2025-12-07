@@ -433,15 +433,15 @@ namespace mini_supermarket.GUI.PhieuNhap
                 Text = "📊 Xuất Excel",
                 Size = new Size(150, 45),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                BackColor = Color.FromArgb(40, 167, 69),
+                BackColor = Color.FromArgb(253, 126, 20),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
                 Margin = new Padding(5, 0, 0, 0)
             };
             btnExportExcel.FlatAppearance.BorderSize = 0;
-            btnExportExcel.MouseEnter += (s, e) => btnExportExcel.BackColor = Color.FromArgb(33, 136, 56);
-            btnExportExcel.MouseLeave += (s, e) => btnExportExcel.BackColor = Color.FromArgb(40, 167, 69);
+            btnExportExcel.MouseEnter += (s, e) => btnExportExcel.BackColor = Color.FromArgb(220, 110, 18);
+            btnExportExcel.MouseLeave += (s, e) => btnExportExcel.BackColor = Color.FromArgb(253, 126, 20);
             btnExportExcel.Click += BtnExportExcel_Click;
 
             buttonPanel.Controls.Add(btnClose);

@@ -8,6 +8,11 @@
         public int SoLuong { get; set; }
         public decimal GiaBan { get; set; }
 
+        // Properties for display
+        public string TenSanPham { get; set; } = string.Empty;
+        public string DonVi { get; set; } = string.Empty;
+        public decimal ThanhTien => SoLuong * GiaBan;
+
         public ChiTietHoaDonDTO()
         {
         }

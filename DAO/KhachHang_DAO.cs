@@ -37,19 +37,17 @@ namespace mini_supermarket.DAO
                 {
                     MaKhachHang = reader.GetInt32(reader.GetOrdinal("MaKhachHang")),
                     TenKhachHang = reader.GetString(reader.GetOrdinal("TenKhachHang")),
-                    // GioiTinh = readeSoDienThoair.IsDBNull(reader.GetOrdinal("GioiTinh")) ? null : reader.GetString(reader.GetOrdinal("GioiTinh")),
-                    // NgaySinh = reader.IsDBNull(reader.GetOrdinal("NgaySinh")) ? null : reader.GetDateTime(reader.GetOrdinal("NgaySinh")),
                     SoDienThoai = reader.IsDBNull(reader.GetOrdinal("SoDienThoai")) ? null : reader.GetString(reader.GetOrdinal("SoDienThoai")),
-                    DiaChi = reader.GetString(reader.GetOrdinal("DiaChi")),
-                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                    DiaChi = reader.IsDBNull(reader.GetOrdinal("DiaChi")) ? null : reader.GetString(reader.GetOrdinal("DiaChi")),
+                    Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString(reader.GetOrdinal("Email")),
                     DiemTichLuy = reader.GetInt32(reader.GetOrdinal("DiemTichLuy")),
-                    // VaiTro = reader.IsDBNull(reader.GetOrdinal("VaiTro")) ? null : reader.GetString(reader.GetOrdinal("VaiTro")),
                     TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
                 });
             }
 
             return khachHangList;
         }
+        
         public int GetMaxMaKhachHang()
         {
             using var connection = DbConnectionFactory.CreateConnection();
@@ -164,6 +162,33 @@ namespace mini_supermarket.DAO
             {
                 Value = khachHang.TrangThai ?? (object)DBNull.Value
             });
+        }
+
+        public void UpdateDiemTichLuy(int maKhachHang, int diemMoi)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE dbo.Tbl_KhachHang
+                SET DiemTichLuy = @DiemTichLuy
+                WHERE MaKhachHang = @MaKhachHang";
+
+            command.Parameters.Add(new SqlParameter("@MaKhachHang", SqlDbType.Int)
+            {
+                Value = maKhachHang
+            });
+
+            command.Parameters.Add(new SqlParameter("@DiemTichLuy", SqlDbType.Int)
+            {
+                Value = diemMoi
+            });
+
+            connection.Open();
+            int rowsAffected = command.ExecuteNonQuery();
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException("Không tìm thấy khách hàng để cập nhật điểm.");
+            }
         }
     }
 }

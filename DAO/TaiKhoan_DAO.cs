@@ -170,6 +170,44 @@ namespace mini_supermarket.DAO
             return result;
         }
 
+        public TaiKhoanDTO? Authenticate(string tenDangNhap, string matKhau)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT tk.MaTaiKhoan, tk.TenDangNhap, tk.MatKhau, tk.MaNhanVien, 
+                                           tk.MaQuyen, tk.TrangThai
+                                    FROM dbo.Tbl_TaiKhoan tk
+                                    WHERE tk.TenDangNhap = @TenDangNhap 
+                                      AND tk.MatKhau = @MatKhau 
+                                      AND tk.TrangThai = N'Hoạt động'";
+
+            command.Parameters.Add(new SqlParameter("@TenDangNhap", SqlDbType.VarChar, 255)
+            {
+                Value = tenDangNhap
+            });
+            command.Parameters.Add(new SqlParameter("@MatKhau", SqlDbType.VarChar, 255)
+            {
+                Value = matKhau
+            });
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new TaiKhoanDTO
+                {
+                    MaTaiKhoan = reader.GetInt32(reader.GetOrdinal("MaTaiKhoan")),
+                    TenDangNhap = reader.GetString(reader.GetOrdinal("TenDangNhap")),
+                    MatKhau = reader.GetString(reader.GetOrdinal("MatKhau")),
+                    MaNhanVien = reader.GetInt32(reader.GetOrdinal("MaNhanVien")),
+                    MaQuyen = reader.GetInt32(reader.GetOrdinal("MaQuyen")),
+                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                };
+            }
+
+            return null;
+        }
+
         private static void AddTaiKhoanParameters(SqlCommand command, TaiKhoanDTO taiKhoan, bool includeKey)
         {
             command.Parameters.Clear();

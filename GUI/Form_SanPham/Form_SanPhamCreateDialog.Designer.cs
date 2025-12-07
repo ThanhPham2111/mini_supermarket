@@ -14,8 +14,8 @@
             private System.Windows.Forms.Label hinhAnhLabel;
             private System.Windows.Forms.TextBox moTaTextBox;
             private System.Windows.Forms.Label moTaLabel;
-            private System.Windows.Forms.ComboBox trangThaiComboBox;
-            private System.Windows.Forms.Label trangThaiLabel;
+            private System.Windows.Forms.ComboBox nhaCungCapComboBox;
+            private System.Windows.Forms.Label nhaCungCapLabel;
             private System.Windows.Forms.DateTimePicker hsdDateTimePicker;
             private System.Windows.Forms.Label hsdLabel;
             private System.Windows.Forms.TextBox xuatXuTextBox;
@@ -55,8 +55,8 @@
                 hinhAnhLabel = new System.Windows.Forms.Label();
                 moTaTextBox = new System.Windows.Forms.TextBox();
                 moTaLabel = new System.Windows.Forms.Label();
-                trangThaiComboBox = new System.Windows.Forms.ComboBox();
-                trangThaiLabel = new System.Windows.Forms.Label();
+                nhaCungCapComboBox = new System.Windows.Forms.ComboBox();
+                nhaCungCapLabel = new System.Windows.Forms.Label();
                 hsdDateTimePicker = new System.Windows.Forms.DateTimePicker();
                 hsdLabel = new System.Windows.Forms.Label();
                 xuatXuTextBox = new System.Windows.Forms.TextBox();
@@ -113,8 +113,8 @@
                 contentPanel.Controls.Add(hinhAnhLabel);
                 contentPanel.Controls.Add(moTaTextBox);
                 contentPanel.Controls.Add(moTaLabel);
-                contentPanel.Controls.Add(trangThaiComboBox);
-                contentPanel.Controls.Add(trangThaiLabel);
+                contentPanel.Controls.Add(nhaCungCapComboBox);
+                contentPanel.Controls.Add(nhaCungCapLabel);
                 contentPanel.Controls.Add(hsdDateTimePicker);
                 contentPanel.Controls.Add(hsdLabel);
                 contentPanel.Controls.Add(xuatXuTextBox);
@@ -206,20 +206,20 @@
                 moTaLabel.TabIndex = 15;
                 moTaLabel.Text = "Mô tả";
 
-                // trangThaiComboBox
-                trangThaiComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-                trangThaiComboBox.Location = new System.Drawing.Point(150, 300);
-                trangThaiComboBox.Name = "trangThaiComboBox";
-                trangThaiComboBox.Size = new System.Drawing.Size(250, 25);
-                trangThaiComboBox.TabIndex = 14;
+                // nhaCungCapComboBox
+                nhaCungCapComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+                nhaCungCapComboBox.Location = new System.Drawing.Point(150, 300);
+                nhaCungCapComboBox.Name = "nhaCungCapComboBox";
+                nhaCungCapComboBox.Size = new System.Drawing.Size(250, 25);
+                nhaCungCapComboBox.TabIndex = 14;
 
-                // trangThaiLabel
-                trangThaiLabel.AutoSize = true;
-                trangThaiLabel.Location = new System.Drawing.Point(20, 303);
-                trangThaiLabel.Name = "trangThaiLabel";
-                trangThaiLabel.Size = new System.Drawing.Size(66, 17);
-                trangThaiLabel.TabIndex = 13;
-                trangThaiLabel.Text = "Trạng thái";
+                // nhaCungCapLabel
+                nhaCungCapLabel.AutoSize = true;
+                nhaCungCapLabel.Location = new System.Drawing.Point(20, 303);
+                nhaCungCapLabel.Name = "nhaCungCapLabel";
+                nhaCungCapLabel.Size = new System.Drawing.Size(91, 17);
+                nhaCungCapLabel.TabIndex = 13;
+                nhaCungCapLabel.Text = "Nhà cung cấp";
 
                 // hsdDateTimePicker
                 hsdDateTimePicker.Location = new System.Drawing.Point(150, 260);
