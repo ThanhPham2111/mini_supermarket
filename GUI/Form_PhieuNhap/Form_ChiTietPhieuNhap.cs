@@ -790,11 +790,11 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Text = "➕ Thêm sản phẩm",
                 Dock = DockStyle.Right,
-                Size = new Size(150, 35),
+                Size = new Size(170, 38),
                 BackColor = Color.FromArgb(16, 137, 62),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnAddProduct.FlatAppearance.BorderSize = 0;
