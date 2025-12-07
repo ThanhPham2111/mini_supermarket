@@ -351,7 +351,7 @@ namespace mini_supermarket.GUI.NhanVien
 
         #endregion
 
-        #region Import Excel
+        #region Import Excel (Chuẩn siêu thị: Thêm mới + Cập nhật)
 
         private void ImportExcelButton_Click(object sender, EventArgs e)
         {
@@ -363,8 +363,10 @@ namespace mini_supermarket.GUI.NhanVien
 
             if (ofd.ShowDialog() != DialogResult.OK) return;
 
-            var importList = new List<NhanVienDTO>();
-            var readErrors = new List<string>();
+            var itemsToAdd = new List<NhanVienDTO>();      // Danh sách thêm mới
+            var itemsToUpdate = new List<NhanVienDTO>();   // Danh sách cập nhật
+            var readErrors = new List<string>();           // Lỗi khi đọc Excel
+            var phoneNumbersInFile = new HashSet<string>(); // Để kiểm tra trùng trong file
 
             try
             {
@@ -386,7 +388,7 @@ namespace mini_supermarket.GUI.NhanVien
                         var vaiTroStr = row.Cell(6).GetString().Trim();
                         var trangThaiStr = row.Cell(7).GetString().Trim();
 
-                        // Bỏ qua dòng trống
+                        // Bỏ qua dòng trống hoàn toàn
                         if (string.IsNullOrEmpty(maNhanVienStr) && string.IsNullOrEmpty(tenNhanVienStr) &&
                             string.IsNullOrEmpty(soDienThoaiStr) && string.IsNullOrEmpty(vaiTroStr))
                         {
@@ -394,24 +396,22 @@ namespace mini_supermarket.GUI.NhanVien
                             continue;
                         }
 
-                        // Parse mã nhân viên
-                        if (!int.TryParse(maNhanVienStr, out int maNhanVien) || maNhanVien <= 0)
+                        // Kiểm tra số điện thoại trùng trong file Excel
+                        if (!string.IsNullOrWhiteSpace(soDienThoaiStr))
                         {
-                            rowNum++;
-                            continue;
+                            var normalizedPhone = soDienThoaiStr.Trim();
+                            if (phoneNumbersInFile.Contains(normalizedPhone))
+                            {
+                                readErrors.Add($"Dòng {rowNum}: Số điện thoại '{normalizedPhone}' bị trùng trong file Excel");
+                                rowNum++;
+                                continue;
+                            }
+                            phoneNumbersInFile.Add(normalizedPhone);
                         }
 
-                        // Kiểm tra đã tồn tại - bỏ qua không báo lỗi
-                        if (_allNhanVien.Any(nv => nv.MaNhanVien == maNhanVien))
-                        {
-                            rowNum++;
-                            continue;
-                        }
-
-                        // Tạo DTO
+                        // Tạo DTO với dữ liệu từ Excel
                         var nv = new NhanVienDTO
                         {
-                            MaNhanVien = maNhanVien,
                             TenNhanVien = tenNhanVienStr,
                             NgaySinh = TryParseDate(ngaySinhStr),
                             GioiTinh = NormalizeGender(gioiTinhStr),
@@ -422,7 +422,66 @@ namespace mini_supermarket.GUI.NhanVien
                                 : trangThaiStr
                         };
 
-                        importList.Add(nv);
+                        // QUY TẮC VÀNG: Phân biệt Thêm mới vs Cập nhật
+                        if (string.IsNullOrEmpty(maNhanVienStr) || maNhanVienStr == "0")
+                        {
+                            // Mã NV trống hoặc = 0 → THÊM MỚI
+                            // Kiểm tra số điện thoại trùng với nhân viên đã có trong DB
+                            if (!string.IsNullOrWhiteSpace(soDienThoaiStr))
+                            {
+                                var normalizedPhone = soDienThoaiStr.Trim();
+                                var existingNv = _allNhanVien.FirstOrDefault(n => 
+                                    n.SoDienThoai != null && n.SoDienThoai.Trim() == normalizedPhone);
+                                if (existingNv != null)
+                                {
+                                    readErrors.Add($"Dòng {rowNum}: Số điện thoại '{normalizedPhone}' đã được sử dụng bởi nhân viên khác (Mã NV: {existingNv.MaNhanVien})");
+                                    rowNum++;
+                                    continue;
+                                }
+                            }
+                            
+                            // Không set MaNhanVien, để DB tự tạo
+                            itemsToAdd.Add(nv);
+                        }
+                        else
+                        {
+                            // Mã NV có giá trị → CẬP NHẬT
+                            if (!int.TryParse(maNhanVienStr, out int maNhanVien) || maNhanVien <= 0)
+                            {
+                                readErrors.Add($"Dòng {rowNum}: Mã nhân viên không hợp lệ: '{maNhanVienStr}'");
+                                rowNum++;
+                                continue;
+                            }
+
+                            // Tìm nhân viên trong danh sách hiện tại
+                            var existingNv = _allNhanVien.FirstOrDefault(n => n.MaNhanVien == maNhanVien);
+                            if (existingNv == null)
+                            {
+                                readErrors.Add($"Dòng {rowNum}: Không tìm thấy nhân viên với mã {maNhanVien} để cập nhật");
+                                rowNum++;
+                                continue;
+                            }
+
+                            // Kiểm tra số điện thoại trùng với nhân viên khác (nhưng cho phép giữ nguyên của chính nhân viên này)
+                            if (!string.IsNullOrWhiteSpace(soDienThoaiStr))
+                            {
+                                var normalizedPhone = soDienThoaiStr.Trim();
+                                var otherNv = _allNhanVien.FirstOrDefault(n => 
+                                    n.MaNhanVien != maNhanVien &&
+                                    n.SoDienThoai != null && 
+                                    n.SoDienThoai.Trim() == normalizedPhone);
+                                if (otherNv != null)
+                                {
+                                    readErrors.Add($"Dòng {rowNum}: Số điện thoại '{normalizedPhone}' đã được sử dụng bởi nhân viên khác (Mã NV: {otherNv.MaNhanVien})");
+                                    rowNum++;
+                                    continue;
+                                }
+                            }
+
+                            // Cập nhật thông tin từ Excel lên nhân viên cũ
+                            nv.MaNhanVien = maNhanVien;
+                            itemsToUpdate.Add(nv);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -437,43 +496,86 @@ namespace mini_supermarket.GUI.NhanVien
                 return;
             }
 
-            if (importList.Count == 0)
+            // Kiểm tra có dữ liệu để xử lý không
+            if (itemsToAdd.Count == 0 && itemsToUpdate.Count == 0)
             {
-                MessageBox.Show("Không có dữ liệu hợp lệ để nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (readErrors.Count > 0)
+                {
+                    MessageBox.Show($"Không có dữ liệu hợp lệ để nhập!\n\nCó {readErrors.Count} lỗi khi đọc file.", 
+                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show("Không có dữ liệu hợp lệ để nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
 
-            // Import vào DB
-            int success = 0;
+            // Xử lý: Thêm mới và Cập nhật
+            int addSuccess = 0;
+            int updateSuccess = 0;
             var saveErrors = new List<string>();
 
-            foreach (var nv in importList)
+            // 1. Thêm mới
+            foreach (var nv in itemsToAdd)
             {
                 try
                 {
-                    // AddNhanVien sẽ tự validate
                     _nhanVienBus.AddNhanVien(nv);
-                    success++;
+                    addSuccess++;
                 }
                 catch (Exception ex)
                 {
-                    saveErrors.Add($"Mã NV {nv.MaNhanVien} ({nv.TenNhanVien}): {ex.Message}");
+                    saveErrors.Add($"Thêm mới \"{nv.TenNhanVien}\": {ex.Message}");
                 }
             }
 
+            // 2. Cập nhật
+            foreach (var nv in itemsToUpdate)
+            {
+                try
+                {
+                    _nhanVienBus.UpdateNhanVien(nv);
+                    updateSuccess++;
+                }
+                catch (Exception ex)
+                {
+                    saveErrors.Add($"Cập nhật Mã NV {nv.MaNhanVien} (\"{nv.TenNhanVien}\"): {ex.Message}");
+                }
+            }
+
+            // Reload dữ liệu
             LoadNhanVienData();
 
-            // Hiển thị kết quả
-            string result = $"✅ Nhập Excel thành công!\n\n";
-            result += $"• Đã thêm: {success} nhân viên mới\n";
-            if (saveErrors.Count > 0)
+            // Báo cáo kết quả chi tiết
+            string result = "✅ Nhập Excel hoàn tất!\n\n";
+            result += $"• Đã thêm mới: {addSuccess}/{itemsToAdd.Count} nhân viên\n";
+            result += $"• Đã cập nhật: {updateSuccess}/{itemsToUpdate.Count} nhân viên\n";
+            
+            int totalErrors = readErrors.Count + saveErrors.Count;
+            if (totalErrors > 0)
             {
-                result += $"• Lỗi: {saveErrors.Count} nhân viên\n";
-                result += "\nChi tiết lỗi:\n" + string.Join("\n", saveErrors.Take(10));
-                if (saveErrors.Count > 10)
+                result += $"• Lỗi: {totalErrors} dòng\n\n";
+                
+                // Hiển thị lỗi đọc file
+                if (readErrors.Count > 0)
                 {
-                    result += $"\n... và {saveErrors.Count - 10} lỗi khác.";
+                    result += "Lỗi khi đọc file:\n";
+                    result += string.Join("\n", readErrors.Take(5));
+                    if (readErrors.Count > 5)
+                        result += $"\n... và {readErrors.Count - 5} lỗi khác";
+                    result += "\n\n";
                 }
+                
+                // Hiển thị lỗi khi lưu
+                if (saveErrors.Count > 0)
+                {
+                    result += "Lỗi khi lưu:\n";
+                    result += string.Join("\n", saveErrors.Take(5));
+                    if (saveErrors.Count > 5)
+                        result += $"\n... và {saveErrors.Count - 5} lỗi khác";
+                }
+
                 MessageBox.Show(result, "Kết quả nhập Excel", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
