@@ -31,6 +31,8 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
 
             InitializeComponent();
+            tenDangNhapTextBox.MaxLength = 50;
+            matKhauTextBox.MaxLength = 50;
 
             _taiKhoanBus = taiKhoanBus;
             _nhanVienBus = nhanVienBus;
@@ -174,7 +176,13 @@ namespace mini_supermarket.GUI.TaiKhoan
                 tenDangNhapTextBox.Focus();
                 hasError = true;
             }
-
+            else if (tenDangNhap.Length > 50) // Dù có MaxLength rồi nhưng vẫn nên kiểm tra
+            {
+                ShowError(tenDangNhapErrorLabel, tenDangNhapErrorIcon, "Tên đăng nhập không được quá 50 ký tự.");
+                tenDangNhapTextBox.Focus();
+                hasError = true;
+            }
+            // matkhau validation
             string matKhau = matKhauTextBox.Text;
             if (string.IsNullOrWhiteSpace(matKhau))
             {
@@ -185,6 +193,12 @@ namespace mini_supermarket.GUI.TaiKhoan
             else if (matKhau.Length < 6)
             {
                 ShowError(matKhauErrorLabel, matKhauErrorIcon, "Mật khẩu phải có ít nhất 6 ký tự.");
+                matKhauTextBox.Focus();
+                hasError = true;
+            }
+            else if (matKhau.Length > 50)
+            {
+                ShowError(matKhauErrorLabel, matKhauErrorIcon, "Mật khẩu không được quá 50 ký tự.");
                 matKhauTextBox.Focus();
                 hasError = true;
             }

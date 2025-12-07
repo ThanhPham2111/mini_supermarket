@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
-using System.Text.RegularExpressions;
 
 namespace mini_supermarket.GUI.NhaCungCap
 {
@@ -22,9 +22,16 @@ namespace mini_supermarket.GUI.NhaCungCap
                 throw new ArgumentNullException(nameof(statuses));
 
             InitializeComponent();
-        //  cho phép Enter = OK
-        this.AcceptButton = okButton;
-        
+            // set max length
+            hoTenTextBox.MaxLength = 50;
+            diaChiTextBox.MaxLength = 70;
+            emailTextBox.MaxLength = 50;
+            soDienThoaiTextBox.MaxLength = 11;
+
+
+            // Cho phép nhấn Enter = OK
+            this.AcceptButton = okButton;
+
             _statuses = statuses.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
 
             _isEdit = existingNhaCungCap != null;
@@ -34,20 +41,19 @@ namespace mini_supermarket.GUI.NhaCungCap
 
             Load += Form_NhaCungCapDialog_Load;
             okButton.Click += okButton_Click;
-            cancelButton.Click += (_, _) => DialogResult = DialogResult.Cancel;
+            cancelButton.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
         }
 
         private void Form_NhaCungCapDialog_Load(object? sender, EventArgs e)
         {
-            if (DesignMode)
-                return;
+            if (DesignMode) return;
 
-            // Event handlers để clear error khi người dùng nhập/chọn
-            hoTenTextBox.TextChanged += (s, e) => { hoTenErrorLabel.Text = string.Empty; hoTenErrorIcon.Visible = false; };
-            soDienThoaiTextBox.TextChanged += (s, e) => { soDienThoaiErrorLabel.Text = string.Empty; soDienThoaiErrorIcon.Visible = false; };
-            diaChiTextBox.TextChanged += (s, e) => { diaChiErrorLabel.Text = string.Empty; diaChiErrorIcon.Visible = false; };
-            emailTextBox.TextChanged += (s, e) => { emailErrorLabel.Text = string.Empty; emailErrorIcon.Visible = false; };
-            trangThaiComboBox.SelectedIndexChanged += (s, e) => { trangThaiErrorLabel.Text = string.Empty; trangThaiErrorIcon.Visible = false; };
+            // Xóa lỗi khi người dùng bắt đầu nhập
+            hoTenTextBox.TextChanged += (_, _) => ClearError(hoTenErrorLabel, hoTenErrorIcon);
+            soDienThoaiTextBox.TextChanged += (_, _) => ClearError(soDienThoaiErrorLabel, soDienThoaiErrorIcon);
+            diaChiTextBox.TextChanged += (_, _) => ClearError(diaChiErrorLabel, diaChiErrorIcon);
+            emailTextBox.TextChanged += (_, _) => ClearError(emailErrorLabel, emailErrorIcon);
+            trangThaiComboBox.SelectedIndexChanged += (_, _) => ClearError(trangThaiErrorLabel, trangThaiErrorIcon);
 
             trangThaiComboBox.Items.Clear();
             trangThaiComboBox.Items.AddRange(_statuses.Cast<object>().ToArray());
@@ -63,90 +69,86 @@ namespace mini_supermarket.GUI.NhaCungCap
 
                 var bus = new NhaCungCap_BUS();
                 int nextId = bus.GetNextMaNhaCungCap();
-
                 maNhaCungCapValueLabel.Text = nextId.ToString();
                 _workingNhaCungCap.MaNhaCungCap = nextId;
                 _workingNhaCungCap.TrangThai = NhaCungCap_BUS.StatusActive;
             }
 
+            // Gán dữ liệu
             hoTenTextBox.Text = _workingNhaCungCap.TenNhaCungCap ?? string.Empty;
             soDienThoaiTextBox.Text = _workingNhaCungCap.SoDienThoai ?? string.Empty;
             diaChiTextBox.Text = _workingNhaCungCap.DiaChi ?? string.Empty;
             emailTextBox.Text = _workingNhaCungCap.Email ?? string.Empty;
 
-            trangThaiComboBox.SelectedItem =
-                !string.IsNullOrEmpty(_workingNhaCungCap.TrangThai) &&
-                _statuses.Contains(_workingNhaCungCap.TrangThai)
-                    ? _workingNhaCungCap.TrangThai
-                    : (_statuses.Contains(NhaCungCap_BUS.StatusActive)
-                        ? NhaCungCap_BUS.StatusActive
-                        : _statuses.FirstOrDefault());
+            // Chọn trạng thái mặc định
+            trangThaiComboBox.SelectedItem = !string.IsNullOrWhiteSpace(_workingNhaCungCap.TrangThai) &&
+                                            _statuses.Contains(_workingNhaCungCap.TrangThai)
+                ? _workingNhaCungCap.TrangThai
+                : (_statuses.Contains(NhaCungCap_BUS.StatusActive)
+                    ? NhaCungCap_BUS.StatusActive
+                    : _statuses.FirstOrDefault());
         }
 
         // ==========================
-        // ✅ NÚT OK
+        // NÚT OK
         // ==========================
         private void okButton_Click(object? sender, EventArgs e)
         {
             ClearAllErrors();
             bool hasError = false;
 
-            // Validate từng field
             if (!ValidateHoTen())
             {
+                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Tên nhà cung cấp phải có ít nhất 5 ký tự");
                 hoTenTextBox.Focus();
                 hasError = true;
             }
 
             if (!ValidateSoDienThoai())
             {
+                ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Số điện thoại không hợp lệ");
                 if (!hasError) soDienThoaiTextBox.Focus();
                 hasError = true;
             }
 
             if (!ValidateDiaChi())
             {
+                ShowError(diaChiErrorLabel, diaChiErrorIcon, "Địa chỉ không được để trống");
                 if (!hasError) diaChiTextBox.Focus();
                 hasError = true;
             }
 
             if (!ValidateEmail())
             {
+                ShowError(emailErrorLabel, emailErrorIcon, "Email không hợp lệ");
                 if (!hasError) emailTextBox.Focus();
                 hasError = true;
             }
 
-            string? trangThai = null;
-            if (trangThaiComboBox.SelectedItem is string t && !string.IsNullOrWhiteSpace(t))
+            if (trangThaiComboBox.SelectedItem is not string selectedStatus || string.IsNullOrWhiteSpace(selectedStatus))
             {
-                trangThai = t;
-            }
-            else
-            {
-                ShowError(trangThaiErrorLabel, trangThaiErrorIcon, "Vui lòng chọn trạng thái.");
+                ShowError(trangThaiErrorLabel, trangThaiErrorIcon, "Vui lòng chọn trạng thái");
                 if (!hasError) trangThaiComboBox.Focus();
                 hasError = true;
             }
 
-            if (hasError)
-                return;
+            if (hasError) return;
 
-            // ✅ Lưu dữ liệu
+            // Lưu dữ liệu vào DTO
             _workingNhaCungCap.TenNhaCungCap = hoTenTextBox.Text.Trim();
             _workingNhaCungCap.SoDienThoai = soDienThoaiTextBox.Text.Trim();
             _workingNhaCungCap.DiaChi = diaChiTextBox.Text.Trim();
             _workingNhaCungCap.Email = emailTextBox.Text.Trim();
-            _workingNhaCungCap.TrangThai = trangThai!;
+            _workingNhaCungCap.TrangThai = trangThaiComboBox.SelectedItem as string ?? string.Empty;
 
             DialogResult = DialogResult.OK;
             Close();
         }
 
-
         // ==========================
-        // ✅ SET ERROR HELPER
+        // HELPER: Error
         // ==========================
-        private void ShowError(Label errorLabel, Label errorIcon, string message)
+        private void ShowError(Label errorLabel, Control errorIcon, string message)
         {
             errorLabel.Text = message;
             errorLabel.ForeColor = System.Drawing.Color.Red;
@@ -154,92 +156,112 @@ namespace mini_supermarket.GUI.NhaCungCap
             errorIcon.Visible = true;
         }
 
+        private void ClearError(Label errorLabel, Control errorIcon)
+        {
+            errorLabel.Text = string.Empty;
+            errorLabel.Visible = false;
+            errorIcon.Visible = false;
+        }
+
         private void ClearAllErrors()
         {
-            hoTenErrorLabel.Text = string.Empty;
-            hoTenErrorIcon.Visible = false;
-            soDienThoaiErrorLabel.Text = string.Empty;
-            soDienThoaiErrorIcon.Visible = false;
-            diaChiErrorLabel.Text = string.Empty;
-            diaChiErrorIcon.Visible = false;
-            emailErrorLabel.Text = string.Empty;
-            emailErrorIcon.Visible = false;
-            trangThaiErrorLabel.Text = string.Empty;
-            trangThaiErrorIcon.Visible = false;
+            ClearError(hoTenErrorLabel, hoTenErrorIcon);
+            ClearError(soDienThoaiErrorLabel, soDienThoaiErrorIcon);
+            ClearError(diaChiErrorLabel, diaChiErrorIcon);
+            ClearError(emailErrorLabel, emailErrorIcon);
+            ClearError(trangThaiErrorLabel, trangThaiErrorIcon);
         }
 
         // ==========================
-        // ✅ VALIDATION
+        // VALIDATION
         // ==========================
         private bool ValidateHoTen()
         {
             string t = hoTenTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(t))
             {
-                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Không được để trống");
+                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Tên nhà cung cấp không được để trống");
                 return false;
             }
-            hoTenErrorLabel.Text = string.Empty;
-            hoTenErrorIcon.Visible = false;
+           if (t.Length < 5)
+             {
+                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Tên nhà cung cấp phải có ít nhất 5 ký tự và dưới 51 ký tự");
+                return false;
+            }
+            if(t.Length > 50)
+            {
+                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Tên nhà cung cấp không được vượt quá 50 ký tự");
+                return false;
+            }
             return true;
         }
 
         private bool ValidateSoDienThoai()
         {
-            string t = soDienThoaiTextBox.Text.Trim();
-            if (string.IsNullOrWhiteSpace(t))
+            string input = soDienThoaiTextBox.Text?.Trim() ?? "";
+
+            if (string.IsNullOrWhiteSpace(input))
             {
                 ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Không được để trống");
                 return false;
             }
-            if (t.Length != 10 || !t.All(char.IsDigit))
+
+            // Chuẩn hóa: loại bỏ dấu cách, gạch ngang, ngoặc, dấu cộng...
+            string normalized = Regex.Replace(input, @"[\s\-\(\)\+\.]", "");
+
+            // Regex chuẩn số điện thoại Việt Nam (10 hoặc 11 số, bắt đầu bằng 0 + đầu số hợp lệ)
+            const string pattern = @"^0[235789]\d{8,9}$";
+
+            if (!Regex.IsMatch(normalized, pattern))
             {
-                ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Phải 10 chữ số");
+                ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Số điện thoại không hợp lệ");
                 return false;
             }
-            soDienThoaiErrorLabel.Text = string.Empty;
-            soDienThoaiErrorIcon.Visible = false;
+
             return true;
         }
 
         private bool ValidateEmail()
         {
-            string v = emailTextBox.Text.Trim();
+            string email = emailTextBox.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(v))
+            if (string.IsNullOrWhiteSpace(email))
             {
-                ShowError(emailErrorLabel, emailErrorIcon, "Không được để trống");
+                ShowError(emailErrorLabel, emailErrorIcon, "Email không được để trống");
                 return false;
             }
 
-            if (!Regex.IsMatch(v, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
+            // Regex email đơn giản nhưng đủ tốt
+            if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
             {
-                ShowError(emailErrorLabel, emailErrorIcon, "Email không hợp lệ");
+                ShowError(emailErrorLabel, emailErrorIcon, "Email không đúng định dạng");
                 return false;
             }
 
-            emailErrorLabel.Text = string.Empty;
-            emailErrorIcon.Visible = false;
             return true;
         }
 
-        private bool ValidateDiaChi()
+      private bool ValidateDiaChi()
         {
             string t = diaChiTextBox.Text.Trim();
+
             if (string.IsNullOrWhiteSpace(t))
             {
-                ShowError(diaChiErrorLabel, diaChiErrorIcon, "Không được để trống");
+                ShowError(diaChiErrorLabel, diaChiErrorIcon, "Địa chỉ không được để trống");
                 return false;
             }
-            diaChiErrorLabel.Text = string.Empty;
-            diaChiErrorIcon.Visible = false;
+
+            if (t.Length > 70)
+            {
+                ShowError(diaChiErrorLabel, diaChiErrorIcon, "Địa chỉ không được vượt quá 70 ký tự");
+                return false;
+            }
+
             return true;
         }
 
-      
-
         // ==========================
-        // ✅ Clone DTO
+        // Clone DTO
         // ==========================
         private static NhaCungCapDTO CloneNhaCungCap(NhaCungCapDTO source)
         {

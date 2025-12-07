@@ -2,14 +2,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.Common;
 using mini_supermarket.DTO;
-using System.Data;
-using System.IO;
+using OfficeOpenXml;                    // EPPlus
+using OfficeOpenXml.Style;
 
 namespace mini_supermarket.GUI.NhaCungCap
 {
@@ -31,6 +31,9 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         public Form_NhaCungCap()
         {
+            // BẮT BUỘC PHẢI CÓ DÒNG NÀY KHI DÙNG EPPPLUS >= 5
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Hoặc Commercial nếu đã mua
+
             InitializeComponent();
             Load += Form_NhaCungCap_Load;
         }
@@ -39,7 +42,7 @@ namespace mini_supermarket.GUI.NhaCungCap
         {
             LoadDanhSachTrangThai();
             LoadDanhSachNhaCungCap();
- 
+
             statusFilterComboBox.SelectedIndexChanged += (_, _) => LocTheoTrangThai();
             searchTextBox.TextChanged += (_, _) => TimKiem();
             themButton.Click += ThemButton_Click;
@@ -73,13 +76,11 @@ namespace mini_supermarket.GUI.NhaCungCap
             suaButton.Enabled = hasSelection && canEdit;
             xoaButton.Enabled = hasSelection && canDelete;
         }
-      
 
-        // ==================== LOAD DỮ LIỆU ====================
-       private void HienThiThongTin()
+        // ==================== HIỂN THỊ THÔNG TIN ====================
+        private void HienThiThongTin()
         {
-            if (nhaCungCapDataGridView.SelectedRows.Count == 0)
-                return;
+            if (nhaCungCapDataGridView.SelectedRows.Count == 0) return;
 
             var item = nhaCungCapDataGridView.SelectedRows[0].DataBoundItem as NhaCungCapDTO;
             if (item == null) return;
@@ -90,7 +91,6 @@ namespace mini_supermarket.GUI.NhaCungCap
             soDienThoaiTextBox.Text = item.SoDienThoai;
             emailTextBox.Text = item.Email;
         }
-
 
         private void LoadDanhSachTrangThai()
         {
@@ -108,21 +108,17 @@ namespace mini_supermarket.GUI.NhaCungCap
             HienThiLenBang(_dsNhaCungCap);
         }
 
-      
         private void HienThiLenBang(List<NhaCungCapDTO> ds)
         {
             nhaCungCapDataGridView.AutoGenerateColumns = false;
+            nhaCungCapDataGridView.DataSource = null;
             nhaCungCapDataGridView.DataSource = ds;
 
             if (nhaCungCapDataGridView.Rows.Count > 0)
                 nhaCungCapDataGridView.Rows[0].Selected = true;
         }
 
-
-
-
-        // ==================== SỰ KIỆN ====================
-
+        // ==================== SỰ KIỆN NÚT ====================
         private void ThemButton_Click(object sender, EventArgs e)
         {
             if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
@@ -132,9 +128,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
 
             using var dialog = new Form_NhaCungCapDialog(_dsTrangThai);
-
-            if (dialog.ShowDialog() != DialogResult.OK)
-                return;
+            if (dialog.ShowDialog() != DialogResult.OK) return;
 
             try
             {
@@ -159,9 +153,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             if (item == null) return;
 
             using var dialog = new Form_NhaCungCapDialog(_dsTrangThai, item);
-
-            if (dialog.ShowDialog() != DialogResult.OK)
-                return;
+            if (dialog.ShowDialog() != DialogResult.OK) return;
 
             try
             {
@@ -185,7 +177,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             var item = GetSelectedItem();
             if (item == null) return;
 
-            if (MessageBox.Show("Khóa nhà cung cấp?", "Hỏi", MessageBoxButtons.YesNo) != DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc chắn muốn khóa nhà cung cấp này?", "Xác nhận khóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
             try
@@ -207,19 +199,13 @@ namespace mini_supermarket.GUI.NhaCungCap
             LoadDanhSachNhaCungCap();
         }
 
-              
         // ==================== LỌC + TÌM KIẾM ====================
-
         private void LocTheoTrangThai()
         {
             string trangThai = statusFilterComboBox.SelectedItem?.ToString() ?? StatusAll;
-
-            List<NhaCungCapDTO> kq;
-
-            if (trangThai == StatusAll)
-                kq = _dsNhaCungCap;
-            else
-                kq = _dsNhaCungCap.Where(x => x.TrangThai == trangThai).ToList();
+            var kq = trangThai == StatusAll
+                ? _dsNhaCungCap
+                : _dsNhaCungCap.Where(x => x.TrangThai == trangThai).ToList();
 
             HienThiLenBang(kq);
             UpdateButtonsState();
@@ -228,7 +214,6 @@ namespace mini_supermarket.GUI.NhaCungCap
         private void TimKiem()
         {
             string tuKhoa = searchTextBox.Text.Trim().ToLower();
-
             var kq = _dsNhaCungCap.Where(x =>
                 x.MaNhaCungCap.ToString().Contains(tuKhoa) ||
                 (x.TenNhaCungCap?.ToLower().Contains(tuKhoa) ?? false) ||
@@ -238,80 +223,186 @@ namespace mini_supermarket.GUI.NhaCungCap
             HienThiLenBang(kq);
         }
 
-        // ==================== HỖ TRỢ ====================
-
-       private NhaCungCapDTO GetSelectedItem()
+        private NhaCungCapDTO GetSelectedItem()
         {
-            if (nhaCungCapDataGridView.SelectedRows.Count == 0)
-                return null;
-
+            if (nhaCungCapDataGridView.SelectedRows.Count == 0) return null;
             return nhaCungCapDataGridView.SelectedRows[0].DataBoundItem as NhaCungCapDTO;
         }
 
-        // export excel và import excel
-        // export excel
-    private void ExportExcelButton_Click(object sender, EventArgs e)
-    {
-        SaveFileDialog sfd = new SaveFileDialog
+        // ==================== EXPORT EXCEL - EPPlus ====================
+        private void ExportExcelButton_Click(object sender, EventArgs e)
         {
-            Filter = "Excel Workbook|*.xlsx",
-            Title = "Lưu Excel"
-        };
-
-        if (sfd.ShowDialog() != DialogResult.OK)
-            return;
-
-        var list = nhaCungCapDataGridView.DataSource as List<NhaCungCapDTO>;
-        if (list == null || list.Count == 0)
-        {
-            MessageBox.Show("Không có dữ liệu để xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        try
-        {
-            _bus.XuatNhaCungCapRaExcel(list, sfd.FileName);
-            MessageBox.Show("✅ Xuất Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Lỗi khi xuất Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-    // import excel
-    private void ImportExcelButton_Click(object sender, EventArgs e)
-    {
-        OpenFileDialog ofd = new OpenFileDialog
-        {
-            Filter = "Excel Workbook|*.xlsx",
-            Title = "Chọn file Excel"
-        };
-
-        if (ofd.ShowDialog() != DialogResult.OK)
-            return;
-
-        try
-        {
-            var importedList = _bus.NhapNhaCungCapTuExcel(ofd.FileName);
-
-            if (importedList == null || importedList.Count == 0)
+            var list = nhaCungCapDataGridView.DataSource as List<NhaCungCapDTO>;
+            if (list == null || list.Count == 0)
             {
-                MessageBox.Show("File Excel không có dữ liệu hợp lệ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Không có dữ liệu để xuất Excel.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // Hiển thị lên bảng
-            nhaCungCapDataGridView.DataSource = importedList;
-            _dsNhaCungCap = importedList;
+            using SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Xuất danh sách nhà cung cấp",
+                FileName = $"NhaCungCap_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+            };
 
-            MessageBox.Show($"✅ Nhập Excel thành công! Đã đọc được {importedList.Count} nhà cung cấp.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                using var package = new ExcelPackage();
+                var ws = package.Workbook.Worksheets.Add("Danh sách nhà cung cấp");
+
+                // Header
+                string[] headers = { "Mã NCC", "Tên nhà cung cấp", "Địa chỉ", "Số điện thoại", "Email", "Trạng thái" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    ws.Cells[1, i + 1].Value = headers[i];
+                    ws.Cells[1, i + 1].Style.Font.Bold = true;
+                    ws.Cells[1, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGreen);
+                    ws.Cells[1, i + 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // Data
+                for (int i = 0; i < list.Count; i++)
+                {
+                    ws.Cells[i + 2, 1].Value = list[i].MaNhaCungCap;
+                    ws.Cells[i + 2, 2].Value = list[i].TenNhaCungCap;
+                    ws.Cells[i + 2, 3].Value = list[i].DiaChi;
+                    ws.Cells[i + 2, 4].Value = list[i].SoDienThoai;
+                    ws.Cells[i + 2, 5].Value = list[i].Email;
+                    ws.Cells[i + 2, 6].Value = list[i].TrangThai;
+                }
+
+                // Tô viền + AutoFit
+                var range = ws.Cells[1, 1, list.Count + 1, 6];
+                range.AutoFitColumns();
+                range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                // Lưu file
+                File.WriteAllBytes(sfd.FileName, package.GetAsByteArray());
+
+                MessageBox.Show("Xuất Excel thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (MessageBox.Show("Mở file vừa xuất?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = sfd.FileName,
+                        UseShellExecute = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xuất Excel:\n" + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-        catch (Exception ex)
+
+        // ==================== IMPORT EXCEL - CHỈ THÊM MỚI, KHÔNG CẬP NHẬT DÒNG CŨ ====================
+private void ImportExcelButton_Click(object sender, EventArgs e)
+{
+    using OpenFileDialog ofd = new OpenFileDialog
+    {
+        Filter = "Excel Workbook|*.xlsx",
+        Title = "Chọn file Excel để nhập nhà cung cấp"
+    };
+
+    if (ofd.ShowDialog() != DialogResult.OK) return;
+
+    try
+    {
+        var fileInfo = new FileInfo(ofd.FileName);
+        using var package = new ExcelPackage(fileInfo);
+        var ws = package.Workbook.Worksheets[0];
+        int rowCount = ws.Dimension?.Rows ?? 0;
+
+        if (rowCount < 2)
         {
-            MessageBox.Show($"Lỗi khi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("File Excel không có dữ liệu!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Lấy danh sách nhà cung cấp hiện có trong CSDL để kiểm tra trùng
+        var dsHienTai = _bus.GetNhaCungCap(); // Danh sách từ DB
+        var tenHienTai = new HashSet<string>(dsHienTai.Select(x => x.TenNhaCungCap.Trim()), StringComparer.OrdinalIgnoreCase);
+        var emailHienTai = new HashSet<string>(dsHienTai.Where(x => !string.IsNullOrEmpty(x.Email)).Select(x => x.Email.Trim()), StringComparer.OrdinalIgnoreCase);
+
+        var importedList = new List<NhaCungCapDTO>();
+        var danhSachMoi = new List<NhaCungCapDTO>();
+
+        for (int row = 2; row <= rowCount; row++)
+        {
+            string ten = ws.Cells[row, 2].GetValue<string>()?.Trim();
+            if (string.IsNullOrWhiteSpace(ten)) continue;
+
+            string email = ws.Cells[row, 5].GetValue<string>()?.Trim() ?? "";
+
+            // Kiểm tra trùng: theo Tên công ty HOẶC Email (nếu có email)
+            bool daTonTai = tenHienTai.Contains(ten) || 
+                           (!string.IsNullOrEmpty(email) && emailHienTai.Contains(email));
+
+            if (daTonTai)
+                continue; // Bỏ qua dòng này vì đã tồn tại
+
+            var ncc = new NhaCungCapDTO
+            {
+                TenNhaCungCap = ten,
+                DiaChi = ws.Cells[row, 3].GetValue<string>()?.Trim() ?? "",
+                SoDienThoai = ws.Cells[row, 4].GetValue<string>()?.Trim() ?? "",
+                Email = email,
+                TrangThai = (ws.Cells[row, 6].GetValue<string>()?.Trim() == "Hoạt động") ? "Hoạt động" : "Khóa"
+            };
+
+            importedList.Add(ncc);
+            danhSachMoi.Add(ncc); // Những cái sẽ được thêm mới
+        }
+
+        if (importedList.Count == 0)
+        {
+            MessageBox.Show("Tất cả nhà cung cấp trong file đã tồn tại trong hệ thống!\nKhông có dữ liệu mới để nhập.", 
+                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // Hiển thị xem trước (chỉ những dòng mới)
+        _dsNhaCungCap = importedList;
+        HienThiLenBang(importedList);
+
+        // Xác nhận nhập
+        if (MessageBox.Show(
+            $"Đã phát hiện {danhSachMoi.Count} nhà cung cấp mới (chưa tồn tại).\n\n" +
+            $"Bạn có muốn thêm vào cơ sở dữ liệu không?",
+            "Xác nhận nhập dữ liệu mới", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+        {
+            int success = 0;
+            foreach (var ncc in danhSachMoi)
+            {
+                try
+                {
+                    _bus.AddNhaCungCap(ncc);
+                    success++;
+                }
+                catch (Exception ex)
+                {
+                    // Có thể ghi log nếu cần
+                    Console.WriteLine($"Lỗi khi thêm {ncc.TenNhaCungCap}: {ex.Message}");
+                }
+            }
+
+            LoadDanhSachNhaCungCap(); // Reload lại từ DB
+            MessageBox.Show(
+                $"Hoàn tất!\n" +
+                $"Đã thêm thành công {success} nhà cung cấp mới.\n" +
+                $"Bỏ qua {rowCount - 1 - danhSachMoi.Count} dòng đã tồn tại.",
+                "Nhập Excel thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
-
-
+    catch (Exception ex)
+    {
+        MessageBox.Show("Lỗi khi đọc file Excel:\n" + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}
     }
 }
