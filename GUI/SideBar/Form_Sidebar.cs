@@ -15,6 +15,7 @@ using mini_supermarket.GUI.KhoHang;
 using mini_supermarket.GUI.TaiKhoan;
 using mini_supermarket.GUI.TrangChu;
 using mini_supermarket.GUI.QuanLy;
+using Form_Login = mini_supermarket.GUI.Form_Login;
 using mini_supermarket.Common;
 using mini_supermarket.BUS;
 using FormSanPham = mini_supermarket.GUI.Form_SanPham.Form_SanPham;
@@ -223,6 +224,26 @@ namespace mini_supermarket.GUI.SideBar
             catch
             {
                 // ignore image load errors
+            }
+
+            // Create logout icon
+            CreateLogoutIcon();
+        }
+
+        private void CreateLogoutIcon()
+        {
+            try
+            {
+                var iconPath = TryFindImagePath("icons8-power-24.png");
+                if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
+                {
+                    logoutButton.Image = Image.FromFile(iconPath);
+                    logoutButton.ImageAlign = ContentAlignment.MiddleLeft;
+                }
+            }
+            catch
+            {
+                // If icon loading fails, button will work without icon
             }
         }
 
@@ -697,6 +718,23 @@ namespace mini_supermarket.GUI.SideBar
             _activeForm.Close();
             _activeForm.Dispose();
             _activeForm = null;
+        }
+
+        private void logoutButton_Click(object sender, EventArgs e)
+        {
+            // Xác nhận đăng xuất
+            var result = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất?", "Xác nhận đăng xuất", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            
+            if (result == DialogResult.Yes)
+            {
+                // Clear session
+                SessionManager.ClearSession();
+                
+                // Đóng form sidebar - điều này sẽ quay lại form login vì ShowDialog() sẽ kết thúc
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
         }
     }
 }

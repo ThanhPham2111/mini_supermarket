@@ -35,7 +35,7 @@ namespace mini_supermarket.DAO
 
         connection.Open();
         using var reader = command.ExecuteReader();
-
+    // ánh xạ dữ liệu
         while (reader.Read())
         {
             listNCC.Add(ReadNhaCungCap(reader));

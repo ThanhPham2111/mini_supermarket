@@ -123,9 +123,14 @@ namespace mini_supermarket.GUI
                     sidebarForm.ShowDialog();
                 }
                 
-                // Clear session khi đóng
+                // Clear session khi đóng sidebar (đăng xuất)
                 SessionManager.ClearSession();
-                this.Close();
+                
+                // Clear các trường nhập liệu và hiển thị lại form login
+                taiKhoan_txb.Clear();
+                matKhau_txb.Clear();
+                this.Show();
+                taiKhoan_txb.Focus();
             }
             catch (Exception ex)
             {

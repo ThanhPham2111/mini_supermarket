@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.sidebarPanel = new System.Windows.Forms.Panel();
+            this.logoutButton = new System.Windows.Forms.Button();
             this.navQuanLyButton = new System.Windows.Forms.Button();
             this.navTaiKhoanButton = new System.Windows.Forms.Button();
             this.navNhaCungCapButton = new System.Windows.Forms.Button();
@@ -59,6 +60,7 @@
             // sidebarPanel
             // 
             this.sidebarPanel.BackColor = System.Drawing.Color.White;
+            this.sidebarPanel.Controls.Add(this.logoutButton);
             this.sidebarPanel.Controls.Add(this.navQuanLyButton);
             this.sidebarPanel.Controls.Add(this.navTaiKhoanButton);
             this.sidebarPanel.Controls.Add(this.navNhanVienButton);
@@ -80,6 +82,27 @@
             this.sidebarPanel.Padding = new System.Windows.Forms.Padding(0, 24, 0, 24);
             this.sidebarPanel.Size = new System.Drawing.Size(220, 900);
             this.sidebarPanel.TabIndex = 0;
+            // 
+            // logoutButton
+            // 
+            this.logoutButton.BackColor = System.Drawing.Color.White;
+            this.logoutButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.logoutButton.FlatAppearance.BorderSize = 0;
+            this.logoutButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.logoutButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.logoutButton.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.logoutButton.Location = new System.Drawing.Point(0, 826);
+            this.logoutButton.Margin = new System.Windows.Forms.Padding(0);
+            this.logoutButton.Name = "logoutButton";
+            this.logoutButton.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.logoutButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.logoutButton.Size = new System.Drawing.Size(220, 50);
+            this.logoutButton.TabIndex = 14;
+            this.logoutButton.Text = "Đăng Xuất";
+            this.logoutButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.logoutButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.logoutButton.UseVisualStyleBackColor = false;
+            this.logoutButton.Click += new System.EventHandler(this.logoutButton_Click);
             // 
             // navQuanLyButton
             // 
@@ -485,6 +508,7 @@
         private System.Windows.Forms.Button navHoaDonButton;
         private System.Windows.Forms.Button navBanHangButton;
         private System.Windows.Forms.Button navTrangChuButton;
+        private System.Windows.Forms.Button logoutButton;
     }
 }
 
