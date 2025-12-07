@@ -44,7 +44,7 @@ namespace mini_supermarket.BUS
             _dao.DeleteKhuyenMai(maKhuyenMai);
         }
 
-        private static void Validate(KhuyenMaiDTO kh, bool isUpdate)
+        private void Validate(KhuyenMaiDTO kh, bool isUpdate)
         {
             if (isUpdate && kh.MaKhuyenMai <= 0)
             {
@@ -54,6 +54,13 @@ namespace mini_supermarket.BUS
             if (kh.MaSanPham <= 0)
             {
                 throw new ArgumentException("Mã sản phẩm phải > 0.", nameof(kh.MaSanPham));
+            }
+
+            // Ensure a product has at most one promotion
+            int? excludeId = isUpdate ? kh.MaKhuyenMai : null;
+            if (_dao.ExistsKhuyenMaiForProduct(kh.MaSanPham, excludeId))
+            {
+                throw new InvalidOperationException("Mỗi sản phẩm chỉ được áp một khuyến mãi.");
             }
 
             if (!string.IsNullOrWhiteSpace(kh.TenKhuyenMai))
