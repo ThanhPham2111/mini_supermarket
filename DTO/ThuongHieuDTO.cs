@@ -4,19 +4,40 @@ namespace mini_supermarket.DTO
 {
     public class ThuongHieuDTO
     {
-        public int MaThuongHieu { get; set; }
-        public string TenThuongHieu { get; set; } = string.Empty;
-        public string TrangThai { get; set; } = TrangThaiConstants.HoatDong;
+        private int _maThuongHieu;
+        private string _tenThuongHieu = string.Empty;
+        private string _trangThai = TrangThaiConstants.HoatDong;
 
         public ThuongHieuDTO()
         {
         }
 
-        public ThuongHieuDTO(int maThuongHieu, string tenThuongHieu, string trangThai = TrangThaiConstants.HoatDong)
+        public ThuongHieuDTO(
+            int maThuongHieu,
+            string tenThuongHieu,
+            string trangThai = TrangThaiConstants.HoatDong)
         {
-            MaThuongHieu = maThuongHieu;
-            TenThuongHieu = tenThuongHieu;
-            TrangThai = trangThai;
+            _maThuongHieu = maThuongHieu;
+            _tenThuongHieu = tenThuongHieu;
+            _trangThai = trangThai;
+        }
+
+        public int MaThuongHieu
+        {
+            get { return _maThuongHieu; }
+            set { _maThuongHieu = value; }
+        }
+
+        public string TenThuongHieu
+        {
+            get { return _tenThuongHieu; }
+            set { _tenThuongHieu = value; }
+        }
+
+        public string TrangThai
+        {
+            get { return _trangThai; }
+            set { _trangThai = value; }
         }
     }
 }

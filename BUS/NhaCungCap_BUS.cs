@@ -133,77 +133,7 @@ namespace mini_supermarket.BUS
             _dao.DeleteNhaCungCapSanPhamBySanPham(maSanPham);
         }
 
-        // =============================
-        // ✅ EXPORT/IMPORT EXCEL
-        // =============================
-
-        /// <summary>
-        /// Xuất danh sách nhà cung cấp ra file Excel.
-        /// </summary>
-        public void XuatNhaCungCapRaExcel(IList<NhaCungCapDTO> data, string filePath)
-        {
-            if (data == null || data.Count == 0)
-                throw new ArgumentException("Không có dữ liệu để xuất.");
-
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (ExcelPackage package = new ExcelPackage())
-            {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Nhà Cung Cấp");
-                worksheet.Cells["A1"].LoadFromCollection(data, true);
-                worksheet.Cells.AutoFitColumns();
-                FileInfo excelFile = new FileInfo(filePath);
-                package.SaveAs(excelFile);
-            }
-        }
-
-        /// <summary>
-        /// Nhập nhà cung cấp từ file Excel.
-        /// Trả về danh sách nhà cung cấp đã đọc được từ file.
-        /// </summary>
-        public List<NhaCungCapDTO> NhapNhaCungCapTuExcel(string filePath)
-        {
-            if (string.IsNullOrEmpty(filePath))
-                throw new ArgumentException("Đường dẫn file không hợp lệ.");
-
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException("Không tìm thấy file.", filePath);
-
-            var importedList = new List<NhaCungCapDTO>();
-
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
-            {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension?.Rows ?? 0;
-                int colCount = worksheet.Dimension?.Columns ?? 0;
-
-                if (rowCount < 2) // Ít nhất phải có header + 1 dòng dữ liệu
-                    throw new InvalidOperationException("File Excel không có dữ liệu.");
-
-                for (int row = 2; row <= rowCount; row++) // Bỏ qua header (row 1)
-                {
-                    if (colCount >= 5)
-                    {
-                        var item = new NhaCungCapDTO
-                        {
-                            MaNhaCungCap = int.TryParse(worksheet.Cells[row, 1].Text, out var ma) ? ma : 0,
-                            TenNhaCungCap = worksheet.Cells[row, 2].Text ?? "",
-                            DiaChi = worksheet.Cells[row, 3].Text ?? "",
-                            SoDienThoai = worksheet.Cells[row, 4].Text ?? "",
-                            Email = worksheet.Cells[row, 5].Text ?? "",
-                            TrangThai = colCount > 5 ? worksheet.Cells[row, 6].Text ?? "" : StatusActive
-                        };
-
-                        // Validate và set default nếu cần
-                        if (string.IsNullOrWhiteSpace(item.TrangThai))
-                            item.TrangThai = StatusActive;
-
-                        importedList.Add(item);
-                    }
-                }
-            }
-
-            return importedList;
-        }
+      
+      
     }
 }

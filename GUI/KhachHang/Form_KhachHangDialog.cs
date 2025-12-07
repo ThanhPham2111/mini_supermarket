@@ -148,7 +148,47 @@ namespace mini_supermarket.GUI.KhachHang
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             string hoTen = hoTenTextBox.Text.Trim();
+            string soDienThoai = soDienThoaiTextBox.Text.Trim();
+            string diaChi = diaChiTextBox.Text.Trim();
+            string email = emailTextBox.Text.Trim();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+            // Kiểm tra độ dài trường dữ liệu
+            if (!Validation_Component.IsValidLength(hoTen, 50))
+            {
+                ShowError(hoTenErrorLabel, hoTenErrorIcon, "Họ tên không được vượt quá 50 ký tự");
+                if (!hasError) hoTenTextBox.Focus();
+                hasError = true;
+            }
+
+            if (!Validation_Component.IsValidLength(soDienThoai, 50))
+            {
+                ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Số điện thoại không được vượt quá 50 ký tự");
+                if (!hasError) soDienThoaiTextBox.Focus();
+                hasError = true;
+            }
+
+            if (!Validation_Component.IsValidLength(diaChi, 200))
+            {
+                ShowError(diaChiErrorLabel, diaChiErrorIcon, "Địa chỉ không được vượt quá 200 ký tự");
+                if (!hasError) diaChiTextBox.Focus();
+                hasError = true;
+            }
+
+            if (!Validation_Component.IsValidLength(email, 100))
+            {
+                ShowError(emailErrorLabel, emailErrorIcon, "Email không được vượt quá 100 ký tự");
+                if (!hasError) emailTextBox.Focus();
+                hasError = true;
+            }
+
+            if (!Validation_Component.IsValidLength(diemTichLuyTextBox.Text, 10))
+            {
+                ShowError(diemTichLuyErrorLabel, diemTichLuyErrorIcon, "Điểm tích lũy không được vượt quá 10 ký tự");
+                if (!hasError) diemTichLuyTextBox.Focus();
+                hasError = true;
+            }
+
             if (string.IsNullOrWhiteSpace(hoTen))
             {
                 ShowError(hoTenErrorLabel, hoTenErrorIcon, "Không được để trống");
@@ -156,9 +196,6 @@ namespace mini_supermarket.GUI.KhachHang
                 hasError = true;
             }
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            string soDienThoai = soDienThoaiTextBox.Text.Trim();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (string.IsNullOrWhiteSpace(soDienThoai))
             {
                 ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Không được để trống");
@@ -172,9 +209,6 @@ namespace mini_supermarket.GUI.KhachHang
                 hasError = true;
             }
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            string diaChi = diaChiTextBox.Text.Trim();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (string.IsNullOrWhiteSpace(diaChi))
             {
                 ShowError(diaChiErrorLabel, diaChiErrorIcon, "Không được để trống");
@@ -182,9 +216,6 @@ namespace mini_supermarket.GUI.KhachHang
                 hasError = true;
             }
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            string email = emailTextBox.Text.Trim();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             // Email không bắt buộc khi tạo, nhưng nếu có nhập thì phải hợp lệ
             if (!string.IsNullOrWhiteSpace(email) && !Validation_Component.IsValidEmail(email))
             {
@@ -194,7 +225,6 @@ namespace mini_supermarket.GUI.KhachHang
             }
 
             string? trangThai = null;
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (trangThaiComboBox.SelectedItem is string tt && !string.IsNullOrWhiteSpace(tt))
             {
                 trangThai = tt;
@@ -205,23 +235,20 @@ namespace mini_supermarket.GUI.KhachHang
                 if (!hasError) trangThaiComboBox.Focus();
                 hasError = true;
             }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (string.IsNullOrWhiteSpace(diemTichLuyTextBox.Text))
             {
                 ShowError(diemTichLuyErrorLabel, diemTichLuyErrorIcon, "Không được để trống");
                 if (!hasError) diemTichLuyTextBox.Focus();
                 hasError = true;
             }
-            else if (!Validation_Component.IsValidNumber(diemTichLuyTextBox.Text))
+            else if (!Validation_Component.IsValidNumber(diemTichLuyTextBox.Text) && Validation_Component.IsValidLength(diemTichLuyTextBox.Text, 10))
             {
                 ShowError(diemTichLuyErrorLabel, diemTichLuyErrorIcon, "Điểm tích lũy phải là số");
                 // MessageBox.Show(this, "Nhập sai định dạng điểm tích lũy.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 if (!hasError) diemTichLuyTextBox.Focus();
                 hasError = true;
             }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             if (hasError)
                 return;

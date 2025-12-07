@@ -2,6 +2,9 @@
 {
     public class NhaCungCapDTO
     {
+
+
+        
         // int là value type -> bắt buộc có giá trị
         private int _maNhaCungCap;
         // biến luôn có giá trị -> không bao giờ là null
@@ -11,6 +14,29 @@
         private string? _soDienThoai;
         private string? _email;
         private string? _trangThai;
+
+
+
+
+         public NhaCungCapDTO()
+        {
+        }
+
+        public NhaCungCapDTO(
+            int maNhaCungCap,
+            string tenNhaCungCap,
+            string? diaChi,
+            string? soDienThoai,
+            string? email,
+            string? trangThai)
+        {
+            _maNhaCungCap = maNhaCungCap;
+            _tenNhaCungCap = tenNhaCungCap;
+            _diaChi = diaChi;
+            _soDienThoai = soDienThoai;
+            _email = email;
+            _trangThai = trangThai;
+        }
 
         public int MaNhaCungCap
         {
@@ -48,24 +74,6 @@
             set { _trangThai = value; }
         }
 
-        public NhaCungCapDTO()
-        {
-        }
-
-        public NhaCungCapDTO(
-            int maNhaCungCap,
-            string tenNhaCungCap,
-            string? diaChi,
-            string? soDienThoai,
-            string? email,
-            string? trangThai)
-        {
-            _maNhaCungCap = maNhaCungCap;
-            _tenNhaCungCap = tenNhaCungCap;
-            _diaChi = diaChi;
-            _soDienThoai = soDienThoai;
-            _email = email;
-            _trangThai = trangThai;
-        }
+       
     }
 }

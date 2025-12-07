@@ -114,6 +114,25 @@ namespace mini_supermarket.DAO
             }
         }
 
+        public bool ExistsKhuyenMaiForProduct(int maSanPham, int? excludeMaKhuyenMai = null)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT COUNT(1) FROM dbo.Tbl_KhuyenMai WHERE MaSanPham = @MaSanPham";
+            command.Parameters.Add(new SqlParameter("@MaSanPham", SqlDbType.Int) { Value = maSanPham });
+
+            if (excludeMaKhuyenMai.HasValue)
+            {
+                command.CommandText += " AND MaKhuyenMai <> @MaKhuyenMai";
+                command.Parameters.Add(new SqlParameter("@MaKhuyenMai", SqlDbType.Int) { Value = excludeMaKhuyenMai.Value });
+            }
+
+            connection.Open();
+            object? result = command.ExecuteScalar();
+            int count = Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+            return count > 0;
+        }
+
         private static void AddParameters(SqlCommand command, KhuyenMaiDTO kh, bool includeKey)
         {
             command.Parameters.Clear();

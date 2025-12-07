@@ -19,10 +19,32 @@ namespace mini_supermarket.GUI.KhachHang
 
         private readonly KhachHang_BUS _khachHangBus = new();
         private readonly BindingSource _bindingSource = new();
+        //khi load dữ liệu sẽ cập nhật 2 chiều (thêm sửa xoá sẽ cập nhật vô UI mà không cần load lại trang)
+        //nếu không dùng binding source thì phải load lại trang để cập nhật UI
+        //binding source là lớp trung gian giữa DataGridView và dữ liệu
+        //cho phép filter, sort, search mà không cần query lại database
+        //tự động cập nhật DataGridView khi dữ liệu thay đổi
+        //ví dụ: khi thêm khách hàng mới, binding source sẽ tự động cập nhật DataGridView
+        //và không cần load lại trang
+        //ví dụ: khi sửa khách hàng, binding source sẽ tự động cập nhật DataGridView
+        //và không cần load lại trang
+        //ví dụ: khi xoá khách hàng, binding source sẽ tự động cập nhật DataGridView
+        //và không cần load lại trang
+        //bindingsource vs thằng list
+        
         private readonly PermissionService _permissionService = new();
         // private readonly List<string> _roles;
         private readonly List<string> _statuses;
-        private BindingList<KhachHangDTO> _currentKhachHang = new();
+        private BindingList<KhachHangDTO> _currentKhachHang = new();//lưu dữ liệu ở trên RAM, để load nhanh hơn
+        //thằng này sẽ được cập nhật khi có thay đổi trên database
+        //và sẽ được gửi vào binding source để tự động cập nhật DataGridView
+        //và không cần load lại trang
+        //ví dụ: khi thêm khách hàng mới, binding source sẽ tự động cập nhật DataGridView
+        //và không cần load lại trang
+        //ví dụ: khi sửa khách hàng, binding source sẽ tự động cập nhật DataGridView
+        //và không cần load lại trang
+        //ví dụ: khi xoá khách hàng, binding source sẽ tự động cập nhật DataGridView
+//bidinglist vs list vs datatable
 
         public Form_KhachHang()
         {
@@ -58,7 +80,7 @@ namespace mini_supermarket.GUI.KhachHang
             // chucVuComboBox.SelectedIndex = -1;
 
             khachHangDataGridView.AutoGenerateColumns = false;
-            khachHangDataGridView.DataSource = _bindingSource;
+            khachHangDataGridView.DataSource = _bindingSource;//auto load lại khi cập nhật dữ liệu
             khachHangDataGridView.SelectionChanged += khachHangDataGridView_SelectionChanged;
 
             var toolTip = new ToolTip();
@@ -273,8 +295,8 @@ namespace mini_supermarket.GUI.KhachHang
             {
                 ApplyStatusFilter();
             }
-
-            LoadKhachHangData();
+            _bindingSource.DataSource = _currentKhachHang;
+            // LoadKhachHangData();
         }
 
         private KhachHangDTO? GetSelectedKhachHang()
@@ -462,13 +484,18 @@ namespace mini_supermarket.GUI.KhachHang
 
             DataTable dt = new DataTable();
             List<KhachHangDTO> khachHangList = new List<KhachHangDTO>();
+            List<int> duplicateIds = new List<int>(); // Danh sách ID đã tồn tại
+            List<int> errorRows = new List<int>(); // Danh sách dòng bị lỗi dữ liệu
 
             using (XLWorkbook wb = new XLWorkbook(ofd.FileName))
             {
                 var ws = wb.Worksheet(1);
                 var rows = ws.RowsUsed().Skip(1); // Skip header row
-                foreach(var row in rows)
+                int rowNumber = 0; 
+
+                foreach (var row in rows)
                 {
+                    rowNumber++;
                     try
                     {
                         var maKhachHangStr = row.Cell(1).Value.ToString().Trim();
@@ -478,27 +505,89 @@ namespace mini_supermarket.GUI.KhachHang
                         var emailStr = row.Cell(5).Value.ToString().Trim();
                         var diemTichLuyStr = row.Cell(6).Value.ToString().Trim();
                         var trangThaiStr = row.Cell(7).Value.ToString().Trim();
+
+                        // Kiểm tra dữ liệu trống hoặc không hợp lệ
                         if (string.IsNullOrEmpty(maKhachHangStr) || maKhachHangStr == "0")
                         {
+                            errorRows.Add(rowNumber);
                             continue;
                         }
+
                         if (!int.TryParse(maKhachHangStr, out int maKhachHang) || maKhachHang <= 0)
                         {
                             Console.WriteLine($"Không thể parse MaKhachHang hoặc <= 0: '{maKhachHangStr}'");
+                            errorRows.Add(rowNumber);
                             continue;
                         }
+
+                        // Kiểm tra tên khách hàng không được để trống
+                        if (string.IsNullOrEmpty(hoTenStr))
+                        {
+                            Console.WriteLine($"Tên khách hàng không được để trống cho dòng {rowNumber}");
+                            errorRows.Add(rowNumber);
+                            continue;
+                        }
+
+                        // Kiểm tra số điện thoại không được để trống và đúng định dạng
+                        if (string.IsNullOrEmpty(soDienThoaiStr))
+                        {
+                            Console.WriteLine($"Số điện thoại không được để trống cho dòng {rowNumber}");
+                            errorRows.Add(rowNumber);
+                            continue;
+                        }
+
+                        // Kiểm tra định dạng số điện thoai (chỉ chứa số và có độ dài phù hợp)
+                        if (!System.Text.RegularExpressions.Regex.IsMatch(soDienThoaiStr, @"^[0-9]{10,11}$"))
+                        {
+                            Console.WriteLine($"Số điện thoại không đúng định dạng cho dòng {rowNumber}");
+                            errorRows.Add(rowNumber);
+                            continue;
+                        }
+
+                        // Kiểm tra email đúng định dạng (nếu không trống)
+                        if (!string.IsNullOrEmpty(emailStr) && !IsValidEmail(emailStr))
+                        {
+                            Console.WriteLine($"Email không đúng định dạng cho dòng {rowNumber}");
+                            errorRows.Add(rowNumber);
+                            continue;
+                        }
+
+                        // Kiểm tra điểm tích lũy đúng định dạng số
+                        if (!string.IsNullOrEmpty(diemTichLuyStr) && !int.TryParse(diemTichLuyStr, out _))
+                        {
+                            Console.WriteLine($"Điểm tích lũy không đúng định dạng cho dòng {rowNumber}");
+                            errorRows.Add(rowNumber);
+                            continue;
+                        }
+
                         // Kiểm tra xem MaKhachHang đã tồn tại chưa
                         if (_currentKhachHang.Any(h => h.MaKhachHang == maKhachHang))
                         {
                             Console.WriteLine($"MaKhachHang {maKhachHang} đã tồn tại, bỏ qua");
+                            duplicateIds.Add(maKhachHang);
                             continue;
                         }
+
                         // Kiểm tra xem MaKhachHang có bị trùng trong file không
                         if (khachHangList.Any(h => h.MaKhachHang == maKhachHang))
                         {
                             Console.WriteLine($"MaKhachHang {maKhachHang} bị trùng trong file, bỏ qua");
+                            duplicateIds.Add(maKhachHang);
                             continue;
                         }
+
+                        // Kiểm tra độ dài các trường ký tự
+                        if (!Validation_Component.IsValidLength(hoTenStr, 50) ||
+                            !Validation_Component.IsValidLength(soDienThoaiStr, 50) ||
+                            !Validation_Component.IsValidLength(diaChiStr, 200) ||
+                            !Validation_Component.IsValidLength(emailStr, 100) ||
+                            !Validation_Component.IsValidLength(diemTichLuyStr, 10))
+                        {
+                            Console.WriteLine($"Dữ liệu vượt quá độ dài cho phép ở dòng {rowNumber}");
+                            errorRows.Add(rowNumber);
+                            continue;
+                        }
+
                         var kh_tmp = new KhachHangDTO
                         {
                             MaKhachHang = maKhachHang,
@@ -513,7 +602,8 @@ namespace mini_supermarket.GUI.KhachHang
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Lỗi khi xử lý dòng: {ex.Message}");
+                        Console.WriteLine($"Lỗi khi xử lý dòng {rowNumber}: {ex.Message}");
+                        errorRows.Add(rowNumber);
                         continue;
                     }
                 }
@@ -536,7 +626,35 @@ namespace mini_supermarket.GUI.KhachHang
                 }
             }
 
-            MessageBox.Show($"✅ Nhập Excel thành công! Đã thêm {successCount} khách hàng mới.");
+            // Tạo thông báo chi tiết
+            var message = $"✅ Nhập Excel thành công! Đã thêm {successCount} khách hàng mới.";
+            
+            if (duplicateIds.Count > 0)
+            {
+                var duplicateList = string.Join(", ", duplicateIds.Select(id => $"#{id}"));
+                message += $"\n❌ Các khách hàng bị trùng ID: {duplicateList}";
+            }
+
+            if (errorRows.Count > 0)
+            {
+                var errorList = string.Join(", ", errorRows.Select(row => $"#{row}"));
+                message += $"\n❌ Các khách hàng bị lỗi dữ liệu (thiếu dữ liệu, sai định dạng, vượt quá 50 ký tự): {errorList}";
+            }
+
+            MessageBox.Show(message, "Kết quả nhập Excel", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

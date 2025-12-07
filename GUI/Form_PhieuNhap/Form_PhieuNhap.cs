@@ -141,7 +141,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             panelFilters.Controls.Add(tblFilters);
 
             // 1. Time Period
-            Label lblTime = new Label { Text = "Thời gian:", Anchor = AnchorStyles.Left, AutoSize = true };
+            Label lblTime = new Label { Text = "Thời gian:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 7f) };
             cboTimePeriod = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
             cboTimePeriod.Items.AddRange(new[] { "Tất cả", "Hôm nay", "Tuần này", "Tháng này" });
             cboTimePeriod.SelectedIndex = 0;
@@ -151,7 +151,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             tblFilters.Controls.Add(cboTimePeriod, 1, 0);
 
             // 2. Supplier
-            Label lblSupplier = new Label { Text = "Nhà cung cấp:", Anchor = AnchorStyles.Left, AutoSize = true };
+            Label lblSupplier = new Label { Text = "NCC:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 7f) };
             cboSupplier = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
             // Items will be loaded later
             cboSupplier.SelectedIndexChanged += (s, e) => ApplyFilters();
