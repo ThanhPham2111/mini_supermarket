@@ -2,11 +2,11 @@
 {
     public class ChiTietSanPhamDTO
     {
-        public int MaChiTietSanPham { get; set; }
-        public int MaSanPham { get; set; }
-        public string? ThuocTinh { get; set; }
-        public decimal? GiaNhap { get; set; }
-        public string? TrangThai { get; set; }
+        private int _maChiTietSanPham;
+        private int _maSanPham;
+        private string? _thuocTinh;
+        private decimal? _giaNhap;
+        private string? _trangThai;
 
         public ChiTietSanPhamDTO()
         {
@@ -19,11 +19,41 @@
             decimal? giaNhap,
             string? trangThai)
         {
-            MaChiTietSanPham = maChiTietSanPham;
-            MaSanPham = maSanPham;
-            ThuocTinh = thuocTinh;
-            GiaNhap = giaNhap;
-            TrangThai = trangThai;
+            _maChiTietSanPham = maChiTietSanPham;
+            _maSanPham = maSanPham;
+            _thuocTinh = thuocTinh;
+            _giaNhap = giaNhap;
+            _trangThai = trangThai;
+        }
+
+        public int MaChiTietSanPham
+        {
+            get { return _maChiTietSanPham; }
+            set { _maChiTietSanPham = value; }
+        }
+
+        public int MaSanPham
+        {
+            get { return _maSanPham; }
+            set { _maSanPham = value; }
+        }
+
+        public string? ThuocTinh
+        {
+            get { return _thuocTinh; }
+            set { _thuocTinh = value; }
+        }
+
+        public decimal? GiaNhap
+        {
+            get { return _giaNhap; }
+            set { _giaNhap = value; }
+        }
+
+        public string? TrangThai
+        {
+            get { return _trangThai; }
+            set { _trangThai = value; }
         }
     }
 }

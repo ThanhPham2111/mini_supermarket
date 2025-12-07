@@ -2,12 +2,12 @@
 {
     public class TaiKhoanDTO
     {
-        public int MaTaiKhoan { get; set; }
-        public string TenDangNhap { get; set; } = string.Empty;
-        public string MatKhau { get; set; } = string.Empty;
-        public int MaNhanVien { get; set; }
-        public int MaQuyen { get; set; }
-        public string? TrangThai { get; set; }
+        private int _maTaiKhoan;
+        private string _tenDangNhap = string.Empty;
+        private string _matKhau = string.Empty;
+        private int _maNhanVien;
+        private int _maQuyen;
+        private string? _trangThai;
 
         public TaiKhoanDTO()
         {
@@ -21,12 +21,48 @@
             int maQuyen,
             string? trangThai)
         {
-            MaTaiKhoan = maTaiKhoan;
-            TenDangNhap = tenDangNhap;
-            MatKhau = matKhau;
-            MaNhanVien = maNhanVien;
-            MaQuyen = maQuyen;
-            TrangThai = trangThai;
+            _maTaiKhoan = maTaiKhoan;
+            _tenDangNhap = tenDangNhap;
+            _matKhau = matKhau;
+            _maNhanVien = maNhanVien;
+            _maQuyen = maQuyen;
+            _trangThai = trangThai;
+        }
+
+        public int MaTaiKhoan
+        {
+            get { return _maTaiKhoan; }
+            set { _maTaiKhoan = value; }
+        }
+
+        public string TenDangNhap
+        {
+            get { return _tenDangNhap; }
+            set { _tenDangNhap = value; }
+        }
+
+        public string MatKhau
+        {
+            get { return _matKhau; }
+            set { _matKhau = value; }
+        }
+
+        public int MaNhanVien
+        {
+            get { return _maNhanVien; }
+            set { _maNhanVien = value; }
+        }
+
+        public int MaQuyen
+        {
+            get { return _maQuyen; }
+            set { _maQuyen = value; }
+        }
+
+        public string? TrangThai
+        {
+            get { return _trangThai; }
+            set { _trangThai = value; }
         }
     }
 }

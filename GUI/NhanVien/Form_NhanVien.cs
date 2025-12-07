@@ -7,7 +7,6 @@ using mini_supermarket.BUS;
 using mini_supermarket.Common;
 using mini_supermarket.DTO;
 using ClosedXML.Excel;
-using System.Data;
 
 namespace mini_supermarket.GUI.NhanVien
 {
@@ -19,9 +18,10 @@ namespace mini_supermarket.GUI.NhanVien
         private readonly NhanVien_BUS _nhanVienBus = new();
         private readonly BindingSource _bindingSource = new();
         private readonly PermissionService _permissionService = new();
+
         private readonly List<string> _roles;
         private readonly List<string> _statuses;
-        private IList<NhanVienDTO> _currentNhanVien = Array.Empty<NhanVienDTO>();
+        private IList<NhanVienDTO> _allNhanVien = new List<NhanVienDTO>();
 
         public Form_NhanVien()
         {
@@ -33,66 +33,50 @@ namespace mini_supermarket.GUI.NhanVien
                 _roles = _nhanVienBus.GetDefaultRoles().ToList();
                 _statuses = _nhanVienBus.GetDefaultStatuses().ToList();
             }
-            catch (Exception ex)
+            catch
             {
-                // Nếu có lỗi khi load roles/statuses, sử dụng giá trị mặc định
                 _roles = new List<string> { "Admin", "Quản lý", "Thu ngân", "Thủ kho" };
                 _statuses = new List<string> { NhanVien_BUS.StatusWorking, NhanVien_BUS.StatusInactive };
-                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        private void Form_NhanVien_Load(object? sender, EventArgs e)
+        private void Form_NhanVien_Load(object sender, EventArgs e)
         {
-            if (DesignMode)
-            {
-                return;
-            }
+            if (DesignMode) return;
 
+            // ComboBox trạng thái
             statusFilterComboBox.Items.Clear();
             statusFilterComboBox.Items.Add(StatusAll);
-            foreach (var status in _statuses)
-            {
-                statusFilterComboBox.Items.Add(status);
-            }
+            statusFilterComboBox.Items.AddRange(_statuses.ToArray());
             statusFilterComboBox.SelectedIndex = 0;
-            statusFilterComboBox.SelectedIndexChanged += statusFilterComboBox_SelectedIndexChanged;
+            statusFilterComboBox.SelectedIndexChanged += (_, _) => ApplyFilters();
 
+            // ComboBox chức vụ (dùng trong dialog, không cần ở form chính)
             chucVuComboBox.Items.Clear();
-            foreach (var role in _roles)
-            {
-                chucVuComboBox.Items.Add(role);
-            }
-            chucVuComboBox.SelectedIndex = -1;
+            chucVuComboBox.Items.AddRange(_roles.ToArray());
 
+            // DataGridView
             nhanVienDataGridView.AutoGenerateColumns = false;
             nhanVienDataGridView.DataSource = _bindingSource;
-            nhanVienDataGridView.SelectionChanged += nhanVienDataGridView_SelectionChanged;
+            nhanVienDataGridView.SelectionChanged += (_, _) => UpdateSelectionUI();
 
-            var toolTip = new ToolTip();
-            toolTip.SetToolTip(themButton, "Thêm nhân viên mới");
-            toolTip.SetToolTip(suaButton, "Sửa thông tin nhân viên đã chọn");
-            toolTip.SetToolTip(xoaButton, "Khóa nhân viên đã chọn"); // Updated: "Khóa" instead of "Xóa"
-            toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
-            toolTip.SetToolTip(searchButton, "Tìm kiếm nhân viên");
-
-            themButton.Click += themButton_Click;
-            suaButton.Click += suaButton_Click;
-            xoaButton.Click += xoaButton_Click;
-            lamMoiButton.Click += lamMoiButton_Click;
-            searchButton.Click += (_, _) => ApplySearchFilter();
-
-            searchTextBox.TextChanged += searchTextBox_TextChanged;
-
-            importExcelButton.Click += ImportExcelButton_Click;
+            // Buttons
+            themButton.Click += ThemButton_Click;
+            suaButton.Click += SuaButton_Click;
+            xoaButton.Click += XoaButton_Click;
+            lamMoiButton.Click += (_, _) => RefreshAll();
             exportExcelButton.Click += ExportExcelButton_Click;
+            importExcelButton.Click += ImportExcelButton_Click;
+
+            // Tìm kiếm
+            searchTextBox.TextChanged += (_, _) => ApplyFilters();
 
             ApplyPermissions();
-
             SetInputFieldsEnabled(false);
-
             LoadNhanVienData();
         }
+
+        #region Phân quyền & UI
 
         private void ApplyPermissions()
         {
@@ -101,211 +85,37 @@ namespace mini_supermarket.GUI.NhanVien
             bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
 
             themButton.Enabled = canAdd;
-            lamMoiButton.Enabled = true;
             suaButton.Enabled = canEdit && nhanVienDataGridView.SelectedRows.Count > 0;
             xoaButton.Enabled = canDelete && nhanVienDataGridView.SelectedRows.Count > 0;
         }
 
-        private void UpdateButtonsState()
-        {
-            bool hasSelection = nhanVienDataGridView.SelectedRows.Count > 0;
-            bool canEdit = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua);
-            bool canDelete = _permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa);
-
-            suaButton.Enabled = hasSelection && canEdit;
-            xoaButton.Enabled = hasSelection && canDelete;
-        }
-
-        private void nhanVienDataGridView_SelectionChanged(object? sender, EventArgs e)
-        {
-            if (nhanVienDataGridView.SelectedRows.Count > 0)
-            {
-                var selectedNhanVien = (NhanVienDTO)nhanVienDataGridView.SelectedRows[0].DataBoundItem;
-                maNhanVienTextBox.Text = selectedNhanVien.MaNhanVien.ToString();
-                hoTenTextBox.Text = selectedNhanVien.TenNhanVien ?? string.Empty;
-                ngaySinhDateTimePicker.Value = selectedNhanVien.NgaySinh ?? DateTime.Today;
-                gioiTinhNamRadioButton.Checked = selectedNhanVien.GioiTinh == "Nam";
-                gioiTinhNuRadioButton.Checked = selectedNhanVien.GioiTinh == "Nữ";
-                if (!string.IsNullOrEmpty(selectedNhanVien.VaiTro) && chucVuComboBox.Items.Contains(selectedNhanVien.VaiTro))
-                {
-                    chucVuComboBox.SelectedItem = selectedNhanVien.VaiTro;
-                }
-                else
-                {
-                    chucVuComboBox.SelectedIndex = -1;
-                }
-                soDienThoaiTextBox.Text = selectedNhanVien.SoDienThoai ?? string.Empty;
-
-                UpdateButtonsState();
-                SetInputFieldsEnabled(false);
-            }
-            else
-            {
-                maNhanVienTextBox.Text = string.Empty;
-                hoTenTextBox.Text = string.Empty;
-                ngaySinhDateTimePicker.Value = DateTime.Today;
-                gioiTinhNamRadioButton.Checked = false;
-                gioiTinhNuRadioButton.Checked = false;
-                chucVuComboBox.SelectedIndex = -1;
-                soDienThoaiTextBox.Text = string.Empty;
-
-                UpdateButtonsState();
-
-                SetInputFieldsEnabled(false);
-            }
-        }
-
-        private void themButton_Click(object? sender, EventArgs e)
-        {
-            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
-            {
-                MessageBox.Show("Bạn không có quyền thêm nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            using var dialog = new Form_NhanVienDialog(_roles, _statuses);
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
-            }
-
-            try
-            {
-                var createdNhanVien = _nhanVienBus.AddNhanVien(dialog.NhanVien);
-                LoadNhanVienData();
-                SelectNhanVienRow(createdNhanVien.MaNhanVien);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể thêm nhân viên.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void suaButton_Click(object? sender, EventArgs e)
-        {
-            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
-            {
-                MessageBox.Show("Bạn không có quyền sửa nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var selectedNhanVien = GetSelectedNhanVien();
-            if (selectedNhanVien == null)
-            {
-                return;
-            }
-
-            using var dialog = new Form_NhanVienDialog(_roles, _statuses, selectedNhanVien);
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
-            }
-
-            try
-            {
-                _nhanVienBus.UpdateNhanVien(dialog.NhanVien);
-                LoadNhanVienData();
-                SelectNhanVienRow(dialog.NhanVien.MaNhanVien);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Không thể cập nhật nhân viên.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void xoaButton_Click(object? sender, EventArgs e)
-        {
-            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
-            {
-                MessageBox.Show("Bạn không có quyền khóa nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var selectedNhanVien = GetSelectedNhanVien();
-            if (selectedNhanVien == null)
-            {
-                return;
-            }
-
-            DialogResult confirm = MessageBox.Show(this,
-                $"Bạn có chắc muốn khóa nhân viên '{selectedNhanVien.TenNhanVien}'? Trạng thái sẽ được chuyển thành 'Đã nghỉ'.",
-                "Xác nhận khóa",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes)
-            {
-                return;
-            }
-
-            try
-            {
-                selectedNhanVien.TrangThai = NhanVien_BUS.StatusInactive; // Set TrangThai to "Đã nghỉ"
-                _nhanVienBus.UpdateNhanVien(selectedNhanVien);
-                LoadNhanVienData();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, "Không thể khoá nhân viên.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void lamMoiButton_Click(object? sender, EventArgs e)
-        {
-            searchTextBox.Text = string.Empty;
-
-            if (statusFilterComboBox.SelectedIndex != 0)
-            {
-                statusFilterComboBox.SelectedIndex = 0;
-            }
-            else
-            {
-                ApplyStatusFilter();
-            }
-
-            LoadNhanVienData();
-        }
-
-        private NhanVienDTO? GetSelectedNhanVien()
+        private void UpdateSelectionUI()
         {
             if (nhanVienDataGridView.SelectedRows.Count == 0)
             {
-                return null;
-            }
-
-            return nhanVienDataGridView.SelectedRows[0].DataBoundItem as NhanVienDTO;
-        }
-
-        private void SelectNhanVienRow(int maNhanVien)
-        {
-            if (maNhanVien <= 0 || nhanVienDataGridView.Rows.Count == 0)
-            {
+                ClearInputFields();
+                SetInputFieldsEnabled(false);
+                ApplyPermissions();
                 return;
             }
 
-            foreach (DataGridViewRow row in nhanVienDataGridView.Rows)
-            {
-                if (row.DataBoundItem is NhanVienDTO nhanVien && nhanVien.MaNhanVien == maNhanVien)
-                {
-                    row.Selected = true;
-                    try
-                    {
-                        nhanVienDataGridView.FirstDisplayedScrollingRowIndex = row.Index;
-                    }
-                    catch
-                    {
-                        // Ignore if cannot set scroll index
-                    }
+            var nv = nhanVienDataGridView.SelectedRows[0].DataBoundItem as NhanVienDTO;
+            if (nv == null) return;
 
-                    return;
-                }
-            }
+            maNhanVienTextBox.Text = nv.MaNhanVien.ToString();
+            hoTenTextBox.Text = nv.TenNhanVien ?? "";
+            ngaySinhDateTimePicker.Value = nv.NgaySinh ?? DateTime.Today;
+            gioiTinhNamRadioButton.Checked = nv.GioiTinh == "Nam";
+            gioiTinhNuRadioButton.Checked = nv.GioiTinh == "Nữ";
+            chucVuComboBox.Text = nv.VaiTro ?? "";
+            soDienThoaiTextBox.Text = nv.SoDienThoai ?? "";
+
+            SetInputFieldsEnabled(false);
+            ApplyPermissions();
         }
 
         private void SetInputFieldsEnabled(bool enabled)
         {
-            maNhanVienTextBox.Enabled = enabled;
             hoTenTextBox.Enabled = enabled;
             ngaySinhDateTimePicker.Enabled = enabled;
             gioiTinhNamRadioButton.Enabled = enabled;
@@ -314,166 +124,384 @@ namespace mini_supermarket.GUI.NhanVien
             soDienThoaiTextBox.Enabled = enabled;
         }
 
-        private void statusFilterComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        private void ClearInputFields()
         {
-            ApplyStatusFilter();
+            maNhanVienTextBox.Clear();
+            hoTenTextBox.Clear();
+            ngaySinhDateTimePicker.Value = DateTime.Today;
+            gioiTinhNamRadioButton.Checked = false;
+            gioiTinhNuRadioButton.Checked = false;
+            chucVuComboBox.SelectedIndex = -1;
+            soDienThoaiTextBox.Clear();
         }
 
-        private void searchTextBox_TextChanged(object? sender, EventArgs e)
+        #endregion
+
+        #region CRUD
+
+        private void ThemButton_Click(object sender, EventArgs e)
         {
-            ApplySearchFilter();
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Them))
+            {
+                MessageBox.Show("Bạn không có quyền thêm nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var dialog = new Form_NhanVienDialog(_roles, _statuses);
+            if (dialog.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                var nv = _nhanVienBus.AddNhanVien(dialog.NhanVien);
+                LoadNhanVienData();
+                SelectRowById(nv.MaNhanVien);
+                MessageBox.Show("Thêm nhân viên thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Thêm thất bại!\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+        private void SuaButton_Click(object sender, EventArgs e)
+        {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Sua))
+            {
+                MessageBox.Show("Bạn không có quyền sửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var selected = GetSelectedNhanVien();
+            if (selected == null) return;
+
+            using var dialog = new Form_NhanVienDialog(_roles, _statuses, selected);
+            if (dialog.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                _nhanVienBus.UpdateNhanVien(dialog.NhanVien);
+                LoadNhanVienData();
+                SelectRowById(dialog.NhanVien.MaNhanVien);
+                MessageBox.Show("Cập nhật thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Cập nhật thất bại!\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void XoaButton_Click(object sender, EventArgs e)
+        {
+            if (!_permissionService.HasPermissionByPath(FunctionPath, PermissionService.LoaiQuyen_Xoa))
+            {
+                MessageBox.Show("Bạn không có quyền khóa nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var selected = GetSelectedNhanVien();
+            if (selected == null) return;
+
+            var confirm = MessageBox.Show(
+                $"Bạn có chắc muốn khóa nhân viên \"{selected.TenNhanVien}\"?",
+                "Xác nhận khóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                selected.TrangThai = NhanVien_BUS.StatusInactive;
+                _nhanVienBus.UpdateNhanVien(selected);
+                LoadNhanVienData();
+                MessageBox.Show("Đã khóa nhân viên thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Khóa thất bại!\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private NhanVienDTO GetSelectedNhanVien()
+        {
+            return nhanVienDataGridView.SelectedRows.Count > 0
+                ? nhanVienDataGridView.SelectedRows[0].DataBoundItem as NhanVienDTO
+                : null;
+        }
+
+        private void SelectRowById(int maNhanVien)
+        {
+            foreach (DataGridViewRow row in nhanVienDataGridView.Rows)
+            {
+                if (row.DataBoundItem is NhanVienDTO nv && nv.MaNhanVien == maNhanVien)
+                {
+                    row.Selected = true;
+                    nhanVienDataGridView.FirstDisplayedScrollingRowIndex = row.Index;
+                    break;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Load & Filter
 
         private void LoadNhanVienData()
         {
             try
             {
-                _currentNhanVien = _nhanVienBus.GetNhanVien();
-                ApplyStatusFilter();
+                _allNhanVien = _nhanVienBus.GetNhanVien();
+                ApplyFilters();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Không thể tải danh sách nhân viên.{Environment.NewLine}{Environment.NewLine}{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Không tải được danh sách nhân viên!\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ApplyStatusFilter()
+        private void RefreshAll()
         {
-            string? selectedStatus = statusFilterComboBox.SelectedItem as string;
-
-            if (string.IsNullOrWhiteSpace(selectedStatus) || string.Equals(selectedStatus, StatusAll, StringComparison.OrdinalIgnoreCase))
-            {
-                _bindingSource.DataSource = _currentNhanVien;
-            }
-            else
-            {
-                var filtered = new List<NhanVienDTO>();
-                foreach (var nhanVien in _currentNhanVien)
-                {
-                    if (string.Equals(nhanVien.TrangThai, selectedStatus, StringComparison.OrdinalIgnoreCase))
-                    {
-                        filtered.Add(nhanVien);
-                    }
-                }
-                _bindingSource.DataSource = filtered;
-            }
-
-            if (!string.IsNullOrEmpty(searchTextBox.Text.Trim()))
-            {
-                ApplySearchFilter();
-            }
-            else
-            {
-                nhanVienDataGridView.ClearSelection();
-            }
+            searchTextBox.Clear();
+            statusFilterComboBox.SelectedIndex = 0;
+            LoadNhanVienData();
         }
 
-        private void ApplySearchFilter()
+        private void ApplyFilters()
         {
-            string searchText = searchTextBox.Text.Trim().ToLower(CultureInfo.GetCultureInfo("vi-VN"));
-            string? selectedStatus = statusFilterComboBox.SelectedItem as string;
+            var keyword = searchTextBox.Text.Trim().ToLower(CultureInfo.GetCultureInfo("vi-VN"));
+            var status = statusFilterComboBox.SelectedItem?.ToString();
 
-            var filtered = new List<NhanVienDTO>();
-
-            foreach (var nhanVien in _currentNhanVien)
+            var filtered = _allNhanVien.Where(nv =>
             {
-                bool matchesSearch = string.IsNullOrEmpty(searchText) ||
-                    nhanVien.MaNhanVien.ToString().ToLower(CultureInfo.GetCultureInfo("vi-VN")).Contains(searchText) ||
-                    (nhanVien.TenNhanVien?.ToLower(CultureInfo.GetCultureInfo("vi-VN")).Contains(searchText) ?? false) ||
-                    (nhanVien.SoDienThoai?.ToLower(CultureInfo.GetCultureInfo("vi-VN")).Contains(searchText) ?? false);
+                bool matchKeyword = string.IsNullOrEmpty(keyword) ||
+                    nv.MaNhanVien.ToString().Contains(keyword) ||
+                    (nv.TenNhanVien?.ToLower().Contains(keyword) ?? false) ||
+                    (nv.SoDienThoai?.ToLower().Contains(keyword) ?? false);
 
-                bool matchesStatus = string.IsNullOrWhiteSpace(selectedStatus) ||
-                    string.Equals(selectedStatus, StatusAll, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(nhanVien.TrangThai, selectedStatus, StringComparison.OrdinalIgnoreCase);
+                bool matchStatus = status == StatusAll ||
+                    string.Equals(nv.TrangThai, status, StringComparison.OrdinalIgnoreCase);
 
-                if (matchesSearch && matchesStatus)
-                {
-                    filtered.Add(nhanVien);
-                }
-            }
+                return matchKeyword && matchStatus;
+            }).ToList();
 
-            _bindingSource.DataSource = filtered;
+            _bindingSource.DataSource = filtered.Any() ? filtered : null;
             nhanVienDataGridView.ClearSelection();
-            UpdateButtonsState();
+            UpdateSelectionUI();
         }
+
+        #endregion
+
+        #region Export Excel (Đẹp + Tiếng Việt chuẩn)
+
         private void ExportExcelButton_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog
+            var sfd = new SaveFileDialog
             {
                 Filter = "Excel Workbook|*.xlsx",
-                Title = "Lưu Excel"
+                Title = "Xuất danh sách nhân viên",
+                FileName = $"NhanVien_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
             };
 
-            if (sfd.ShowDialog() != DialogResult.OK)
-                return;
+            if (sfd.ShowDialog() != DialogResult.OK) return;
 
-            DataTable dt = new DataTable();
-
-            // Lấy header
-            foreach (DataGridViewColumn col in nhanVienDataGridView.Columns)
-                dt.Columns.Add(col.HeaderText);
-
-            // Lấy dữ liệu
-            foreach (DataGridViewRow row in nhanVienDataGridView.Rows)
+            try
             {
-                if (row.IsNewRow) continue;
+                using var wb = new XLWorkbook();
+                var ws = wb.Worksheets.Add("Danh sách nhân viên");
 
-                var data = new object[row.Cells.Count];
-                for (int i = 0; i < row.Cells.Count; i++)
+                // Header
+                string[] headers = { "Mã NV", "Họ tên", "Ngày sinh", "Giới tính", "SĐT", "Vai trò", "Trạng thái" };
+                for (int i = 0; i < headers.Length; i++)
                 {
-                    data[i] = row.Cells[i].Value;
+                    var cell = ws.Cell(1, i + 1);
+                    cell.Value = headers[i];
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Fill.BackgroundColor = XLColor.FromArgb(211, 211, 211);
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 }
-                dt.Rows.Add(data);
-            }
 
-            using (XLWorkbook wb = new XLWorkbook())
-            {
-                wb.Worksheets.Add(dt, "Nhân Viên");
+                var data = _bindingSource.DataSource as IEnumerable<NhanVienDTO> ?? new List<NhanVienDTO>();
+                int row = 2;
+                foreach (var nv in data)
+                {
+                    ws.Cell(row, 1).Value = nv.MaNhanVien;
+                    ws.Cell(row, 2).Value = nv.TenNhanVien;
+                    ws.Cell(row, 3).Value = nv.NgaySinh.HasValue ? nv.NgaySinh.Value.ToString("dd/MM/yyyy") : "";
+                    ws.Cell(row, 4).Value = nv.GioiTinh ?? "";
+                    ws.Cell(row, 5).Value = nv.SoDienThoai;
+                    ws.Cell(row, 6).Value = nv.VaiTro;
+                    ws.Cell(row, 7).Value = nv.TrangThai;
+                    row++;
+                }
+
+                // Format bảng
+                var range = ws.Range(1, 1, row - 1, headers.Length);
+                range.Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
+                range.Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
+                ws.Columns(1, headers.Length).AdjustToContents();
+                ws.Rows(1, row - 1).AdjustToContents();
+                ws.SheetView.FreezeRows(1);
+
                 wb.SaveAs(sfd.FileName);
+                MessageBox.Show("Xuất Excel thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-            MessageBox.Show("✅ Xuất Excel thành công!");
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất file:\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+        #endregion
+
+        #region Import Excel
 
         private void ImportExcelButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog
+            var ofd = new OpenFileDialog
             {
                 Filter = "Excel Workbook|*.xlsx",
-                Title = "Chọn file Excel"
+                Title = "Chọn file Excel nhân viên"
             };
 
-            if (ofd.ShowDialog() != DialogResult.OK)
-                return;
+            if (ofd.ShowDialog() != DialogResult.OK) return;
 
-            DataTable dt = new DataTable();
+            var importList = new List<NhanVienDTO>();
+            var readErrors = new List<string>();
 
-            using (XLWorkbook wb = new XLWorkbook(ofd.FileName))
+            try
             {
-                var ws = wb.Worksheet(1);
-                bool firstRow = true;
+                using var wb = new XLWorkbook(ofd.FileName);
+                var ws = wb.Worksheets.First();
+                var rows = ws.RowsUsed().Skip(1); // Bỏ header
+                int rowNum = 2;
 
-                foreach (var row in ws.RowsUsed())
+                foreach (var row in rows)
                 {
-                    if (firstRow)
+                    try
                     {
-                        // Tạo column
-                        foreach (var cell in row.Cells())
-                            dt.Columns.Add(cell.Value.ToString());
+                        // Đọc dữ liệu từ Excel
+                        var maNhanVienStr = row.Cell(1).GetString().Trim();
+                        var tenNhanVienStr = row.Cell(2).GetString().Trim();
+                        var ngaySinhStr = row.Cell(3).GetString().Trim();
+                        var gioiTinhStr = row.Cell(4).GetString().Trim();
+                        var soDienThoaiStr = row.Cell(5).GetString().Trim();
+                        var vaiTroStr = row.Cell(6).GetString().Trim();
+                        var trangThaiStr = row.Cell(7).GetString().Trim();
 
-                        firstRow = false;
+                        // Bỏ qua dòng trống
+                        if (string.IsNullOrEmpty(maNhanVienStr) && string.IsNullOrEmpty(tenNhanVienStr) &&
+                            string.IsNullOrEmpty(soDienThoaiStr) && string.IsNullOrEmpty(vaiTroStr))
+                        {
+                            rowNum++;
+                            continue;
+                        }
+
+                        // Parse mã nhân viên
+                        if (!int.TryParse(maNhanVienStr, out int maNhanVien) || maNhanVien <= 0)
+                        {
+                            rowNum++;
+                            continue;
+                        }
+
+                        // Kiểm tra đã tồn tại - bỏ qua không báo lỗi
+                        if (_allNhanVien.Any(nv => nv.MaNhanVien == maNhanVien))
+                        {
+                            rowNum++;
+                            continue;
+                        }
+
+                        // Tạo DTO
+                        var nv = new NhanVienDTO
+                        {
+                            MaNhanVien = maNhanVien,
+                            TenNhanVien = tenNhanVienStr,
+                            NgaySinh = TryParseDate(ngaySinhStr),
+                            GioiTinh = NormalizeGender(gioiTinhStr),
+                            SoDienThoai = soDienThoaiStr,
+                            VaiTro = vaiTroStr,
+                            TrangThai = string.IsNullOrWhiteSpace(trangThaiStr)
+                                ? NhanVien_BUS.StatusWorking
+                                : trangThaiStr
+                        };
+
+                        importList.Add(nv);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        dt.Rows.Add(row.Cells().Select(c => c.Value).ToArray());
+                        readErrors.Add($"Dòng {rowNum}: {ex.Message}");
                     }
+                    rowNum++;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi đọc file Excel:\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (importList.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu hợp lệ để nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Import vào DB
+            int success = 0;
+            var saveErrors = new List<string>();
+
+            foreach (var nv in importList)
+            {
+                try
+                {
+                    // AddNhanVien sẽ tự validate
+                    _nhanVienBus.AddNhanVien(nv);
+                    success++;
+                }
+                catch (Exception ex)
+                {
+                    saveErrors.Add($"Mã NV {nv.MaNhanVien} ({nv.TenNhanVien}): {ex.Message}");
                 }
             }
 
-            // hiển thị lên bảng
-            nhanVienDataGridView.DataSource = dt;
+            LoadNhanVienData();
 
-            MessageBox.Show("✅ Nhập Excel thành công!");
+            // Hiển thị kết quả
+            string result = $"✅ Nhập Excel thành công!\n\n";
+            result += $"• Đã thêm: {success} nhân viên mới\n";
+            if (saveErrors.Count > 0)
+            {
+                result += $"• Lỗi: {saveErrors.Count} nhân viên\n";
+                result += "\nChi tiết lỗi:\n" + string.Join("\n", saveErrors.Take(10));
+                if (saveErrors.Count > 10)
+                {
+                    result += $"\n... và {saveErrors.Count - 10} lỗi khác.";
+                }
+                MessageBox.Show(result, "Kết quả nhập Excel", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                MessageBox.Show(result, "Kết quả nhập Excel", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
+
+        private DateTime? TryParseDate(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            var formats = new[] { "dd/MM/yyyy", "d/M/yyyy", "dd-MM-yyyy", "yyyy-MM-dd", "ddMMyyyy" };
+            if (DateTime.TryParseExact(input.Trim(), formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+                return dt;
+            if (DateTime.TryParse(input.Trim(), out DateTime dt2))
+                return dt2;
+            return null;
+        }
+
+        private string? NormalizeGender(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            var lower = input.Trim().ToLower();
+            if (lower.Contains("nam") || lower == "1") return "Nam";
+            if (lower.Contains("nữ") || lower.Contains("nu") || lower == "0") return "Nữ";
+            return null;
+        }
+
+        #endregion
     }
 }
