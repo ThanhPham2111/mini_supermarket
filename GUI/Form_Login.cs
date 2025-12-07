@@ -35,6 +35,9 @@ namespace mini_supermarket.GUI
             // Cho phép đăng nhập bằng Enter
             taiKhoan_txb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) matKhau_txb.Focus(); };
             matKhau_txb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) Login_btn_Click(sender, e); };
+            
+            // Tự động focus vào ô tài khoản khi form load
+            this.Shown += (s, args) => taiKhoan_txb.Focus();
         }
 
         private void LoadBackgroundImage()
@@ -156,6 +159,18 @@ namespace mini_supermarket.GUI
         private void label2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void Exit_btn_Click(object sender, EventArgs e)
+        {
+            // Xác nhận thoát
+            var result = MessageBox.Show("Bạn có chắc chắn muốn thoát chương trình?", "Xác nhận thoát", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            
+            if (result == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
         }
     }
 }

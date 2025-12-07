@@ -120,6 +120,7 @@
             Exit_btn.TabIndex = 1;
             Exit_btn.Text = "Thoát";
             Exit_btn.UseVisualStyleBackColor = true;
+            Exit_btn.Click += Exit_btn_Click;
             // 
             // matKhau_txb
             // 
