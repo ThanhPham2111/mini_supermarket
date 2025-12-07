@@ -11,6 +11,7 @@
         private System.Windows.Forms.Button xoaButton;
         private System.Windows.Forms.Button khoaButton;
         private System.Windows.Forms.Button lamMoiButton;
+        private System.Windows.Forms.Button exportExcelButton;
         private System.Windows.Forms.ComboBox statusFilterComboBox;
         private System.Windows.Forms.Label searchLabel;
         private System.Windows.Forms.Label statusLabel;
@@ -47,6 +48,7 @@
             xoaButton = new System.Windows.Forms.Button();
             khoaButton = new System.Windows.Forms.Button();
             lamMoiButton = new System.Windows.Forms.Button();
+            exportExcelButton = new System.Windows.Forms.Button();
             statusFilterComboBox = new System.Windows.Forms.ComboBox();
             searchLabel = new System.Windows.Forms.Label();
             statusLabel = new System.Windows.Forms.Label();
@@ -138,6 +140,17 @@
             lamMoiButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             lamMoiButton.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
             lamMoiButton.ForeColor = System.Drawing.Color.White;
+
+            // exportExcelButton
+            exportExcelButton.Location = new System.Drawing.Point(560, 65);
+            exportExcelButton.Name = "exportExcelButton";
+            exportExcelButton.Size = new System.Drawing.Size(110, 35);
+            exportExcelButton.TabIndex = 6;
+            exportExcelButton.Text = "📊 Export Excel";
+            exportExcelButton.UseVisualStyleBackColor = true;
+            exportExcelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            exportExcelButton.BackColor = System.Drawing.Color.FromArgb(255, 193, 7);
+            exportExcelButton.ForeColor = System.Drawing.Color.White;
 
             // statusFilterComboBox
             statusFilterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -261,6 +274,7 @@
             Controls.Add(statusLabel);
             Controls.Add(searchLabel);
             Controls.Add(statusFilterComboBox);
+            Controls.Add(exportExcelButton);
             Controls.Add(lamMoiButton);
             // Controls.Add(khoaButton); // Ẩn nút khóa
             // Controls.Add(xoaButton);

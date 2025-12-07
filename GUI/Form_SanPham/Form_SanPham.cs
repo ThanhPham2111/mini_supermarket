@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.Common;
 using mini_supermarket.DTO;
+using ClosedXML.Excel;
 
 namespace mini_supermarket.GUI.Form_SanPham
 {
@@ -41,6 +42,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             toolTip.SetToolTip(themButton, "Thêm sản phẩm mới");
             toolTip.SetToolTip(suaButton, "Sửa thông tin sản phẩm đã chọn");
             toolTip.SetToolTip(lamMoiButton, "Làm mới danh sách");
+            toolTip.SetToolTip(exportExcelButton, "Xuất danh sách sản phẩm ra Excel");
             toolTip.SetToolTip(searchButton, "Tìm kiếm sản phẩm");
 
             searchButton.Click += (_, _) => ApplyFilters();
@@ -48,6 +50,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             themButton.Click += themButton_Click;
             suaButton.Click += suaButton_Click;
             lamMoiButton.Click += lamMoiButton_Click;
+            exportExcelButton.Click += ExportExcelButton_Click;
             xemChiTietButton.Click += xemChiTietButton_Click;
 
             InitializeStatusFilter();
@@ -333,6 +336,76 @@ namespace mini_supermarket.GUI.Form_SanPham
 
             return false;
         }
+
+        #region Export Excel
+
+        private void ExportExcelButton_Click(object sender, EventArgs e)
+        {
+            var sfd = new SaveFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Xuất danh sách sản phẩm",
+                FileName = $"SanPham_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                using var wb = new XLWorkbook();
+                var ws = wb.Worksheets.Add("Danh sách sản phẩm");
+
+                // Header - lấy từ các cột trong DataGridView
+                string[] headers = { "Mã sản phẩm", "Tên sản phẩm", "Đơn vị", "Giá bán", "Tên loại", "HSD", "Trạng thái" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    var cell = ws.Cell(1, i + 1);
+                    cell.Value = headers[i];
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Fill.BackgroundColor = XLColor.FromArgb(211, 211, 211);
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                }
+
+                // Lấy dữ liệu từ DataGridView (đã được filter)
+                var data = _bindingSource.DataSource as IEnumerable<SanPhamDTO> ?? new List<SanPhamDTO>();
+                int row = 2;
+                foreach (var sp in data)
+                {
+                    ws.Cell(row, 1).Value = sp.MaSanPham;
+                    ws.Cell(row, 2).Value = sp.TenSanPham ?? "";
+                    ws.Cell(row, 3).Value = sp.TenDonVi ?? "";
+                    if (sp.GiaBan.HasValue)
+                    {
+                        ws.Cell(row, 4).Value = sp.GiaBan.Value;
+                    }
+                    else
+                    {
+                        ws.Cell(row, 4).Value = "";
+                    }
+                    ws.Cell(row, 5).Value = sp.TenLoai ?? "";
+                    ws.Cell(row, 6).Value = sp.Hsd.HasValue ? sp.Hsd.Value.ToString("dd/MM/yyyy") : "";
+                    ws.Cell(row, 7).Value = sp.TrangThai ?? "";
+                    row++;
+                }
+
+                // Format bảng
+                var range = ws.Range(1, 1, row - 1, headers.Length);
+                range.Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
+                range.Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
+                ws.Columns(1, headers.Length).AdjustToContents();
+                ws.Rows(1, row - 1).AdjustToContents();
+                ws.SheetView.FreezeRows(1);
+
+                wb.SaveAs(sfd.FileName);
+                MessageBox.Show("Xuất Excel thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất file:\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #endregion
 
     }
 }
