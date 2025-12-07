@@ -5,13 +5,55 @@ namespace mini_supermarket.DTO
 {
     public class PhieuNhapDTO
     {
-        public int MaPhieuNhap { get; set; }
-        public DateTime? NgayNhap { get; set; }
-        public int MaNhaCungCap { get; set; }
-        public decimal? TongTien { get; set; }
-        public string? TrangThai { get; set; }
-        public string? LyDoHuy { get; set; }
-        public ICollection<ChiTietPhieuNhapDTO> ChiTietPhieuNhaps { get; set; } = new List<ChiTietPhieuNhapDTO>();
+        private int _maPhieuNhap;
+        private DateTime? _ngayNhap;
+        private int _maNhaCungCap;
+        private decimal? _tongTien;
+        private string? _trangThai;
+        private string? _lyDoHuy;
+        private ICollection<ChiTietPhieuNhapDTO> _chiTietPhieuNhaps = new List<ChiTietPhieuNhapDTO>();
+
+        public int MaPhieuNhap
+        {
+            get { return _maPhieuNhap; }
+            set { _maPhieuNhap = value; }
+        }
+
+        public DateTime? NgayNhap
+        {
+            get { return _ngayNhap; }
+            set { _ngayNhap = value; }
+        }
+
+        public int MaNhaCungCap
+        {
+            get { return _maNhaCungCap; }
+            set { _maNhaCungCap = value; }
+        }
+
+        public decimal? TongTien
+        {
+            get { return _tongTien; }
+            set { _tongTien = value; }
+        }
+
+        public string? TrangThai
+        {
+            get { return _trangThai; }
+            set { _trangThai = value; }
+        }
+
+        public string? LyDoHuy
+        {
+            get { return _lyDoHuy; }
+            set { _lyDoHuy = value; }
+        }
+
+        public ICollection<ChiTietPhieuNhapDTO> ChiTietPhieuNhaps
+        {
+            get { return _chiTietPhieuNhaps; }
+            set { _chiTietPhieuNhaps = value; }
+        }
 
         public PhieuNhapDTO()
         {
@@ -24,11 +66,11 @@ namespace mini_supermarket.DTO
             decimal? tongTien,
             string? trangThai = null)
         {
-            MaPhieuNhap = maPhieuNhap;
-            NgayNhap = ngayNhap;
-            MaNhaCungCap = maNhaCungCap;
-            TongTien = tongTien;
-            TrangThai = trangThai;
+            _maPhieuNhap = maPhieuNhap;
+            _ngayNhap = ngayNhap;
+            _maNhaCungCap = maNhaCungCap;
+            _tongTien = tongTien;
+            _trangThai = trangThai;
         }
     }
 }

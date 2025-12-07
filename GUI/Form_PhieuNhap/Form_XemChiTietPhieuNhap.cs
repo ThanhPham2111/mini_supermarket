@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
+using ClosedXML.Excel;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
 
@@ -216,7 +217,7 @@ namespace mini_supermarket.GUI.PhieuNhap
 
             AddPair("Mã phiếu:", lblMaPhieuNhap, 0, 0);
             AddPair("Ngày nhập:", lblNgayNhap, 0, 2);
-            AddPair("Nhà cung cấp:", lblNhaCungCap, 1, 0);
+            AddPair("NCC:", lblNhaCungCap, 1, 0);
             tblInfo.SetColumnSpan(lblNhaCungCap, 3);
         }
 
@@ -448,204 +449,131 @@ namespace mini_supermarket.GUI.PhieuNhap
             buttonPanel.Controls.Add(btnExportExcel);
         }
 
+
+
         private void BtnExportExcel_Click(object? sender, EventArgs e)
         {
+            // Kiểm tra dữ liệu
+            if (phieuNhap == null || dgvProducts.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Khởi tạo SaveFileDialog
+            using var sfd = new SaveFileDialog
+            {
+                Filter = "Excel Workbook|*.xlsx",
+                Title = "Lưu file Excel",
+                FileName = $"PhieuNhap_{phieuNhap.MaPhieuNhap:D3}.xlsx"
+            };
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
             try
             {
-                if (phieuNhap == null)
+                // Kiểm tra file đã tồn tại, đóng nếu đang mở
+                if (File.Exists(sfd.FileName))
                 {
-                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    try { File.Delete(sfd.FileName); }
+                    catch { /* File đang bị lock, Excel đang mở */ }
                 }
 
-                // Tạo SaveFileDialog
-                using (SaveFileDialog saveDialog = new SaveFileDialog())
+                // Tạo workbook và worksheet
+                using var workbook = new XLWorkbook();
+                var ws = workbook.Worksheets.Add("ChiTietPhieuNhap");
+
+                // Ghi thông tin phiếu nhập
+                int row = 1;
+                void WriteInfo(string label, string value)
                 {
-                    saveDialog.Filter = "Excel Files (*.xls)|*.xls|CSV Files (*.csv)|*.csv";
-                    saveDialog.DefaultExt = "xls";
-                    saveDialog.FileName = $"PhieuNhap_{lblMaPhieuNhap.Text}_{DateTime.Now:yyyyMMdd_HHmmss}";
-                    saveDialog.Title = "Xuất phiếu nhập";
+                    ws.Cell(row, 1).Value = label;
+                    ws.Cell(row, 2).Value = value;
+                    row++;
+                }
+                ws.Cell(row++, 1).Value = "CHI TIẾT PHIẾU NHẬP";
+                WriteInfo("Mã phiếu", $"PN{phieuNhap.MaPhieuNhap:D3}");
+                WriteInfo("Ngày nhập", phieuNhap.NgayNhap?.ToString("dd/MM/yyyy HH:mm") ?? "N/A");
+                WriteInfo("NCC", lblNhaCungCap.Text);
+                row++; // dòng trống
 
-                    if (saveDialog.ShowDialog() == DialogResult.OK)
+                // Header sản phẩm
+                string[] headers = { "Tên sản phẩm", "Đơn vị", "Số lượng", "Đơn giá (VNĐ)", "Thành tiền (VNĐ)" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    var cell = ws.Cell(row, i + 1);
+                    cell.Value = headers[i];
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 120, 215);
+                    cell.Style.Font.FontColor = XLColor.White;
+                }
+                row++;
+
+                // Ghi dữ liệu sản phẩm
+                decimal totalSum = 0;
+                foreach (DataGridViewRow dgRow in dgvProducts.Rows)
+                {
+                    if (dgRow.IsNewRow) continue;
+                    ws.Cell(row, 1).Value = dgRow.Cells["TenSanPham"].Value?.ToString() ?? "";
+                    ws.Cell(row, 2).Value = dgRow.Cells["DonVi"].Value?.ToString() ?? "";
+                    var soLuong = Convert.ToDecimal(dgRow.Cells["SoLuong"].Value ?? 0);
+                    var donGia = Convert.ToDecimal(dgRow.Cells["DonGia"].Value ?? 0);
+                    var thanhTien = Convert.ToDecimal(dgRow.Cells["ThanhTien"].Value ?? 0);
+                    totalSum += thanhTien;
+                    ws.Cell(row, 3).Value = soLuong;
+                    ws.Cell(row, 4).Value = donGia;
+                    ws.Cell(row, 5).Value = thanhTien;
+                    ws.Cell(row, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0";
+                    ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
+                    row++;
+                }
+
+                // Dòng tổng
+                row++;
+                ws.Cell(row, 4).Value = "Tổng tiền";
+                ws.Cell(row, 5).Value = totalSum;
+                ws.Cell(row, 4).Style.Font.Bold = true;
+                ws.Cell(row, 5).Style.Font.Bold = true;
+                ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
+                ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                ws.Cell(row, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                // Tự động điều chỉnh cột
+                ws.Columns().AdjustToContents();
+                workbook.SaveAs(sfd.FileName);
+
+                DialogResult result = MessageBox.Show("Xuất Excel thành công! Mở file vừa xuất?", "Mở file vừa xuất?", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (result == DialogResult.Yes)
+                {
+                    try
                     {
-                        string extension = Path.GetExtension(saveDialog.FileName).ToLower();
-                        
-                        if (extension == ".csv")
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
                         {
-                            ExportToCSV(saveDialog.FileName);
-                        }
-                        else if (extension == ".xls")
-                        {
-                            ExportToExcel(saveDialog.FileName);
-                        }
-                        else
-                        {
-                            ExportToExcel(saveDialog.FileName);
-                        }
-
-                        MessageBox.Show("Xuất file thành công!", "Thành công", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        
-                        // Mở file sau khi xuất
-                        if (MessageBox.Show("Bạn có muốn mở file vừa xuất?", "Xác nhận", 
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        {
-                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = saveDialog.FileName,
-                                UseShellExecute = true
-                            });
-                        }
+                            FileName = sfd.FileName,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Không thể mở file: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Lỗi: File Excel đang được mở. Vui lòng đóng file rồi thử lại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Lỗi: File đang được sử dụng. {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi xuất file: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi xuất Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ExportToCSV(string filePath)
-        {
-            using (StreamWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
-            {
-                // Header thông tin phiếu nhập
-                writer.WriteLine("CHI TIẾT PHIẾU NHẬP");
-                writer.WriteLine();
-                writer.WriteLine($"Mã phiếu nhập:,{lblMaPhieuNhap.Text}");
-                writer.WriteLine($"Ngày nhập:,{lblNgayNhap.Text}");
-                writer.WriteLine($"Nhà cung cấp:,{lblNhaCungCap.Text}");
-                writer.WriteLine();
-                
-                // Header bảng sản phẩm
-                writer.WriteLine("STT,Sản phẩm,Đơn vị,Số lượng,Đơn giá nhập,Thành tiền");
-                
-                // Dữ liệu sản phẩm
-                int stt = 1;
-                foreach (DataGridViewRow row in dgvProducts.Rows)
-                {
-                    if (row.IsNewRow) continue;
-                    
-                    writer.WriteLine($"{stt}," +
-                        $"\"{row.Cells["TenSanPham"].Value}\"," +
-                        $"{row.Cells["DonVi"].Value}," +
-                        $"{row.Cells["SoLuong"].Value}," +
-                        $"{row.Cells["DonGia"].Value}," +
-                        $"{row.Cells["ThanhTien"].Value}");
-                    stt++;
-                }
-                
-                writer.WriteLine();
-                writer.WriteLine($",,,,Tổng tiền:,{lblTongTien.Text}");
-            }
-        }
-
-        private void ExportToExcel(string filePath)
-        {
-            // Tạo file Excel bằng HTML format với Excel XML
-            using (StreamWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
-            {
-                // HTML header cho Excel
-                writer.WriteLine("<html xmlns:o=\"urn:schemas-microsoft-com:office:office\"");
-                writer.WriteLine(" xmlns:x=\"urn:schemas-microsoft-com:office:excel\"");
-                writer.WriteLine(" xmlns=\"http://www.w3.org/TR/REC-html40\">");
-                writer.WriteLine("<head>");
-                writer.WriteLine("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>");
-                writer.WriteLine("<!--[if gte mso 9]>");
-                writer.WriteLine("<xml>");
-                writer.WriteLine("<x:ExcelWorkbook>");
-                writer.WriteLine("<x:ExcelWorksheets>");
-                writer.WriteLine("<x:ExcelWorksheet>");
-                writer.WriteLine("<x:Name>Phiếu Nhập</x:Name>");
-                writer.WriteLine("<x:WorksheetOptions>");
-                writer.WriteLine("<x:Print>");
-                writer.WriteLine("<x:ValidPrinterInfo/>");
-                writer.WriteLine("</x:Print>");
-                writer.WriteLine("</x:WorksheetOptions>");
-                writer.WriteLine("</x:ExcelWorksheet>");
-                writer.WriteLine("</x:ExcelWorksheets>");
-                writer.WriteLine("</x:ExcelWorkbook>");
-                writer.WriteLine("</xml>");
-                writer.WriteLine("<![endif]-->");
-                writer.WriteLine("<style>");
-                writer.WriteLine("table { border-collapse: collapse; width: 100%; }");
-                writer.WriteLine("th { background-color: #2196F3; color: white; font-weight: bold; padding: 10px; text-align: center; border: 1px solid #ddd; }");
-                writer.WriteLine("td { padding: 8px; border: 1px solid #ddd; }");
-                writer.WriteLine(".title { font-size: 18pt; font-weight: bold; text-align: center; padding: 20px; }");
-                writer.WriteLine(".info { font-weight: bold; background-color: #f5f5f5; }");
-                writer.WriteLine(".number { text-align: right; }");
-                writer.WriteLine(".center { text-align: center; }");
-                writer.WriteLine(".total { background-color: #E8F5E9; font-weight: bold; font-size: 14pt; color: #4CAF50; }");
-                writer.WriteLine("</style>");
-                writer.WriteLine("</head>");
-                writer.WriteLine("<body>");
-                
-                // Title
-                writer.WriteLine("<div class='title'>CHI TIẾT PHIẾU NHẬP</div>");
-                writer.WriteLine("<br/>");
-                
-                // Thông tin phiếu nhập
-                writer.WriteLine("<table style='width: 50%; border: none;'>");
-                writer.WriteLine("<tr>");
-                writer.WriteLine("<td class='info' style='width: 30%;'>Mã phiếu nhập:</td>");
-                writer.WriteLine($"<td>{System.Security.SecurityElement.Escape(lblMaPhieuNhap.Text)}</td>");
-                writer.WriteLine("</tr>");
-                writer.WriteLine("<tr>");
-                writer.WriteLine("<td class='info'>Ngày nhập:</td>");
-                writer.WriteLine($"<td>{System.Security.SecurityElement.Escape(lblNgayNhap.Text)}</td>");
-                writer.WriteLine("</tr>");
-                writer.WriteLine("<tr>");
-                writer.WriteLine("<td class='info'>Nhà cung cấp:</td>");
-                writer.WriteLine($"<td>{System.Security.SecurityElement.Escape(lblNhaCungCap.Text)}</td>");
-                writer.WriteLine("</tr>");
-                writer.WriteLine("</table>");
-                writer.WriteLine("<br/>");
-                
-                // Bảng sản phẩm
-                writer.WriteLine("<table>");
-                writer.WriteLine("<thead>");
-                writer.WriteLine("<tr>");
-                writer.WriteLine("<th>STT</th>");
-                writer.WriteLine("<th>Sản phẩm</th>");
-                writer.WriteLine("<th>Đơn vị</th>");
-                writer.WriteLine("<th>Số lượng</th>");
-                writer.WriteLine("<th>Đơn giá nhập</th>");
-                writer.WriteLine("<th>Thành tiền</th>");
-                writer.WriteLine("</tr>");
-                writer.WriteLine("</thead>");
-                writer.WriteLine("<tbody>");
-                
-                // Dữ liệu
-                int stt = 1;
-                foreach (DataGridViewRow row in dgvProducts.Rows)
-                {
-                    if (row.IsNewRow) continue;
-                    
-                    writer.WriteLine("<tr>");
-                    writer.WriteLine($"<td class='center'>{stt}</td>");
-                    writer.WriteLine($"<td>{System.Security.SecurityElement.Escape(row.Cells["TenSanPham"].Value?.ToString() ?? "")}</td>");
-                    writer.WriteLine($"<td class='center'>{System.Security.SecurityElement.Escape(row.Cells["DonVi"].Value?.ToString() ?? "")}</td>");
-                    writer.WriteLine($"<td class='center'>{row.Cells["SoLuong"].Value}</td>");
-                    writer.WriteLine($"<td class='number'>{Convert.ToDecimal(row.Cells["DonGia"].Value):N0}</td>");
-                    writer.WriteLine($"<td class='number'>{Convert.ToDecimal(row.Cells["ThanhTien"].Value):N0}</td>");
-                    writer.WriteLine("</tr>");
-                    stt++;
-                }
-                
-                // Tổng tiền
-                writer.WriteLine("<tr>");
-                writer.WriteLine("<td colspan='5' class='total' style='text-align: right;'>Tổng tiền:</td>");
-                writer.WriteLine($"<td class='total number'>{lblTongTien.Text}</td>");
-                writer.WriteLine("</tr>");
-                
-                writer.WriteLine("</tbody>");
-                writer.WriteLine("</table>");
-                
-                writer.WriteLine("</body>");
-                writer.WriteLine("</html>");
-            }
-        }
+       
     }
 }
