@@ -267,8 +267,8 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Text = "🔍 Tìm kiếm:",
                 Location = new Point(20, 25),
-                Size = new Size(100, 30),
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 ForeColor = textPrimaryColor,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -277,8 +277,8 @@ namespace mini_supermarket.GUI.PhieuNhap
             // TextBox tìm kiếm
             TextBox txtSearch = new TextBox
             {
-                Location = new Point(125, 20),
-                Size = new Size(300, 35),
+                Location = new Point(130, 20),
+                Size = new Size(280, 35),
                 Font = new Font("Segoe UI", 11),
                 BorderStyle = BorderStyle.FixedSingle,
                 PlaceholderText = "Nhập tên sản phẩm, thương hiệu, loại..."
@@ -292,7 +292,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnSearch = new Button
             {
                 Text = "Tìm kiếm",
-                Location = new Point(435, 20),
+                Location = new Point(420, 20),
                 Size = new Size(100, 35),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 BackColor = primaryColor,
@@ -307,7 +307,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnReset = new Button
             {
                 Text = "Reset",
-                Location = new Point(545, 20),
+                Location = new Point(530, 20),
                 Size = new Size(80, 35),
                 Font = new Font("Segoe UI", 10),
                 BackColor = Color.FromArgb(158, 158, 158),
@@ -514,7 +514,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnSelect = new Button
             {
                 Text = "Chọn sản phẩm",
-                Location = new Point(610, 570),
+                Location = new Point(610, 560),
                 Size = new Size(150, 40),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 BackColor = primaryColor,
@@ -552,7 +552,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnCancelPopup = new Button
             {
                 Text = "Hủy",
-                Location = new Point(770, 570),
+                Location = new Point(770, 560),
                 Size = new Size(90, 40),
                 Font = new Font("Segoe UI", 11),
                 BackColor = Color.FromArgb(158, 158, 158),
@@ -650,18 +650,26 @@ namespace mini_supermarket.GUI.PhieuNhap
                 RowCount = 2,
                 Padding = new Padding(0)
             };
-            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
             tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
             tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             
             infoSectionPanel.Controls.Add(tblInfo);
 
             // Row 1: Ngày nhập & Nhà cung cấp
-            Label lblNgayNhap = new Label { Text = "Ngày nhập:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10) };
-            dtpNgayNhap = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10) };
+            Label lblNgayNhap = new Label { Text = "Ngày nhập:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 9f) };
+            dtpNgayNhap = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10), MinDate = DateTime.Today };
+            dtpNgayNhap.ValueChanged += (s, e) =>
+            {
+                if (dtpNgayNhap.Value.Date < DateTime.Today)
+                {
+                    MessageBox.Show("Ngày nhập không được ở quá khứ!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    dtpNgayNhap.Value = DateTime.Today;
+                }
+            };
 
-            Label lblNhaCungCap = new Label { Text = "Nhà cung cấp:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10) };
+            Label lblNhaCungCap = new Label { Text = "NCC:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 9f) };
             cboNhaCungCap = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
 
             tblInfo.Controls.Add(lblNgayNhap, 0, 0);
@@ -681,7 +689,19 @@ namespace mini_supermarket.GUI.PhieuNhap
             };
             mainPanel.Controls.Add(footerPanel);
 
-            // Total Label
+            // Total Label Text
+            Label lblTotalText = new Label
+            {
+                Text = "Tổng tiền:",
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(0, 15, 15, 0)
+            };
+            footerPanel.Controls.Add(lblTotalText);
+
+            // Total Amount
             lblTongTien = new Label
             {
                 Text = "0 đ",
@@ -690,20 +710,9 @@ namespace mini_supermarket.GUI.PhieuNhap
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 ForeColor = Color.Red,
                 TextAlign = ContentAlignment.MiddleRight,
-                Padding = new Padding(0, 10, 0, 0)
+                Padding = new Padding(0, 10, 10, 0)
             };
             footerPanel.Controls.Add(lblTongTien);
-
-            Label lblTotalText = new Label
-            {
-                Text = "Tổng tiền:",
-                Dock = DockStyle.Right,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                TextAlign = ContentAlignment.MiddleRight,
-                Padding = new Padding(0, 15, 10, 0)
-            };
-            footerPanel.Controls.Add(lblTotalText);
 
             // Buttons
             FlowLayoutPanel flowButtons = new FlowLayoutPanel
