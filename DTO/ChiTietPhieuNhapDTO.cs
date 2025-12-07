@@ -2,12 +2,48 @@
 {
     public class ChiTietPhieuNhapDTO
     {
-        public int MaChiTietPhieuNhap { get; set; }
-        public int MaSanPham { get; set; }
-        public int MaPhieuNhap { get; set; }
-        public int SoLuong { get; set; }
-        public decimal DonGiaNhap { get; set; }
-        public decimal ThanhTien { get; set; }
+        private int _maChiTietPhieuNhap;
+        private int _maSanPham;
+        private int _maPhieuNhap;
+        private int _soLuong;
+        private decimal _donGiaNhap;
+        private decimal _thanhTien;
+
+        public int MaChiTietPhieuNhap
+        {
+            get { return _maChiTietPhieuNhap; }
+            set { _maChiTietPhieuNhap = value; }
+        }
+
+        public int MaSanPham
+        {
+            get { return _maSanPham; }
+            set { _maSanPham = value; }
+        }
+
+        public int MaPhieuNhap
+        {
+            get { return _maPhieuNhap; }
+            set { _maPhieuNhap = value; }
+        }
+
+        public int SoLuong
+        {
+            get { return _soLuong; }
+            set { _soLuong = value; }
+        }
+
+        public decimal DonGiaNhap
+        {
+            get { return _donGiaNhap; }
+            set { _donGiaNhap = value; }
+        }
+
+        public decimal ThanhTien
+        {
+            get { return _thanhTien; }
+            set { _thanhTien = value; }
+        }
 
         public ChiTietPhieuNhapDTO()
         {
@@ -21,12 +57,12 @@
             decimal donGiaNhap,
             decimal thanhTien)
         {
-            MaChiTietPhieuNhap = maChiTietPhieuNhap;
-            MaSanPham = maSanPham;
-            MaPhieuNhap = maPhieuNhap;
-            SoLuong = soLuong;
-            DonGiaNhap = donGiaNhap;
-            ThanhTien = thanhTien;
+            _maChiTietPhieuNhap = maChiTietPhieuNhap;
+            _maSanPham = maSanPham;
+            _maPhieuNhap = maPhieuNhap;
+            _soLuong = soLuong;
+            _donGiaNhap = donGiaNhap;
+            _thanhTien = thanhTien;
         }
     }
 }

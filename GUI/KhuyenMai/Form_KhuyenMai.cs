@@ -62,7 +62,7 @@ namespace mini_supermarket.GUI.KhuyenMai
             mainPanel = new Panel
             {
                 Location = new Point(0, 0),
-                Size = new Size(1280, 820),
+                Size = new Size(1200, 820),
                 BackColor = Color.White,
                 Padding = new Padding(20)
             };
@@ -73,7 +73,7 @@ namespace mini_supermarket.GUI.KhuyenMai
             {
                 Text = "Danh sách Khuyến mãi",
                 Location = new Point(20, 10),
-                Size = new Size(500, 40),
+                Size = new Size(400, 40),
                 Font = new Font("Segoe UI", 18, FontStyle.Bold),
                 ForeColor = Color.FromArgb(33, 37, 41)
             };
@@ -81,7 +81,7 @@ namespace mini_supermarket.GUI.KhuyenMai
 
 
             // Filter and search controls 
-            var lblFilter = CreateLabel("Sản phẩm:", new Point(460, 30), new Size(70, 22));
+            var lblFilter = CreateLabel("Sản phẩm:", new Point(450, 30), new Size(70, 22));
             mainPanel.Controls.Add(lblFilter);
 
             cboFilterProduct = new ComboBox { Location = new Point(530, 28), Size = new Size(220, 24), DropDownStyle = ComboBoxStyle.DropDownList };
@@ -174,7 +174,7 @@ namespace mini_supermarket.GUI.KhuyenMai
             dgv = new DataGridView
             {
                 Location = new Point(450, 60),
-                Size = new Size(750, 680),
+                Size = new Size(700, 680),
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,

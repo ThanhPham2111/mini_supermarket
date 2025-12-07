@@ -4,13 +4,55 @@ namespace mini_supermarket.DTO
 {
     public class KhuyenMaiDTO
     {
-        public int MaKhuyenMai { get; set; }
-        public int MaSanPham { get; set; }
-        public string? TenKhuyenMai { get; set; }
-        public decimal? PhanTramGiamGia { get; set; }
-        public DateTime? NgayBatDau { get; set; }
-        public DateTime? NgayKetThuc { get; set; }
-        public string? MoTa { get; set; }
+        private int _maKhuyenMai;
+        private int _maSanPham;
+        private string? _tenKhuyenMai;
+        private decimal? _phanTramGiamGia;
+        private DateTime? _ngayBatDau;
+        private DateTime? _ngayKetThuc;
+        private string? _moTa;
+
+        public int MaKhuyenMai
+        {
+            get { return _maKhuyenMai; }
+            set { _maKhuyenMai = value; }
+        }
+
+        public int MaSanPham
+        {
+            get { return _maSanPham; }
+            set { _maSanPham = value; }
+        }
+
+        public string? TenKhuyenMai
+        {
+            get { return _tenKhuyenMai; }
+            set { _tenKhuyenMai = value; }
+        }
+
+        public decimal? PhanTramGiamGia
+        {
+            get { return _phanTramGiamGia; }
+            set { _phanTramGiamGia = value; }
+        }
+
+        public DateTime? NgayBatDau
+        {
+            get { return _ngayBatDau; }
+            set { _ngayBatDau = value; }
+        }
+
+        public DateTime? NgayKetThuc
+        {
+            get { return _ngayKetThuc; }
+            set { _ngayKetThuc = value; }
+        }
+
+        public string? MoTa
+        {
+            get { return _moTa; }
+            set { _moTa = value; }
+        }
 
         public KhuyenMaiDTO()
         {
@@ -25,13 +67,13 @@ namespace mini_supermarket.DTO
             DateTime? ngayKetThuc,
             string? moTa)
         {
-            MaKhuyenMai = maKhuyenMai;
-            MaSanPham = maSanPham;
-            TenKhuyenMai = tenKhuyenMai;
-            PhanTramGiamGia = phanTramGiamGia;
-            NgayBatDau = ngayBatDau;
-            NgayKetThuc = ngayKetThuc;
-            MoTa = moTa;
+            _maKhuyenMai = maKhuyenMai;
+            _maSanPham = maSanPham;
+            _tenKhuyenMai = tenKhuyenMai;
+            _phanTramGiamGia = phanTramGiamGia;
+            _ngayBatDau = ngayBatDau;
+            _ngayKetThuc = ngayKetThuc;
+            _moTa = moTa;
         }
     }
 }
