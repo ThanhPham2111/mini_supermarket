@@ -4,23 +4,23 @@ namespace mini_supermarket.DTO
 {
     public class SanPhamDTO
     {
-        public int MaSanPham { get; set; }
-        public string TenSanPham { get; set; } = string.Empty;
-        public int MaDonVi { get; set; }
-        public string? TenDonVi { get; set; }
-        public int MaThuongHieu { get; set; }
-        public int MaLoai { get; set; }
-        public string? MoTa { get; set; }
-        public decimal? GiaBan { get; set; }
-        public string? HinhAnh { get; set; }
-        public string? XuatXu { get; set; }
-        public DateTime? Hsd { get; set; }
-        public string? TrangThai { get; set; }
-        public string? TenLoai { get; set; }
-        public string? TenThuongHieu { get; set; }
-        public int? SoLuong { get; set; }  // Số lượng tồn kho
-        public decimal? PhanTramGiam { get; set; } // Phần trăm giảm giá
-        public string? KhuyenMai { get; set; } // Tên khuyến mãi
+        private int _maSanPham;
+        private string _tenSanPham = string.Empty;
+        private int _maDonVi;
+        private string? _tenDonVi;
+        private int _maThuongHieu;
+        private int _maLoai;
+        private string? _moTa;
+        private decimal? _giaBan;
+        private string? _hinhAnh;
+        private string? _xuatXu;
+        private DateTime? _hsd;
+        private string? _trangThai;
+        private string? _tenLoai;
+        private string? _tenThuongHieu;
+        private int? _soLuong;
+        private decimal? _phanTramGiam;
+        private string? _khuyenMai;
 
         public SanPhamDTO()
         {
@@ -41,25 +41,129 @@ namespace mini_supermarket.DTO
             string? trangThai,
             string? tenLoai,
             string? tenThuongHieu,
+            int? soLuong,
             decimal? phanTramGiam,
             string? khuyenMai)
         {
-            MaSanPham = maSanPham;
-            TenSanPham = tenSanPham;
-            MaDonVi = maDonVi;
-            TenDonVi = tenDonVi;
-            MaThuongHieu = maThuongHieu;
-            MaLoai = maLoai;
-            MoTa = moTa;
-            GiaBan = giaBan;
-            HinhAnh = hinhAnh;
-            XuatXu = xuatXu;
-            Hsd = hsd;
-            TrangThai = trangThai;
-            TenLoai = tenLoai;
-            TenThuongHieu = tenThuongHieu;
-            PhanTramGiam = phanTramGiam;
-            KhuyenMai = khuyenMai;
+            _maSanPham = maSanPham;
+            _tenSanPham = tenSanPham;
+            _maDonVi = maDonVi;
+            _tenDonVi = tenDonVi;
+            _maThuongHieu = maThuongHieu;
+            _maLoai = maLoai;
+            _moTa = moTa;
+            _giaBan = giaBan;
+            _hinhAnh = hinhAnh;
+            _xuatXu = xuatXu;
+            _hsd = hsd;
+            _trangThai = trangThai;
+            _tenLoai = tenLoai;
+            _tenThuongHieu = tenThuongHieu;
+            _soLuong = soLuong;
+            _phanTramGiam = phanTramGiam;
+            _khuyenMai = khuyenMai;
+        }
+
+        public int MaSanPham
+        {
+            get { return _maSanPham; }
+            set { _maSanPham = value; }
+        }
+
+        public string TenSanPham
+        {
+            get { return _tenSanPham; }
+            set { _tenSanPham = value; }
+        }
+
+        public int MaDonVi
+        {
+            get { return _maDonVi; }
+            set { _maDonVi = value; }
+        }
+
+        public string? TenDonVi
+        {
+            get { return _tenDonVi; }
+            set { _tenDonVi = value; }
+        }
+
+        public int MaThuongHieu
+        {
+            get { return _maThuongHieu; }
+            set { _maThuongHieu = value; }
+        }
+
+        public int MaLoai
+        {
+            get { return _maLoai; }
+            set { _maLoai = value; }
+        }
+
+        public string? MoTa
+        {
+            get { return _moTa; }
+            set { _moTa = value; }
+        }
+
+        public decimal? GiaBan
+        {
+            get { return _giaBan; }
+            set { _giaBan = value; }
+        }
+
+        public string? HinhAnh
+        {
+            get { return _hinhAnh; }
+            set { _hinhAnh = value; }
+        }
+
+        public string? XuatXu
+        {
+            get { return _xuatXu; }
+            set { _xuatXu = value; }
+        }
+
+        public DateTime? Hsd
+        {
+            get { return _hsd; }
+            set { _hsd = value; }
+        }
+
+        public string? TrangThai
+        {
+            get { return _trangThai; }
+            set { _trangThai = value; }
+        }
+
+        public string? TenLoai
+        {
+            get { return _tenLoai; }
+            set { _tenLoai = value; }
+        }
+
+        public string? TenThuongHieu
+        {
+            get { return _tenThuongHieu; }
+            set { _tenThuongHieu = value; }
+        }
+
+        public int? SoLuong
+        {
+            get { return _soLuong; }
+            set { _soLuong = value; }
+        }
+
+        public decimal? PhanTramGiam
+        {
+            get { return _phanTramGiam; }
+            set { _phanTramGiam = value; }
+        }
+
+        public string? KhuyenMai
+        {
+            get { return _khuyenMai; }
+            set { _khuyenMai = value; }
         }
     }
 }
