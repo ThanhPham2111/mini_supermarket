@@ -8,6 +8,8 @@ namespace mini_supermarket.GUI.QuanLy
     public partial class UC_QuyDoiDiem : UserControl
     {
         private QuyDoiDiem_BUS _quyDoiDiemBus;
+        private int _currentSoDiem;
+        private decimal _currentSoTien;
 
         // Controls
         private Label lblTitle;
@@ -184,14 +186,18 @@ namespace mini_supermarket.GUI.QuanLy
                 var cauHinh = _quyDoiDiemBus.GetCauHinh();
                 if (cauHinh != null)
                 {
-                    nudSoDiem.Value = cauHinh.SoDiem;
-                    nudSoTien.Value = cauHinh.SoTienTuongUng;
+                    _currentSoDiem = cauHinh.SoDiem;
+                    _currentSoTien = cauHinh.SoTienTuongUng;
+                    nudSoDiem.Value = _currentSoDiem;
+                    nudSoTien.Value = _currentSoTien;
                 }
                 else
                 {
                     // Giá trị mặc định: 100 điểm = 100 đồng
-                    nudSoDiem.Value = 100;
-                    nudSoTien.Value = 100;
+                    _currentSoDiem = 100;
+                    _currentSoTien = 100;
+                    nudSoDiem.Value = _currentSoDiem;
+                    nudSoTien.Value = _currentSoTien;
                 }
                 UpdateThongTin();
             }
@@ -261,13 +267,23 @@ namespace mini_supermarket.GUI.QuanLy
                 );
 
                 if (result != DialogResult.Yes)
+                {
+                    // Khôi phục giá trị cũ khi người dùng không xác nhận
+                    nudSoDiem.Value = _currentSoDiem;
+                    nudSoTien.Value = _currentSoTien;
+                    UpdateThongTin();
                     return;
+                }
 
                 // Lấy mã nhân viên (tạm thời dùng 1, sau này lấy từ session)
                 int maNhanVien = 1;
 
                 // Cập nhật cấu hình
                 _quyDoiDiemBus.UpdateCauHinh(soDiem, soTien, maNhanVien);
+
+                // Lưu lại cấu hình hiện tại sau khi cập nhật thành công
+                _currentSoDiem = soDiem;
+                _currentSoTien = soTien;
 
                 MessageBox.Show(
                     $"Cập nhật cấu hình quy đổi điểm thành công!\n\n" +

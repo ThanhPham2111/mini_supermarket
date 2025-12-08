@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Globalization;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
@@ -119,14 +120,19 @@ namespace mini_supermarket.GUI.QuanLy
         {
             dgvTheoSanPham = CreateDataGridView();
             dgvTheoSanPham.Columns.Add("MaSanPham", "Mã SP");
+            dgvTheoSanPham.Columns["MaSanPham"].ReadOnly = true; // Khóa mã sản phẩm
             dgvTheoSanPham.Columns.Add("TenSanPham", "Tên sản phẩm");
+            dgvTheoSanPham.Columns["TenSanPham"].ReadOnly = true; // Khóa tên sản phẩm
             dgvTheoSanPham.Columns.Add("GiaNhap", "Giá nhập");
             dgvTheoSanPham.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
+            dgvTheoSanPham.Columns["GiaNhap"].ReadOnly = true; // Không cho sửa giá nhập trực tiếp
             dgvTheoSanPham.Columns.Add("PhanTramLoiNhuan", "% Lợi nhuận");
             dgvTheoSanPham.Columns["PhanTramLoiNhuan"].DefaultCellStyle.Format = "N2";
             dgvTheoSanPham.Columns.Add("GiaBan", "Giá bán");
             dgvTheoSanPham.Columns["GiaBan"].DefaultCellStyle.Format = "N0";
+            dgvTheoSanPham.Columns["GiaBan"].ReadOnly = true; // Giá bán chỉ hiển thị, tính từ giá nhập + %
             dgvTheoSanPham.CellEndEdit += (s, e) => DgvTheoSanPham_CellEndEdit(s, e);
+            dgvTheoSanPham.EditingControlShowing += DgvTheoSanPham_EditingControlShowing;
             tabTheoSanPham.Controls.Add(dgvTheoSanPham);
         }
 
@@ -382,6 +388,12 @@ namespace mini_supermarket.GUI.QuanLy
                     else if (e.ColumnIndex == 3) // Cột PhanTramLoiNhuan
                     {
                         decimal phanTram = Convert.ToDecimal(dgvTheoSanPham.Rows[e.RowIndex].Cells[3].Value);
+                        if (phanTram < 0)
+                        {
+                            MessageBox.Show("Phần trăm lợi nhuận phải >= 0", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            dgvTheoSanPham.Rows[e.RowIndex].Cells[3].Value = 0m;
+                            return;
+                        }
                         decimal giaNhap = Convert.ToDecimal(dgvTheoSanPham.Rows[e.RowIndex].Cells[2].Value);
                         // Tính giá bán mới từ giá nhập và % lợi nhuận (làm tròn đến 2 chữ số thập phân)
                         decimal giaBan = Math.Round(giaNhap * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
@@ -424,6 +436,33 @@ namespace mini_supermarket.GUI.QuanLy
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     LoadTabTheoSanPham();
                 }
+            }
+        }
+
+        private void DgvTheoSanPham_EditingControlShowing(object? sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (dgvTheoSanPham.CurrentCell.ColumnIndex != 3) return; // Chỉ áp dụng cho cột % lợi nhuận
+
+            if (e.Control is TextBox tb)
+            {
+                tb.KeyPress -= PercentColumn_KeyPress; // Tránh gắn nhiều lần
+                tb.KeyPress += PercentColumn_KeyPress;
+            }
+        }
+
+        private void PercentColumn_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            char decimalSeparator = Convert.ToChar(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+
+            // Cho phép phím điều khiển
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            // Chỉ cho phép số và 1 dấu thập phân, không cho âm
+            if (!char.IsDigit(e.KeyChar) &&
+                !(e.KeyChar == decimalSeparator && sender is TextBox tb && !tb.Text.Contains(decimalSeparator)))
+            {
+                e.Handled = true;
             }
         }
 
