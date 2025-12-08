@@ -19,32 +19,11 @@ namespace mini_supermarket.GUI.KhachHang
 
         private readonly KhachHang_BUS _khachHangBus = new();
         private readonly BindingSource _bindingSource = new();
-        //khi load dữ liệu sẽ cập nhật 2 chiều (thêm sửa xoá sẽ cập nhật vô UI mà không cần load lại trang)
-        //nếu không dùng binding source thì phải load lại trang để cập nhật UI
-        //binding source là lớp trung gian giữa DataGridView và dữ liệu
-        //cho phép filter, sort, search mà không cần query lại database
-        //tự động cập nhật DataGridView khi dữ liệu thay đổi
-        //ví dụ: khi thêm khách hàng mới, binding source sẽ tự động cập nhật DataGridView
-        //và không cần load lại trang
-        //ví dụ: khi sửa khách hàng, binding source sẽ tự động cập nhật DataGridView
-        //và không cần load lại trang
-        //ví dụ: khi xoá khách hàng, binding source sẽ tự động cập nhật DataGridView
-        //và không cần load lại trang
-        //bindingsource vs thằng list
         
         private readonly PermissionService _permissionService = new();
         // private readonly List<string> _roles;
         private readonly List<string> _statuses;
         private BindingList<KhachHangDTO> _currentKhachHang = new();//lưu dữ liệu ở trên RAM, để load nhanh hơn
-        //thằng này sẽ được cập nhật khi có thay đổi trên database
-        //và sẽ được gửi vào binding source để tự động cập nhật DataGridView
-        //và không cần load lại trang
-        //ví dụ: khi thêm khách hàng mới, binding source sẽ tự động cập nhật DataGridView
-        //và không cần load lại trang
-        //ví dụ: khi sửa khách hàng, binding source sẽ tự động cập nhật DataGridView
-        //và không cần load lại trang
-        //ví dụ: khi xoá khách hàng, binding source sẽ tự động cập nhật DataGridView
-//bidinglist vs list vs datatable
 
         public Form_KhachHang()
         {
@@ -293,7 +272,7 @@ namespace mini_supermarket.GUI.KhachHang
             }
             else
             {
-                ApplyStatusFilter();
+                // ApplyStatusFilter();
             }
             _bindingSource.DataSource = _currentKhachHang;
             // LoadKhachHangData();

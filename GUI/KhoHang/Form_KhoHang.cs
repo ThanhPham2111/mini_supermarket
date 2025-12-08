@@ -400,7 +400,7 @@ namespace mini_supermarket.GUI.KhoHang
             {
                 try
                 {
-                    khoHangBUS.XuatDanhSachTonKhoRaExcel(list, saveFileDialog.FileName);
+                    XuatExcelTheoDataGridView(list, saveFileDialog.FileName);
                     MessageBox.Show("Xuất file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // Hỏi có muốn mở file không
@@ -410,10 +410,89 @@ namespace mini_supermarket.GUI.KhoHang
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(saveFileDialog.FileName) { UseShellExecute = true });
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Có lỗi xảy ra khi lưu file Excel.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Có lỗi xảy ra khi lưu file Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Xuất Excel theo đúng các cột hiển thị trong DataGridView
+        /// </summary>
+        private void XuatExcelTheoDataGridView(IList<TonKhoDTO> data, string filePath)
+        {
+            if (data == null || data.Count == 0)
+                throw new ArgumentException("Không có dữ liệu để xuất.");
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("TonKho");
+
+                // Lấy danh sách các cột hiển thị (không bao gồm cột ẩn và cột button)
+                var visibleColumns = dgvKhoHang.Columns
+                    .Cast<DataGridViewColumn>()
+                    .Where(col => col.Visible && !(col is DataGridViewButtonColumn))
+                    .OrderBy(col => col.DisplayIndex)
+                    .ToList();
+
+                // Viết header
+                int colIndex = 1;
+                foreach (var column in visibleColumns)
+                {
+                    worksheet.Cells[1, colIndex].Value = column.HeaderText;
+                    worksheet.Cells[1, colIndex].Style.Font.Bold = true;
+                    colIndex++;
+                }
+
+                // Viết dữ liệu
+                int rowIndex = 2;
+                foreach (var item in data)
+                {
+                    colIndex = 1;
+                    foreach (var column in visibleColumns)
+                    {
+                        object? value = null;
+                        
+                        // Lấy giá trị theo tên cột
+                        switch (column.Name)
+                        {
+                            case "MaSanPham":
+                                value = item.MaSanPham;
+                                break;
+                            case "TenSanPham":
+                                value = item.TenSanPham;
+                                break;
+                            case "TenDonVi":
+                                value = item.TenDonVi;
+                                break;
+                            case "TenLoai":
+                                value = item.TenLoai;
+                                break;
+                            case "TenThuongHieu":
+                                value = item.TenThuongHieu;
+                                break;
+                            case "SoLuong":
+                                value = item.SoLuong;
+                                break;
+                            case "TrangThai":
+                                value = item.TrangThai;
+                                break;
+                            case "Hsd":
+                                value = item.Hsd?.ToString("dd/MM/yyyy");
+                                break;
+                        }
+
+                        worksheet.Cells[rowIndex, colIndex].Value = value;
+                        colIndex++;
+                    }
+                    rowIndex++;
+                }
+
+                worksheet.Cells.AutoFitColumns();
+                FileInfo excelFile = new FileInfo(filePath);
+                package.SaveAs(excelFile);
             }
         }
 

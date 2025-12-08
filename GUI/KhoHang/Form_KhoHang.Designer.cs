@@ -231,9 +231,9 @@
             this.headerActions.Controls.Add(this.btnLamMoi);
             this.headerActions.Controls.Add(this.btnSua);
             this.headerActions.Controls.Add(this.btnXemLichSu);
-            this.headerActions.Controls.Add(this.btnNhapExcel);
+            // this.headerActions.Controls.Add(this.btnNhapExcel);
             this.headerActions.Controls.Add(this.btnXuatExcel);
-            this.headerActions.Controls.Add(this.btnXuatFileMau);
+            // this.headerActions.Controls.Add(this.btnXuatFileMau);
             this.headerActions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.headerActions.Location = new System.Drawing.Point(0, 0);
             this.headerActions.Name = "headerActions";
@@ -308,7 +308,7 @@
             this.btnXuatExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnXuatExcel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnXuatExcel.ForeColor = System.Drawing.Color.White;
-            this.btnXuatExcel.Location = new System.Drawing.Point(472, 8);
+            this.btnXuatExcel.Location = new System.Drawing.Point(356, 8);
             this.btnXuatExcel.Name = "btnXuatExcel";
             this.btnXuatExcel.Size = new System.Drawing.Size(110, 35);
             this.btnXuatExcel.TabIndex = 2;

@@ -93,7 +93,7 @@ namespace mini_supermarket.BUS
             if (string.IsNullOrWhiteSpace(item.SoDienThoai))
                 throw new Exception("Số điện thoại không được để trống");
 
-            if (item.SoDienThoai.Length != 10 || !item.SoDienThoai.All(char.IsDigit))
+            if (item.SoDienThoai.Length > 11 || !item.SoDienThoai.All(char.IsDigit))
                 throw new Exception("Số điện thoại không hợp lệ");
 
             if (string.IsNullOrWhiteSpace(item.Email))

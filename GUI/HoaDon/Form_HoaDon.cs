@@ -24,6 +24,8 @@ namespace mini_supermarket.GUI.HoaDon
         {
             InitializeComponent();
             Load += Form_HoaDon_Load;
+            
+            LoadHoaDonData();
         }
 
         private void Form_HoaDon_Load(object sender, EventArgs e)
@@ -62,8 +64,6 @@ namespace mini_supermarket.GUI.HoaDon
             timKiemButton.Enabled = true;
             xemChiTietButton.Enabled = false;
             lamMoiButton.Enabled = true;
-
-            LoadHoaDonData();
         }
 
         private void LoadHoaDonData()
@@ -71,8 +71,14 @@ namespace mini_supermarket.GUI.HoaDon
             try
             {
                 _hoaDonList.Clear();
-                _hoaDonList = new BindingList<HoaDonDTO>(_hoaDonBus.GetHoaDon());
-                _bindingSource.DataSource = _hoaDonList;
+                
+                // Thêm items mới vào BindingList hiện tại để giữ kết nối với BindingSource
+                var newData = _hoaDonBus.GetHoaDon();
+                foreach (var item in newData)
+                {
+                    _hoaDonList.Add(item);
+                }
+                
                 hoaDonDataGridView.ClearSelection();
             }
             catch (Exception ex)
@@ -213,7 +219,7 @@ namespace mini_supermarket.GUI.HoaDon
             if (trangThaiComboBox.SelectedIndex > 0) // Nếu không chọn "Tất cả"
             {
                 var currentData = (BindingList<HoaDonDTO>)_bindingSource.DataSource;
-                string? selectedTrangThai = trangThaiComboBox.SelectedItem?.ToString();
+                string selectedTrangThai = trangThaiComboBox.SelectedItem?.ToString();
                 
                 if (!string.IsNullOrEmpty(selectedTrangThai))
                 {
@@ -257,18 +263,18 @@ namespace mini_supermarket.GUI.HoaDon
             }
         }
 
-        private void dateTimePicker2_ValueChanged(object? sender, EventArgs e)
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
         {
             timKiemButton_Click(sender, e);
         }
 
-        private void dateTimePicker3_ValueChanged(object? sender, EventArgs e)
+        private void dateTimePicker3_ValueChanged(object sender, EventArgs e)
         {
             timKiemButton_Click(sender, e);
         }
 
 
-        private void textBox1_TextChanged(object? sender, EventArgs e)
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(textBox1.Text) && string.IsNullOrEmpty(textBox2.Text))
             {
@@ -281,7 +287,7 @@ namespace mini_supermarket.GUI.HoaDon
             }
         }
 
-        private void textBox2_TextChanged(object? sender, EventArgs e)
+        private void textBox2_TextChanged(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(textBox1.Text) && string.IsNullOrEmpty(textBox2.Text))
             {
@@ -302,7 +308,7 @@ namespace mini_supermarket.GUI.HoaDon
             dialog.ShowDialog(this);
         }
 
-        private void exportFileButton_Click(object? sender, EventArgs e)
+        private void exportFileButton_Click(object sender, EventArgs e)
         {
             // Implement export to Excel functionality here
             SaveFileDialog sfd = new SaveFileDialog
@@ -435,13 +441,13 @@ namespace mini_supermarket.GUI.HoaDon
             }
         }
 
-        private void trangThaiComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        private void trangThaiComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Gọi hàm tìm kiếm khi trạng thái thay đổi
             timKiemButton_Click(sender, e);
         }
 
-        private void hoaDonDataGridView_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        private void hoaDonDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (hoaDonDataGridView.Rows[e.RowIndex].DataBoundItem is HoaDonDTO hoaDon)
             {
@@ -461,7 +467,7 @@ namespace mini_supermarket.GUI.HoaDon
             }
         }
 
-        private void huyButton_Click(object? sender, EventArgs e){
+        private void huyButton_Click(object sender, EventArgs e){
             var selectedHoaDon = hoaDonDataGridView.SelectedRows[0].DataBoundItem as HoaDonDTO;
             if(selectedHoaDon != null){
                 var result = MessageBox.Show(this, $"Bạn có chắc chắn muốn hủy hóa đơn #{selectedHoaDon.MaHoaDon}?", "Xác nhận hủy hóa đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
