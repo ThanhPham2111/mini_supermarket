@@ -137,6 +137,37 @@ namespace mini_supermarket.DAO
             return Convert.ToInt32(result);
         }
 
+        // Kiểm tra tên nhà cung cấp đã tồn tại chưa (case-insensitive)
+        public bool IsTenNhaCungCapExists(string tenNhaCungCap, int? excludeMaNhaCungCap = null)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+
+            if (excludeMaNhaCungCap.HasValue)
+            {
+                command.CommandText = @"
+                    SELECT COUNT(1)
+                    FROM dbo.Tbl_NhaCungCap
+                    WHERE LOWER(LTRIM(RTRIM(TenNhaCungCap))) = LOWER(LTRIM(RTRIM(@TenNhaCungCap)))
+                    AND MaNhaCungCap != @ExcludeMaNhaCungCap";
+                command.Parameters.Add(new SqlParameter("@ExcludeMaNhaCungCap", SqlDbType.Int) { Value = excludeMaNhaCungCap.Value });
+            }
+            else
+            {
+                command.CommandText = @"
+                    SELECT COUNT(1)
+                    FROM dbo.Tbl_NhaCungCap
+                    WHERE LOWER(LTRIM(RTRIM(TenNhaCungCap))) = LOWER(LTRIM(RTRIM(@TenNhaCungCap)))";
+            }
+
+            command.Parameters.Add(new SqlParameter("@TenNhaCungCap", SqlDbType.NVarChar, 200) { Value = tenNhaCungCap });
+
+            connection.Open();
+            object? result = command.ExecuteScalar();
+
+            return Convert.ToInt32(result) > 0;
+        }
+
         // Thêm mới nhà cung cấp → trả về id vừa tạo
         public int InsertNhaCungCap(NhaCungCapDTO nhaCungCap)
         {

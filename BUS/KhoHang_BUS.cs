@@ -31,7 +31,48 @@ namespace mini_supermarket.BUS
         // Lấy danh sách tồn kho
         public IList<TonKhoDTO> LayDanhSachTonKho()
         {
-            return khoHangDAO.LayDanhSachTonKho();
+            var danhSach = khoHangDAO.LayDanhSachTonKho();
+            
+            // Tự động cập nhật trạng thái "Không bán" cho sản phẩm hết hạn
+            bool coCapNhat = TuDongCapNhatTrangThaiHetHan(danhSach);
+            
+            // Nếu có cập nhật, reload lại dữ liệu để lấy trạng thái mới
+            if (coCapNhat)
+            {
+                danhSach = khoHangDAO.LayDanhSachTonKho();
+            }
+            
+            return danhSach;
+        }
+
+        // Tự động cập nhật trạng thái "Không bán" cho sản phẩm hết hạn sử dụng
+        // Trả về true nếu có sản phẩm được cập nhật
+        private bool TuDongCapNhatTrangThaiHetHan(IList<TonKhoDTO> danhSach)
+        {
+            if (danhSach == null || danhSach.Count == 0)
+                return false;
+
+            DateTime ngayHienTai = DateTime.Now.Date;
+            bool coCapNhat = false;
+
+            foreach (var item in danhSach)
+            {
+                // Kiểm tra nếu sản phẩm có HSD và đã hết hạn
+                if (item.Hsd.HasValue && item.Hsd.Value.Date < ngayHienTai)
+                {
+                    // Kiểm tra trạng thái hiện tại
+                    var khoHang = khoHangDAO.GetByMaSanPham(item.MaSanPham);
+                    if (khoHang != null && khoHang.TrangThaiDieuKien != TRANG_THAI_DIEU_KIEN_KHONG_BAN)
+                    {
+                        // Cập nhật trạng thái thành "Không bán"
+                        khoHang.TrangThaiDieuKien = TRANG_THAI_DIEU_KIEN_KHONG_BAN;
+                        khoHangDAO.UpdateKhoHang(khoHang);
+                        coCapNhat = true;
+                    }
+                }
+            }
+
+            return coCapNhat;
         }
 
         // Lấy danh sách loại sản phẩm

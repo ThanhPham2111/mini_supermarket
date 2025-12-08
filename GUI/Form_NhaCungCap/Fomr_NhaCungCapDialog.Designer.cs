@@ -37,7 +37,7 @@ namespace mini_supermarket.GUI.NhaCungCap
     // =============== HỌ TÊN ===============
     hoTenLabel = new Label()
     {
-        Text = "Tên công ty:",
+        Text = "Tên nhà cung cấp:",
         Location = new Point(xLabel, y + 5),
         AutoSize = true
     };

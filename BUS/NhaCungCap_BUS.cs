@@ -42,6 +42,14 @@ namespace mini_supermarket.BUS
             return _dao.GetMaxMaNhaCungCap() + 1;
         }
 
+        public bool IsTenNhaCungCapExists(string tenNhaCungCap, int? excludeMaNhaCungCap = null)
+        {
+            if (string.IsNullOrWhiteSpace(tenNhaCungCap))
+                return false;
+
+            return _dao.IsTenNhaCungCapExists(tenNhaCungCap.Trim(), excludeMaNhaCungCap);
+        }
+
         public NhaCungCapDTO AddNhaCungCap(NhaCungCapDTO item)
         {
             Validate(item, false);
@@ -73,6 +81,11 @@ namespace mini_supermarket.BUS
 
             if (string.IsNullOrWhiteSpace(item.TenNhaCungCap))
                 throw new Exception("Tên không được để trống");
+
+            // Kiểm tra trùng tên nhà cung cấp
+            int? excludeId = updating ? item.MaNhaCungCap : null;
+            if (IsTenNhaCungCapExists(item.TenNhaCungCap, excludeId))
+                throw new Exception("Tên nhà cung cấp đã tồn tại trong hệ thống");
 
             if (string.IsNullOrWhiteSpace(item.DiaChi))
                 throw new Exception("Địa chỉ không được để trống");

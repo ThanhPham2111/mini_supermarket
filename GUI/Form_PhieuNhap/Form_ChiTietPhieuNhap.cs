@@ -36,11 +36,12 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         // Product row dimensions
         private const int COL0_WIDTH = 80;   // Mã SP
-        private const int COL1_WIDTH = 370;  // Sản phẩm
+        private const int COL1_WIDTH = 300;  // Sản phẩm (giảm để nhường chỗ cho HSD)
         private const int COL2_WIDTH = 100;  // Số lượng
         private const int COL3_WIDTH = 130;  // Đơn giá
-        private const int COL4_WIDTH = 140;  // Thành tiền
-        private const int COL5_WIDTH = 100;   // Xóa
+        private const int COL4_WIDTH = 120;  // HSD (mới)
+        private const int COL5_WIDTH = 140;  // Thành tiền
+        private const int COL6_WIDTH = 100;   // Xóa
         private const int ROW_HEIGHT = 38;
         private const int ROW_MARGIN = 5;
 
@@ -140,7 +141,16 @@ namespace mini_supermarket.GUI.PhieuNhap
                 }
 
                 // Chỉ lấy sản phẩm đang ở trạng thái "Còn hàng" và thuộc nhà cung cấp đã chọn
-                sanPhamCache = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang, maNhaCungCap);
+                var allSanPham = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang, maNhaCungCap);
+                
+                // Lọc bỏ sản phẩm có trạng thái bán = "Không bán"
+                var khoHangBUS = new KhoHangBUS();
+                sanPhamCache = allSanPham.Where(sp =>
+                {
+                    var trangThaiBan = khoHangBUS.GetTrangThaiDieuKienBan(sp.MaSanPham);
+                    // Chỉ lấy sản phẩm có trạng thái bán = "Bán" hoặc null (mặc định là "Bán")
+                    return trangThaiBan != KhoHangBUS.TRANG_THAI_DIEU_KIEN_KHONG_BAN;
+                }).ToList();
             }
             catch (Exception ex)
             {
@@ -372,6 +382,18 @@ namespace mini_supermarket.GUI.PhieuNhap
                 Width = 100,
                 DataPropertyName = "TenDonVi"
             });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Hsd",
+                HeaderText = "HSD",
+                Width = 120,
+                DataPropertyName = "Hsd",
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Format = "dd/MM/yyyy",
+                    Alignment = DataGridViewContentAlignment.MiddleCenter
+                }
+            });
 
             // Load dữ liệu sản phẩm, lọc bỏ các sản phẩm đã thêm
             List<SanPhamDTO> originalData = sanPhamCache?
@@ -534,7 +556,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                     {
                         // Thêm sản phẩm vào bảng
                         decimal giaBan = sanPham.GiaBan ?? 0;
-                        AddProductRowWithData(sanPham.MaSanPham, sanPham.TenSanPham ?? "", giaBan);
+                        DateTime? hsd = sanPham.Hsd;
+                        AddProductRowWithData(sanPham.MaSanPham, sanPham.TenSanPham ?? "", giaBan, hsd);
                         
                         popup.DialogResult = DialogResult.OK;
                         popup.Close();
@@ -829,8 +852,9 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
 
             // Dock Right to Left
-            AddHeader("", COL5_WIDTH, DockStyle.Right); // Delete
-            AddHeader("Thành tiền", COL4_WIDTH, DockStyle.Right);
+            AddHeader("", COL6_WIDTH, DockStyle.Right); // Delete
+            AddHeader("Thành tiền", COL5_WIDTH, DockStyle.Right);
+            AddHeader("HSD", COL4_WIDTH, DockStyle.Right);
             AddHeader("Đơn giá", COL3_WIDTH, DockStyle.Right);
             AddHeader("Số lượng", COL2_WIDTH, DockStyle.Right);
             AddHeader("Sản phẩm", COL1_WIDTH, DockStyle.Fill); // Fill the rest
@@ -854,9 +878,17 @@ namespace mini_supermarket.GUI.PhieuNhap
             ShowProductSelectionPopupForNewRow();
         }
 
-        private void AddProductRowWithData(int maSanPham, string tenSanPham, decimal giaBan)
+        private void AddProductRowWithData(int maSanPham, string tenSanPham, decimal giaBan, DateTime? hsd = null)
         {
             int rowY = productRowCount * (ROW_HEIGHT + ROW_MARGIN);
+
+            // Lấy thông tin HSD từ sản phẩm nếu không được truyền vào
+            if (!hsd.HasValue)
+            {
+                var sanPhamBUS = new SanPham_BUS();
+                var sanPham = sanPhamBUS.GetSanPhamById(maSanPham);
+                hsd = sanPham?.Hsd;
+            }
 
             // TextBox hiển thị mã sản phẩm
             TextBox txtMaSanPham = new TextBox
@@ -914,11 +946,28 @@ namespace mini_supermarket.GUI.PhieuNhap
             };
             productRowsContainerPanel.Controls.Add(txtPrice);
 
-            // TextBox thành tiền (read-only/disabled)
-            TextBox txtTotal = new TextBox
+            // TextBox HSD (ReadOnly)
+            TextBox txtHSD = new TextBox
             {
                 Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH, rowY),
                 Size = new Size(COL4_WIDTH - 5, ROW_HEIGHT),
+                Font = new Font("Segoe UI", 11),
+                BorderStyle = BorderStyle.FixedSingle,
+                ReadOnly = true,
+                Enabled = false,
+                BackColor = Color.FromArgb(248, 249, 250),
+                ForeColor = textPrimaryColor,
+                TextAlign = HorizontalAlignment.Center,
+                Text = hsd?.ToString("dd/MM/yyyy") ?? "N/A",
+                Tag = hsd // Lưu giá trị DateTime để dùng sau
+            };
+            productRowsContainerPanel.Controls.Add(txtHSD);
+
+            // TextBox thành tiền (read-only/disabled)
+            TextBox txtTotal = new TextBox
+            {
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH, rowY),
+                Size = new Size(COL5_WIDTH - 5, ROW_HEIGHT),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 BorderStyle = BorderStyle.FixedSingle,
                 ReadOnly = true,
@@ -934,7 +983,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             Button btnDelete = new Button
             {
                 Text = "✕",
-                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + 5, rowY + 4),
+                Location = new Point(COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH + COL5_WIDTH + 5, rowY + 4),
                 Size = new Size(30, 30),
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 BackColor = Color.FromArgb(255, 245, 245),
@@ -1038,11 +1087,11 @@ namespace mini_supermarket.GUI.PhieuNhap
             // Tính tổng từ tất cả các hàng sản phẩm
             foreach (Control ctrl in productRowsContainerPanel.Controls)
             {
-                // Chỉ lấy TextBox thành tiền (ở vị trí cột 4)
+                // Chỉ lấy TextBox thành tiền (ở vị trí cột 5, sau HSD)fix
                 if (ctrl is TextBox txt && 
                     txt.ReadOnly && 
                     txt.Enabled == false &&
-                    ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH &&
+                    ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH &&
                     !string.IsNullOrWhiteSpace(txt.Text))
                 {
                     // Parse the text, removing thousand separators
@@ -1172,6 +1221,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 NumericUpDown? nudQty = null;
                 TextBox? txtPrice = null;
                 TextBox? txtTotal = null;
+                TextBox? txtHSD = null;
 
                 foreach (Control ctrl in productRowsContainerPanel.Controls)
                 {
@@ -1189,9 +1239,13 @@ namespace mini_supermarket.GUI.PhieuNhap
                             // txtPrice: không ReadOnly
                             else if (!txt.ReadOnly && txt.Enabled)
                                 txtPrice = txt;
-                            // txtTotal: ReadOnly và Enabled = false, ở vị trí cột 4
+                            // txtHSD: ReadOnly và Enabled = false, ở vị trí cột 4
                             else if (txt.ReadOnly && !txt.Enabled && 
                                      ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH)
+                                txtHSD = txt;
+                            // txtTotal: ReadOnly và Enabled = false, ở vị trí cột 5 (sau HSD)
+                            else if (txt.ReadOnly && !txt.Enabled && 
+                                     ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH)
                                 txtTotal = txt;
                         }
                     }
@@ -1209,6 +1263,21 @@ namespace mini_supermarket.GUI.PhieuNhap
                     // Parse đơn giá và thành tiền
                     decimal donGia = decimal.Parse(txtPrice.Text.Replace(",", "").Replace(".", "").Trim());
                     decimal thanhTien = decimal.Parse(txtTotal.Text.Replace(",", "").Replace(".", "").Trim());
+
+                    // Lấy HSD từ TextBox (đã lưu trong Tag)
+                    DateTime? hsd = txtHSD?.Tag as DateTime?;
+
+                    // Cập nhật HSD cho sản phẩm nếu có và khác với HSD hiện tại
+                    if (hsd.HasValue)
+                    {
+                        var sanPhamBUS = new SanPham_BUS();
+                        var sanPham = sanPhamBUS.GetSanPhamById(maSanPham);
+                        if (sanPham != null && (!sanPham.Hsd.HasValue || sanPham.Hsd.Value != hsd.Value))
+                        {
+                            sanPham.Hsd = hsd.Value;
+                            sanPhamBUS.UpdateSanPham(sanPham);
+                        }
+                    }
 
                     // Tạo chi tiết
                     var chiTiet = new ChiTietPhieuNhapDTO
