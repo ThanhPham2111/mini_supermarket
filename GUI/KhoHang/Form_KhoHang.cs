@@ -428,20 +428,6 @@ namespace mini_supermarket.GUI.KhoHang
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
-            // Hiển thị hộp thoại xác nhận trước khi nhập dữ liệu
-            DialogResult confirmResult = MessageBox.Show(
-                "Bạn có chắc chắn muốn nhập dữ liệu từ file Excel này vào kho?",
-                "Xác nhận nhập dữ liệu",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (confirmResult != DialogResult.Yes)
-            {
-                MessageBox.Show("Quá trình nhập dữ liệu đã bị hủy.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             // TODO: Lấy MaNhanVien từ session/login thực tế
             int maNhanVien = 1;
 

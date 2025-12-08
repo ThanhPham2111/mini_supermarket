@@ -140,7 +140,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 }
 
                 // Chỉ lấy sản phẩm đang ở trạng thái "Còn hàng" và thuộc nhà cung cấp đã chọn
-                sanPhamCache = sanPhamBUS.GetSanPham(null,maNhaCungCap);
+                sanPhamCache = sanPhamBUS.GetSanPham(SanPham_BUS.StatusConHang, maNhaCungCap);
             }
             catch (Exception ex)
             {
