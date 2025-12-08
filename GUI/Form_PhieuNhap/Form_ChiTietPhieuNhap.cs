@@ -991,7 +991,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Tag = rowY // Store row position for identification
+                Name = "btnDelete" // Đặt tên để nhận diện
             };
             btnDelete.FlatAppearance.BorderSize = 0;
             btnDelete.MouseEnter += (s, e) => {
@@ -1002,7 +1002,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 btnDelete.BackColor = Color.FromArgb(255, 245, 245);
                 btnDelete.ForeColor = Color.FromArgb(244, 67, 54);
             };
-            btnDelete.Click += (s, e) => RemoveProductRow(rowY);
+            btnDelete.Click += BtnDelete_Click;
             productRowsContainerPanel.Controls.Add(btnDelete);
 
             // Update thành tiền when quantity or price changes
@@ -1014,12 +1014,21 @@ namespace mini_supermarket.GUI.PhieuNhap
             // Update container height
             productRowsContainerPanel.Height = productRowCount * (ROW_HEIGHT + ROW_MARGIN);
 
+            // Cập nhật thành tiền ban đầu ngay sau khi thêm hàng
+            UpdateRowTotal(nudQty, txtPrice, txtTotal);
+
+            // Cập nhật trạng thái ComboBox nhà cung cấp sau khi tăng productRowCount
+            UpdateNhaCungCapComboBoxState();
+
             // Scroll to bottom
             productSectionPanel.AutoScrollPosition = new Point(0, productRowsContainerPanel.Height);
         }
 
         private void RemoveProductRow(int rowY)
         {
+            // Tìm index của hàng cần xóa dựa vào rowY
+            int rowIndex = rowY / (ROW_HEIGHT + ROW_MARGIN);
+            
             // Xóa tất cả controls trong hàng này
             List<Control> controlsToRemove = new List<Control>();
             foreach (Control ctrl in productRowsContainerPanel.Controls)
@@ -1036,32 +1045,67 @@ namespace mini_supermarket.GUI.PhieuNhap
                 ctrl.Dispose();
             }
 
+            productRowCount--;
+
             // Dịch chuyển các hàng phía dưới lên
             foreach (Control ctrl in productRowsContainerPanel.Controls)
             {
                 if (ctrl.Top > rowY)
                 {
                     ctrl.Top -= (ROW_HEIGHT + ROW_MARGIN);
-                    
-                    // Update Tag for delete buttons
-                    if (ctrl is Button btn && btn.Text == "✕")
-                    {
-                        btn.Tag = ctrl.Top;
-                        // Update click event
-                        btn.Click -= (s, e) => RemoveProductRow((int)btn.Tag);
-                        int newRowY = ctrl.Top;
-                        btn.Click += (s, e) => RemoveProductRow(newRowY);
-                    }
                 }
             }
 
-            productRowCount--;
-
             // Update container height
-            productRowsContainerPanel.Height = productRowCount * (ROW_HEIGHT + ROW_MARGIN);
+            productRowsContainerPanel.Height = Math.Max(0, productRowCount * (ROW_HEIGHT + ROW_MARGIN));
 
             // Cập nhật tổng tiền
             UpdateGrandTotal();
+            
+            // Cập nhật trạng thái ComboBox nhà cung cấp
+            UpdateNhaCungCapComboBoxState();
+            
+            // Force refresh panel
+            productRowsContainerPanel.Refresh();
+        }
+        
+        private void BtnDelete_Click(object? sender, EventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                // Tìm hàng chứa button này dựa vào vị trí Top
+                int rowY = btn.Top - 4; // Trừ offset đã cộng khi tạo button
+                RemoveProductRow(rowY);
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật trạng thái enable/disable của ComboBox nhà cung cấp
+        /// - Enable: Khi không có sản phẩm nào trong danh sách
+        /// - Disable: Khi có ít nhất 1 sản phẩm trong danh sách
+        /// </summary>
+        private void UpdateNhaCungCapComboBoxState()
+        {
+            if (cboNhaCungCap != null)
+            {
+                // Kiểm tra số lượng sản phẩm trong danh sách
+                bool hasProducts = productRowCount > 0;
+                
+                // Khóa combobox nếu có sản phẩm, mở khóa nếu không có sản phẩm
+                cboNhaCungCap.Enabled = !hasProducts;
+                
+                // Đổi màu để người dùng dễ nhận biết
+                if (hasProducts)
+                {
+                    cboNhaCungCap.BackColor = Color.FromArgb(240, 240, 240);
+                    cboNhaCungCap.ForeColor = textSecondaryColor;
+                }
+                else
+                {
+                    cboNhaCungCap.BackColor = Color.White;
+                    cboNhaCungCap.ForeColor = textPrimaryColor;
+                }
+            }
         }
 
         private void UpdateRowTotal(NumericUpDown qty, TextBox price, TextBox total)
@@ -1084,21 +1128,28 @@ namespace mini_supermarket.GUI.PhieuNhap
         {
             decimal grandTotal = 0;
 
-            // Tính tổng từ tất cả các hàng sản phẩm
-            foreach (Control ctrl in productRowsContainerPanel.Controls)
+            // Duyệt qua từng hàng dựa vào productRowCount
+            for (int i = 0; i < productRowCount; i++)
             {
-                // Chỉ lấy TextBox thành tiền (ở vị trí cột 5, sau HSD)fix
-                if (ctrl is TextBox txt && 
-                    txt.ReadOnly && 
-                    txt.Enabled == false &&
-                    ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH &&
-                    !string.IsNullOrWhiteSpace(txt.Text))
+                int expectedRowY = i * (ROW_HEIGHT + ROW_MARGIN);
+                
+                // Tìm TextBox thành tiền của hàng này
+                foreach (Control ctrl in productRowsContainerPanel.Controls)
                 {
-                    // Parse the text, removing thousand separators
-                    string cleanText = txt.Text.Replace(",", "").Replace(".", "").Trim();
-                    if (decimal.TryParse(cleanText, out decimal rowTotal))
+                    if (ctrl.Top == expectedRowY &&
+                        ctrl is TextBox txt && 
+                        txt.ReadOnly && 
+                        txt.Enabled == false &&
+                        ctrl.Location.X == COL0_WIDTH + COL1_WIDTH + COL2_WIDTH + COL3_WIDTH + COL4_WIDTH &&
+                        !string.IsNullOrWhiteSpace(txt.Text))
                     {
-                        grandTotal += rowTotal;
+                        // Parse the text, removing thousand separators
+                        string cleanText = txt.Text.Replace(",", "").Replace(".", "").Trim();
+                        if (decimal.TryParse(cleanText, out decimal rowTotal))
+                        {
+                            grandTotal += rowTotal;
+                        }
+                        break; // Tìm thấy TextBox thành tiền của hàng này rồi, chuyển sang hàng tiếp theo
                     }
                 }
             }
