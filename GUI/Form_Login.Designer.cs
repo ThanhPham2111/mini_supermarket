@@ -40,6 +40,9 @@
             taiKhoan_txb = new TextBox();
             matKhau_lbl = new Label();
             taiKhoan_lbl = new Label();
+            quenMatKhau_btn = new Button();
+            soDienThoai_lbl = new Label();
+            soDienThoai_txb = new TextBox();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
@@ -106,6 +109,7 @@
             panel7.Controls.Add(taiKhoan_txb);
             panel7.Controls.Add(matKhau_lbl);
             panel7.Controls.Add(taiKhoan_lbl);
+            panel7.Controls.Add(quenMatKhau_btn);
             panel7.Location = new Point(21, 98);
             panel7.Name = "panel7";
             panel7.Size = new Size(670, 219);
@@ -114,30 +118,30 @@
             // Exit_btn
             // 
             Exit_btn.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Exit_btn.Location = new Point(365, 145);
+            Exit_btn.Location = new Point(506, 160);
             Exit_btn.Name = "Exit_btn";
             Exit_btn.Size = new Size(123, 51);
-            Exit_btn.TabIndex = 1;
+            Exit_btn.TabIndex = 5;
             Exit_btn.Text = "Thoát";
             Exit_btn.UseVisualStyleBackColor = true;
             Exit_btn.Click += Exit_btn_Click;
             // 
             // matKhau_txb
             // 
-            matKhau_txb.Location = new Point(153, 84);
+            matKhau_txb.Location = new Point(153, 74);
             matKhau_txb.Name = "matKhau_txb";
             matKhau_txb.Size = new Size(473, 27);
-            matKhau_txb.TabIndex = 3;
+            matKhau_txb.TabIndex = 2;
             matKhau_txb.UseSystemPasswordChar = true;
             matKhau_txb.TextChanged += textBox1_TextChanged;
             // 
             // Login_btn
             // 
             Login_btn.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Login_btn.Location = new Point(173, 145);
+            Login_btn.Location = new Point(153, 160);
             Login_btn.Name = "Login_btn";
             Login_btn.Size = new Size(123, 51);
-            Login_btn.TabIndex = 0;
+            Login_btn.TabIndex = 3;
             Login_btn.Text = "Đăng nhập";
             Login_btn.UseVisualStyleBackColor = true;
             Login_btn.Click += Login_btn_Click;
@@ -147,7 +151,7 @@
             taiKhoan_txb.Location = new Point(153, 19);
             taiKhoan_txb.Name = "taiKhoan_txb";
             taiKhoan_txb.Size = new Size(473, 27);
-            taiKhoan_txb.TabIndex = 1;
+            taiKhoan_txb.TabIndex = 0;
             taiKhoan_txb.TextChanged += taiKhoan_txb_TextChanged;
             // 
             // matKhau_lbl
@@ -156,7 +160,7 @@
             matKhau_lbl.BackColor = Color.Transparent;
             matKhau_lbl.Font = new Font("Segoe UI", 13.8F);
             matKhau_lbl.ForeColor = Color.White;
-            matKhau_lbl.Location = new Point(24, 78);
+            matKhau_lbl.Location = new Point(24, 68);
             matKhau_lbl.Name = "matKhau_lbl";
             matKhau_lbl.Size = new Size(115, 31);
             matKhau_lbl.TabIndex = 2;
@@ -174,6 +178,40 @@
             taiKhoan_lbl.TabIndex = 0;
             taiKhoan_lbl.Text = "Tài khoản:";
             taiKhoan_lbl.Click += taiKhoan_lbl_Click;
+            // 
+            // quenMatKhau_btn
+            // 
+            quenMatKhau_btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            quenMatKhau_btn.Location = new Point(326, 160);
+            quenMatKhau_btn.Name = "quenMatKhau_btn";
+            quenMatKhau_btn.Size = new Size(155, 51);
+            quenMatKhau_btn.TabIndex = 4;
+            quenMatKhau_btn.Text = "Quên mật khẩu";
+            quenMatKhau_btn.UseVisualStyleBackColor = true;
+            quenMatKhau_btn.Click += quenMatKhau_btn_Click;
+            // 
+            // soDienThoai_lbl
+            // 
+            soDienThoai_lbl.AutoSize = true;
+            soDienThoai_lbl.BackColor = Color.Transparent;
+            soDienThoai_lbl.Font = new Font("Segoe UI", 13.8F);
+            soDienThoai_lbl.ForeColor = Color.White;
+            soDienThoai_lbl.Location = new Point(24, 117);
+            soDienThoai_lbl.Name = "soDienThoai_lbl";
+            soDienThoai_lbl.Size = new Size(155, 31);
+            soDienThoai_lbl.TabIndex = 6;
+            soDienThoai_lbl.Text = "Số điện thoại:";
+            soDienThoai_lbl.Visible = false;
+            soDienThoai_lbl.TabStop = false;
+            // 
+            // soDienThoai_txb
+            // 
+            soDienThoai_txb.Location = new Point(185, 124);
+            soDienThoai_txb.Name = "soDienThoai_txb";
+            soDienThoai_txb.Size = new Size(441, 27);
+            soDienThoai_txb.TabIndex = 3;
+            soDienThoai_txb.Visible = false;
+            soDienThoai_txb.TabStop = false;
             // 
             // Form_Login
             // 
@@ -212,5 +250,8 @@
         private Label matKhau_lbl;
         private Button Login_btn;
         private Button Exit_btn;
+        private Button quenMatKhau_btn;
+        private Label soDienThoai_lbl;
+        private TextBox soDienThoai_txb;
     }
 }

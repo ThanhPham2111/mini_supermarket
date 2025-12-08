@@ -220,7 +220,7 @@ namespace mini_supermarket.GUI.NhanVien
                 if (!hasError) soDienThoaiTextBox.Focus();
                 hasError = true;
             }
-            else if (soDienThoai.Length != 10 || !soDienThoai.All(char.IsDigit))
+            else if (soDienThoai.Length > 10 || !soDienThoai.All(char.IsDigit))
             {
                 ShowError(soDienThoaiErrorLabel, soDienThoaiErrorIcon, "Phải 10 chữ số");
                 if (!hasError) soDienThoaiTextBox.Focus();
@@ -258,7 +258,7 @@ namespace mini_supermarket.GUI.NhanVien
             _workingNhanVien.NgaySinh = ngaySinhDateTimePicker.Value.Date;
             _workingNhanVien.GioiTinh = gioiTinhNamRadioButton.Checked
                 ? "Nam"
-                : gioiTinhNuRadioButton.Checked ? "Nu" : null;
+                : gioiTinhNuRadioButton.Checked ? "Nữ" : null;
             _workingNhanVien.VaiTro = vaiTro!;
             _workingNhanVien.SoDienThoai = soDienThoai;
             _workingNhanVien.TrangThai = trangThai!;

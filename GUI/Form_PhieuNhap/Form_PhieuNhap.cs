@@ -864,8 +864,8 @@ namespace mini_supermarket.GUI.PhieuNhap
                         menu.Items.Add(reasonItem);
                     }
                     
-                    // Cho phép hủy nếu trạng thái là "Đang nhập" hoặc "Nhập thành công"
-                    if (trangThai == "Đang nhập" || trangThai == "Nhập thành công")
+                    // Cho phép hủy chỉ khi trạng thái là "Đang nhập"
+                    if (trangThai == "Đang nhập")
                     {
                         menu.Items.Add(new ToolStripSeparator());
                         ToolStripMenuItem huyItem = new ToolStripMenuItem("❌ Hủy phiếu nhập");
@@ -976,6 +976,17 @@ namespace mini_supermarket.GUI.PhieuNhap
                     MessageBox.Show(
                         "Phiếu nhập này đã được hủy trước đó!",
                         "Cảnh báo",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    return;
+                }
+                
+                if (trangThai != "Đang nhập")
+                {
+                    MessageBox.Show(
+                        "Chỉ phiếu đang nhập mới được hủy. Phiếu đã nhập thành công không thể hủy.",
+                        "Không thể hủy",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );

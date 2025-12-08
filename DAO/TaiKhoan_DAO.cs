@@ -208,6 +208,69 @@ namespace mini_supermarket.DAO
             return null;
         }
 
+        public TaiKhoanDTO? GetByUsernameAndPhone(string tenDangNhap, string soDienThoai)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT tk.MaTaiKhoan, tk.TenDangNhap, tk.MatKhau, tk.MaNhanVien, 
+                                           tk.MaQuyen, tk.TrangThai
+                                    FROM dbo.Tbl_TaiKhoan tk
+                                    INNER JOIN dbo.Tbl_NhanVien nv ON tk.MaNhanVien = nv.MaNhanVien
+                                    WHERE tk.TenDangNhap = @TenDangNhap 
+                                      AND nv.SoDienThoai = @SoDienThoai 
+                                      AND tk.TrangThai = N'Hoạt động'";
+
+            command.Parameters.Add(new SqlParameter("@TenDangNhap", SqlDbType.VarChar, 255)
+            {
+                Value = tenDangNhap
+            });
+            command.Parameters.Add(new SqlParameter("@SoDienThoai", SqlDbType.NVarChar, 50)
+            {
+                Value = soDienThoai
+            });
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new TaiKhoanDTO
+                {
+                    MaTaiKhoan = reader.GetInt32(reader.GetOrdinal("MaTaiKhoan")),
+                    TenDangNhap = reader.GetString(reader.GetOrdinal("TenDangNhap")),
+                    MatKhau = reader.GetString(reader.GetOrdinal("MatKhau")),
+                    MaNhanVien = reader.GetInt32(reader.GetOrdinal("MaNhanVien")),
+                    MaQuyen = reader.GetInt32(reader.GetOrdinal("MaQuyen")),
+                    TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                };
+            }
+
+            return null;
+        }
+
+        public void UpdatePassword(int maTaiKhoan, string newPassword)
+        {
+            using var connection = DbConnectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE dbo.Tbl_TaiKhoan
+                                     SET MatKhau = @MatKhau
+                                     WHERE MaTaiKhoan = @MaTaiKhoan";
+            command.Parameters.Add(new SqlParameter("@MatKhau", SqlDbType.VarChar, 255)
+            {
+                Value = newPassword
+            });
+            command.Parameters.Add(new SqlParameter("@MaTaiKhoan", SqlDbType.Int)
+            {
+                Value = maTaiKhoan
+            });
+
+            connection.Open();
+            int rows = command.ExecuteNonQuery();
+            if (rows == 0)
+            {
+                throw new InvalidOperationException("Không thể cập nhật mật khẩu.");
+            }
+        }
+
         private static void AddTaiKhoanParameters(SqlCommand command, TaiKhoanDTO taiKhoan, bool includeKey)
         {
             command.Parameters.Clear();

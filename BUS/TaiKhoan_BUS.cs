@@ -51,6 +51,30 @@ namespace mini_supermarket.BUS
             return _taiKhoanDao.Authenticate(tenDangNhap.Trim(), matKhau.Trim());
         }
 
+        public bool IsPhoneMatchedWithUsername(string tenDangNhap, string soDienThoai)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(soDienThoai))
+                return false;
+
+            var tk = _taiKhoanDao.GetByUsernameAndPhone(tenDangNhap.Trim(), soDienThoai.Trim());
+            return tk != null;
+        }
+
+        public bool UpdatePasswordWithPhone(string tenDangNhap, string soDienThoai, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(soDienThoai))
+                return false;
+
+            ValidateNewPassword(newPassword);
+
+            var taiKhoan = _taiKhoanDao.GetByUsernameAndPhone(tenDangNhap.Trim(), soDienThoai.Trim());
+            if (taiKhoan == null)
+                return false;
+
+            _taiKhoanDao.UpdatePassword(taiKhoan.MaTaiKhoan, newPassword.Trim());
+            return true;
+        }
+
         public int GetNextMaTaiKhoan()
         {
             int maxId = _taiKhoanDao.GetMaxMaTaiKhoan();
@@ -101,6 +125,32 @@ namespace mini_supermarket.BUS
             }
 
             _taiKhoanDao.DeleteTaiKhoan(maTaiKhoan);
+        }
+
+        public bool ResetPasswordToDefault(string tenDangNhap, string soDienThoai, string defaultPassword = "123456")
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(soDienThoai))
+                return false;
+
+            var taiKhoan = _taiKhoanDao.GetByUsernameAndPhone(tenDangNhap.Trim(), soDienThoai.Trim());
+            if (taiKhoan == null)
+                return false;
+
+            _taiKhoanDao.UpdatePassword(taiKhoan.MaTaiKhoan, defaultPassword);
+            return true;
+        }
+
+        private static void ValidateNewPassword(string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                throw new ArgumentException("Mật khẩu không được để trống.", nameof(newPassword));
+            }
+
+            if (newPassword.Trim().Length < 6)
+            {
+                throw new ArgumentException("Mật khẩu phải có ít nhất 6 ký tự.", nameof(newPassword));
+            }
         }
 
         private static void ValidateTaiKhoan(TaiKhoanDTO taiKhoan, bool isUpdate)

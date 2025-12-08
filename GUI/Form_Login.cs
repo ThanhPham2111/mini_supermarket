@@ -35,7 +35,6 @@ namespace mini_supermarket.GUI
             // Cho phép đăng nhập bằng Enter
             taiKhoan_txb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) matKhau_txb.Focus(); };
             matKhau_txb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) Login_btn_Click(sender, e); };
-            
             // Tự động focus vào ô tài khoản khi form load
             this.Shown += (s, args) => taiKhoan_txb.Focus();
         }
@@ -171,6 +170,181 @@ namespace mini_supermarket.GUI
             {
                 Application.Exit();
             }
+        }
+
+        private void quenMatKhau_btn_Click(object sender, EventArgs e)
+        {
+            ShowForgotPasswordDialog();
+        }
+
+        private void ShowForgotPasswordDialog()
+        {
+            using var dialog = new Form
+            {
+                Text = "Quên mật khẩu",
+                Size = new Size(420, 260),
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false
+            };
+
+            var lblUser = new Label { Text = "Tài khoản:", Location = new Point(20, 30), AutoSize = true };
+            var txtUser = new TextBox { Location = new Point(140, 28), Width = 240 };
+
+            var lblPhone = new Label { Text = "Số điện thoại:", Location = new Point(20, 80), AutoSize = true };
+            var txtPhone = new TextBox { Location = new Point(140, 78), Width = 240 };
+
+            var btnOk = new Button { Text = "Tiếp tục", Location = new Point(80, 140), Size = new Size(100, 40) };
+            var btnCancel = new Button { Text = "Hủy", Location = new Point(220, 140), Size = new Size(100, 40) };
+
+            btnOk.Click += (s, e) =>
+            {
+                string tenDangNhap = txtUser.Text.Trim();
+                string soDienThoai = txtPhone.Text.Trim();
+
+                if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(soDienThoai))
+                {
+                    MessageBox.Show(dialog, "Vui lòng nhập đầy đủ tài khoản và số điện thoại.", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                try
+                {
+                    var taiKhoanBus = new TaiKhoan_BUS();
+                    bool matched = taiKhoanBus.IsPhoneMatchedWithUsername(tenDangNhap, soDienThoai);
+
+                    if (!matched)
+                    {
+                        MessageBox.Show(dialog, "Không tìm thấy tài khoản hoặc số điện thoại không khớp.", "Không thành công",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Mở dialog nhập mật khẩu mới
+                    using var pwdDialog = new DialogUpdatePassword();
+                    if (pwdDialog.ShowDialog(dialog) == DialogResult.OK)
+                    {
+                        bool updated = taiKhoanBus.UpdatePasswordWithPhone(tenDangNhap, soDienThoai, pwdDialog.NewPassword);
+                        if (updated)
+                        {
+                            MessageBox.Show(dialog, "Đặt lại mật khẩu thành công.", "Thành công",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            dialog.DialogResult = DialogResult.OK;
+                            dialog.Close();
+                            matKhau_txb.Text = pwdDialog.NewPassword;
+                            matKhau_txb.Focus();
+                            matKhau_txb.SelectAll();
+                        }
+                        else
+                        {
+                            MessageBox.Show(dialog, "Không thể cập nhật mật khẩu.", "Không thành công",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(dialog, $"Lỗi khi khôi phục mật khẩu: {ex.Message}", "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
+            btnCancel.Click += (s, e) =>
+            {
+                dialog.DialogResult = DialogResult.Cancel;
+                dialog.Close();
+            };
+
+            dialog.Controls.Add(lblUser);
+            dialog.Controls.Add(txtUser);
+            dialog.Controls.Add(lblPhone);
+            dialog.Controls.Add(txtPhone);
+            dialog.Controls.Add(btnOk);
+            dialog.Controls.Add(btnCancel);
+
+            dialog.AcceptButton = btnOk;
+            dialog.CancelButton = btnCancel;
+
+            dialog.ShowDialog(this);
+        }
+    }
+
+    internal class DialogUpdatePassword : Form
+    {
+        private readonly TextBox _txtNewPassword = new() { UseSystemPasswordChar = true, Width = 240 };
+        private readonly TextBox _txtConfirmPassword = new() { UseSystemPasswordChar = true, Width = 240 };
+        private readonly Button _btnOk = new() { Text = "Xác nhận", Width = 100, Height = 36 };
+        private readonly Button _btnCancel = new() { Text = "Hủy", Width = 100, Height = 36 };
+
+        public string NewPassword { get; private set; } = string.Empty;
+
+        public DialogUpdatePassword()
+        {
+            Text = "Đặt mật khẩu mới";
+            Size = new Size(450, 260);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            StartPosition = FormStartPosition.CenterParent;
+            MaximizeBox = false;
+            MinimizeBox = false;
+
+            var lblNew = new Label { Text = "Mật khẩu mới:", Location = new Point(20, 30), AutoSize = true };
+            _txtNewPassword.Location = new Point(160, 28);
+
+            var lblConfirm = new Label { Text = "Nhập lại mật khẩu:", Location = new Point(20, 80), AutoSize = true };
+            _txtConfirmPassword.Location = new Point(160, 78);
+
+            _btnOk.Location = new Point(90, 140);
+            _btnCancel.Location = new Point(230, 140);
+
+            _btnOk.Click += BtnOk_Click;
+            _btnCancel.Click += (_, _) =>
+            {
+                DialogResult = DialogResult.Cancel;
+                Close();
+            };
+
+            Controls.Add(lblNew);
+            Controls.Add(_txtNewPassword);
+            Controls.Add(lblConfirm);
+            Controls.Add(_txtConfirmPassword);
+            Controls.Add(_btnOk);
+            Controls.Add(_btnCancel);
+
+            AcceptButton = _btnOk;
+            CancelButton = _btnCancel;
+        }
+
+        private void BtnOk_Click(object? sender, EventArgs e)
+        {
+            var newPass = _txtNewPassword.Text.Trim();
+            var confirm = _txtConfirmPassword.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(newPass) || string.IsNullOrWhiteSpace(confirm))
+            {
+                MessageBox.Show(this, "Vui lòng nhập đầy đủ mật khẩu mới.", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (newPass.Length < 6)
+            {
+                MessageBox.Show(this, "Mật khẩu phải có ít nhất 6 ký tự.", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (newPass != confirm)
+            {
+                MessageBox.Show(this, "Mật khẩu xác nhận không khớp.", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            NewPassword = newPass;
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }
