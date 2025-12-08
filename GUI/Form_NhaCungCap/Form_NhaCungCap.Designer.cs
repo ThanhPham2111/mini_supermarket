@@ -286,7 +286,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             tenNhaCungCapLabel.Name = "tenNhaCungCapLabel";
             tenNhaCungCapLabel.Size = new System.Drawing.Size(46, 15);
             tenNhaCungCapLabel.TabIndex = 2;
-            tenNhaCungCapLabel.Text = "Tên công ty";
+            tenNhaCungCapLabel.Text = "Tên nhà cung cấp";
 
             // maNhaCungCapTextBox
             maNhaCungCapTextBox.Location = new System.Drawing.Point(150, 20);
@@ -352,7 +352,7 @@ namespace mini_supermarket.GUI.NhaCungCap
 
              // tenNhaCungCapColumn
             tenNhaCungCapColumn.DataPropertyName = "TenNhaCungCap";
-            tenNhaCungCapColumn.HeaderText = "Họ tên";
+            tenNhaCungCapColumn.HeaderText = "Tên nhà cung cấp";
             tenNhaCungCapColumn.Name = "tenNhaCungCapColumn";
             tenNhaCungCapColumn.ReadOnly = true;
             // diaChiColumn
