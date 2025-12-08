@@ -52,14 +52,14 @@ namespace mini_supermarket.BUS
             }
         }
 
-        public IList<SanPhamDTO> LayDanhSachSanPhamBanHang()
+        public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
-            return khoHangBUS.LayDanhSachSanPhamBanHang().Cast<SanPhamDTO>().ToList();
+            return khoHangBUS.LayDanhSachSanPhamBanHang();
         }
 
-        public IList<SanPhamDTO> LayThongTinSanPhamChiTiet(int maSanPham)
+        public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
-            return khoHangBUS.LayThongTinSanPhamChiTiet(maSanPham).Cast<SanPhamDTO>().ToList();
+            return khoHangBUS.LayThongTinSanPhamChiTiet(maSanPham);
         }
 
         public bool ValidateAddProduct(int? productId, int? stock, string? quantityText, int currentCartQuantity,

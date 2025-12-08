@@ -47,11 +47,22 @@ namespace mini_supermarket.BUS
         }
 
         // Lấy danh sách sản phẩm cho bán hàng
-        public IList<SanPhamDTO> LayDanhSachSanPhamBanHang()
+        public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
-            return khoHangDAO.LayDanhSachSanPhamBanHang().Cast<SanPhamDTO>().ToList();
+            return khoHangDAO.LayDanhSachSanPhamBanHang();
         }
 
+        // Kiểm tra sản phẩm có tồn tại trong kho không
+        public bool KiemTraTonTai(int maSanPham)
+        {
+            return khoHangDAO.ExistsByMaSanPham(maSanPham);
+        }
+
+        // Lấy thông tin kho hàng theo mã sản phẩm
+        public KhoHangDTO? GetByMaSanPham(int maSanPham)
+        {
+            return khoHangDAO.GetByMaSanPham(maSanPham);
+        }
 
         // Phương thức helper: Xác định trạng thái kho hàng dựa trên số lượng
         private string XacDinhTrangThaiKho(int soLuong)
@@ -116,12 +127,30 @@ namespace mini_supermarket.BUS
         }
 
         // Lấy thông tin chi tiết sản phẩm
-        public IList<SanPhamDTO> LayThongTinSanPhamChiTiet(int maSanPham)
+        public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
             if (maSanPham <= 0)
                 throw new ArgumentException("Mã sản phẩm không hợp lệ");
 
-            return khoHangDAO.LayThongTinSanPhamChiTiet(maSanPham).Cast<SanPhamDTO>().ToList();
+            return khoHangDAO.LayThongTinSanPhamChiTiet(maSanPham);
+        }
+
+        // Kiểm tra tồn kho có đủ trước khi bán
+        public bool KiemTraTonKhoDu(int maSanPham, int soLuongCan)
+        {
+            if (maSanPham <= 0)
+                throw new ArgumentException("Mã sản phẩm không hợp lệ");
+
+            if (soLuongCan <= 0)
+                throw new ArgumentException("Số lượng cần phải lớn hơn 0");
+
+            var khoHang = khoHangDAO.GetByMaSanPham(maSanPham);
+            
+            if (khoHang == null)
+                return false;
+
+            int soLuongHienTai = khoHang.SoLuong ?? 0;
+            return soLuongHienTai >= soLuongCan;
         }
 
         public bool GiamSoLuongKho(int maSanPham, int soLuongGiam, int maNhanVien)
@@ -223,6 +252,12 @@ namespace mini_supermarket.BUS
             }
         }
 
+        // Lấy danh sách sản phẩm sắp hết hàng
+        public IList<SanPhamKhoDTO> LaySanPhamSapHetHang()
+        {
+            return khoHangDAO.LaySanPhamSapHetHang();
+        }
+
         // Lấy danh sách sản phẩm hết hàng
         public IList<SanPhamKhoDTO> LaySanPhamHetHang()
         {
@@ -255,9 +290,6 @@ namespace mini_supermarket.BUS
         /// </summary>
         public (bool HasUpdates, List<string> Errors, List<string> Updates) NhapKhoTuExcel(string filePath, int maNhanVien)
         {
-            // Đảm bảo set LicenseContext trước khi dùng EPPlus
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
             if (string.IsNullOrEmpty(filePath))
                 throw new ArgumentException("Đường dẫn file không hợp lệ.");
 
