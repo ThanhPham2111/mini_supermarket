@@ -32,9 +32,12 @@ namespace mini_supermarket.GUI.Form_SanPham
             maThuongHieuTextBox.Text = _sanPham.TenThuongHieu ?? string.Empty; // Hien thi ten thuong hieu
             PopulateComboBox(maLoaiComboBox, _sanPham.TenLoai ?? string.Empty); // Hien thi ten loai
 
-            giaBanTextBox.Text = _sanPham.GiaBan.HasValue
-                ? _sanPham.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture)
-                : string.Empty;
+            // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
+            var khoHangBus = new KhoHangBUS();
+            decimal? giaNhap = khoHangBus.GetGiaNhapMoiNhat(_sanPham.MaSanPham);
+            giaBanTextBox.Text = giaNhap.HasValue
+                ? giaNhap.Value.ToString("N0", CultureInfo.CurrentCulture)
+                : (_sanPham.GiaBan.HasValue ? _sanPham.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture) : string.Empty);
 
             xuatXuTextBox.Text = _sanPham.XuatXu ?? string.Empty;
             hsdTextBox.Text = _sanPham.Hsd.HasValue

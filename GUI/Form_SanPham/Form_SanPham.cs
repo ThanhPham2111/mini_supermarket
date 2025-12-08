@@ -356,7 +356,7 @@ namespace mini_supermarket.GUI.Form_SanPham
                 var ws = wb.Worksheets.Add("Danh sách sản phẩm");
 
                 // Header - lấy từ các cột trong DataGridView
-                string[] headers = { "Mã sản phẩm", "Tên sản phẩm", "Đơn vị", "Giá bán", "Tên loại", "HSD", "Trạng thái" };
+                string[] headers = { "Mã sản phẩm", "Tên sản phẩm", "Đơn vị", "Giá nhập", "Tên loại", "HSD", "Trạng thái" };
                 for (int i = 0; i < headers.Length; i++)
                 {
                     var cell = ws.Cell(1, i + 1);

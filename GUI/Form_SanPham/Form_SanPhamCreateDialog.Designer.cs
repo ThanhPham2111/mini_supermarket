@@ -261,7 +261,7 @@
                 giaBanLabel.Name = "giaBanLabel";
                 giaBanLabel.Size = new System.Drawing.Size(52, 17);
                 giaBanLabel.TabIndex = 7;
-                giaBanLabel.Text = "Giá bán";
+                giaBanLabel.Text = "Giá nhập";
 
                 // thuongHieuComboBox
                 thuongHieuComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;

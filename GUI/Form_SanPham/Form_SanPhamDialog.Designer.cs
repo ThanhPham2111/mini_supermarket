@@ -215,7 +215,7 @@
             giaBanLabel.Name = "giaBanLabel";
             giaBanLabel.Size = new System.Drawing.Size(60, 20);
             giaBanLabel.TabIndex = 12;
-            giaBanLabel.Text = "Giá bán";
+            giaBanLabel.Text = "Giá nhập";
 
             // giaBanTextBox
             giaBanTextBox.Location = new System.Drawing.Point(150, 218);

@@ -164,7 +164,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             {
                 if (!decimal.TryParse(giaBanTextBox.Text.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out var parsedGiaBan) || parsedGiaBan < 0)
                 {
-                    MessageBox.Show(this, "Giá bán không hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, "Giá nhập không hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     giaBanTextBox.Focus();
                     return;
                 }

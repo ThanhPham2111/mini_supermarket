@@ -145,11 +145,17 @@ namespace mini_supermarket.DAO
 
         public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
+            // Tính giá bán động từ giá nhập (sp.GiaBan giờ là giá nhập) + % lợi nhuận
             string query = @"
                 SELECT 
                     sp.MaSanPham,
                     sp.TenSanPham,
-                    sp.GiaBan,
+                    -- Tính giá bán = giá nhập (sp.GiaBan) * (1 + % lợi nhuận / 100)
+                    ROUND(
+                        ISNULL(sp.GiaBan, 0) * 
+                        (1 + ISNULL(q.PhanTramLoiNhuan, ISNULL(ch.PhanTramLoiNhuanMacDinh, 15.00)) / 100), 
+                        2
+                    ) AS GiaBan,
                     sp.Hsd,
                     kh.SoLuong,
                     ISNULL(km.TenKhuyenMai, N'') AS KhuyenMai,
@@ -158,6 +164,13 @@ namespace mini_supermarket.DAO
                 INNER JOIN Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham
                 LEFT JOIN Tbl_KhuyenMai km ON sp.MaSanPham = km.MaSanPham 
                     AND GETDATE() BETWEEN km.NgayBatDau AND km.NgayKetThuc
+                LEFT JOIN Tbl_QuyTacLoiNhuan q ON sp.MaSanPham = q.MaSanPham 
+                    AND q.TrangThai = N'Hoạt động'
+                LEFT JOIN (
+                    SELECT TOP 1 PhanTramLoiNhuanMacDinh 
+                    FROM Tbl_CauHinhLoiNhuan 
+                    ORDER BY NgayCapNhat DESC
+                ) ch ON 1=1
                 WHERE kh.SoLuong > 0 
                     AND ISNULL(kh.TrangThaiDieuKien, N'Bán') = N'Bán'
                 ORDER BY sp.TenSanPham;";
@@ -481,11 +494,17 @@ namespace mini_supermarket.DAO
 
         public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
+            // Tính giá bán động từ giá nhập (sp.GiaBan giờ là giá nhập) + % lợi nhuận
             string query = @"
                 SELECT 
                     sp.MaSanPham,
                     sp.TenSanPham,
-                    sp.GiaBan,
+                    -- Tính giá bán = giá nhập (sp.GiaBan) * (1 + % lợi nhuận / 100)
+                    ROUND(
+                        ISNULL(sp.GiaBan, 0) * 
+                        (1 + ISNULL(q.PhanTramLoiNhuan, ISNULL(ch.PhanTramLoiNhuanMacDinh, 15.00)) / 100), 
+                        2
+                    ) AS GiaBan,
                     sp.HinhAnh,
                     kh.SoLuong,
                     ISNULL(km.TenKhuyenMai, N'') AS KhuyenMai,
@@ -494,6 +513,13 @@ namespace mini_supermarket.DAO
                 INNER JOIN Tbl_KhoHang kh ON sp.MaSanPham = kh.MaSanPham
                 LEFT JOIN Tbl_KhuyenMai km ON sp.MaSanPham = km.MaSanPham 
                     AND GETDATE() BETWEEN km.NgayBatDau AND km.NgayKetThuc
+                LEFT JOIN Tbl_QuyTacLoiNhuan q ON sp.MaSanPham = q.MaSanPham 
+                    AND q.TrangThai = N'Hoạt động'
+                LEFT JOIN (
+                    SELECT TOP 1 PhanTramLoiNhuanMacDinh 
+                    FROM Tbl_CauHinhLoiNhuan 
+                    ORDER BY NgayCapNhat DESC
+                ) ch ON 1=1
                 WHERE sp.MaSanPham = @MaSanPham;";
 
             var list = new List<SanPhamChiTietDTO>();

@@ -238,7 +238,7 @@
             giaBanCellStyle.Format = "N0";
             giaBanCellStyle.NullValue = null;
             giaBanColumn.DefaultCellStyle = giaBanCellStyle;
-            giaBanColumn.HeaderText = "Giá bán";
+            giaBanColumn.HeaderText = "Giá nhập";
             giaBanColumn.MinimumWidth = 120;
             giaBanColumn.Name = "giaBanColumn";
             giaBanColumn.ReadOnly = true;

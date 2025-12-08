@@ -89,7 +89,12 @@ namespace mini_supermarket.GUI.Form_SanPham
                 // Ignore error, just leave combobox unselected
             }
 
-            giaBanTextBox.Text = _original.GiaBan.HasValue ? _original.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture) : string.Empty;
+            // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
+            var khoHangBus = new KhoHangBUS();
+            decimal? giaNhap = khoHangBus.GetGiaNhapMoiNhat(_original.MaSanPham);
+            giaBanTextBox.Text = giaNhap.HasValue
+                ? giaNhap.Value.ToString("N0", CultureInfo.CurrentCulture)
+                : (_original.GiaBan.HasValue ? _original.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture) : string.Empty);
             xuatXuTextBox.Text = _original.XuatXu ?? string.Empty;
 
             if (_original.Hsd.HasValue)
@@ -229,7 +234,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             {
                 if (!decimal.TryParse(giaBanTextBox.Text.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out var parsedGiaBan) || parsedGiaBan < 0)
                 {
-                    MessageBox.Show(this, "Gia ban khong hop le.", "Canh bao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, "Giá nhập không hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     giaBanTextBox.Focus();
                     return;
                 }

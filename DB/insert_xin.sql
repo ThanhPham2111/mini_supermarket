@@ -255,12 +255,10 @@ INSERT INTO Tbl_QuyTacLoiNhuan (LoaiQuyTac, MaSanPham, PhanTramLoiNhuan, UuTien,
 (N'TheoSanPham', 31, 15.00, 1, N'Hoạt động', NULL);
 GO
 
--- 11. Update GiaBan in Tbl_SanPham based on latest DonGiaNhap and QuyTacLoiNhuan/CauHinh
+-- 11. Update GiaBan in Tbl_SanPham: GiaBan = DonGiaNhap (giá nhập)
+-- Lưu ý: GiaBan giờ lưu giá nhập, giá bán thực tế sẽ được tính động từ giá nhập + % lợi nhuận
 UPDATE sp
-SET sp.GiaBan = COALESCE(
-    ROUND(ctpn.DonGiaNhap * (1 + ISNULL(q.PhanTramLoiNhuan, (SELECT TOP 1 PhanTramLoiNhuanMacDinh FROM Tbl_CauHinhLoiNhuan ORDER BY NgayCapNhat DESC)) / 100), 0),
-    sp.GiaBan
-)
+SET sp.GiaBan = COALESCE(ctpn.DonGiaNhap, sp.GiaBan)
 FROM Tbl_SanPham sp
 OUTER APPLY (
     SELECT TOP 1 ctpn.DonGiaNhap
@@ -269,13 +267,7 @@ OUTER APPLY (
     WHERE ctpn.MaSanPham = sp.MaSanPham
       AND pn.TrangThai = N'Nhập thành công'
     ORDER BY pn.NgayNhap DESC, ctpn.MaChiTietPhieuNhap DESC
-) AS ctpn
-OUTER APPLY (
-    SELECT TOP 1 q.PhanTramLoiNhuan
-    FROM Tbl_QuyTacLoiNhuan q
-    WHERE q.MaSanPham = sp.MaSanPham AND q.TrangThai = N'Hoạt động'
-    ORDER BY q.NgayCapNhat DESC
-) q;
+) AS ctpn;
 GO
 
 -- 12. Tbl_NhanVien (10 random realistic employees)
