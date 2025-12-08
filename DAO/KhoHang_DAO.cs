@@ -145,14 +145,22 @@ namespace mini_supermarket.DAO
 
         public IList<SanPhamBanHangDTO> LayDanhSachSanPhamBanHang()
         {
-            // Tính giá bán động từ giá nhập (sp.GiaBan giờ là giá nhập) + % lợi nhuận
+            // Lấy giá nhập từ ChiTietPhieuNhap và tính giá bán từ giá nhập + % lợi nhuận
+            // (Giống như trong quản lý % lợi nhuận)
             string query = @"
                 SELECT 
                     sp.MaSanPham,
                     sp.TenSanPham,
-                    -- Tính giá bán = giá nhập (sp.GiaBan) * (1 + % lợi nhuận / 100)
+                    -- Tính giá bán = giá nhập (từ ChiTietPhieuNhap) * (1 + % lợi nhuận / 100)
                     ROUND(
-                        ISNULL(sp.GiaBan, 0) * 
+                        ISNULL((
+                            SELECT TOP 1 ct.DonGiaNhap 
+                            FROM Tbl_ChiTietPhieuNhap ct 
+                            INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap 
+                            WHERE ct.MaSanPham = sp.MaSanPham 
+                              AND p.TrangThai = N'Nhập thành công'
+                            ORDER BY p.NgayNhap DESC, ct.MaChiTietPhieuNhap DESC
+                        ), 0) * 
                         (1 + ISNULL(q.PhanTramLoiNhuan, ISNULL(ch.PhanTramLoiNhuanMacDinh, 15.00)) / 100), 
                         2
                     ) AS GiaBan,
@@ -494,14 +502,22 @@ namespace mini_supermarket.DAO
 
         public IList<SanPhamChiTietDTO> LayThongTinSanPhamChiTiet(int maSanPham)
         {
-            // Tính giá bán động từ giá nhập (sp.GiaBan giờ là giá nhập) + % lợi nhuận
+            // Lấy giá nhập từ ChiTietPhieuNhap và tính giá bán từ giá nhập + % lợi nhuận
+            // (Giống như trong quản lý % lợi nhuận)
             string query = @"
                 SELECT 
                     sp.MaSanPham,
                     sp.TenSanPham,
-                    -- Tính giá bán = giá nhập (sp.GiaBan) * (1 + % lợi nhuận / 100)
+                    -- Tính giá bán = giá nhập (từ ChiTietPhieuNhap) * (1 + % lợi nhuận / 100)
                     ROUND(
-                        ISNULL(sp.GiaBan, 0) * 
+                        ISNULL((
+                            SELECT TOP 1 ct.DonGiaNhap 
+                            FROM Tbl_ChiTietPhieuNhap ct 
+                            INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap 
+                            WHERE ct.MaSanPham = sp.MaSanPham 
+                              AND p.TrangThai = N'Nhập thành công'
+                            ORDER BY p.NgayNhap DESC, ct.MaChiTietPhieuNhap DESC
+                        ), 0) * 
                         (1 + ISNULL(q.PhanTramLoiNhuan, ISNULL(ch.PhanTramLoiNhuanMacDinh, 15.00)) / 100), 
                         2
                     ) AS GiaBan,

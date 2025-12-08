@@ -420,6 +420,51 @@ namespace mini_supermarket.BUS
             _sanPhamBus.UpdateGiaBan(maSanPham, giaBan);
         }
 
+        // Lấy giá nhập và giá bán cho một sản phẩm (tính giống như trong quản lý % lợi nhuận)
+        // Trả về: (GiaNhap, GiaBan) - giá bán được tính từ giá nhập + % lợi nhuận
+        public (decimal GiaNhap, decimal GiaBan) GetGiaNhapVaGiaBan(int maSanPham)
+        {
+            // Lấy dữ liệu từ GetAllKhoHangWithPrice (giống như quản lý % lợi nhuận)
+            var khoHangList = _khoHangBus.GetAllKhoHangWithPrice();
+            var khoHang = khoHangList.FirstOrDefault(kh => kh.MaSanPham == maSanPham);
+            
+            if (khoHang == null)
+            {
+                return (0, 0);
+            }
+
+            // Lấy % lợi nhuận
+            var quyTac = GetQuyTacApDungChoSanPham(maSanPham);
+            var cauHinh = _cauHinhDao.GetCauHinh();
+            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 15.00m;
+            decimal phanTram = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
+
+            decimal giaNhap = khoHang.GiaNhap ?? 0;
+            decimal giaBan;
+
+            if (giaNhap > 0)
+            {
+                // Có giá nhập → tính giá bán từ giá nhập và % lợi nhuận (làm tròn đến 2 chữ số thập phân)
+                giaBan = Math.Round(giaNhap * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
+            }
+            else
+            {
+                // Chưa có giá nhập, lấy từ Tbl_SanPham.GiaBan (giờ là giá nhập)
+                var sanPham = _sanPhamBus.GetSanPhamById(maSanPham);
+                if (sanPham != null && sanPham.GiaBan.HasValue && sanPham.GiaBan.Value > 0)
+                {
+                    giaNhap = sanPham.GiaBan.Value;
+                    giaBan = Math.Round(giaNhap * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
+                }
+                else
+                {
+                    giaBan = 0;
+                }
+            }
+
+            return (giaNhap, giaBan);
+        }
+
         private static void ValidateQuyTac(QuyTacLoiNhuanDTO quyTac)
         {
             if (string.IsNullOrWhiteSpace(quyTac.LoaiQuyTac))

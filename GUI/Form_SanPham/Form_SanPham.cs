@@ -16,6 +16,7 @@ namespace mini_supermarket.GUI.Form_SanPham
         private const string FunctionPath = "Form_SanPham";
 
         private readonly SanPham_BUS _sanPhamBus = new();
+        private readonly LoiNhuan_BUS _loiNhuanBus = new();
         private readonly BindingSource _bindingSource = new();
         private readonly PermissionService _permissionService = new();
         private IList<SanPhamDTO> _currentSanPham = Array.Empty<SanPhamDTO>();
@@ -94,7 +95,24 @@ namespace mini_supermarket.GUI.Form_SanPham
         {
             try
             {
-                _currentSanPham = _sanPhamBus.GetSanPham();
+                var sanPhamList = _sanPhamBus.GetSanPham();
+                
+                // Tính giá nhập cho mỗi sản phẩm từ quản lý % lợi nhuận
+                foreach (var sp in sanPhamList)
+                {
+                    try
+                    {
+                        var (giaNhap, _) = _loiNhuanBus.GetGiaNhapVaGiaBan(sp.MaSanPham);
+                        // Cập nhật GiaBan (giờ là giá nhập) từ quản lý % lợi nhuận
+                        sp.GiaBan = giaNhap > 0 ? (decimal?)giaNhap : null;
+                    }
+                    catch
+                    {
+                        // Nếu lỗi, giữ nguyên giá trị
+                    }
+                }
+                
+                _currentSanPham = sanPhamList;
                 ApplyFilters();
 
                 if (selectMaSanPham.HasValue)
@@ -155,6 +173,7 @@ namespace mini_supermarket.GUI.Form_SanPham
         {
             UpdateActionButtonsState();
         }
+
 
         private void UpdateActionButtonsState()
         {

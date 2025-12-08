@@ -89,12 +89,12 @@ namespace mini_supermarket.GUI.Form_SanPham
                 // Ignore error, just leave combobox unselected
             }
 
-            // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
-            var khoHangBus = new KhoHangBUS();
-            decimal? giaNhap = khoHangBus.GetGiaNhapMoiNhat(_original.MaSanPham);
-            giaBanTextBox.Text = giaNhap.HasValue
-                ? giaNhap.Value.ToString("N0", CultureInfo.CurrentCulture)
-                : (_original.GiaBan.HasValue ? _original.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture) : string.Empty);
+            // Lấy giá nhập từ quản lý % lợi nhuận (giống như cột "Giá nhập" trong quản lý % lợi nhuận)
+            var loiNhuanBus = new LoiNhuan_BUS();
+            var (giaNhap, _) = loiNhuanBus.GetGiaNhapVaGiaBan(_original.MaSanPham);
+            giaBanTextBox.Text = giaNhap > 0
+                ? giaNhap.ToString("N0", CultureInfo.CurrentCulture)
+                : string.Empty;
             xuatXuTextBox.Text = _original.XuatXu ?? string.Empty;
 
             if (_original.Hsd.HasValue)
