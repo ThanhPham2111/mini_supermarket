@@ -381,7 +381,8 @@ namespace mini_supermarket.GUI.QuanLy
                     {
                         decimal phanTram = Convert.ToDecimal(dgvTheoSanPham.Rows[e.RowIndex].Cells[3].Value);
                         decimal giaNhap = Convert.ToDecimal(dgvTheoSanPham.Rows[e.RowIndex].Cells[2].Value);
-                        decimal giaBan = giaNhap * (1 + phanTram / 100);
+                        // Tính giá bán mới từ giá nhập và % lợi nhuận (làm tròn đến 2 chữ số thập phân)
+                        decimal giaBan = Math.Round(giaNhap * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
 
                         var quyTac = new QuyTacLoiNhuanDTO
                         {
@@ -404,14 +405,16 @@ namespace mini_supermarket.GUI.QuanLy
                             _loiNhuanBus.AddQuyTac(quyTac);
                         }
 
-                        // Cập nhật giá bán trong Tbl_SanPham thông qua BUS
-                        _loiNhuanBus.CapNhatGiaBanChoSanPham(maSanPham, giaBan);
+                        // Lưu ý: Không cập nhật giá bán vào Tbl_SanPham nữa
+                        // Vì giá bán được tính động từ giá nhập + % lợi nhuận khi hiển thị
+                        // Tbl_SanPham.GiaBan giờ lưu giá nhập, không phải giá bán
 
-                        // Cập nhật giá bán trong DataGridView
+                        // Cập nhật giá bán trong DataGridView (chỉ để hiển thị)
                         dgvTheoSanPham.Rows[e.RowIndex].Cells[4].Value = giaBan;
+                        
+                        // Reload tab xem trước để hiển thị giá bán mới với % lợi nhuận đã cập nhật
+                        LoadTabXemTruoc();
                     }
-
-                    LoadTabXemTruoc();
                 }
                 catch (Exception ex)
                 {

@@ -95,24 +95,30 @@ namespace mini_supermarket.GUI.Form_SanPham
         {
             try
             {
-                var sanPhamList = _sanPhamBus.GetSanPham();
+                // Lấy danh sách sản phẩm - GiaBan giờ là giá nhập
+                _currentSanPham = _sanPhamBus.GetSanPham();
                 
-                // Tính giá nhập cho mỗi sản phẩm từ quản lý % lợi nhuận
-                foreach (var sp in sanPhamList)
+                // Cập nhật giá nhập từ ChiTietPhieuNhap nếu có (để đảm bảo hiển thị giá nhập mới nhất)
+                foreach (var sp in _currentSanPham)
                 {
                     try
                     {
-                        var (giaNhap, _) = _loiNhuanBus.GetGiaNhapVaGiaBan(sp.MaSanPham);
-                        // Cập nhật GiaBan (giờ là giá nhập) từ quản lý % lợi nhuận
-                        sp.GiaBan = giaNhap > 0 ? (decimal?)giaNhap : null;
+                        // Lấy giá nhập mới nhất từ ChiTietPhieuNhap
+                        var khoHangBus = new KhoHangBUS();
+                        decimal? giaNhapMoiNhat = khoHangBus.GetGiaNhapMoiNhat(sp.MaSanPham);
+                        
+                        // Nếu có giá nhập mới nhất, cập nhật vào GiaBan (giờ là giá nhập)
+                        if (giaNhapMoiNhat.HasValue && giaNhapMoiNhat.Value > 0)
+                        {
+                            sp.GiaBan = giaNhapMoiNhat.Value;
+                        }
                     }
                     catch
                     {
-                        // Nếu lỗi, giữ nguyên giá trị
+                        // Nếu lỗi, giữ nguyên giá trị từ Tbl_SanPham.GiaBan
                     }
                 }
                 
-                _currentSanPham = sanPhamList;
                 ApplyFilters();
 
                 if (selectMaSanPham.HasValue)

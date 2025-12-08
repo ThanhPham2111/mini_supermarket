@@ -89,12 +89,12 @@ namespace mini_supermarket.GUI.Form_SanPham
                 // Ignore error, just leave combobox unselected
             }
 
-            // Lấy giá nhập từ quản lý % lợi nhuận (giống như cột "Giá nhập" trong quản lý % lợi nhuận)
-            var loiNhuanBus = new LoiNhuan_BUS();
-            var (giaNhap, _) = loiNhuanBus.GetGiaNhapVaGiaBan(_original.MaSanPham);
-            giaBanTextBox.Text = giaNhap > 0
-                ? giaNhap.ToString("N0", CultureInfo.CurrentCulture)
-                : string.Empty;
+            // Lấy giá nhập mới nhất từ ChiTietPhieuNhap (giống như quản lý % lợi nhuận)
+            var khoHangBus = new KhoHangBUS();
+            decimal? giaNhap = khoHangBus.GetGiaNhapMoiNhat(_original.MaSanPham);
+            giaBanTextBox.Text = giaNhap.HasValue && giaNhap.Value > 0
+                ? giaNhap.Value.ToString("N0", CultureInfo.CurrentCulture)
+                : (_original.GiaBan.HasValue ? _original.GiaBan.Value.ToString("N0", CultureInfo.CurrentCulture) : string.Empty);
             xuatXuTextBox.Text = _original.XuatXu ?? string.Empty;
 
             if (_original.Hsd.HasValue)
@@ -229,18 +229,10 @@ namespace mini_supermarket.GUI.Form_SanPham
                 return;
             }
 
-            decimal? giaBan = null;
-            if (!string.IsNullOrWhiteSpace(giaBanTextBox.Text))
-            {
-                if (!decimal.TryParse(giaBanTextBox.Text.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out var parsedGiaBan) || parsedGiaBan < 0)
-                {
-                    MessageBox.Show(this, "Giá nhập không hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    giaBanTextBox.Focus();
-                    return;
-                }
-
-                giaBan = parsedGiaBan;
-            }
+            // Giá nhập không được sửa trong form này (chỉ đọc)
+            // Giá nhập chỉ được cập nhật khi nhập hàng
+            // Giữ nguyên giá nhập hiện tại từ _original
+            decimal? giaBan = _original.GiaBan;
 
             // Trạng thái giữ nguyên giá trị hiện tại
             string trangThai = _original.TrangThai ?? SanPham_BUS.StatusConHang;
@@ -272,7 +264,7 @@ namespace mini_supermarket.GUI.Form_SanPham
                 MaDonVi = maDonVi,
                 MaLoai = maLoai,
                 MaThuongHieu = maThuongHieu,
-                GiaBan = giaBan,
+                GiaBan = giaBan, // Giữ nguyên giá nhập hiện tại
                 TrangThai = trangThai,
                 Hsd = hsd,
                 XuatXu = xuatXu,

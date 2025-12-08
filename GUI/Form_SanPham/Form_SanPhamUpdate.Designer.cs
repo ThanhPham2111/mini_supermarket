@@ -255,6 +255,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             // giaBanTextBox
             giaBanTextBox.Location = new System.Drawing.Point(150, 220);
             giaBanTextBox.Name = "giaBanTextBox";
+            giaBanTextBox.ReadOnly = true;
             giaBanTextBox.Size = new System.Drawing.Size(250, 25);
             giaBanTextBox.TabIndex = 8;
 

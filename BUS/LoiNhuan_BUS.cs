@@ -35,10 +35,11 @@ namespace mini_supermarket.BUS
             // Cập nhật cấu hình vào database trước
             _cauHinhDao.UpdateCauHinh(phanTramLoiNhuan, maNhanVien);
             
-            // Tự động tính lại giá bán cho toàn bộ sản phẩm khi % lợi nhuận thay đổi
-            // forceUpdate = true để luôn cập nhật giá bán dựa trên % lợi nhuận mới
-            // GetCauHinh() sẽ lấy giá trị mới nhất từ database sau khi UpdateCauHinh()
-            return ApDungLoiNhuanChoToanBoKho(maNhanVien, forceUpdate: true, out ketQua);
+            // Lưu ý: Không cần cập nhật giá bán khi % lợi nhuận thay đổi
+            // Vì giá bán được tính động từ giá nhập + % lợi nhuận khi hiển thị
+            // Chỉ cần đảm bảo giá nhập được cập nhật đúng
+            ketQua = new KetQuaApDungLoiNhuan();
+            return ketQua;
         }
 
         // Cập nhật cấu hình lợi nhuận mặc định và tất cả quy tắc riêng theo tỷ lệ
@@ -79,8 +80,8 @@ namespace mini_supermarket.BUS
                 }
             }
 
-            // 4. Áp dụng cho toàn bộ kho
-            ApDungLoiNhuanChoToanBoKho(maNhanVien, forceUpdate: true);
+            // 4. Lưu ý: Không cần cập nhật giá bán khi % lợi nhuận thay đổi
+            // Vì giá bán được tính động từ giá nhập + % lợi nhuận khi hiển thị
         }
 
         // Lấy danh sách quy tắc lợi nhuận
@@ -178,7 +179,9 @@ namespace mini_supermarket.BUS
         }
 
         // Áp dụng lợi nhuận cho toàn bộ kho hàng
-        // forceUpdate: true = luôn cập nhật giá bán (khi % lợi nhuận thay đổi)
+        // Lưu ý: Giờ chỉ cập nhật giá nhập vào Tbl_SanPham.GiaBan, không tính giá bán nữa
+        // Giá bán được tính động từ giá nhập + % lợi nhuận khi hiển thị
+        // forceUpdate: true = luôn cập nhật giá nhập (khi % lợi nhuận thay đổi - không dùng nữa)
         //              false = chỉ cập nhật khi giá nhập tăng (khi nhập hàng)
         public void ApDungLoiNhuanChoToanBoKho(int maNhanVien, bool forceUpdate = false)
         {
@@ -186,6 +189,8 @@ namespace mini_supermarket.BUS
         }
 
         // Overload method trả về kết quả chi tiết
+        // Lưu ý: Method này giờ chỉ cập nhật giá nhập vào Tbl_SanPham.GiaBan
+        // Giá bán được tính động, không lưu vào DB
         public KetQuaApDungLoiNhuan ApDungLoiNhuanChoToanBoKho(int maNhanVien, bool forceUpdate, out KetQuaApDungLoiNhuan ketQua)
         {
             ketQua = new KetQuaApDungLoiNhuan();
@@ -194,17 +199,12 @@ namespace mini_supermarket.BUS
             System.Diagnostics.Debug.WriteLine($"[ApDungLoiNhuanChoToanBoKho] forceUpdate={forceUpdate}, maNhanVien={maNhanVien}");
             
             var allSanPham = _sanPhamBus.GetAll();
-            var cauHinh = _cauHinhDao.GetCauHinh();
-            decimal phanTramMacDinh = cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
 
-            System.Diagnostics.Debug.WriteLine($"[ApDungLoiNhuanChoToanBoKho] Total products: {allSanPham.Count}, Default margin: {phanTramMacDinh}%");
+            System.Diagnostics.Debug.WriteLine($"[ApDungLoiNhuanChoToanBoKho] Total products: {allSanPham.Count}");
 
             ketQua.TongSanPham = allSanPham.Count;
             int countUpdated = 0;
             int countSkipped = 0;
-            int countNoImportPrice = 0;
-            int countFallbackUpdate = 0;
-            int countCoQuyTacRieng = 0;
 
             foreach (var sanPham in allSanPham)
             {
@@ -215,112 +215,32 @@ namespace mini_supermarket.BUS
                     
                     if (giaNhapMoiNhat.HasValue && giaNhapMoiNhat.Value > 0)
                     {
-                        bool shouldUpdate = false;
-                        
-                        if (forceUpdate)
-                        {
-                            // Khi % lợi nhuận thay đổi, luôn tính lại giá bán
-                            shouldUpdate = true;
-                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Force update mode - will update");
-                        }
-                        else
-                        {
-                            // Khi nhập hàng, chỉ cập nhật nếu giá nhập tăng
-                            decimal? giaBanHienTai = sanPham.GiaBan;
-                            decimal? giaNhapCu = null;
-                            
-                            if (giaBanHienTai.HasValue && giaBanHienTai.Value > 0)
-                            {
-                                // Tính ngược lại giá nhập cũ từ giá bán hiện tại
-                                var quyTac = GetQuyTacApDungChoSanPham(sanPham.MaSanPham);
-                                decimal phanTramApDung = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                                // GiaBan = GiaNhap * (1 + PhanTram/100)
-                                // => GiaNhap = GiaBan / (1 + PhanTram/100)
-                                giaNhapCu = giaBanHienTai.Value / (1 + phanTramApDung / 100);
-                            }
+                        // Lấy giá nhập hiện tại (từ Tbl_SanPham.GiaBan - giờ là giá nhập)
+                        decimal? giaNhapHienTai = sanPham.GiaBan;
 
-                            // Logic: Nếu giá nhập mới >= giá nhập cũ thì tính lại giá bán
-                            // Nếu giá nhập mới < giá nhập cũ thì giữ nguyên giá bán
-                            shouldUpdate = !giaNhapCu.HasValue || giaNhapMoiNhat.Value >= giaNhapCu.Value;
-                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Import price check - Old: {giaNhapCu}, New: {giaNhapMoiNhat}, ShouldUpdate: {shouldUpdate}");
-                        }
+                        // Logic: Nếu giá nhập mới >= giá nhập cũ thì cập nhật giá nhập mới
+                        // Nếu giá nhập mới < giá nhập cũ thì giữ nguyên giá nhập cũ
+                        bool shouldUpdate = !giaNhapHienTai.HasValue || giaNhapMoiNhat.Value >= giaNhapHienTai.Value;
 
                         if (shouldUpdate)
                         {
-                            // Lấy quy tắc áp dụng
-                            var quyTac = GetQuyTacApDungChoSanPham(sanPham.MaSanPham);
-                            
-                            // QUAN TRỌNG: Nếu sản phẩm đã có quy tắc TheoSanPham, bỏ qua (không cập nhật)
-                            if (quyTac != null && quyTac.LoaiQuyTac == "TheoSanPham")
-                            {
-                                countSkipped++;
-                                continue;
-                            }
-                            
-                            decimal phanTramApDung = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
-
-                            // Nếu có quyTac thì đó là quy tắc TheoSanPham (không còn "Chung" nữa)
-                            bool coQuyTacRieng = quyTac != null;
-
-                            // Tính giá bán mới (làm tròn đến 2 chữ số thập phân)
-                            decimal giaBanMoi = Math.Round(giaNhapMoiNhat.Value * (1 + phanTramApDung / 100), 2, MidpointRounding.AwayFromZero);
-
-                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Updating - ImportPrice: {giaNhapMoiNhat}, Margin: {phanTramApDung}%, OldPrice: {sanPham.GiaBan}, NewPrice: {giaBanMoi}");
-
-                            // Cập nhật giá bán trong Tbl_SanPham
-                            // QUAN TRỌNG: Phải dùng UpdateGiaBan để đảm bảo chỉ cập nhật giá bán
-                            _sanPhamBus.UpdateGiaBan(sanPham.MaSanPham, giaBanMoi);
+                            // Cập nhật giá nhập mới vào Tbl_SanPham.GiaBan
+                            // (GiaBan giờ lưu giá nhập)
+                            _sanPhamBus.UpdateGiaBan(sanPham.MaSanPham, giaNhapMoiNhat.Value);
                             countUpdated++;
-
-                            // Phân loại: có quy tắc riêng hay dùng % mặc định
-                            if (coQuyTacRieng)
-                            {
-                                countCoQuyTacRieng++;
-                            }
+                            
+                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Updated import price: {giaNhapMoiNhat.Value}");
                         }
                         else
                         {
-                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Skipped - Import price did not increase");
+                            System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Skipped - New import price ({giaNhapMoiNhat.Value}) < current ({giaNhapHienTai ?? 0})");
                             countSkipped++;
                         }
                     }
-                    else if (forceUpdate && sanPham.GiaBan.HasValue && sanPham.GiaBan.Value > 0)
-                    {
-                        countNoImportPrice++;
-                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] No import price - Using fallback calculation");
-                        
-                        // Khi forceUpdate = true và không có giá nhập, nhưng có giá bán
-                        // Tính lại giá bán dựa trên giá bán cũ và % lợi nhuận mới
-                        // Giả sử giá nhập = giá bán cũ / (1 + % cũ)
-                        // Sau đó tính giá bán mới = giá nhập * (1 + % mới)
-                        // Nhưng không biết % cũ, nên ta tính trực tiếp:
-                        // GiaBanMoi = GiaBanCu * (1 + %Moi) / (1 + %Cu)
-                        // Vì không biết %Cu, ta giả sử %Cu = %MacDinhCu (15%)
-                        // Hoặc đơn giản hơn: tính ngược lại giá nhập từ giá bán cũ với % mặc định cũ
-                        
-                        // Lấy quy tắc áp dụng để biết % mới
-                        var quyTac = GetQuyTacApDungChoSanPham(sanPham.MaSanPham);
-                        decimal phanTramMoi = quyTac?.PhanTramLoiNhuan ?? phanTramMacDinh;
-                        
-                        // Giả sử giá bán cũ được tính với % mặc định cũ (15%)
-                        // Tính ngược lại giá nhập: GiaNhap = GiaBanCu / (1 + 15/100)
-                        decimal giaBanCu = sanPham.GiaBan.Value;
-                        decimal phanTramCuMacDinh = 15.00m; // Giả sử % cũ là 15%
-                        decimal giaNhapUocTinh = giaBanCu / (1 + phanTramCuMacDinh / 100);
-                        
-                        // Tính giá bán mới với % mới
-                        decimal giaBanMoi = Math.Round(giaNhapUocTinh * (1 + phanTramMoi / 100), 2, MidpointRounding.AwayFromZero);
-                        
-                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Fallback - OldPrice: {giaBanCu}, EstimatedImport: {giaNhapUocTinh}, OldMargin: {phanTramCuMacDinh}%, NewMargin: {phanTramMoi}%, NewPrice: {giaBanMoi}");
-                        
-                        // Cập nhật giá bán
-                        _sanPhamBus.UpdateGiaBan(sanPham.MaSanPham, giaBanMoi);
-                        countFallbackUpdate++;
-                    }
                     else
                     {
-                        // Không có giá nhập và không có giá bán, bỏ qua
-                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Skipped - No import price and no selling price");
+                        // Không có giá nhập, bỏ qua
+                        System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Skipped - No import price");
                         countSkipped++;
                     }
                 }
@@ -329,30 +249,29 @@ namespace mini_supermarket.BUS
                     // Log lỗi nhưng tiếp tục với sản phẩm khác
                     System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] ERROR - {ex.Message}");
                     System.Diagnostics.Debug.WriteLine($"[Product {sanPham.MaSanPham}] Stack trace: {ex.StackTrace}");
+                    countSkipped++;
                 }
             }
 
             // Cập nhật kết quả
-            ketQua.SanPhamDuocCapNhat = countUpdated; // Tổng số sản phẩm được cập nhật
-            ketQua.SanPhamCoQuyTacRieng = countCoQuyTacRieng; // Số sản phẩm có quy tắc riêng (trong số được cập nhật)
-            ketQua.SanPhamDuocCapNhatVoiMacDinh = countUpdated - countCoQuyTacRieng; // Số sản phẩm được cập nhật với % mặc định
-            ketQua.SanPhamKhongCoGiaNhap = countNoImportPrice;
-            ketQua.SanPhamDuocCapNhatBangFallback = countFallbackUpdate;
+            ketQua.SanPhamDuocCapNhat = countUpdated;
+            ketQua.SanPhamCoQuyTacRieng = 0; // Không còn phân biệt nữa
+            ketQua.SanPhamDuocCapNhatVoiMacDinh = countUpdated;
+            ketQua.SanPhamKhongCoGiaNhap = 0;
+            ketQua.SanPhamDuocCapNhatBangFallback = 0;
 
             System.Diagnostics.Debug.WriteLine($"========== [ApDungLoiNhuanChoToanBoKho] SUMMARY ==========");
             System.Diagnostics.Debug.WriteLine($"Total products: {allSanPham.Count}");
-            System.Diagnostics.Debug.WriteLine($"Updated (with import price): {countUpdated}");
-            System.Diagnostics.Debug.WriteLine($"Updated (fallback, no import price): {countFallbackUpdate}");
+            System.Diagnostics.Debug.WriteLine($"Updated (import price): {countUpdated}");
             System.Diagnostics.Debug.WriteLine($"Skipped: {countSkipped}");
-            System.Diagnostics.Debug.WriteLine($"Products without import price: {countNoImportPrice}");
-            System.Diagnostics.Debug.WriteLine($"Products with custom rules: {countCoQuyTacRieng}");
             System.Diagnostics.Debug.WriteLine($"========== [ApDungLoiNhuanChoToanBoKho] END ==========");
             
             return ketQua;
         }
 
-        // Cập nhật giá bán khi giá nhập thay đổi (với logic đặc biệt)
-        // Được gọi khi có phiếu nhập mới
+        // Cập nhật giá nhập khi nhập hàng mới
+        // Được gọi khi xác nhận nhập kho
+        // Lưu ý: Tbl_SanPham.GiaBan giờ lưu giá nhập, không phải giá bán
         public void CapNhatGiaBanKhiGiaNhapThayDoi(int maSanPham, decimal giaNhapMoi)
         {
             if (giaNhapMoi < 0)
@@ -362,35 +281,18 @@ namespace mini_supermarket.BUS
             if (sanPham == null)
                 throw new InvalidOperationException($"Không tìm thấy sản phẩm với mã {maSanPham}.");
 
-            // Lấy giá nhập cũ (từ giá bán hiện tại và % lợi nhuận)
-            decimal? giaBanHienTai = sanPham.GiaBan;
-            decimal? giaNhapCu = null;
-            
-            if (giaBanHienTai.HasValue && giaBanHienTai.Value > 0)
-            {
-                // Tính ngược lại giá nhập cũ từ giá bán hiện tại
-                var quyTac = GetQuyTacApDungChoSanPham(maSanPham);
-                var cauHinh = _cauHinhDao.GetCauHinh();
-                decimal phanTram = quyTac?.PhanTramLoiNhuan ?? cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
-                // GiaBan = GiaNhap * (1 + PhanTram/100)
-                // => GiaNhap = GiaBan / (1 + PhanTram/100)
-                giaNhapCu = giaBanHienTai.Value / (1 + phanTram / 100);
-            }
+            // Lấy giá nhập cũ (từ Tbl_SanPham.GiaBan - giờ là giá nhập)
+            decimal? giaNhapCu = sanPham.GiaBan;
 
-            // Logic: Nếu giá nhập mới >= giá nhập cũ thì tính lại giá bán
-            // Nếu giá nhập mới < giá nhập cũ thì giữ nguyên giá bán
+            // Logic: Nếu giá nhập mới >= giá nhập cũ thì cập nhật giá nhập mới
+            // Nếu giá nhập mới < giá nhập cũ thì giữ nguyên giá nhập cũ
             if (!giaNhapCu.HasValue || giaNhapMoi >= giaNhapCu.Value)
             {
-                // Lấy quy tắc áp dụng để tính giá bán
-                var quyTac = GetQuyTacApDungChoSanPham(maSanPham);
-                var cauHinh = _cauHinhDao.GetCauHinh();
-                decimal phanTram = quyTac?.PhanTramLoiNhuan ?? cauHinh?.PhanTramLoiNhuanMacDinh ?? 10.00m;
-                decimal giaBanMoi = Math.Round(giaNhapMoi * (1 + phanTram / 100), 2, MidpointRounding.AwayFromZero);
-                
-                // Cập nhật giá bán trong Tbl_SanPham
-                _sanPhamBus.UpdateGiaBan(maSanPham, giaBanMoi);
+                // Cập nhật giá nhập mới vào Tbl_SanPham.GiaBan
+                // (GiaBan giờ lưu giá nhập)
+                _sanPhamBus.UpdateGiaBan(maSanPham, giaNhapMoi);
             }
-            // Nếu giá nhập mới < giá nhập cũ, giữ nguyên giá bán (không làm gì)
+            // Nếu giá nhập mới < giá nhập cũ, giữ nguyên giá nhập cũ (không làm gì)
         }
 
         // Method GetAllGiaSanPham đã được xóa vì bảng Tbl_GiaSanPham không còn tồn tại
