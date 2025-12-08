@@ -818,7 +818,12 @@ namespace mini_supermarket.DAO
         {
             const string query = @"
                 SELECT kh.MaSanPham, kh.SoLuong, kh.TrangThai, kh.TrangThaiDieuKien, sp.GiaBan, sp.TenSanPham,
-                       (SELECT TOP 1 ct.DonGiaNhap FROM Tbl_ChiTietPhieuNhap ct INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap WHERE ct.MaSanPham = kh.MaSanPham ORDER BY p.NgayNhap DESC) AS GiaNhap
+                       (SELECT TOP 1 ct.DonGiaNhap 
+                        FROM Tbl_ChiTietPhieuNhap ct 
+                        INNER JOIN Tbl_PhieuNhap p ON ct.MaPhieuNhap = p.MaPhieuNhap 
+                        WHERE ct.MaSanPham = kh.MaSanPham 
+                          AND p.TrangThai = N'Nhập thành công'
+                        ORDER BY p.NgayNhap DESC, ct.MaChiTietPhieuNhap DESC) AS GiaNhap
                 FROM Tbl_KhoHang kh
                 JOIN Tbl_SanPham sp ON kh.MaSanPham = sp.MaSanPham";
 

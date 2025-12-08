@@ -48,6 +48,8 @@ namespace mini_supermarket.GUI.QuanLy
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 10)
             };
+            // Reload dữ liệu khi chuyển tab để đảm bảo hiển thị giá nhập mới nhất sau khi nhập hàng
+            tabControlLoiNhuan.SelectedIndexChanged += TabControlLoiNhuan_SelectedIndexChanged;
 
             // Tab 1: Cấu hình chung
             tabCauHinhChung = new TabPage
@@ -422,6 +424,19 @@ namespace mini_supermarket.GUI.QuanLy
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     LoadTabTheoSanPham();
                 }
+            }
+        }
+
+        private void TabControlLoiNhuan_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            // Reload dữ liệu khi chuyển tab để đảm bảo hiển thị giá nhập mới nhất sau khi nhập hàng
+            if (tabControlLoiNhuan.SelectedTab == tabTheoSanPham)
+            {
+                LoadTabTheoSanPham();
+            }
+            else if (tabControlLoiNhuan.SelectedTab == tabXemTruoc)
+            {
+                LoadTabXemTruoc();
             }
         }
     }
