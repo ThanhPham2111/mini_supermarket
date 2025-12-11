@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,8 @@ namespace mini_supermarket.GUI.Form_BanHang
     public partial class Form_banHang : Form
     {
         private BanHang_BUS? banHangBUS;
-        private IList<SanPhamBanHangDTO>? allProductsData; // Lưu danh sách sản phẩm gốc để filter
+        private BindingList<SanPhamBanHangDTO>? allProductsData; // Lưu danh sách sản phẩm gốc để filter
+        private readonly BindingSource _productsBindingSource = new();
 
         public Form_banHang()
         {
@@ -27,6 +29,9 @@ namespace mini_supermarket.GUI.Form_BanHang
 
                 // Test database connection trước
                 TestConnection();
+
+                // Khởi tạo BindingSource cho dgvProducts
+                InitializeProductsBinding();
 
                 // Load sau khi form đã hiển thị
                 this.Load += Form_banHang_Load;
@@ -55,6 +60,100 @@ namespace mini_supermarket.GUI.Form_BanHang
             if (searchBox != null && searchBox.InnerTextBox != null)
             {
                 searchBox.InnerTextBox.TextChanged += SearchBox_TextChanged;
+            }
+        }
+
+        private void InitializeProductsBinding()
+        {
+            if (dgvProducts != null)
+            {
+                dgvProducts.AutoGenerateColumns = false;
+                dgvProducts.DataSource = _productsBindingSource;
+                
+                // Cấu hình DataPropertyName cho các cột
+                if (productColumnMaSanPham != null)
+                    productColumnMaSanPham.DataPropertyName = nameof(SanPhamBanHangDTO.MaSanPham);
+                if (productColumnName != null)
+                    productColumnName.DataPropertyName = nameof(SanPhamBanHangDTO.TenSanPham);
+                if (productColumnPrice != null)
+                    productColumnPrice.DataPropertyName = nameof(SanPhamBanHangDTO.GiaBan);
+                if (productColumnQuantity != null)
+                    productColumnQuantity.DataPropertyName = nameof(SanPhamBanHangDTO.SoLuong);
+                if (productColumnHsd != null)
+                    productColumnHsd.DataPropertyName = nameof(SanPhamBanHangDTO.Hsd);
+                if (productColumnPromotion != null)
+                    productColumnPromotion.DataPropertyName = nameof(SanPhamBanHangDTO.KhuyenMai);
+                
+                // Format giá trị trong CellFormatting
+                dgvProducts.CellFormatting += DgvProducts_CellFormatting;
+                dgvProducts.DataBindingComplete += DgvProducts_DataBindingComplete;
+            }
+        }
+
+        private void DgvProducts_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvProducts == null || e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            var column = dgvProducts.Columns[e.ColumnIndex];
+            if (column == null)
+                return;
+
+            if (dgvProducts.Rows[e.RowIndex].DataBoundItem is SanPhamBanHangDTO item)
+            {
+                // Format cột giá
+                if (column == productColumnPrice)
+                {
+                    if (item.GiaBan.HasValue)
+                    {
+                        e.Value = item.GiaBan.Value.ToString("N0") + " đ";
+                        e.FormattingApplied = true;
+                    }
+                }
+                // Format cột HSD
+                else if (column == productColumnHsd)
+                {
+                    if (item.Hsd.HasValue)
+                    {
+                        e.Value = item.Hsd.Value.ToString("dd/MM/yyyy");
+                        e.FormattingApplied = true;
+                    }
+                    else
+                    {
+                        e.Value = "N/A";
+                        e.FormattingApplied = true;
+                    }
+                }
+                // Format cột khuyến mãi
+                else if (column == productColumnPromotion)
+                {
+                    string khuyenMai = item.KhuyenMai ?? "";
+                    if (!string.IsNullOrEmpty(khuyenMai) && item.PhanTramGiam > 0)
+                    {
+                        e.Value = $"{khuyenMai} (-{item.PhanTramGiam}%)";
+                        e.FormattingApplied = true;
+                    }
+                    else
+                    {
+                        e.Value = "";
+                        e.FormattingApplied = true;
+                    }
+                }
+            }
+        }
+
+        private void DgvProducts_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Cập nhật Tag cho mỗi row với MaSanPham
+            if (dgvProducts != null)
+            {
+                foreach (DataGridViewRow row in dgvProducts.Rows)
+                {
+                    if (row.DataBoundItem is SanPhamBanHangDTO item)
+                    {
+                        row.Tag = item.MaSanPham;
+                    }
+                }
             }
         }
 
@@ -106,9 +205,6 @@ namespace mini_supermarket.GUI.Form_BanHang
 
                 var list = banHangBUS.LayDanhSachSanPhamBanHang();
 
-                // Lưu danh sách sản phẩm gốc để filter
-                allProductsData = list;
-
                 // Debug: Kiểm tra số lượng dữ liệu
                 if (list == null || list.Count == 0)
                 {
@@ -117,14 +213,16 @@ namespace mini_supermarket.GUI.Form_BanHang
                         "2. Trạng thái sản phẩm phải là 'Còn hàng'\n" +
                         "3. Sản phẩm phải có số lượng > 0 trong Tbl_KhoHang",
                         "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Set empty BindingList
+                    allProductsData = new BindingList<SanPhamBanHangDTO>();
+                    _productsBindingSource.DataSource = allProductsData;
                     return;
                 }
 
-                // Xóa dữ liệu cũ
-                dgvProducts.Rows.Clear();
-                Console.WriteLine("Đã clear rows");
-
-                // Load sản phẩm từ DataTable
+                // Lưu danh sách sản phẩm gốc để filter - chuyển sang BindingList
+                allProductsData = new BindingList<SanPhamBanHangDTO>(list.ToList());
+                
+                // Load sản phẩm từ BindingList
                 LoadProductsFromList(allProductsData, autoSelectFirst: true);
             }
             catch (Exception ex)
@@ -485,12 +583,10 @@ namespace mini_supermarket.GUI.Form_BanHang
 
                 string searchText = searchBox?.InnerTextBox?.Text?.Trim() ?? "";
 
-                // Xóa dữ liệu cũ
-                dgvProducts.Rows.Clear();
-
                 if (string.IsNullOrEmpty(searchText))
                 {
                     // Nếu không có từ khóa, hiển thị tất cả
+                    _productsBindingSource.DataSource = allProductsData;
                     LoadProductsFromList(allProductsData, autoSelectFirst: true);
                 }
                 else
@@ -499,13 +595,15 @@ namespace mini_supermarket.GUI.Form_BanHang
                     string searchLower = searchText.ToLower();
                     var filtered = allProductsData.Where(item =>
                     {
-                        string tenSanPham = item.TenSanPham.ToLower();
+                        string tenSanPham = item.TenSanPham?.ToLower() ?? "";
                         string maSanPham = item.MaSanPham.ToString();
 
                         return tenSanPham.Contains(searchLower) || maSanPham.Contains(searchText);
                     }).ToList();
 
-                    LoadProductsFromList(filtered, autoSelectFirst: true);
+                    // Tạo BindingList mới từ filtered data
+                    var filteredBindingList = new BindingList<SanPhamBanHangDTO>(filtered);
+                    LoadProductsFromList(filteredBindingList, autoSelectFirst: true);
                 }
             }
             catch (Exception ex)
@@ -514,31 +612,15 @@ namespace mini_supermarket.GUI.Form_BanHang
             }
         }
 
-        private void LoadProductsFromList(IList<SanPhamBanHangDTO> list, bool autoSelectFirst = false)
+        private void LoadProductsFromList(BindingList<SanPhamBanHangDTO> list, bool autoSelectFirst = false)
         {
             try
             {
                 if (dgvProducts == null || list == null)
                     return;
 
-                foreach (var item in list)
-                {
-                    int maSanPham = item.MaSanPham;
-                    string tenSanPham = item.TenSanPham ?? "";
-                    decimal giaBan = item.GiaBan ?? 0m;
-                    int soLuong = item.SoLuong ?? 0;
-                    string khuyenMai = item.KhuyenMai ?? "";
-                    decimal phanTramGiam = item.PhanTramGiam;
-                    DateTime? hsd = item.Hsd;
-
-                    string giaBanStr = giaBan.ToString("N0") + " đ";
-                    string khuyenMaiStr = string.IsNullOrEmpty(khuyenMai) ? "" : $"{khuyenMai} (-{phanTramGiam}%)";
-                    string hsdStr = hsd.HasValue ? hsd.Value.ToString("dd/MM/yyyy") : "N/A";
-
-                    dgvProducts.Rows.Add(maSanPham, tenSanPham, giaBanStr, soLuong, hsdStr, khuyenMaiStr);
-
-                    dgvProducts.Rows[dgvProducts.Rows.Count - 1].Tag = item.MaSanPham;
-                }
+                // Sử dụng BindingSource để bind dữ liệu
+                _productsBindingSource.DataSource = list;
 
                 // Tự chọn dòng đầu tiên để đảm bảo thông tin sản phẩm luôn hiển thị
                 if (autoSelectFirst)

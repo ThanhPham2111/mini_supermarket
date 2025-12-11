@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.Common;
@@ -13,6 +15,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         private const string FunctionPath = "Form_LoaiSanPham";
         private readonly LoaiSanPham_BUS _loaiBus = new();
         private readonly BindingSource _loaiBindingSource = new();
+        private BindingList<LoaiDTO> _currentLoai = new();
         private readonly PermissionService _permissionService = new();
         private Form? _activeEmbeddedForm;
 
@@ -149,6 +152,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             );
 
             loaiDataGridView.DataSource = _loaiBindingSource;
+            loaiDataGridView.DataBindingComplete += LoaiDataGridView_DataBindingComplete;
+        }
+
+        private void LoaiDataGridView_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Có thể thêm logic cập nhật display values nếu cần
         }
 
         private void ApplyLoaiFilters()
@@ -160,7 +169,9 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 ? _loaiBus.GetLoaiList(statusFilter)
                 : _loaiBus.SearchLoai(keyword, statusFilter);
 
-            _loaiBindingSource.DataSource = list;
+            // Cập nhật BindingList với dữ liệu mới
+            _currentLoai = new BindingList<LoaiDTO>(list.ToList());
+            _loaiBindingSource.DataSource = _currentLoai;
 
             // Reset selection để tránh lỗi khi dữ liệu thay đổi
             loaiDataGridView.ClearSelection();

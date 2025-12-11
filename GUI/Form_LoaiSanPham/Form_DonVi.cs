@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.Common;
@@ -13,6 +15,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         private const string FunctionPath = "Form_DonVi";
         private readonly DonVi_BUS _bus = new();
         private readonly BindingSource _binding = new();
+        private BindingList<DonViDTO> _currentDonVi = new();
         private readonly PermissionService _permissionService = new();
 
         public Form_DonVi()
@@ -83,6 +86,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
             );
 
             donViDataGridView.DataSource = _binding;
+            donViDataGridView.DataBindingComplete += DonViDataGridView_DataBindingComplete;
+        }
+
+        private void DonViDataGridView_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Có thể thêm logic cập nhật display values nếu cần
         }
 
         private void ApplyFilters()
@@ -94,7 +103,9 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 ? _bus.GetDonViList(status)
                 : _bus.Search(keyword, status);
 
-            _binding.DataSource = list;
+            // Cập nhật BindingList với dữ liệu mới
+            _currentDonVi = new BindingList<DonViDTO>(list.ToList());
+            _binding.DataSource = _currentDonVi;
 
             donViDataGridView.ClearSelection();
 

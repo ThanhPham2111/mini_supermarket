@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
 using mini_supermarket.Common;
@@ -13,6 +15,7 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
         private const string FunctionPath = "Form_ThuongHieu";
         private readonly ThuongHieu_BUS _bus = new();
         private readonly BindingSource _binding = new();
+        private BindingList<ThuongHieuDTO> _currentThuongHieu = new();
         private readonly PermissionService _permissionService = new();
 
         public Form_ThuongHieu()
@@ -101,6 +104,12 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
 
             thuongHieuDataGridView.Columns.AddRange(maColumn, tenColumn, trangThaiColumn);
             thuongHieuDataGridView.DataSource = _binding;
+            thuongHieuDataGridView.DataBindingComplete += ThuongHieuDataGridView_DataBindingComplete;
+        }
+
+        private void ThuongHieuDataGridView_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Có thể thêm logic cập nhật display values nếu cần
         }
 
         private void ApplyFilters()
@@ -112,7 +121,9 @@ namespace mini_supermarket.GUI.Form_LoaiSanPham
                 ? _bus.GetThuongHieuList(status)
                 : _bus.Search(keyword, status);
 
-            _binding.DataSource = list;
+            // Cập nhật BindingList với dữ liệu mới
+            _currentThuongHieu = new BindingList<ThuongHieuDTO>(list.ToList());
+            _binding.DataSource = _currentThuongHieu;
 
             // CHỈ ClearSelection – KHÔNG ĐƯỢC ĐỤNG CurrentCell = null
             thuongHieuDataGridView.ClearSelection();

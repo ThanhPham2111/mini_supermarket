@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -19,7 +20,7 @@ namespace mini_supermarket.GUI.Form_SanPham
         private readonly LoiNhuan_BUS _loiNhuanBus = new();
         private readonly BindingSource _bindingSource = new();
         private readonly PermissionService _permissionService = new();
-        private IList<SanPhamDTO> _currentSanPham = Array.Empty<SanPhamDTO>();
+        private BindingList<SanPhamDTO> _currentSanPham = new();
 
         public Form_SanPham()
         {
@@ -37,6 +38,7 @@ namespace mini_supermarket.GUI.Form_SanPham
             sanPhamDataGridView.AutoGenerateColumns = false;
             sanPhamDataGridView.DataSource = _bindingSource;
             sanPhamDataGridView.SelectionChanged += SanPhamDataGridView_SelectionChanged;
+            sanPhamDataGridView.DataBindingComplete += SanPhamDataGridView_DataBindingComplete;
 
             var toolTip = new ToolTip();
             toolTip.SetToolTip(xemChiTietButton, "Xem chi tiết sản phẩm đã chọn");
@@ -96,10 +98,10 @@ namespace mini_supermarket.GUI.Form_SanPham
             try
             {
                 // Lấy danh sách sản phẩm - GiaBan giờ là giá nhập
-                _currentSanPham = _sanPhamBus.GetSanPham();
+                var sanPhamList = _sanPhamBus.GetSanPham();
                 
                 // Cập nhật giá nhập từ ChiTietPhieuNhap nếu có (để đảm bảo hiển thị giá nhập mới nhất)
-                foreach (var sp in _currentSanPham)
+                foreach (var sp in sanPhamList)
                 {
                     try
                     {
@@ -118,6 +120,9 @@ namespace mini_supermarket.GUI.Form_SanPham
                         // Nếu lỗi, giữ nguyên giá trị từ Tbl_SanPham.GiaBan
                     }
                 }
+                
+                // Cập nhật BindingList với dữ liệu mới
+                _currentSanPham = new BindingList<SanPhamDTO>(sanPhamList.ToList());
                 
                 ApplyFilters();
 
@@ -170,9 +175,16 @@ namespace mini_supermarket.GUI.Form_SanPham
                 filtered = filtered.Where(sp => MatchesSearch(sp, searchText));
             }
 
-            _bindingSource.DataSource = filtered.ToList();
+            // Tạo BindingList mới từ filtered data
+            var filteredList = new BindingList<SanPhamDTO>(filtered.ToList());
+            _bindingSource.DataSource = filteredList;
             sanPhamDataGridView.ClearSelection();
             UpdateActionButtonsState();
+        }
+
+        private void SanPhamDataGridView_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Có thể thêm logic cập nhật display values nếu cần
         }
 
         private void SanPhamDataGridView_SelectionChanged(object? sender, EventArgs e)
@@ -391,7 +403,7 @@ namespace mini_supermarket.GUI.Form_SanPham
                     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 }
 
-                // Lấy dữ liệu từ DataGridView (đã được filter)
+                // Lấy dữ liệu từ BindingSource (đã được filter)
                 var data = _bindingSource.DataSource as IEnumerable<SanPhamDTO> ?? new List<SanPhamDTO>();
                 int row = 2;
                 foreach (var sp in data)

@@ -83,8 +83,8 @@ namespace mini_supermarket.GUI.TaiKhoan
 
             SetInputFieldsEnabled(false);
 
-            // LoadTaiKhoanData();
-              _bindingSource.DataSource = _currentTaiKhoan;
+            LoadTaiKhoanData();
+            //   _bindingSource.DataSource = _currentTaiKhoan;
         }
 
         // Tải map nhân viên để hiển thị tên thay vì mã
