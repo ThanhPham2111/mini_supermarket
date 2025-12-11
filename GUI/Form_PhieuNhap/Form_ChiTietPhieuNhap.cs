@@ -1160,7 +1160,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // Tạo PhieuNhapDTO
             var phieuNhap = new PhieuNhapDTO
             {
-                NgayNhap = dtpNgayNhap.Value,
+                NgayNhap = dtpNgayNhap.Value.Date,
                 MaNhaCungCap = maNhaCungCap,
                 TongTien = 0
             };

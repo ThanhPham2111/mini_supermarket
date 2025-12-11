@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
+using System.ComponentModel;
 using ClosedXML.Excel;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
@@ -27,10 +28,14 @@ namespace mini_supermarket.GUI.PhieuNhap
         private ComboBox cboTimePeriod, cboSupplier, cboTrangThai;
         private Button btnAddImport, btnClear, btnImportExcel;
 
+        // Data binding
+        private readonly BindingSource _bindingSource = new();
+        private BindingList<PhieuNhapDisplayDTO> _currentPhieuNhap = new();
+
         public Form_PhieuNhap()
         {
             InitializeComponent();
-            LoadData(); // Load data khi khởi tạo form
+            Load += Form_PhieuNhap_Load;
         }
 
         private void InitializeComponent()
@@ -41,6 +46,20 @@ namespace mini_supermarket.GUI.PhieuNhap
             this.BackColor = Color.WhiteSmoke; // Match FormKhoHang
 
             InitializeLayout();
+        }
+
+        private void Form_PhieuNhap_Load(object? sender, EventArgs e)
+        {
+            if (DesignMode)
+            {
+                return;
+            }
+
+            dgvPhieuNhap.AutoGenerateColumns = false;
+            dgvPhieuNhap.DataSource = _bindingSource;
+
+            LoadPhieuNhapData();
+            _bindingSource.DataSource = _currentPhieuNhap;
         }
 
         private void InitializeLayout()
@@ -246,7 +265,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             // Nếu thêm thành công, reload lại data
             if (result == DialogResult.OK)
             {
-                LoadData();
+                LoadPhieuNhapData();
             }
         }
 
@@ -256,7 +275,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             cboTimePeriod.SelectedIndex = 0;
             cboSupplier.SelectedIndex = 0;
             cboTrangThai.SelectedIndex = 0;
-            ApplyFilters();
+            _bindingSource.DataSource = _currentPhieuNhap;
         }
 
         private void BtnImportExcel_Click(object? sender, EventArgs e)
@@ -402,6 +421,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 if (MessageBox.Show(message, "Xác nhận nhập dữ liệu", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     SaveImportedData(nhaCungCap, ngayNhap ?? DateTime.Now, sanPhamList);
+                    LoadPhieuNhapData();
                 }
             }
             catch (Exception ex)
@@ -506,8 +526,6 @@ namespace mini_supermarket.GUI.PhieuNhap
                                   $"- Số sản phẩm: {chiTietList.Count}\n" +
                                   $"- Tổng tiền: {tongTien:N0} đ",
                         "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    LoadData();
                 }
                 else
                 {
@@ -522,32 +540,39 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
-        private void LoadData()
+        private void LoadPhieuNhapData()
         {
             try
             {
-                dgvPhieuNhap.Rows.Clear();
-                
                 var phieuNhapBUS = new PhieuNhap_BUS();
                 var nhaCungCapBUS = new NhaCungCap_BUS();
                 
                 var phieuNhapList = phieuNhapBUS.GetPhieuNhap();
                 var nhaCungCapList = nhaCungCapBUS.GetAll();
+
+                var displayList = new List<PhieuNhapDisplayDTO>();
                 
                 foreach (var phieuNhap in phieuNhapList)
                 {
-                    // Tìm tên nhà cung cấp
                     var nhaCungCap = nhaCungCapList.FirstOrDefault(ncc => ncc.MaNhaCungCap == phieuNhap.MaNhaCungCap);
                     string tenNhaCungCap = nhaCungCap?.TenNhaCungCap ?? "N/A";
-                    
-                    dgvPhieuNhap.Rows.Add(
-                        $"PN{phieuNhap.MaPhieuNhap:D3}",
-                        phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
-                        tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0,
-                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
-                    );
+                    string trangThai = phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập");
+
+                    displayList.Add(new PhieuNhapDisplayDTO
+                    {
+                        MaPhieuNhap = phieuNhap.MaPhieuNhap,
+                        MaPhieu = $"PN{phieuNhap.MaPhieuNhap:D3}",
+                        NgayNhap = phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
+                        NhaCungCap = tenNhaCungCap,
+                        TongTien = phieuNhap.TongTien ?? 0,
+                        TrangThai = trangThai,
+                        MaNhaCungCap = phieuNhap.MaNhaCungCap,
+                        NgayNhapValue = phieuNhap.NgayNhap
+                    });
                 }
+
+                _currentPhieuNhap = new BindingList<PhieuNhapDisplayDTO>(displayList);
+                ApplyFilters();
             }
             catch (Exception ex)
             {
@@ -558,58 +583,7 @@ namespace mini_supermarket.GUI.PhieuNhap
 
         private void PerformSearch()
         {
-            try
-            {
-                dgvPhieuNhap.Rows.Clear();
-                
-                var phieuNhapBUS = new PhieuNhap_BUS();
-                var nhaCungCapBUS = new NhaCungCap_BUS();
-                
-                var phieuNhapList = phieuNhapBUS.GetPhieuNhap();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
-                
-                // Lấy từ khóa tìm kiếm
-                string searchText = txtSearch.Text.Trim().ToLower();
-                
-                // Lọc dữ liệu
-                var filteredList = phieuNhapList.Where(pn =>
-                {
-                    // Tìm theo mã phiếu
-                    if ($"pn{pn.MaPhieuNhap:d3}".Contains(searchText))
-                        return true;
-                    
-                    // Tìm theo nhà cung cấp
-                    var nhaCungCap = nhaCungCapList.FirstOrDefault(ncc => ncc.MaNhaCungCap == pn.MaNhaCungCap);
-                    if (nhaCungCap != null && nhaCungCap.TenNhaCungCap.ToLower().Contains(searchText))
-                        return true;
-                    
-                    // Tìm theo ngày
-                    if (pn.NgayNhap.HasValue && pn.NgayNhap.Value.ToString("dd/MM/yyyy").Contains(searchText))
-                        return true;
-                    
-                    return false;
-                }).ToList();
-                
-                // Hiển thị kết quả
-                foreach (var phieuNhap in filteredList)
-                {
-                    var nhaCungCap = nhaCungCapList.FirstOrDefault(ncc => ncc.MaNhaCungCap == phieuNhap.MaNhaCungCap);
-                    string tenNhaCungCap = nhaCungCap?.TenNhaCungCap ?? "N/A";
-                    
-                    dgvPhieuNhap.Rows.Add(
-                        $"PN{phieuNhap.MaPhieuNhap:D3}",
-                        phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
-                        tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0,
-                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
-                    );
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi tìm kiếm: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            ApplyFilters();
         }
 
         private void LoadNhaCungCapFilter()
@@ -642,71 +616,59 @@ namespace mini_supermarket.GUI.PhieuNhap
             try
             {
                 // Kiểm tra null
-                if (cboTimePeriod == null || cboSupplier == null || dgvPhieuNhap == null)
+                if (cboTimePeriod == null || cboSupplier == null || dgvPhieuNhap == null || cboTrangThai == null)
                     return;
-                
-                dgvPhieuNhap.Rows.Clear();
-                
-                var phieuNhapBUS = new PhieuNhap_BUS();
-                var nhaCungCapBUS = new NhaCungCap_BUS();
-                
-                var phieuNhapList = phieuNhapBUS.GetPhieuNhap();
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
-                
-                // Filter theo thời gian
-                if (cboTimePeriod.SelectedIndex > 0)
+
+                string searchText = txtSearch?.Text.Trim().ToLower() ?? string.Empty;
+                var filtered = new List<PhieuNhapDisplayDTO>();
+
+                foreach (var phieuNhap in _currentPhieuNhap)
                 {
-                    DateTime today = DateTime.Now.Date;
-                    
-                    phieuNhapList = cboTimePeriod.SelectedIndex switch
+                    bool matchesSearch = string.IsNullOrEmpty(searchText) ||
+                        phieuNhap.MaPhieu.ToLower().Contains(searchText) ||
+                        (phieuNhap.NhaCungCap?.ToLower().Contains(searchText) ?? false) ||
+                        (phieuNhap.NgayNhap?.ToLower().Contains(searchText) ?? false);
+
+                    // Filter theo thời gian
+                    bool matchesTime = true;
+                    if (cboTimePeriod.SelectedIndex > 0 && phieuNhap.NgayNhapValue.HasValue)
                     {
-                        1 => phieuNhapList.Where(pn => pn.NgayNhap.HasValue && pn.NgayNhap.Value.Date == today).ToList(), // Hôm nay
-                        2 => phieuNhapList.Where(pn => pn.NgayNhap.HasValue && 
-                                                       pn.NgayNhap.Value.Date >= today.AddDays(-(int)today.DayOfWeek) &&
-                                                       pn.NgayNhap.Value.Date <= today).ToList(), // Tuần này
-                        3 => phieuNhapList.Where(pn => pn.NgayNhap.HasValue && 
-                                                       pn.NgayNhap.Value.Month == today.Month &&
-                                                       pn.NgayNhap.Value.Year == today.Year).ToList(), // Tháng này
-                        _ => phieuNhapList.ToList() // Tất cả
-                    };
-                }
-                
-                // Filter theo nhà cung cấp
-                if (cboSupplier.SelectedIndex > 1) // Skip "🏢 Nhà cung cấp" và "Tất cả"
-                {
-                    string selectedSupplier = cboSupplier.SelectedItem?.ToString() ?? "";
-                    var ncc = nhaCungCapList.FirstOrDefault(n => n.TenNhaCungCap == selectedSupplier);
-                    
-                    if (ncc != null)
+                        DateTime today = DateTime.Now.Date;
+                        DateTime phieuDate = phieuNhap.NgayNhapValue.Value.Date;
+
+                        matchesTime = cboTimePeriod.SelectedIndex switch
+                        {
+                            1 => phieuDate == today,
+                            2 => phieuDate >= today.AddDays(-(int)today.DayOfWeek) && phieuDate <= today,
+                            3 => phieuDate.Month == today.Month && phieuDate.Year == today.Year,
+                            _ => true
+                        };
+                    }
+
+                    // Filter theo nhà cung cấp
+                    bool matchesSupplier = true;
+                    if (cboSupplier.SelectedIndex > 1)
                     {
-                        phieuNhapList = phieuNhapList.Where(pn => pn.MaNhaCungCap == ncc.MaNhaCungCap).ToList();
+                        string selectedSupplier = cboSupplier.SelectedItem?.ToString() ?? string.Empty;
+                        matchesSupplier = phieuNhap.NhaCungCap == selectedSupplier;
+                    }
+
+                    // Filter theo trạng thái
+                    bool matchesStatus = true;
+                    if (cboTrangThai.SelectedIndex > 0)
+                    {
+                        string selectedStatus = cboTrangThai.SelectedItem?.ToString() ?? string.Empty;
+                        matchesStatus = phieuNhap.TrangThai == selectedStatus;
+                    }
+
+                    if (matchesSearch && matchesTime && matchesSupplier && matchesStatus)
+                    {
+                        filtered.Add(phieuNhap);
                     }
                 }
-                
-                // Filter theo trạng thái
-                if (cboTrangThai.SelectedIndex > 0) // Skip "Tất cả"
-                {
-                    string selectedTrangThai = cboTrangThai.SelectedItem?.ToString() ?? "";
-                    // Map "Đã hủy" trong combobox với "Hủy" trong database
-                    string dbTrangThai = selectedTrangThai == "Đã hủy" ? "Hủy" : selectedTrangThai;
-                    phieuNhapList = phieuNhapList.Where(pn => 
-                        (pn.TrangThai ?? "Đang nhập") == dbTrangThai).ToList();
-                }
-                
-                // Hiển thị kết quả
-                foreach (var phieuNhap in phieuNhapList)
-                {
-                    var nhaCungCap = nhaCungCapList.FirstOrDefault(ncc => ncc.MaNhaCungCap == phieuNhap.MaNhaCungCap);
-                    string tenNhaCungCap = nhaCungCap?.TenNhaCungCap ?? "N/A";
-                    
-                    dgvPhieuNhap.Rows.Add(
-                        $"PN{phieuNhap.MaPhieuNhap:D3}",
-                        phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A",
-                        tenNhaCungCap,
-                        phieuNhap.TongTien ?? 0,
-                        (phieuNhap.TrangThai == "Hủy" ? "Đã hủy" : (phieuNhap.TrangThai ?? "Đang nhập"))
-                    );
-                }
+
+                _bindingSource.DataSource = filtered;
+                dgvPhieuNhap.ClearSelection();
             }
             catch (Exception ex)
             {
@@ -747,6 +709,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "MaPhieu",
                 HeaderText = "Mã phiếu",
+                DataPropertyName = "MaPhieu",
                 Width = 120,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
@@ -761,6 +724,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "NgayNhap",
                 HeaderText = "Ngày nhập",
+                DataPropertyName = "NgayNhap",
                 Width = 150,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
@@ -773,6 +737,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "NhaCungCap",
                 HeaderText = "Nhà cung cấp",
+                DataPropertyName = "NhaCungCap",
                 Width = 400,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
@@ -786,6 +751,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "TongTien",
                 HeaderText = "Tổng tiền (VNĐ)",
+                DataPropertyName = "TongTien",
                 Width = 180,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
@@ -802,6 +768,7 @@ namespace mini_supermarket.GUI.PhieuNhap
             {
                 Name = "TrangThai",
                 HeaderText = "Trạng thái",
+                DataPropertyName = "TrangThai",
                 Width = 150,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
@@ -930,7 +897,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                         MessageBoxIcon.Information
                     );
                     
-                    LoadData(); // Reload để cập nhật trạng thái
+                    LoadPhieuNhapData(); // Reload để cập nhật trạng thái
                 }
             }
             catch (Exception ex)
@@ -1029,6 +996,17 @@ namespace mini_supermarket.GUI.PhieuNhap
             }
         }
 
-        
+        // DTO for display in DataGridView
+        private class PhieuNhapDisplayDTO
+        {
+            public int MaPhieuNhap { get; set; }
+            public string MaPhieu { get; set; } = string.Empty;
+            public string? NgayNhap { get; set; }
+            public string? NhaCungCap { get; set; }
+            public decimal TongTien { get; set; }
+            public string? TrangThai { get; set; }
+            public int MaNhaCungCap { get; set; }
+            public DateTime? NgayNhapValue { get; set; }
+        }
     }
 }
