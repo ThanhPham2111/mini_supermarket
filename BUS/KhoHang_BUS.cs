@@ -47,6 +47,7 @@ namespace mini_supermarket.BUS
 
         // Tự động cập nhật trạng thái "Không bán" cho sản phẩm hết hạn sử dụng
         // Trả về true nếu có sản phẩm được cập nhật
+        // Đồng thời đồng bộ trạng thái với Tbl_SanPham
         private bool TuDongCapNhatTrangThaiHetHan(IList<TonKhoDTO> danhSach)
         {
             if (danhSach == null || danhSach.Count == 0)
@@ -64,9 +65,13 @@ namespace mini_supermarket.BUS
                     var khoHang = khoHangDAO.GetByMaSanPham(item.MaSanPham);
                     if (khoHang != null && khoHang.TrangThaiDieuKien != TRANG_THAI_DIEU_KIEN_KHONG_BAN)
                     {
-                        // Cập nhật trạng thái thành "Không bán"
+                        // Cập nhật trạng thái thành "Không bán" trong kho
                         khoHang.TrangThaiDieuKien = TRANG_THAI_DIEU_KIEN_KHONG_BAN;
                         khoHangDAO.UpdateKhoHang(khoHang);
+                        
+                        // Đồng bộ trạng thái với Tbl_SanPham: set "Hết hàng" để tránh nhập hàng về
+                        khoHangDAO.UpdateTrangThaiSanPham(item.MaSanPham, SanPham_BUS.StatusHetHang);
+                        
                         coCapNhat = true;
                     }
                 }

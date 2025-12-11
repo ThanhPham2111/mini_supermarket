@@ -432,7 +432,20 @@ namespace mini_supermarket.DAO
                         }
 
                         // 2. Đồng bộ trạng thái qua Tbl_SanPham
-                        string trangThaiSanPham = (khoHang.SoLuong.GetValueOrDefault() > 0) ? "Còn hàng" : "Hết hàng";
+                        // Trạng thái sản phẩm phải dựa trên TrangThaiDieuKien (Bán/Không bán)
+                        // Nếu "Không bán" -> "Hết hàng" để tránh nhập hàng về
+                        // Nếu "Bán" -> dựa vào số lượng để quyết định
+                        string trangThaiSanPham;
+                        if (trangThaiDieuKien == "Không bán")
+                        {
+                            trangThaiSanPham = "Hết hàng"; // Không bán = Hết hàng để tránh nhập về
+                        }
+                        else
+                        {
+                            // Nếu "Bán", cập nhật theo số lượng thực tế
+                            trangThaiSanPham = (khoHang.SoLuong.GetValueOrDefault() > 0) ? "Còn hàng" : "Hết hàng";
+                        }
+                        
                         using (SqlCommand cmdUpdateSP = new SqlCommand(queryUpdateSanPham, connection, transaction))
                         {
                             cmdUpdateSP.Parameters.AddWithValue("@TrangThaiSanPham", trangThaiSanPham);
@@ -799,7 +812,28 @@ namespace mini_supermarket.DAO
                         }
 
                         // Bước 2: Đồng bộ trạng thái qua Tbl_SanPham
-                        string trangThaiSanPham = (lichSu.SoLuongMoi > 0) ? "Còn hàng" : "Hết hàng";
+                        // Lấy TrangThaiDieuKien sau khi cập nhật để quyết định trạng thái sản phẩm
+                        string trangThaiDieuKienMoi;
+                        const string getTrangThaiQuery = "SELECT TrangThaiDieuKien FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+                        using (var cmdGetTrangThai = new SqlCommand(getTrangThaiQuery, connection, transaction))
+                        {
+                            cmdGetTrangThai.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                            object? result = cmdGetTrangThai.ExecuteScalar();
+                            trangThaiDieuKienMoi = result?.ToString() ?? "Bán";
+                        }
+                        
+                        // Trạng thái sản phẩm phải dựa trên TrangThaiDieuKien (Bán/Không bán)
+                        string trangThaiSanPham;
+                        if (trangThaiDieuKienMoi == "Không bán")
+                        {
+                            trangThaiSanPham = "Hết hàng"; // Không bán = Hết hàng để tránh nhập về
+                        }
+                        else
+                        {
+                            // Nếu "Bán", cập nhật theo số lượng thực tế
+                            trangThaiSanPham = (lichSu.SoLuongMoi > 0) ? "Còn hàng" : "Hết hàng";
+                        }
+                        
                         const string updateProductQuery = "UPDATE Tbl_SanPham SET TrangThai = @TrangThai WHERE MaSanPham = @MaSanPham";
                         using (var cmdUpdateProduct = new SqlCommand(updateProductQuery, connection, transaction))
                         {
