@@ -1,4 +1,4 @@
-#nullable disable
+
 
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,7 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         // Tầng nghiệp vụ
         private readonly NhaCungCap_BUS _nhaCungCapBus = new();
+      
         // Thay vì dùng trực tiếp BindingList, ta dùng BindingSource làm "trung gian"
         private readonly BindingSource _bindingSource = new();
         private readonly PermissionService _permissionService = new();
@@ -35,6 +36,7 @@ namespace mini_supermarket.GUI.NhaCungCap
 
         public Form_NhaCungCap()
         {
+            //thiết lập chế độ sử dụng EPPlus ở dạng phi thương mại (NonCommercial).
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             InitializeComponent();
             Load += Form_NhaCungCap_Load;
@@ -62,7 +64,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             ApplyPermissions();
         }
 
-        #region Phân quyền
+        // --- Phân quyền ---
 
         private void ApplyPermissions()
         {
@@ -85,9 +87,9 @@ namespace mini_supermarket.GUI.NhaCungCap
             xoaButton.Enabled = hasSelection && canDelete;
         }
 
-        #endregion
+        // --- Hết Phân quyền ---
 
-        #region Hiển thị thông tin chi tiết
+        // --- Hiển thị thông tin chi tiết ---
 
         private void HienThiThongTin()
         {
@@ -103,9 +105,9 @@ namespace mini_supermarket.GUI.NhaCungCap
             emailTextBox.Text = item.Email;
         }
 
-        #endregion
+        // --- Hết hiển thị thông tin chi tiết ---
 
-        #region Load dữ liệu
+        // --- Load dữ liệu ---
         // Load danh sách trạng thái vào ComboBox lọc
         private void LoadDanhSachTrangThai()
         {
@@ -137,7 +139,7 @@ namespace mini_supermarket.GUI.NhaCungCap
                 nhaCungCapDataGridView.Rows[0].Selected = true;
         }
 
-        #endregion
+        // --- Hết load dữ liệu ---
 
         private void LamMoi()
         {
@@ -147,7 +149,7 @@ namespace mini_supermarket.GUI.NhaCungCap
             HienThiLenBang(_dsNhaCungCap);
         }
 
-        #region Lọc & Tìm kiếm
+        // --- Lọc & Tìm kiếm ---
 
         private void LocTheoTrangThai()
         {
@@ -203,9 +205,9 @@ namespace mini_supermarket.GUI.NhaCungCap
         //                                 Convert(SoDienThoai, 'System.String').ToLower().Contains('{tuKhoa}') = true";
         //     }
         // }
-        #endregion
+        // --- Hết Lọc & Tìm kiếm ---
 
-        #region Thao tác Thêm / Sửa / Khóa
+        // --- Thao tác Thêm / Sửa / Khóa ---
 
         private void ThemButton_Click(object sender, EventArgs e)
         {
@@ -306,9 +308,9 @@ namespace mini_supermarket.GUI.NhaCungCap
                 TimKiem();
                 }
 
-        #endregion
+        // --- Hết Thao tác Thêm / Sửa / Khóa ---
 
-        #region Xuất Excel
+        // --- Xuất Excel ---
 
         private void ExportExcelButton_Click(object sender, EventArgs e)
         {
@@ -376,9 +378,9 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
         }
 
-        #endregion
+        // --- Hết Xuất Excel ---
 
-        #region Nhập Excel
+        // --- Nhập Excel ---
 
         private void ImportExcelButton_Click(object sender, EventArgs e)
         {
@@ -497,6 +499,6 @@ namespace mini_supermarket.GUI.NhaCungCap
             }
         }
 
-        #endregion
+        // --- Hết Nhập Excel ---
     }
 }

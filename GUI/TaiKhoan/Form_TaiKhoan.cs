@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -16,7 +17,7 @@ namespace mini_supermarket.GUI.TaiKhoan
         private readonly NhanVien_BUS _nhanVienBus = new();
         private readonly BindingSource _bindingSource = new();
         private readonly List<string> _statuses;
-        private IList<TaiKhoanDTO> _currentTaiKhoan = Array.Empty<TaiKhoanDTO>();
+        private BindingList<TaiKhoanDTO> _currentTaiKhoan = new();
         private Dictionary<int, string> _nhanVienMap = new();
         private Dictionary<int, string> _quyenMap = new();
 
@@ -28,6 +29,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             _statuses = _taiKhoanBus.GetDefaultStatuses().ToList();
         }
 
+        // Khởi tạo form, load dữ liệu combobox, cấu hình grid và binding
         private void Form_TaiKhoan_Load(object? sender, EventArgs e)
         {
             if (DesignMode)
@@ -81,21 +83,25 @@ namespace mini_supermarket.GUI.TaiKhoan
 
             SetInputFieldsEnabled(false);
 
-            LoadTaiKhoanData();
+            // LoadTaiKhoanData();
+              _bindingSource.DataSource = _currentTaiKhoan;
         }
 
+        // Tải map nhân viên để hiển thị tên thay vì mã
         private void LoadNhanVienMap()
         {
             var nhanVienList = _nhanVienBus.GetAll();
             _nhanVienMap = nhanVienList.ToDictionary(nv => nv.MaNhanVien, nv => nv.TenNhanVien ?? $"NV{nv.MaNhanVien}");
         }
 
+        // Tải map quyền để hiển thị tên quyền
         private void LoadQuyenMap()
         {
             var quyenList = _taiKhoanBus.GetAllPhanQuyen();
             _quyenMap = quyenList.ToDictionary(q => q.MaQuyen, q => q.TenQuyen);
         }
 
+        // Khi chọn dòng trong grid, đổ dữ liệu ra các textbox và bật nút sửa/xóa
         private void taiKhoanDataGridView_SelectionChanged(object? sender, EventArgs e)
         {
             if (taiKhoanDataGridView.SelectedRows.Count > 0)
@@ -145,6 +151,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Xử lý nút Thêm: mở dialog, thêm mới và reload danh sách
         private void themButton_Click(object? sender, EventArgs e)
         {
             using var dialog = new Form_TaiKhoanDialog(_taiKhoanBus, _nhanVienBus);
@@ -165,6 +172,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Xử lý nút Sửa: mở dialog với bản ghi chọn, cập nhật và reload
         private void suaButton_Click(object? sender, EventArgs e)
         {
             var selectedTaiKhoan = GetSelectedTaiKhoan();
@@ -191,6 +199,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Xử lý nút Khóa: xác nhận, đặt trạng thái Inactive và cập nhật
         private void xoaButton_Click(object? sender, EventArgs e)
         {
             var selectedTaiKhoan = GetSelectedTaiKhoan();
@@ -233,6 +242,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Xử lý nút Làm mới: reset tìm kiếm/lọc, reload map và dữ liệu
         private void lamMoiButton_Click(object? sender, EventArgs e)
         {
             searchTextBox.Text = string.Empty;
@@ -251,6 +261,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             LoadTaiKhoanData();
         }
 
+        // Lấy tài khoản đang chọn trong grid (nếu có)
         private TaiKhoanDTO? GetSelectedTaiKhoan()
         {
             if (taiKhoanDataGridView.SelectedRows.Count == 0)
@@ -261,6 +272,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             return taiKhoanDataGridView.SelectedRows[0].DataBoundItem as TaiKhoanDTO;
         }
 
+        // Chọn dòng theo mã tài khoản sau khi thêm/sửa
         private void SelectTaiKhoanRow(int maTaiKhoan)
         {
             if (maTaiKhoan <= 0 || taiKhoanDataGridView.Rows.Count == 0)
@@ -287,6 +299,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Bật/tắt các input cho phép chỉnh sửa, giữ readonly cho field khóa/hiển thị
         private void SetInputFieldsEnabled(bool enabled)
         {
             // Các field ReadOnly luôn giữ Enabled = false để đồng nhất hành vi
@@ -300,6 +313,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             matKhauTextBox.Enabled = enabled;
         }
 
+        // Đặt cursor mặc định cho các textbox readonly, tránh focus
         private void SetReadOnlyFieldCursor(TextBox textBox)
         {
             textBox.MouseEnter += (s, e) => { Cursor = Cursors.Default; };
@@ -307,21 +321,25 @@ namespace mini_supermarket.GUI.TaiKhoan
             textBox.GotFocus += (s, e) => { textBox.Parent.Focus(); }; // Chuyển focus ra khỏi field
         }
 
+        // Thay đổi lọc theo trạng thái
         private void statusFilterComboBox_SelectedIndexChanged(object? sender, EventArgs e)
         {
             ApplyStatusFilter();
         }
 
+        // Tìm kiếm theo nội dung ô search
         private void searchTextBox_TextChanged(object? sender, EventArgs e)
         {
             ApplySearchFilter();
         }
 
+        // Lấy danh sách mới từ BUS, bọc BindingList và áp dụng lọc
         private void LoadTaiKhoanData()
         {
             try
             {
-                _currentTaiKhoan = _taiKhoanBus.GetTaiKhoan();
+                // lay ds moi tu bus roi boc vao bindinglist --> cung cap ds cho gridview và bindingSource luu vao currentTaiKhoan
+                _currentTaiKhoan = new BindingList<TaiKhoanDTO>(_taiKhoanBus.GetTaiKhoan().ToList());
                 ApplyStatusFilter();
             }
             catch (Exception ex)
@@ -330,6 +348,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Lọc theo trạng thái (hoặc tất cả) và cập nhật grid
         private void ApplyStatusFilter()
         {
             string? selectedStatus = statusFilterComboBox.SelectedItem as string;
@@ -340,7 +359,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
             else
             {
-                var filtered = new List<TaiKhoanDTO>();
+                var filtered = new BindingList<TaiKhoanDTO>();
                 foreach (var taiKhoan in _currentTaiKhoan)
                 {
                     if (string.Equals(taiKhoan.TrangThai, selectedStatus, StringComparison.OrdinalIgnoreCase))
@@ -371,12 +390,13 @@ namespace mini_supermarket.GUI.TaiKhoan
             }
         }
 
+        // Lọc theo tìm kiếm + trạng thái và cập nhật grid
         private void ApplySearchFilter()
         {
             string searchText = searchTextBox.Text.Trim().ToLower(CultureInfo.GetCultureInfo("vi-VN"));
             string? selectedStatus = statusFilterComboBox.SelectedItem as string;
 
-            var filtered = new List<TaiKhoanDTO>();
+            var filtered = new BindingList<TaiKhoanDTO>();
 
             foreach (var taiKhoan in _currentTaiKhoan)
             {
@@ -414,6 +434,7 @@ namespace mini_supermarket.GUI.TaiKhoan
             taiKhoanDataGridView.ClearSelection();
         }
 
+        // Đồng bộ tên nhân viên/quyền sau khi binding hoàn tất
         private void taiKhoanDataGridView_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
         {
             foreach (DataGridViewRow row in taiKhoanDataGridView.Rows)
