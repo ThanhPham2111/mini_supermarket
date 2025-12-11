@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using ClosedXML.Excel;
 using mini_supermarket.BUS;
 using mini_supermarket.DTO;
+using mini_supermarket.Common;
 
 namespace mini_supermarket.GUI.HoaDon
 {
@@ -20,6 +21,7 @@ namespace mini_supermarket.GUI.HoaDon
         private readonly HoaDon_BUS _hoaDonBus = new();
         private readonly BindingSource _bindingSource = new();
         private BindingList<HoaDonDTO> _hoaDonList = new();
+        private ContextMenuStrip _contextMenu;
         public Form_HoaDon()
         {
             InitializeComponent();
@@ -56,6 +58,13 @@ namespace mini_supermarket.GUI.HoaDon
             timKiemButton.Click += timKiemButton_Click;
             trangThaiComboBox.SelectedIndexChanged += trangThaiComboBox_SelectedIndexChanged;
             hoaDonDataGridView.CellFormatting += hoaDonDataGridView_CellFormatting;
+            hoaDonDataGridView.MouseClick += hoaDonDataGridView_MouseClick;
+            
+            // Tạo ContextMenu
+            _contextMenu = new ContextMenuStrip();
+            var menuItemLyDoHuy = new ToolStripMenuItem("Xem lý do hủy");
+            menuItemLyDoHuy.Click += MenuItemLyDoHuy_Click;
+            _contextMenu.Items.Add(menuItemLyDoHuy);
             // xemChiTietButton.Click += xemChiTietButton_Click;
             // lamMoiButton.Click += lamMoiButton_Click;
             // themFileButton.Click += themFileButton_Click;
@@ -467,24 +476,174 @@ namespace mini_supermarket.GUI.HoaDon
             }
         }
 
-        private void huyButton_Click(object sender, EventArgs e){
-            var selectedHoaDon = hoaDonDataGridView.SelectedRows[0].DataBoundItem as HoaDonDTO;
-            if(selectedHoaDon != null){
-                var result = MessageBox.Show(this, $"Bạn có chắc chắn muốn hủy hóa đơn #{selectedHoaDon.MaHoaDon}?", "Xác nhận hủy hóa đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if(result == DialogResult.Yes){
-                    try{
-                        int rowAffected = _hoaDonBus.HuyHoaDon(selectedHoaDon);
-                        if(rowAffected > 0){
-                            MessageBox.Show(this, $"✅ Hủy hóa đơn #{selectedHoaDon.MaHoaDon} thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            // Cập nhật lại trạng thái trong danh sách hiện tại
-                            selectedHoaDon.TrangThai = "Đã hủy";
-                            hoaDonDataGridView.Refresh();
-                        } else {
-                            MessageBox.Show(this, $"❌ Hủy hóa đơn #{selectedHoaDon.MaHoaDon} thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    } catch(Exception ex)
+        private void hoaDonDataGridView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var hitTest = hoaDonDataGridView.HitTest(e.X, e.Y);
+                if (hitTest.RowIndex >= 0 && hitTest.RowIndex < hoaDonDataGridView.Rows.Count)
+                {
+                    hoaDonDataGridView.ClearSelection();
+                    hoaDonDataGridView.Rows[hitTest.RowIndex].Selected = true;
+
+                    var hoaDon = hoaDonDataGridView.Rows[hitTest.RowIndex].DataBoundItem as HoaDonDTO;
+                    if (hoaDon != null && hoaDon.TrangThai == "Đã hủy")
                     {
-                        MessageBox.Show(this, $"❌ Lỗi khi hủy hóa đơn: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        // Chỉ hiển thị context menu nếu hóa đơn đã hủy
+                        _contextMenu.Show(hoaDonDataGridView, e.Location);
+                    }
+                }
+            }
+        }
+
+        private void MenuItemLyDoHuy_Click(object sender, EventArgs e)
+        {
+            if (hoaDonDataGridView.SelectedRows.Count == 0)
+                return;
+
+            var selectedHoaDon = hoaDonDataGridView.SelectedRows[0].DataBoundItem as HoaDonDTO;
+            if (selectedHoaDon == null || selectedHoaDon.TrangThai != "Đã hủy")
+                return;
+
+            try
+            {
+                // Lấy thông tin hủy từ database
+                var thongTinHuy = _hoaDonBus.GetThongTinHuyHoaDon(selectedHoaDon.MaHoaDon);
+                
+                // Lấy chi tiết hóa đơn
+                var chiTietList = _hoaDonBus.GetChiTietHoaDon(selectedHoaDon.MaHoaDon.ToString());
+
+                // Tính điểm hoàn lại (nếu có khách hàng)
+                int? diemHoanLai = null;
+                int? diemTichLuyBiTru = null;
+                int? diemSuDungTraLai = null;
+                
+                if (selectedHoaDon.MaKhachHang.HasValue)
+                {
+                    // Tính điểm tích lũy đã cộng (tổng số lượng sản phẩm)
+                    int diemTichLuy = chiTietList.Sum(ct => ct.SoLuong);
+                    diemTichLuyBiTru = diemTichLuy;
+                    
+                    // Tính điểm đã sử dụng (nếu có)
+                    var quyDoiDiemBUS = new BUS.QuyDoiDiem_BUS();
+                    decimal giaTriMotDiem = quyDoiDiemBUS.GetGiaTriMotDiem();
+                    decimal tongTienLyThuyet = chiTietList.Sum(ct => ct.GiaBan * ct.SoLuong);
+                    decimal tongTienThucTe = selectedHoaDon.TongTien ?? 0;
+                    decimal giamTuDiem = tongTienLyThuyet - tongTienThucTe;
+                    int diemSuDung = giaTriMotDiem > 0 && giamTuDiem > 0 ? (int)Math.Floor(giamTuDiem / giaTriMotDiem) : 0;
+                    diemSuDungTraLai = diemSuDung;
+                    
+                    // Điểm hoàn lại = điểm đã sử dụng - điểm tích lũy đã cộng
+                    // (Vì khi hủy, ta trả lại điểm đã dùng và trừ điểm đã tích)
+                    diemHoanLai = diemSuDung - diemTichLuy;
+                }
+
+                // Hiển thị dialog
+                using (var dialog = new Dialog.Dialog_XemLyDoHuy(
+                    selectedHoaDon,
+                    chiTietList,
+                    thongTinHuy.LyDoHuy,
+                    thongTinHuy.NgayHuy,
+                    thongTinHuy.TenNhanVienHuy,
+                    diemHoanLai,
+                    diemTichLuyBiTru,
+                    diemSuDungTraLai))
+                {
+                    dialog.ShowDialog(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this,
+                    $"❌ Lỗi khi lấy thông tin hủy hóa đơn:\n\n{ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void huyButton_Click(object sender, EventArgs e)
+        {
+            if (hoaDonDataGridView.SelectedRows.Count == 0)
+            {
+                MessageBox.Show(this, "Vui lòng chọn hóa đơn cần hủy!", "Thông báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var selectedHoaDon = hoaDonDataGridView.SelectedRows[0].DataBoundItem as HoaDonDTO;
+            if (selectedHoaDon == null)
+            {
+                return;
+            }
+
+            // Kiểm tra trạng thái
+            if (selectedHoaDon.TrangThai == "Đã hủy")
+            {
+                MessageBox.Show(this, $"Hóa đơn #{selectedHoaDon.MaHoaDon} đã được hủy trước đó!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Lấy thông tin chi tiết để hiển thị
+            var chiTietList = _hoaDonBus.GetChiTietHoaDon(selectedHoaDon.MaHoaDon.ToString());
+            string thongTin = $"Mã hóa đơn: HD{selectedHoaDon.MaHoaDon:D3}\n";
+            thongTin += $"Khách hàng: {selectedHoaDon.KhachHang}\n";
+            thongTin += $"Tổng tiền: {selectedHoaDon.TongTien:N0} đ\n";
+            thongTin += $"Số sản phẩm: {chiTietList.Count} loại\n";
+            thongTin += $"\n⚠️ Lưu ý: Hệ thống sẽ:\n";
+            thongTin += $"  • Trả lại {chiTietList.Sum(ct => ct.SoLuong)} sản phẩm về kho\n";
+            if (selectedHoaDon.MaKhachHang.HasValue)
+            {
+                int diemTichLuy = chiTietList.Sum(ct => ct.SoLuong);
+                thongTin += $"  • Trừ {diemTichLuy} điểm tích lũy đã cộng\n";
+                // Tính điểm đã sử dụng (nếu có)
+                var quyDoiDiemBUS = new BUS.QuyDoiDiem_BUS();
+                decimal giaTriMotDiem = quyDoiDiemBUS.GetGiaTriMotDiem();
+                decimal tongTienLyThuyet = chiTietList.Sum(ct => ct.GiaBan * ct.SoLuong);
+                decimal tongTienThucTe = selectedHoaDon.TongTien ?? 0;
+                decimal giamTuDiem = tongTienLyThuyet - tongTienThucTe;
+                int diemSuDung = giaTriMotDiem > 0 && giamTuDiem > 0 ? (int)Math.Floor(giamTuDiem / giaTriMotDiem) : 0;
+                if (diemSuDung > 0)
+                {
+                    thongTin += $"  • Trả lại {diemSuDung} điểm đã sử dụng\n";
+                }
+            }
+
+            // Hiển thị dialog xác nhận
+            using (var dialog = new Dialog_HuyHoaDon(selectedHoaDon.MaHoaDon, thongTin))
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Lấy mã nhân viên từ session
+                        int maNhanVien = Common.SessionManager.CurrentMaNhanVien ?? 1;
+
+                        // Gọi method hủy hóa đơn hoàn chỉnh
+                        _hoaDonBus.HuyHoaDonHoanChinh(
+                            selectedHoaDon.MaHoaDon,
+                            maNhanVien,
+                            dialog.LyDoHuy
+                        );
+
+                        MessageBox.Show(this, 
+                            $"✅ Hủy hóa đơn #{selectedHoaDon.MaHoaDon} thành công!\n\n" +
+                            $"Đã trả lại hàng về kho và điều chỉnh điểm khách hàng (nếu có).",
+                            "Thành công", 
+                            MessageBoxButtons.OK, 
+                            MessageBoxIcon.Information);
+
+                        // Reload dữ liệu
+                        LoadHoaDonData();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(this, 
+                            $"❌ Lỗi khi hủy hóa đơn:\n\n{ex.Message}", 
+                            "Lỗi", 
+                            MessageBoxButtons.OK, 
+                            MessageBoxIcon.Error);
                     }
                 }
             }

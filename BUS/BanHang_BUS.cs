@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using mini_supermarket.DTO;
+using mini_supermarket.DAO;
+using mini_supermarket.DB;
 
 namespace mini_supermarket.BUS
 {
@@ -264,14 +267,42 @@ namespace mini_supermarket.BUS
                 })
                 .ToList();
 
-            int maHoaDon = hoaDonBUS.CreateHoaDon(hoaDon, chiTietList);
+            // Sử dụng Transaction để đảm bảo tính toàn vẹn dữ liệu
+            int maHoaDon = 0;
+            using (var connection = DB.DbConnectionFactory.CreateConnection())
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // 1. Tạo hóa đơn và chi tiết hóa đơn trong transaction
+                        var hoaDonDao = new DAO.HoaDon_DAO();
+                        maHoaDon = hoaDonDao.InsertHoaDon(hoaDon, connection, transaction);
+                        foreach (var chiTiet in chiTietList)
+                        {
+                            chiTiet.MaHoaDon = maHoaDon;
+                            hoaDonDao.InsertChiTietHoaDon(chiTiet, connection, transaction);
+                        }
 
+                        // Commit transaction cho hóa đơn
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+
+            // 2. Giảm số lượng kho (có transaction riêng trong method)
             foreach (var item in items)
             {
                 khoHangBUS.GiamSoLuongKho(item.MaSanPham, item.SoLuong, maNhanVien);
             }
 
-            // Chỉ cập nhật điểm khi có khách hàng
+            // 3. Cập nhật điểm khách hàng (nếu có)
             if (maKhachHang.HasValue)
             {
                 khachHangBUS.UpdateDiemTichLuy(maKhachHang.Value, diemMoi);
