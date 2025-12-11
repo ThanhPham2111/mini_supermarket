@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using mini_supermarket.BUS;
 using mini_supermarket.GUI.Form_SanPham;
@@ -11,13 +11,18 @@ using System.IO;
 using System.Linq;
 using OfficeOpenXml;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace mini_supermarket.GUI.KhoHang
 {
     public partial class Form_KhoHang : Form
     {
         private KhoHangBUS khoHangBUS = new KhoHangBUS();
-        private IList<TonKhoDTO>? dtProducts = null;
+        private BindingList<TonKhoDTO>? bindingListProducts = null;
+        private BindingSource bindingSourceProducts = new BindingSource();
+        private BindingSource bindingSourceLoai = new BindingSource();
+        private BindingSource bindingSourceThuongHieu = new BindingSource();
+        private BindingSource bindingSourceTrangThai = new BindingSource();
         private const int NGUONG_CANH_BAO = 10; // Ngưỡng cảnh báo hàng sắp hết
         private ToolTip toolTipTenSP = new ToolTip(); // ToolTip để hiển thị tên sản phẩm đầy đủ
 
@@ -47,48 +52,50 @@ namespace mini_supermarket.GUI.KhoHang
         {
             // Load Loại sản phẩm
             var listLoai = khoHangBUS.LayDanhSachLoai();
-            var comboListLoai = new List<KeyValuePair<int, string>> { new KeyValuePair<int, string>(-1, "Tất cả loại") };
+            var comboListLoai = new BindingList<KeyValuePair<int, string>>();
+            comboListLoai.Add(new KeyValuePair<int, string>(-1, "Tất cả loại"));
             foreach (var item in listLoai)
             {
                 comboListLoai.Add(new KeyValuePair<int, string>(item.MaLoai, item.TenLoai));
             }
-            cboLoaiSP.DataSource = comboListLoai;
+            bindingSourceLoai.DataSource = comboListLoai;
+            cboLoaiSP.DataSource = bindingSourceLoai;
             cboLoaiSP.DisplayMember = "Value";
             cboLoaiSP.ValueMember = "Key";
 
             // Load Thương hiệu
             var listThuongHieu = khoHangBUS.LayDanhSachThuongHieu();
-            var comboListThuongHieu = new List<KeyValuePair<int, string>> { new KeyValuePair<int, string>(-1, "Tất cả thương hiệu") };
+            var comboListThuongHieu = new BindingList<KeyValuePair<int, string>>();
+            comboListThuongHieu.Add(new KeyValuePair<int, string>(-1, "Tất cả thương hiệu"));
             foreach (var item in listThuongHieu)
             {
                 comboListThuongHieu.Add(new KeyValuePair<int, string>(item.MaThuongHieu, item.TenThuongHieu));
             }
-            cboThuongHieu.DataSource = comboListThuongHieu;
+            bindingSourceThuongHieu.DataSource = comboListThuongHieu;
+            cboThuongHieu.DataSource = bindingSourceThuongHieu;
             cboThuongHieu.DisplayMember = "Value";
             cboThuongHieu.ValueMember = "Key";
 
             // Load Trạng thái
-            var comboListTrangThai = new List<KeyValuePair<string, string>>
+            var comboListTrangThai = new BindingList<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("", "Tất cả trạng thái"),
                 new KeyValuePair<string, string>("Còn hàng", "Còn hàng"),
                 new KeyValuePair<string, string>("Hết hàng", "Hết hàng")
             };
-            cboTrangThai.DataSource = comboListTrangThai;
+            bindingSourceTrangThai.DataSource = comboListTrangThai;
+            cboTrangThai.DataSource = bindingSourceTrangThai;
             cboTrangThai.DisplayMember = "Value";
             cboTrangThai.ValueMember = "Key";
         }
 
         private void LoadDataGridView()
         {
-            dtProducts = khoHangBUS.LayDanhSachTonKho();
-
-            if (dtProducts != null)
-            {
-                // Không cần CaseSensitive cho IList
-            }
-
-            dgvKhoHang.DataSource = dtProducts;
+            var dtProducts = khoHangBUS.LayDanhSachTonKho();
+            bindingListProducts = new BindingList<TonKhoDTO>(dtProducts.ToList());
+            bindingSourceProducts.DataSource = bindingListProducts;
+            dgvKhoHang.DataSource = bindingSourceProducts;
+            
             SetupColumnHeaders();
             ThemCotTrangThaiBan();
             
@@ -215,7 +222,7 @@ namespace mini_supermarket.GUI.KhoHang
                     else
                     {
                         trangThaiMoi = KhoHangBUS.TRANG_THAI_DIEU_KIEN_KHONG_BAN;
-                        action = "ngưng bán";
+                        action = "ngừng bán";
                     }
 
                     // Kiểm tra: Nếu số lượng bằng 0 và muốn chuyển sang "Bán", không cho phép
@@ -245,7 +252,7 @@ namespace mini_supermarket.GUI.KhoHang
                                 
                                 string msg = trangThaiMoi == KhoHangBUS.TRANG_THAI_DIEU_KIEN_BAN
                                     ? "Đã mở lại bán sản phẩm!"
-                                    : "Đã ngưng bán sản phẩm!";
+                                    : "Đã ngừng bán sản phẩm!";
                                 MessageBox.Show(msg, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         }
@@ -284,9 +291,9 @@ namespace mini_supermarket.GUI.KhoHang
 
         private void ApplyFilters()
         {
-            if (dtProducts == null) return;
+            if (bindingListProducts == null) return;
 
-            var filtered = dtProducts.AsEnumerable();
+            var filtered = bindingListProducts.AsEnumerable();
 
             string tuKhoa = txtTimKiem.Text.Trim();
             if (!string.IsNullOrEmpty(tuKhoa))
@@ -309,7 +316,8 @@ namespace mini_supermarket.GUI.KhoHang
                 filtered = filtered.Where(item => item.TrangThai == cboTrangThai.SelectedValue.ToString());
             }
 
-            dgvKhoHang.DataSource = filtered.ToList();
+            var filteredList = new BindingList<TonKhoDTO>(filtered.ToList());
+            bindingSourceProducts.DataSource = filteredList;
             
             // Sắp xếp lại thứ tự cột sau khi filter
             SapXepThuTuCot();
@@ -374,13 +382,13 @@ namespace mini_supermarket.GUI.KhoHang
         // Nút Xuất Excel (xuất danh sách hiện đang hiển thị)
         private void btnXuatExcel_Click(object sender, EventArgs e)
         {
-            if (dgvKhoHang.DataSource == null)
+            if (bindingSourceProducts.DataSource == null)
             {
                 MessageBox.Show("Không có dữ liệu để xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var list = (IList<TonKhoDTO>)dgvKhoHang.DataSource;
+            var list = bindingSourceProducts.DataSource as BindingList<TonKhoDTO>;
 
             if (list == null || list.Count == 0)
             {
@@ -420,12 +428,12 @@ namespace mini_supermarket.GUI.KhoHang
         /// <summary>
         /// Xuất Excel theo đúng các cột hiển thị trong DataGridView
         /// </summary>
-        private void XuatExcelTheoDataGridView(IList<TonKhoDTO> data, string filePath)
+        private void XuatExcelTheoDataGridView(BindingList<TonKhoDTO> data, string filePath)
         {
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Không có dữ liệu để xuất.");
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             using (ExcelPackage package = new ExcelPackage())
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("TonKho");
@@ -600,12 +608,12 @@ namespace mini_supermarket.GUI.KhoHang
 
                 if (tenSanPham.EndsWith("..."))
                 {
-                    if (dtProducts != null && e.RowIndex < dtProducts.Count)
+                    if (bindingListProducts != null && e.RowIndex < bindingListProducts.Count)
                     {
-                        string tenDayDu = dtProducts[e.RowIndex].TenSanPham;
+                        string tenDayDu = bindingListProducts[e.RowIndex].TenSanPham;
                         if (!string.IsNullOrEmpty(tenDayDu) && tenDayDu != tenSanPham)
                         {
-                            toolTipTenSP.SetToolTip(dgvKhoHang, $"📦 {tenDayDu}");
+                            toolTipTenSP.SetToolTip(dgvKhoHang, $"→ {tenDayDu}");
                         }
                     }
                 }
