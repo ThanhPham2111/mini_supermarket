@@ -265,7 +265,7 @@ namespace mini_supermarket.GUI.KhoHang
             }
         }
 
-        // Highlight cảnh báo hàng tồn kho thấp
+        // Highlight cảnh báo hàng tồn kho thấp và sản phẩm gần hết hạn/đã hết hạn
         private void dgvKhoHang_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvKhoHang.Rows.Count) return;
@@ -276,16 +276,50 @@ namespace mini_supermarket.GUI.KhoHang
             // Không tô màu cột button
             if (dgvKhoHang.Columns[e.ColumnIndex].Name == "colTrangThaiBan")
                 return;
+
+            // Kiểm tra HSD: gần hết hạn (trong 7 ngày) hoặc đã hết hạn
+            bool isNearExpiryOrExpired = false;
+            if (item.Hsd.HasValue)
+            {
+                DateTime ngayHienTai = DateTime.Now.Date;
+                DateTime hsd = item.Hsd.Value.Date;
+                int soNgayConLai = (hsd - ngayHienTai).Days;
                 
-            if (soLuong == 0)
-            {
-                dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(255, 220, 220);
-                dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.ForeColor = System.Drawing.Color.DarkRed;
+                // Đã hết hạn hoặc gần hết hạn (trong 7 ngày)
+                if (soNgayConLai <= 7)
+                {
+                    isNearExpiryOrExpired = true;
+                }
             }
-            else if (soLuong < NGUONG_CANH_BAO)
+
+            // Ưu tiên tô màu xám nhẹ cho sản phẩm gần hết hạn/đã hết hạn
+            if (isNearExpiryOrExpired)
             {
-                dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(255, 255, 220);
-                dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.ForeColor = System.Drawing.Color.DarkOrange;
+            dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(210, 180, 140); // Nâu nhạt (Tan)
+dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.FromArgb(90, 60, 30);    // Chữ nâu đậm nhẹ
+
+
+
+            }
+            else
+            {
+                // Tô màu theo số lượng như cũ
+                if (soLuong == 0)
+                {
+                    dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
+                    dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.DarkRed;
+                }
+                else if (soLuong < NGUONG_CANH_BAO)
+                {
+                    dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 220);
+                    dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.DarkOrange;
+                }
+                else
+                {
+                    // Reset về màu mặc định cho các hàng khác
+                    dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+                    dgvKhoHang.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.Black;
+                }
             }
         }
 

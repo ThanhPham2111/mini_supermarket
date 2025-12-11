@@ -389,18 +389,44 @@ namespace mini_supermarket.DAO
                     {
                         int rowsAffected;
                         // 1. Cố gắng cập nhật số lượng kho
+                        // Lấy số lượng cũ để kiểm tra có phải từ 0 lên > 0 không
+                        int soLuongCu = 0;
+                        string? trangThaiDieuKienCu = null;
+                        const string getCurrentQuery = "SELECT SoLuong, TrangThaiDieuKien FROM Tbl_KhoHang WHERE MaSanPham = @MaSanPham";
+                        using (var cmdGetCurrent = new SqlCommand(getCurrentQuery, connection, transaction))
+                        {
+                            cmdGetCurrent.Parameters.AddWithValue("@MaSanPham", khoHang.MaSanPham);
+                            using (var reader = cmdGetCurrent.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    soLuongCu = reader.IsDBNull(reader.GetOrdinal("SoLuong")) ? 0 : reader.GetInt32(reader.GetOrdinal("SoLuong"));
+                                    trangThaiDieuKienCu = reader.IsDBNull(reader.GetOrdinal("TrangThaiDieuKien")) ? null : reader.GetString(reader.GetOrdinal("TrangThaiDieuKien"));
+                                }
+                            }
+                        }
+                        
                         // Tự động chuyển trạng thái bán thành "Không bán" khi số lượng = 0
-                        string trangThaiDieuKien = khoHang.TrangThaiDieuKien;
-                        if ((khoHang.SoLuong ?? 0) == 0)
+                        // Tự động chuyển trạng thái từ "Không bán" thành "Bán" khi số lượng từ 0 lên > 0
+                        string trangThaiDieuKien = khoHang.TrangThaiDieuKien ?? string.Empty;
+                        int soLuongMoi = khoHang.SoLuong ?? 0;
+                        
+                        if (soLuongMoi == 0)
                         {
                             // Bắt buộc "Không bán" khi số lượng = 0
                             trangThaiDieuKien = "Không bán";
+                        }
+                        else if (soLuongCu == 0 && soLuongMoi > 0)
+                        {
+                            // Tự động chuyển từ "Không bán" sang "Bán" khi số lượng từ 0 lên > 0 (ví dụ: hủy hóa đơn, trả hàng về)
+                            trangThaiDieuKien = "Bán";
                         }
                         else if (string.IsNullOrWhiteSpace(trangThaiDieuKien))
                         {
                             // Mặc định "Bán" khi số lượng > 0 và chưa có trạng thái
                             trangThaiDieuKien = "Bán";
                         }
+                        // Nếu số lượng > 0 và đã có trạng thái, giữ nguyên (cho phép set "Không bán" thủ công)
 
                         using (SqlCommand cmdUpdate = new SqlCommand(queryUpdateKho, connection, transaction))
                         {
