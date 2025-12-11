@@ -2,13 +2,17 @@
 using System.Data;
 using System.Windows.Forms;
 using mini_supermarket.BUS;
+using mini_supermarket.DTO;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 
 namespace mini_supermarket.GUI.KhoHang
 {
     public partial class Form_LichSuKhoHang : Form
     {
         private KhoHangBUS khoHangBUS = new KhoHangBUS();
+        private BindingSource bindingSourceLichSu = new BindingSource();
         private int maSanPham;
         private string tenSanPham;
 
@@ -30,7 +34,9 @@ namespace mini_supermarket.GUI.KhoHang
             try
             {
                 var listLichSu = khoHangBUS.LayLichSuThayDoi(maSanPham);
-                dgvLichSu.DataSource = listLichSu;
+                var bindingListLichSu = new BindingList<LichSuThayDoiKhoDTO>(listLichSu as IList<LichSuThayDoiKhoDTO> ?? listLichSu.ToList());
+                bindingSourceLichSu.DataSource = bindingListLichSu;
+                dgvLichSu.DataSource = bindingSourceLichSu;
 
                 // Ẩn các cột dư
                 if (dgvLichSu.Columns["MaLichSu"] != null) dgvLichSu.Columns["MaLichSu"].Visible = false;

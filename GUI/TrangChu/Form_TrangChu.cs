@@ -1,15 +1,21 @@
 ﻿using mini_supermarket.BUS;
+using mini_supermarket.DTO;
 using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.ComponentModel;
+using System.Linq;
 
 namespace mini_supermarket.GUI.TrangChu
 {
     public partial class Form_TrangChu : Form
     {
         private TrangChuBUS trangChuBUS = new TrangChuBUS();
+        private BindingSource bindingSourceSapHetHan = new BindingSource();
+        private BindingSource bindingSourceDaHetHan = new BindingSource();
+        private BindingSource bindingSourceTopKhachHang = new BindingSource();
 
         public Form_TrangChu()
         {
@@ -120,7 +126,9 @@ namespace mini_supermarket.GUI.TrangChu
             try
             {
                 var list = trangChuBUS.GetSanPhamSapHetHan();
-                dgvSanPhamSapHetHan.DataSource = list;
+                var bindingList = new BindingList<SanPhamHetHanDTO>(list.ToList());
+                bindingSourceSapHetHan.DataSource = bindingList;
+                dgvSanPhamSapHetHan.DataSource = bindingSourceSapHetHan;
 
                 if (dgvSanPhamSapHetHan.Columns.Contains("TenSanPham"))
                 {
@@ -172,7 +180,9 @@ namespace mini_supermarket.GUI.TrangChu
             try
             {
                 var list = trangChuBUS.GetSanPhamDaHetHan();
-                dgvSanPhamDaHetHan.DataSource = list;
+                var bindingList = new BindingList<SanPhamHetHanDTO>(list.ToList());
+                bindingSourceDaHetHan.DataSource = bindingList;
+                dgvSanPhamDaHetHan.DataSource = bindingSourceDaHetHan;
 
                 if (dgvSanPhamDaHetHan.Columns.Contains("TenSanPham"))
                 {
@@ -213,7 +223,9 @@ namespace mini_supermarket.GUI.TrangChu
             try
             {
                 var list = trangChuBUS.GetKhachHangMuaNhieuNhat();
-                dgvTopKhachHang.DataSource = list;
+                var bindingList = new BindingList<KhachHangMuaNhieuDTO>(list.ToList());
+                bindingSourceTopKhachHang.DataSource = bindingList;
+                dgvTopKhachHang.DataSource = bindingSourceTopKhachHang;
 
                 if (dgvTopKhachHang.Columns.Contains("TenKhachHang"))
                 {
