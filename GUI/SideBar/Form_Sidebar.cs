@@ -365,24 +365,28 @@ namespace mini_supermarket.GUI.SideBar
             ShowPlaceholder(message, button);
         }
 
-        private void ShowTrangChu()
+
+
+    //tao form vao panel contentHostPanel
+
+        private void ShowTrangChu() //tao form vao panel contentHostPanel
         {
             SetActiveButton(navTrangChuButton);
             mainTitleLabel.Text = navTrangChuButton.Text;
 
             CloseActiveForm();
 
-            var trangChuForm = new Form_TrangChu
+            var trangChuForm = new Form_TrangChu //tao form trang chu
             {
                 TopLevel = false,
-                FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill
+                FormBorderStyle = FormBorderStyle.None, //khong co border
+                Dock = DockStyle.Fill //fill toi day
             };
 
-            _activeForm = trangChuForm;
-            contentHostPanel.Controls.Clear();
-            contentHostPanel.Controls.Add(trangChuForm);
-            trangChuForm.Show();
+            _activeForm = trangChuForm; //set form trang chu la form hien tai
+            contentHostPanel.Controls.Clear(); //xoa form hien tai
+            contentHostPanel.Controls.Add(trangChuForm); //them form trang chu vao panel contentHostPanel
+            trangChuForm.Show(); //hien thi form trang chu
         }
 
         private void ShowBanHang()
