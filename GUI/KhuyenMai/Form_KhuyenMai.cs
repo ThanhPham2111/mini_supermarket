@@ -12,23 +12,27 @@ namespace mini_supermarket.GUI.KhuyenMai
 {
     public partial class Form_KhuyenMai : Form
     {
+        
         private const string FunctionPath = "Form_KhuyenMai";
         private readonly PermissionService _permissionService = new();
-    private Panel? mainPanel;
-    private DataGridView? dgv;
-    private ComboBox? cboFilterProduct;
-    private TextBox? txtSearch;
-    private Button? btnChooseProduct;
-    private int? _selectedProductId;
-    private TextBox? txtTenKhuyenMai;
-    private NumericUpDown? nudPhanTram;
-    private DateTimePicker? dtpBatDau;
-    private DateTimePicker? dtpKetThuc;
-    private TextBox? txtMoTa;
-    private Button? btnAdd;
-    private Button? btnUpdate;
-    private Button? btnDelete;
-    private Button? btnClear;
+        private Panel? mainPanel;
+        private DataGridView? dgv;
+        private ComboBox? cboFilterProduct;
+        private TextBox? txtSearch;
+        private Button? btnChooseProduct;
+        private int? _selectedProductId;
+        private TextBox? txtTenKhuyenMai;
+        private NumericUpDown? nudPhanTram;
+        private DateTimePicker? dtpBatDau;
+        private DateTimePicker? dtpKetThuc;
+        private TextBox? txtMoTa;
+        private Button? btnAdd;
+        private Button? btnUpdate;
+        private Button? btnDelete;
+        private Button? btnClear;
+
+        private readonly BindingSource _bindingSource = new();
+        private BindingList<KhuyenMaiDTO> _currentKhuyenMai = new();
 
         private readonly KhuyenMai_BUS _bus = new();
 
@@ -85,14 +89,14 @@ namespace mini_supermarket.GUI.KhuyenMai
             mainPanel.Controls.Add(lblFilter);
 
             cboFilterProduct = new ComboBox { Location = new Point(530, 28), Size = new Size(220, 24), DropDownStyle = ComboBoxStyle.DropDownList };
-            cboFilterProduct.SelectedIndexChanged += (s, e) => LoadData(GetSelectedFilterProductId(), txtSearch?.Text);
+            cboFilterProduct.SelectedIndexChanged += (s, e) => ApplyFilters();
             mainPanel.Controls.Add(cboFilterProduct);
 
             var lblSearch = CreateLabel("Tìm kiếm:", new Point(760, 30), new Size(70, 22));
             mainPanel.Controls.Add(lblSearch);
 
             txtSearch = new TextBox { Location = new Point(830, 28), Size = new Size(230, 24) };
-            txtSearch.TextChanged += (s, e) => LoadData(GetSelectedFilterProductId(), txtSearch.Text);
+            txtSearch.TextChanged += (s, e) => ApplyFilters();
             mainPanel.Controls.Add(txtSearch);
 
             // Left panel: inputs
@@ -190,6 +194,8 @@ namespace mini_supermarket.GUI.KhuyenMai
             dgv.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày kết thúc", DataPropertyName = "NgayKetThuc", Width = 110 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Mô tả", DataPropertyName = "MoTa", Width = 200 });
 
+            _bindingSource.DataSource = _currentKhuyenMai;
+            dgv.DataSource = _bindingSource;
             dgv.CellClick += Dgv_CellClick;
             mainPanel.Controls.Add(dgv);
         }
@@ -225,22 +231,16 @@ namespace mini_supermarket.GUI.KhuyenMai
         {
             // Load products for combo boxes then load grid
             LoadProducts();
-            LoadData((int?)null, null);
+            LoadKhuyenMaiData();
+            ApplyFilters();
         }
 
-        private void LoadData(int? maSanPhamFilter, string? search)
+        private void LoadKhuyenMaiData()
         {
             try
             {
-                IList<KhuyenMaiDTO> data = _bus.GetKhuyenMai(maSanPhamFilter);
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    string s = search.Trim();
-                    data = new List<KhuyenMaiDTO>(data).FindAll(k => (k.TenKhuyenMai ?? string.Empty).IndexOf(s, StringComparison.CurrentCultureIgnoreCase) >= 0
-                                                                              || (k.MoTa ?? string.Empty).IndexOf(s, StringComparison.CurrentCultureIgnoreCase) >= 0);
-                }
-                var binding = new BindingList<KhuyenMaiDTO>(data as List<KhuyenMaiDTO> ?? new List<KhuyenMaiDTO>(data));
-                dgv!.DataSource = new BindingSource { DataSource = binding };
+                _currentKhuyenMai = new BindingList<KhuyenMaiDTO>(_bus.GetKhuyenMai().ToList());
+                _bindingSource.DataSource = _currentKhuyenMai;
             }
             catch (Exception ex)
             {
@@ -340,8 +340,10 @@ namespace mini_supermarket.GUI.KhuyenMai
             {
                 var kh = MapInputsToDto(isUpdate: false);
                 var added = _bus.AddKhuyenMai(kh);
+                _currentKhuyenMai.Add(added);
                 MessageBox.Show("Thêm khuyến mãi thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadData();
+                ApplyFilters();
+                SelectKhuyenMaiRow(added.MaKhuyenMai);
             }
             catch (Exception ex)
             {
@@ -363,7 +365,9 @@ namespace mini_supermarket.GUI.KhuyenMai
                 var kh = MapInputsToDto(isUpdate: true);
                 _bus.UpdateKhuyenMai(kh);
                 MessageBox.Show("Cập nhật thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadData();
+                ReplaceKhuyenMaiInList(kh);
+                ApplyFilters();
+                SelectKhuyenMaiRow(kh.MaKhuyenMai);
             }
             catch (Exception ex)
             {
@@ -386,8 +390,9 @@ namespace mini_supermarket.GUI.KhuyenMai
                 if (MessageBox.Show("Bạn có chắc muốn xóa khuyến mãi này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
                 _bus.DeleteKhuyenMai(id);
                 MessageBox.Show("Xóa thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RemoveKhuyenMaiFromList(id);
                 dgv!.Tag = null;
-                LoadData();
+                ApplyFilters();
             }
             catch (Exception ex)
             {
@@ -453,6 +458,73 @@ namespace mini_supermarket.GUI.KhuyenMai
             }
 
             return kh;
+        }
+
+        private void ApplyFilters()
+        {
+            if (_currentKhuyenMai == null) return;
+
+            IEnumerable<KhuyenMaiDTO> filtered = _currentKhuyenMai;
+            int? productFilter = GetSelectedFilterProductId();
+            if (productFilter.HasValue)
+            {
+                filtered = filtered.Where(k => k.MaSanPham == productFilter.Value);
+            }
+
+            string? search = txtSearch?.Text?.Trim();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string s = search.ToLowerInvariant();
+                filtered = filtered.Where(k => (k.TenKhuyenMai ?? string.Empty).ToLowerInvariant().Contains(s)
+                                            || (k.MoTa ?? string.Empty).ToLowerInvariant().Contains(s));
+            }
+
+            _bindingSource.DataSource = filtered.ToList();
+            dgv?.ClearSelection();
+        }
+
+        private void ReplaceKhuyenMaiInList(KhuyenMaiDTO kh)
+        {
+            int idx = _currentKhuyenMai.ToList().FindIndex(x => x.MaKhuyenMai == kh.MaKhuyenMai);
+            if (idx >= 0)
+            {
+                _currentKhuyenMai[idx] = kh;
+            }
+            else
+            {
+                _currentKhuyenMai.Add(kh);
+            }
+        }
+
+        private void RemoveKhuyenMaiFromList(int maKhuyenMai)
+        {
+            int idx = _currentKhuyenMai.ToList().FindIndex(x => x.MaKhuyenMai == maKhuyenMai);
+            if (idx >= 0)
+            {
+                _currentKhuyenMai.RemoveAt(idx);
+            }
+        }
+
+        private void SelectKhuyenMaiRow(int maKhuyenMai)
+        {
+            if (dgv == null || dgv.Rows.Count == 0) return;
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                if (row.DataBoundItem is KhuyenMaiDTO km && km.MaKhuyenMai == maKhuyenMai)
+                {
+                    row.Selected = true;
+                    try
+                    {
+                        dgv.FirstDisplayedScrollingRowIndex = row.Index;
+                    }
+                    catch
+                    {
+                        // ignore scroll issues
+                    }
+                    dgv.Tag = maKhuyenMai;
+                    break;
+                }
+            }
         }
     }
 }

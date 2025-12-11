@@ -75,7 +75,7 @@ namespace mini_supermarket.GUI.PhieuNhap
 
                 // Hiển thị thông tin chung
                 lblMaPhieuNhap.Text = $"PN{phieuNhap.MaPhieuNhap:D3}";
-                lblNgayNhap.Text = phieuNhap.NgayNhap?.ToString("dd/MM/yyyy HH:mm") ?? "N/A";
+                lblNgayNhap.Text = phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A";
 
                 // Lấy tên nhà cung cấp
                 var nhaCungCapList = nhaCungCapBUS.GetAll();
@@ -492,7 +492,7 @@ namespace mini_supermarket.GUI.PhieuNhap
                 }
                 ws.Cell(row++, 1).Value = "CHI TIẾT PHIẾU NHẬP";
                 WriteInfo("Mã phiếu", $"PN{phieuNhap.MaPhieuNhap:D3}");
-                WriteInfo("Ngày nhập", phieuNhap.NgayNhap?.ToString("dd/MM/yyyy HH:mm") ?? "N/A");
+                WriteInfo("Ngày nhập", phieuNhap.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A");
                 WriteInfo("NCC", lblNhaCungCap.Text);
                 row++; // dòng trống
 
