@@ -542,6 +542,7 @@ namespace mini_supermarket.BUS
         /// <summary>
         /// Cập nhật trạng thái điều kiện bán của sản phẩm (Bán hoặc Không bán).
         /// Phương thức này được sử dụng để ngừng bán một sản phẩm mà vẫn còn hàng.
+        /// Đồng thời cập nhật trạng thái trong Tbl_SanPham để đảm bảo tính nhất quán.
         /// </summary>
         public bool CapNhatTrangThaiDieuKienBan(int maSanPham, string trangThaiDieuKien)
         {
@@ -558,8 +559,27 @@ namespace mini_supermarket.BUS
             if (khoHang == null)
                 throw new InvalidOperationException("Sản phẩm không tồn tại trong kho");
 
+            // Cập nhật trạng thái điều kiện trong kho
             khoHang.TrangThaiDieuKien = trangThaiDieuKien;
             khoHangDAO.UpdateKhoHang(khoHang);
+
+            // Đồng bộ trạng thái với Tbl_SanPham
+            // Nếu "Không bán" -> set "Hết hàng" để tránh nhập hàng về
+            // Nếu "Bán" -> dựa vào số lượng để quyết định "Còn hàng" hoặc "Hết hàng"
+            string trangThaiSanPham;
+            if (trangThaiDieuKien == TRANG_THAI_DIEU_KIEN_KHONG_BAN)
+            {
+                trangThaiSanPham = SanPham_BUS.StatusHetHang; // "Hết hàng" để tránh nhập về
+            }
+            else
+            {
+                // Nếu chuyển về "Bán", cập nhật theo số lượng thực tế
+                trangThaiSanPham = (khoHang.SoLuong ?? 0) > 0 
+                    ? SanPham_BUS.StatusConHang 
+                    : SanPham_BUS.StatusHetHang;
+            }
+
+            khoHangDAO.UpdateTrangThaiSanPham(maSanPham, trangThaiSanPham);
             return true;
         }
 

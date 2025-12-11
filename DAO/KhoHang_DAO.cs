@@ -305,6 +305,33 @@ namespace mini_supermarket.DAO
             }
         }
 
+        /// <summary>
+        /// Cập nhật trạng thái sản phẩm trong Tbl_SanPham để đồng bộ với trạng thái kho
+        /// </summary>
+        public void UpdateTrangThaiSanPham(int maSanPham, string trangThai)
+        {
+            const string query = @"UPDATE Tbl_SanPham 
+                                   SET TrangThai = @TrangThai 
+                                   WHERE MaSanPham = @MaSanPham";
+
+            try
+            {
+                using (SqlConnection connection = DbConnectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@MaSanPham", maSanPham);
+                    command.Parameters.AddWithValue("@TrangThai", trangThai ?? (object)DBNull.Value);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] UpdateTrangThaiSanPham: {ex.Message}");
+                throw;
+            }
+        }
+
         public void InsertKhoHang(KhoHangDTO khoHang)
         {
             const string query = @"INSERT INTO Tbl_KhoHang (MaSanPham, SoLuong, TrangThai, TrangThaiDieuKien) 
