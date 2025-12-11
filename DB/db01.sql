@@ -284,6 +284,24 @@
         FOREIGN KEY (MaNhanVien) REFERENCES Tbl_NhanVien(MaNhanVien)
     );
 
+    -- Script để thêm bảng lưu lịch sử hủy hóa đơn
+-- Chạy script này để thêm bảng mới
+
+
+    CREATE TABLE Tbl_LichSuHuyHoaDon (
+        MaLichSuHuy INT PRIMARY KEY IDENTITY(1,1),
+        MaHoaDon INT NOT NULL,
+        LyDoHuy NVARCHAR(MAX),
+        MaNhanVienHuy INT NOT NULL,
+        NgayHuy DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (MaHoaDon) REFERENCES Tbl_HoaDon(MaHoaDon),
+        FOREIGN KEY (MaNhanVienHuy) REFERENCES Tbl_NhanVien(MaNhanVien)
+    );
+    
+    
+
+
+
     -- 23. Bảng liên kết Nhà cung cấp - Sản phẩm (nhiều-nhiều)
     CREATE TABLE Tbl_NhaCungCap_SanPham (
         Id INT PRIMARY KEY IDENTITY(1,1),

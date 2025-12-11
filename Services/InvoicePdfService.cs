@@ -40,40 +40,42 @@ namespace mini_supermarket.Services
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
+                    page.Size(PageSizes.A5);
+                    page.Margin(1.2f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10));
-
-                    page.Header()
-                        .AlignCenter()
-                        .Text("HÓA ĐƠN BÁN HÀNG")
-                        .FontSize(20)
-                        .Bold()
-                        .FontFamily(Fonts.Calibri);
+                    page.DefaultTextStyle(x => x.FontSize(8));
 
                     page.Content()
-                        .PaddingVertical(1, Unit.Centimetre)
+                        .PaddingVertical(0.5f, Unit.Centimetre)
                         .Column(column =>
                         {
-                            column.Spacing(20);
+                            column.Spacing(12);
+
+                            // Header chỉ hiển thị một lần ở đầu (không lặp lại)
+                            column.Item()
+                                .PaddingBottom(8)
+                                .AlignCenter()
+                                .Text("HÓA ĐƠN BÁN HÀNG")
+                                .FontSize(16)
+                                .Bold()
+                                .FontFamily(Fonts.Calibri);
 
                             // Thông tin cửa hàng và hóa đơn
                             column.Item().Row(row =>
                             {
                                 row.RelativeItem().Column(col =>
                                 {
-                                    col.Item().Text("MINI SUPERMARKET").Bold().FontSize(14);
-                                    col.Item().Text("Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM");
-                                    col.Item().Text("Điện thoại: 0123 456 789");
-                                    col.Item().Text("Email: info@minisupermarket.com");
+                                    col.Item().Text("MINI SUPERMARKET").Bold().FontSize(11);
+                                    col.Item().Text("Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM").FontSize(8);
+                                    col.Item().Text("Điện thoại: 0123 456 789").FontSize(8);
+                                    col.Item().Text("Email: info@minisupermarket.com").FontSize(8);
                                 });
 
                                 row.RelativeItem().AlignRight().Column(col =>
                                 {
-                                    col.Item().Text($"Mã HĐ: {hoaDon.MaHoaDonCode}").Bold();
-                                    col.Item().Text($"Ngày: {hoaDon.NgayLap:dd/MM/yyyy HH:mm}");
-                                    col.Item().Text($"Nhân viên: {tenNhanVien}");
+                                    col.Item().Text($"Mã HĐ: {hoaDon.MaHoaDonCode}").Bold().FontSize(8);
+                                    col.Item().Text($"Ngày: {hoaDon.NgayLap:dd/MM/yyyy HH:mm}").FontSize(8);
+                                    col.Item().Text($"Nhân viên: {tenNhanVien}").FontSize(8);
                                 });
                             });
 
@@ -82,8 +84,8 @@ namespace mini_supermarket.Services
                             // Thông tin khách hàng
                             column.Item().Column(col =>
                             {
-                                col.Item().Text("THÔNG TIN KHÁCH HÀNG").Bold().FontSize(12);
-                                col.Item().Text($"Tên khách hàng: {tenKhachHang}");
+                                col.Item().Text("THÔNG TIN KHÁCH HÀNG").Bold().FontSize(10);
+                                col.Item().Text($"Tên khách hàng: {tenKhachHang}").FontSize(8);
                             });
 
                             column.Item().LineHorizontal(1).LineColor(Colors.Grey.Medium);
@@ -91,8 +93,8 @@ namespace mini_supermarket.Services
                             // Chi tiết sản phẩm
                             column.Item().Column(col =>
                             {
-                                col.Item().Text("CHI TIẾT HÓA ĐƠN").Bold().FontSize(12);
-                                col.Item().PaddingTop(10);
+                                col.Item().Text("CHI TIẾT HÓA ĐƠN").Bold().FontSize(10);
+                                col.Item().PaddingTop(5);
 
                                 // Header bảng
                                 col.Item().Table(table =>
@@ -108,20 +110,20 @@ namespace mini_supermarket.Services
 
                                     table.Header(header =>
                                     {
-                                        header.Cell().Element(CellStyle).Text("Tên sản phẩm").Bold();
-                                        header.Cell().Element(CellStyle).Text("ĐVT").Bold();
-                                        header.Cell().Element(CellStyle).AlignRight().Text("SL").Bold();
-                                        header.Cell().Element(CellStyle).AlignRight().Text("Đơn giá").Bold();
-                                        header.Cell().Element(CellStyle).AlignRight().Text("Thành tiền").Bold();
+                                        header.Cell().Element(CellStyle).Text("Tên sản phẩm").Bold().FontSize(8);
+                                        header.Cell().Element(CellStyle).Text("ĐVT").Bold().FontSize(8);
+                                        header.Cell().Element(CellStyle).AlignRight().Text("SL").Bold().FontSize(8);
+                                        header.Cell().Element(CellStyle).AlignRight().Text("Đơn giá").Bold().FontSize(8);
+                                        header.Cell().Element(CellStyle).AlignRight().Text("Thành tiền").Bold().FontSize(8);
                                     });
 
                                     foreach (var item in chiTietHoaDon)
                                     {
-                                        table.Cell().Element(CellStyle).Text(item.TenSanPham);
-                                        table.Cell().Element(CellStyle).Text(item.DonVi);
-                                        table.Cell().Element(CellStyle).AlignRight().Text(item.SoLuong.ToString());
-                                        table.Cell().Element(CellStyle).AlignRight().Text($"{item.GiaBan:N0} đ");
-                                        table.Cell().Element(CellStyle).AlignRight().Text($"{item.ThanhTien:N0} đ");
+                                        table.Cell().Element(CellStyle).Text(item.TenSanPham).FontSize(8);
+                                        table.Cell().Element(CellStyle).Text(item.DonVi).FontSize(8);
+                                        table.Cell().Element(CellStyle).AlignRight().Text(item.SoLuong.ToString()).FontSize(8);
+                                        table.Cell().Element(CellStyle).AlignRight().Text($"{item.GiaBan:N0} đ").FontSize(8);
+                                        table.Cell().Element(CellStyle).AlignRight().Text($"{item.ThanhTien:N0} đ").FontSize(8);
                                     }
                                 });
                             });
@@ -133,49 +135,31 @@ namespace mini_supermarket.Services
                             {
                                 col.Item().Row(row =>
                                 {
-                                    row.ConstantItem(100).Text("Tổng tiền:");
-                                    row.RelativeItem().AlignRight().Text($"{tongTienTruocDiem:N0} đ");
+                                    row.ConstantItem(80).Text("Tổng tiền:").FontSize(8);
+                                    row.RelativeItem().AlignRight().Text($"{tongTienTruocDiem:N0} đ").FontSize(8);
                                 });
 
                                 if (diemSuDung > 0)
                                 {
                                     col.Item().Row(row =>
                                     {
-                                        row.ConstantItem(100).Text("Giảm từ điểm:");
-                                        row.RelativeItem().AlignRight().Text($"-{giamTuDiem:N0} đ");
+                                        row.ConstantItem(80).Text("Giảm từ điểm:").FontSize(8);
+                                        row.RelativeItem().AlignRight().Text($"-{giamTuDiem:N0} đ").FontSize(8);
                                     });
                                 }
 
-                                col.Item().PaddingTop(5);
+                                col.Item().PaddingTop(3);
                                 col.Item().Row(row =>
                                 {
-                                    row.ConstantItem(100).Text("TỔNG CỘNG:").Bold().FontSize(12);
-                                    row.RelativeItem().AlignRight().Text($"{thanhTien:N0} đ").Bold().FontSize(12);
+                                    row.ConstantItem(80).Text("TỔNG CỘNG:").Bold().FontSize(10);
+                                    row.RelativeItem().AlignRight().Text($"{thanhTien:N0} đ").Bold().FontSize(10);
                                 });
                             });
 
-                            // Thông tin điểm tích lũy (nếu có)
-                            if (diemTichLuy > 0 || diemSuDung > 0)
-                            {
-                                column.Item().LineHorizontal(1).LineColor(Colors.Grey.Medium);
-                                column.Item().Column(col =>
-                                {
-                                    col.Item().Text("THÔNG TIN ĐIỂM TÍCH LŨY").Bold().FontSize(12);
-                                    if (diemSuDung > 0)
-                                    {
-                                        col.Item().Text($"Điểm đã sử dụng: {diemSuDung} điểm");
-                                    }
-                                    if (diemTichLuy > 0)
-                                    {
-                                        col.Item().Text($"Điểm tích lũy: +{diemTichLuy} điểm");
-                                    }
-                                });
-                            }
-
                             // Footer
-                            column.Item().PaddingTop(30);
-                            column.Item().AlignCenter().Text("Cảm ơn quý khách đã mua hàng!").Italic();
-                            column.Item().AlignCenter().Text("Hẹn gặp lại quý khách!").Italic();
+                            column.Item().PaddingTop(15);
+                            column.Item().AlignCenter().Text("Cảm ơn quý khách đã mua hàng!").Italic().FontSize(8);
+                            column.Item().AlignCenter().Text("Hẹn gặp lại quý khách!").Italic().FontSize(8);
                         });
                 });
             })
@@ -194,8 +178,8 @@ namespace mini_supermarket.Services
             return container
                 .BorderBottom(0.5f)
                 .BorderColor(Colors.Grey.Lighten2)
-                .PaddingVertical(5)
-                .PaddingHorizontal(5);
+                .PaddingVertical(3)
+                .PaddingHorizontal(4);
         }
     }
 }

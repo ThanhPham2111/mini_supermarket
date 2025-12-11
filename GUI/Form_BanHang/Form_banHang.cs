@@ -857,21 +857,8 @@ namespace mini_supermarket.GUI.Form_BanHang
                     diemHienCo,
                     diemSuDung);
 
-                // Thông báo cập nhật điểm khách hàng (nếu có)
-                if (selectedKhachHangId.HasValue && result.DiemTichLuy > 0)
-                {
-                    MessageBox.Show(
-                        $"Đã cập nhật điểm tích lũy cho khách hàng!\n\n" +
-                        $"Điểm tích lũy: +{result.DiemTichLuy} điểm\n" +
-                        $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")} điểm\n" +
-                        $"Điểm mới của khách hàng: {result.DiemMoi} điểm",
-                        "Cập nhật điểm thành công",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
-
-                // Tạo thông báo thành công
-                string message = $"Thanh toán thành công!\n\n" +
+                // Tạo thông báo thành công (gộp cả thanh toán và điểm)
+                string message = $"✅ Thanh toán thành công!\n\n" +
                     $"Mã hóa đơn: HD{result.MaHoaDon:D3}\n" +
                     $"Tổng tiền trước điểm: {result.TongTienTruocDiem:N0} đ\n";
                 
@@ -881,6 +868,15 @@ namespace mini_supermarket.GUI.Form_BanHang
                 }
                 
                 message += $"Tổng cần thanh toán: {result.TongTienThanhToan:N0} đ";
+
+                // Thêm thông tin điểm nếu có khách hàng
+                if (selectedKhachHangId.HasValue && result.DiemTichLuy > 0)
+                {
+                    message += $"\n\n✅ Đã cập nhật điểm tích lũy cho khách hàng!\n" +
+                        $"Điểm tích lũy: +{result.DiemTichLuy} điểm\n" +
+                        $"Điểm sử dụng: {(result.DiemSuDung > 0 ? result.DiemSuDung.ToString() : "0")} điểm\n" +
+                        $"Điểm mới của khách hàng: {result.DiemMoi} điểm";
+                }
 
                 MessageBox.Show(
                     message,
