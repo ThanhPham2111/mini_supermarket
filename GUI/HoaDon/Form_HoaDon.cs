@@ -26,8 +26,9 @@ namespace mini_supermarket.GUI.HoaDon
         {
             InitializeComponent();
             Load += Form_HoaDon_Load;
-            
+
             LoadHoaDonData();
+            _bindingSource.DataSource = _hoaDonList;
         }
 
         private void Form_HoaDon_Load(object sender, EventArgs e)
@@ -121,6 +122,7 @@ namespace mini_supermarket.GUI.HoaDon
             dateTimePicker2.Value = DateTime.Today;
             dateTimePicker3.Value = DateTime.Today;
             trangThaiComboBox.SelectedIndex = 0; // Reset về "Tất cả"
+            timKiemButton_Click(sender, e);
         }
 
         private void timKiemButton_Click(object sender, EventArgs e)
@@ -560,6 +562,9 @@ namespace mini_supermarket.GUI.HoaDon
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+            finally{
+                lamMoiButton_Click(sender, e);
+            }
         }
 
         private void huyButton_Click(object sender, EventArgs e)
@@ -644,6 +649,10 @@ namespace mini_supermarket.GUI.HoaDon
                             "Lỗi", 
                             MessageBoxButtons.OK, 
                             MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        lamMoiButton_Click(sender, e);
                     }
                 }
             }

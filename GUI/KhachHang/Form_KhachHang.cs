@@ -33,6 +33,7 @@ namespace mini_supermarket.GUI.KhachHang
             // _roles = _khachHangBus.GetDefaultRoles().ToList();
             _statuses = _khachHangBus.GetDefaultStatuses().ToList();
             LoadKhachHangData();
+            _bindingSource.DataSource = _currentKhachHang;
         }
 
         private void Form_KhachHang_Load(object? sender, EventArgs e)
@@ -85,7 +86,7 @@ namespace mini_supermarket.GUI.KhachHang
             SetInputFieldsEnabled(false);
 
             // LoadKhachHangData();
-            _bindingSource.DataSource = _currentKhachHang;
+
         }
 
         private void ApplyPermissions()
@@ -274,7 +275,7 @@ namespace mini_supermarket.GUI.KhachHang
             {
                 // ApplyStatusFilter();
             }
-            _bindingSource.DataSource = _currentKhachHang;
+            // _bindingSource.DataSource = _currentKhachHang;
             // LoadKhachHangData();
         }
 
@@ -357,7 +358,7 @@ namespace mini_supermarket.GUI.KhachHang
 
             if (string.IsNullOrWhiteSpace(selectedStatus) || string.Equals(selectedStatus, StatusAll, StringComparison.OrdinalIgnoreCase))
             {
-                _bindingSource.DataSource = _currentKhachHang;
+                // _bindingSource.DataSource = _currentKhachHang;
             }
             else
             {
