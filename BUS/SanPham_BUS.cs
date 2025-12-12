@@ -149,6 +149,13 @@ namespace mini_supermarket.BUS
                 throw new ArgumentException("Giá bán không được âm.", nameof(sanPham.GiaBan));
             }
 
+
+            //cho hsd >= ngày hiện tại
+            // if (sanPham.Hsd.HasValue && sanPham.Hsd.Value.Date < DateTime.Today)
+            // {
+            //     throw new ArgumentException("Hạn sử dụng không được trước ngày hiện tại.", nameof(sanPham.Hsd));
+            // }
+
             sanPham.MoTa = string.IsNullOrWhiteSpace(sanPham.MoTa) ? null : sanPham.MoTa.Trim();
             sanPham.XuatXu = string.IsNullOrWhiteSpace(sanPham.XuatXu) ? null : sanPham.XuatXu.Trim();
 
