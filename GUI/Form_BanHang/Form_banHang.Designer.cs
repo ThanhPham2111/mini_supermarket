@@ -82,6 +82,13 @@ namespace mini_supermarket.GUI.Form_BanHang
             lblProductTitle.Padding = new Padding(10, 0, 0, 0);
             productHeaderPanel.Controls.Add(lblProductTitle);
 
+            // Panel trung gian để chứa DataGridView (giới hạn chiều cao)
+            // Không dùng Dock = Fill để tránh bị che bởi bottomLayout
+            // Sẽ tính toán lại vị trí/kích thước trong event Layout
+            Panel dgvContainerPanel = new Panel();
+            dgvContainerPanel.Location = new Point(0, 0);
+            dgvContainerPanel.Size = new Size(100, 100); // Sẽ được tính toán lại trong event Layout
+            
             // DataGridView Products
             dgvProducts = new DataGridView();
             dgvProducts.Dock = DockStyle.Fill;
@@ -133,11 +140,15 @@ namespace mini_supermarket.GUI.Form_BanHang
             {
                 productColumnMaSanPham, productColumnName, productColumnPrice, productColumnQuantity, productColumnHsd, productColumnPromotion
             });
+            
+            // Thêm dgvProducts vào container panel
+            dgvContainerPanel.Controls.Add(dgvProducts);
 
             // Bottom Layout
             bottomLayout = new TableLayoutPanel();
             bottomLayout.Dock = DockStyle.Bottom;
             bottomLayout.Height = 210;
+            bottomLayout.BringToFront(); // Đảm bảo bottomLayout luôn ở trên cùng
             bottomLayout.ColumnCount = 2;
             bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160F));
             bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -265,10 +276,32 @@ namespace mini_supermarket.GUI.Form_BanHang
             bottomLayout.Controls.Add(productActionPanel, 1, 0);
             bottomLayout.Controls.Add(productDetailLayout, 1, 1);
 
-            leftPanel.Controls.Add(bottomLayout);
-            leftPanel.Controls.Add(dgvProducts);
-            leftPanel.Controls.Add(productHeaderPanel);
+            // Thứ tự add controls: add bottomLayout trước để nó chiếm phần bottom
+            // Sau đó add dgvContainerPanel với Anchor để nó tự động điều chỉnh
+            // Thứ tự add controls trong WinForms:
+            // - Controls với Dock = Bottom được add trước sẽ chiếm phần bottom
+            // - Controls với Anchor được add sau sẽ tự động điều chỉnh để không bị che
             leftPanel.Controls.Add(searchPanel);
+            leftPanel.Controls.Add(productHeaderPanel);
+            leftPanel.Controls.Add(bottomLayout);
+            leftPanel.Controls.Add(dgvContainerPanel);
+            
+            // Đảm bảo bottomLayout luôn ở trên cùng về mặt z-order để không bị che
+            bottomLayout.BringToFront();
+            
+            // Tính toán lại vị trí và kích thước của dgvContainerPanel sau khi add vào leftPanel
+            // dgvContainerPanel sẽ nằm giữa productHeaderPanel và bottomLayout
+            leftPanel.Layout += (sender, e) =>
+            {
+                if (dgvContainerPanel != null && bottomLayout != null && productHeaderPanel != null && searchPanel != null)
+                {
+                    int top = searchPanel.Bottom + productHeaderPanel.Height;
+                    int bottom = bottomLayout.Top;
+                    dgvContainerPanel.Location = new Point(0, top);
+                    dgvContainerPanel.Height = bottom - top;
+                    dgvContainerPanel.Width = leftPanel.ClientSize.Width;
+                }
+            };
 
             // ===== RIGHT PANEL =====
             rightPanel = new Panel();
