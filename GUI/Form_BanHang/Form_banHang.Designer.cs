@@ -59,7 +59,8 @@ namespace mini_supermarket.GUI.Form_BanHang
 
             searchPanel.Dock = DockStyle.Top;
             searchPanel.Height = 55;
-            searchPanel.Padding = new Padding(10, 10, 10, 10);
+            searchPanel.Padding = new Padding(10, 10, 10, 0);
+            searchPanel.Margin = new Padding(0, 0, 0, 0);
             searchPanel.BackColor = Color.White;
 
             searchBox.Location = new Point(10, 10);
@@ -73,6 +74,7 @@ namespace mini_supermarket.GUI.Form_BanHang
             lblProductTitle = new Label();
             productHeaderPanel.Dock = DockStyle.Top;
             productHeaderPanel.Height = 40;
+            productHeaderPanel.Margin = new Padding(0, 0, 0, 0);
             productHeaderPanel.BackColor = Color.FromArgb(34, 139, 34);
             lblProductTitle.Dock = DockStyle.Fill;
             lblProductTitle.Text = "Danh sách sản phẩm";
@@ -281,8 +283,8 @@ namespace mini_supermarket.GUI.Form_BanHang
             // Thứ tự add controls trong WinForms:
             // - Controls với Dock = Bottom được add trước sẽ chiếm phần bottom
             // - Controls với Anchor được add sau sẽ tự động điều chỉnh để không bị che
+            // Lưu ý: productHeaderPanel không được add vào leftPanel để tránh che header của datagridview
             leftPanel.Controls.Add(searchPanel);
-            leftPanel.Controls.Add(productHeaderPanel);
             leftPanel.Controls.Add(bottomLayout);
             leftPanel.Controls.Add(dgvContainerPanel);
             
@@ -290,12 +292,14 @@ namespace mini_supermarket.GUI.Form_BanHang
             bottomLayout.BringToFront();
             
             // Tính toán lại vị trí và kích thước của dgvContainerPanel sau khi add vào leftPanel
-            // dgvContainerPanel sẽ nằm giữa productHeaderPanel và bottomLayout
+            // dgvContainerPanel sẽ bắt đầu ngay sau thanh tìm kiếm (searchPanel.Bottom)
+            // để tối ưu không gian và mở rộng datagridview, header của datagridview sẽ hiển thị đầy đủ
             leftPanel.Layout += (sender, e) =>
             {
-                if (dgvContainerPanel != null && bottomLayout != null && productHeaderPanel != null && searchPanel != null)
+                if (dgvContainerPanel != null && bottomLayout != null && searchPanel != null)
                 {
-                    int top = searchPanel.Bottom + productHeaderPanel.Height;
+                    // Datagridview bắt đầu ngay sau thanh tìm kiếm (cắt ngang bottom của thanh tìm kiếm)
+                    int top = searchPanel.Bottom;
                     int bottom = bottomLayout.Top;
                     dgvContainerPanel.Location = new Point(0, top);
                     dgvContainerPanel.Height = bottom - top;
